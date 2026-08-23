@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Trash2 } from "lucide-react";
 import { createExpense, updateExpense, deleteExpense } from "@/lib/actions/expense";
+import { useToast } from "@/components/toast";
 import { format } from "date-fns";
 import type { Expense } from "@/lib/actions/expense";
 
@@ -40,6 +41,7 @@ export function LogExpensePanel({
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const amountRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     setTimeout(() => amountRef.current?.focus(), 100);
@@ -79,6 +81,7 @@ export function LogExpensePanel({
       onClose();
     } catch (err) {
       console.error(err);
+      toast("Failed to save expense. Please try again.");
       setSaving(false);
     }
   }
@@ -91,6 +94,7 @@ export function LogExpensePanel({
       onClose();
     } catch (err) {
       console.error(err);
+      toast("Failed to delete expense. Please try again.");
       setSaving(false);
     }
   }

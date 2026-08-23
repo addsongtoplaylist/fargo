@@ -21,9 +21,10 @@ import type { Checklist } from "@/lib/actions/checklist";
 type ChecklistSectionProps = {
   checklists: Checklist[];
   tripId: string;
+  isPlanner?: boolean;
 };
 
-export function ChecklistSection({ checklists, tripId }: ChecklistSectionProps) {
+export function ChecklistSection({ checklists, tripId, isPlanner = true }: ChecklistSectionProps) {
   const [creatingList, setCreatingList] = useState(false);
   const [newListName, setNewListName] = useState("");
   const newListRef = useRef<HTMLInputElement>(null);
@@ -40,15 +41,17 @@ export function ChecklistSection({ checklists, tripId }: ChecklistSectionProps) 
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-semibold text-ink">Checklists</h3>
-        <button
-          onClick={() => {
-            setCreatingList(true);
-            setTimeout(() => newListRef.current?.focus(), 100);
-          }}
-          className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
-        >
-          + New list
-        </button>
+        {isPlanner && (
+          <button
+            onClick={() => {
+              setCreatingList(true);
+              setTimeout(() => newListRef.current?.focus(), 100);
+            }}
+            className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+          >
+            + New list
+          </button>
+        )}
       </div>
 
       {/* New list input */}
@@ -87,7 +90,7 @@ export function ChecklistSection({ checklists, tripId }: ChecklistSectionProps) 
       {/* Checklist cards */}
       <div className="space-y-3">
         {checklists.map((list) => (
-          <ChecklistCard key={list.id} checklist={list} tripId={tripId} />
+          <ChecklistCard key={list.id} checklist={list} tripId={tripId} isPlanner={isPlanner} />
         ))}
 
         {checklists.length === 0 && !creatingList && (
@@ -105,9 +108,11 @@ export function ChecklistSection({ checklists, tripId }: ChecklistSectionProps) 
 function ChecklistCard({
   checklist,
   tripId,
+  isPlanner = true,
 }: {
   checklist: Checklist;
   tripId: string;
+  isPlanner?: boolean;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [renaming, setRenaming] = useState(false);
@@ -200,8 +205,8 @@ function ChecklistCard({
           )}
         </div>
 
-        {/* ••• menu */}
-        <div className="relative">
+        {/* ••• menu — planner only */}
+        {isPlanner && <div className="relative">
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="text-muted hover:text-ink transition-colors p-0.5"
@@ -250,7 +255,7 @@ function ChecklistCard({
               </div>
             </>
           )}
-        </div>
+        </div>}
       </div>
 
       {/* Items */}
@@ -300,31 +305,35 @@ function ChecklistCard({
               </span>
             )}
 
-            {/* Delete — visible on hover / always on touch */}
-            <button
-              onClick={() => handleDeleteItem(item.id)}
-              className="text-muted hover:text-money-over transition-colors opacity-0 group-hover:opacity-100 p-0.5"
-            >
-              <Trash2 size={13} />
-            </button>
+            {/* Delete — visible on hover / always on touch — planner only */}
+            {isPlanner && (
+              <button
+                onClick={() => handleDeleteItem(item.id)}
+                className="text-muted hover:text-money-over transition-colors opacity-0 group-hover:opacity-100 p-0.5"
+              >
+                <Trash2 size={13} />
+              </button>
+            )}
           </div>
         ))}
       </div>
 
-      {/* Inline add item */}
-      <div className="px-3 py-2">
-        <input
-          ref={addItemRef}
-          type="text"
-          placeholder="+ Add item…"
-          value={newItemText}
-          onChange={(e) => setNewItemText(e.target.value)}
-          className="w-full bg-transparent text-sm text-ink placeholder:text-muted/50 outline-none border-b border-dashed border-border focus:border-accent transition-colors pb-1"
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && newItemText.trim()) handleAddItem();
-          }}
-        />
-      </div>
+      {/* Inline add item — planner only */}
+      {isPlanner && (
+        <div className="px-3 py-2">
+          <input
+            ref={addItemRef}
+            type="text"
+            placeholder="+ Add item…"
+            value={newItemText}
+            onChange={(e) => setNewItemText(e.target.value)}
+            className="w-full bg-transparent text-sm text-ink placeholder:text-muted/50 outline-none border-b border-dashed border-border focus:border-accent transition-colors pb-1"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && newItemText.trim()) handleAddItem();
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

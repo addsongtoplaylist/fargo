@@ -2,7 +2,7 @@ import { TripHeader } from "@/components/trip-header";
 import { TripTabs } from "@/components/trip-tabs";
 import { SwipeTabs } from "@/components/swipe-tabs";
 import { TripProvider } from "@/lib/trip-context";
-import { getTrip } from "@/lib/actions/trip";
+import { getTrip, getMyRole } from "@/lib/actions/trip";
 import { notFound } from "next/navigation";
 
 export default async function TripLayout({
@@ -13,14 +13,14 @@ export default async function TripLayout({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const trip = await getTrip(id);
+  const [trip, myRole] = await Promise.all([getTrip(id), getMyRole(id)]);
 
   if (!trip) {
     notFound();
   }
 
   return (
-    <TripProvider trip={trip}>
+    <TripProvider trip={{ ...trip, myRole: myRole ?? undefined }}>
       <div className="flex flex-col min-h-full">
         <TripHeader />
         <TripTabs />

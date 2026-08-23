@@ -49,6 +49,9 @@ export async function createActivity(
     title: string;
     notes?: string;
     category?: string;
+    place_name?: string;
+    place_lat?: string;
+    place_lng?: string;
   }
 ) {
   const account = await getOrCreateAccount();
@@ -75,6 +78,9 @@ export async function createActivity(
     notes: fields.notes || null,
     category: fields.category || "misc",
     sort_order: nextOrder,
+    place_name: fields.place_name || null,
+    place_lat: fields.place_lat || null,
+    place_lng: fields.place_lng || null,
   });
 
   if (error) {
@@ -96,6 +102,9 @@ export async function updateActivity(
     category?: string;
     cost?: string | null;
     cost_shared?: boolean;
+    place_name?: string | null;
+    place_lat?: string | null;
+    place_lng?: string | null;
   }
 ) {
   const account = await getOrCreateAccount();

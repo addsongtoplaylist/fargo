@@ -7,6 +7,7 @@ import { useTrip } from "@/lib/trip-context";
 export function TripHeader() {
   const router = useRouter();
   const trip = useTrip();
+  const isPlanner = trip?.myRole === "planner";
 
   return (
     <header className="bg-card border-b border-border">
@@ -23,12 +24,14 @@ export function TripHeader() {
             {trip?.destination || "Trip"}
           </h1>
         </div>
-        <button
-          className="text-muted hover:text-ink transition-colors"
-          aria-label="Trip settings"
-        >
-          <Settings size={18} />
-        </button>
+        {isPlanner && (
+          <button
+            className="text-muted hover:text-ink transition-colors"
+            aria-label="Trip settings"
+          >
+            <Settings size={18} />
+          </button>
+        )}
       </div>
     </header>
   );

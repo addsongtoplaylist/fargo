@@ -23,6 +23,7 @@ import { DayPicker } from "./day-picker";
 import { ActivityCard } from "./activity-card";
 import { AddActivityPanel } from "./add-activity-panel";
 import { BudgetStrip } from "./budget-strip";
+import { DayMap } from "./day-map";
 import type { Activity } from "@/lib/actions/activity";
 
 type ActivityListProps = {
@@ -39,6 +40,7 @@ export function ActivityList({
   const trip = useTrip();
   if (!trip) return null;
 
+  const isPlanner = trip.myRole === "planner";
   const today = format(new Date(), "yyyy-MM-dd");
 
   // Default to today if within trip dates, otherwise trip start
@@ -158,13 +160,18 @@ export function ActivityList({
         <h3 className="text-sm font-semibold text-ink">{dayLabel}</h3>
       </div>
 
+      {/* Day map — shows pins for activities with locations */}
+      <div className="px-4 pb-2">
+        <DayMap activities={dayActivities} />
+      </div>
+
       {/* Activity cards with drag-and-drop */}
       <div className="px-4 space-y-2">
         {dayActivities.length === 0 ? (
           <p className="text-sm text-muted py-6 text-center">
-            No activities yet. Tap below to add one.
+            {isPlanner ? "No activities yet. Tap below to add one." : "No activities planned for this day."}
           </p>
-        ) : (
+        ) : isPlanner ? (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -186,16 +193,29 @@ export function ActivityList({
               </div>
             </SortableContext>
           </DndContext>
+        ) : (
+          <div className="space-y-2">
+            {dayActivities.map((activity) => (
+              <ActivityCard
+                key={activity.id}
+                activity={activity}
+                isYouAreHere={activity.id === youAreHereId}
+                onEdit={() => {}} // read-only — no edit panel
+              />
+            ))}
+          </div>
         )}
 
-        {/* Add activity button */}
-        <button
-          onClick={handleAdd}
-          className="w-full py-2.5 flex items-center justify-center gap-1.5 text-sm font-medium text-accent border border-dashed border-accent/40 rounded-lg hover:bg-accent-soft transition-colors"
-        >
-          <Plus size={15} />
-          Add activity
-        </button>
+        {/* Add activity button — planner only */}
+        {isPlanner && (
+          <button
+            onClick={handleAdd}
+            className="w-full py-2.5 flex items-center justify-center gap-1.5 text-sm font-medium text-accent border border-dashed border-accent/40 rounded-lg hover:bg-accent-soft transition-colors"
+          >
+            <Plus size={15} />
+            Add activity
+          </button>
+        )}
       </div>
 
       {/* Add/Edit panel */}
