@@ -1,9 +1,27 @@
 "use client";
 
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+const ERROR_MESSAGES: Record<string, string> = {
+  no_code: "Sign-in was cancelled. Please try again.",
+  exchange_failed: "Something went wrong during sign-in. Please try again.",
+};
+
 export default function SignInPage() {
+  const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
+  const errorMessage =
+    error && ERROR_MESSAGES[error]
+      ? ERROR_MESSAGES[error]
+      : error
+        ? "Something went wrong. Please try again."
+        : null;
+
   async function signInWithGoogle() {
+    setLoading(true);
     const supabase = createClient();
     await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -25,12 +43,22 @@ export default function SignInPage() {
         </div>
 
         <div className="bg-card rounded-lg border border-border p-5">
+          {errorMessage && (
+            <p className="text-xs text-money-over mb-3 text-center">
+              {errorMessage}
+            </p>
+          )}
           <button
             onClick={signInWithGoogle}
-            className="w-full h-11 flex items-center justify-center gap-2 bg-card border border-border rounded-md text-sm font-medium text-ink hover:bg-ground transition-colors"
+            disabled={loading}
+            className="w-full h-12 flex items-center justify-center gap-2 bg-card border border-border rounded-md text-sm font-medium text-ink hover:bg-ground transition-colors disabled:opacity-60 disabled:pointer-events-none"
           >
-            <GoogleIcon />
-            Continue with Google
+            {loading ? (
+              <span className="w-4 h-4 border-2 border-muted border-t-accent rounded-full animate-spin" />
+            ) : (
+              <GoogleIcon />
+            )}
+            {loading ? "Signing in…" : "Continue with Google"}
           </button>
         </div>
 

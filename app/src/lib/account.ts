@@ -1,11 +1,12 @@
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 
 /**
  * Ensures an account row exists for the current auth user.
- * Called on every authenticated page load (cached per request).
- * Returns the account or null if not signed in.
+ * Wrapped in React cache() so duplicate calls within a single
+ * server render are deduplicated (e.g. layout + page both call this).
  */
-export async function getOrCreateAccount() {
+export const getOrCreateAccount = cache(async () => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -46,4 +47,4 @@ export async function getOrCreateAccount() {
   }
 
   return created;
-}
+});

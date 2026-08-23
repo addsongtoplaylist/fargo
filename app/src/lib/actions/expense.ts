@@ -202,47 +202,59 @@ export async function getBudgetSummary(tripId: string) {
 
   const supabase = await createClient();
 
-  // Get the planner's traveller record with budget
-  const { data: traveller } = await supabase
-    .from("travellers")
-    .select("id, budget_total")
-    .eq("trip_id", tripId)
-    .eq("account_id", account.id)
-    .single();
+  // Parallel fetch: traveller, trip (single query for dates + fx_rate),
+  // expenses, and activity costs — 4 queries instead of 7
+  const [
+    { data: traveller },
+    { data: trip },
+    { data: expenses },
+    { data: activities },
+  ] = await Promise.all([
+    supabase
+      .from("travellers")
+      .select("id, budget_total")
+      .eq("trip_id", tripId)
+      .eq("account_id", account.id)
+      .single(),
+    supabase
+      .from("trips")
+      .select("start_date, end_date, fx_rate")
+      .eq("id", tripId)
+      .single(),
+    supabase
+      .from("expenses")
+      .select("amount_myr, date, category")
+      .eq("trip_id", tripId),
+    supabase
+      .from("activities")
+      .select("cost, cost_shared")
+      .eq("trip_id", tripId)
+      .not("cost", "is", null),
+  ]);
 
-  if (!traveller) return null;
-
-  // Get the trip dates for day count
-  const { data: trip } = await supabase
-    .from("trips")
-    .select("start_date, end_date")
-    .eq("id", tripId)
-    .single();
-
-  if (!trip) return null;
+  if (!traveller || !trip) return null;
 
   const start = new Date(trip.start_date);
   const end = new Date(trip.end_date);
   const tripDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+  const fxRate = parseFloat(trip.fx_rate) || 1;
 
-  // Get total spent
-  const spending = await getTripSpending(tripId);
+  // Compute spending totals inline (no separate getTripSpending call)
+  let totalSpent = 0;
+  const spendingByDate: Record<string, number> = {};
+  const spendingByCategory: Record<string, number> = {};
 
-  // Get sum of activity costs (in MYR) for the planned layer
-  const { data: activities } = await supabase
-    .from("activities")
-    .select("cost, cost_shared")
-    .eq("trip_id", tripId)
-    .not("cost", "is", null);
+  if (expenses) {
+    for (const e of expenses) {
+      const myr = parseFloat(e.amount_myr);
+      totalSpent += myr;
+      spendingByDate[e.date] = (spendingByDate[e.date] || 0) + myr;
+      spendingByCategory[e.category] = (spendingByCategory[e.category] || 0) + myr;
+    }
+  }
+  totalSpent = Math.round(totalSpent * 100) / 100;
 
-  // Get the trip's fx_rate for converting activity costs
-  const { data: tripData } = await supabase
-    .from("trips")
-    .select("fx_rate")
-    .eq("id", tripId)
-    .single();
-
-  const fxRate = tripData ? parseFloat(tripData.fx_rate) : 1;
+  // Compute activity costs in MYR
   let activityCostsMyr = 0;
   if (activities) {
     for (const a of activities) {
@@ -254,18 +266,18 @@ export async function getBudgetSummary(tripId: string) {
   activityCostsMyr = Math.round(activityCostsMyr * 100) / 100;
 
   const budgetTotal = traveller.budget_total ?? 0;
-  const remaining = budgetTotal - spending.total;
+  const remaining = budgetTotal - totalSpent;
   const dailyFree = tripDays > 0 ? (budgetTotal - activityCostsMyr) / tripDays : 0;
 
   return {
     travellerId: traveller.id,
     budgetTotal,
-    totalSpent: spending.total,
+    totalSpent,
     remaining: Math.round(remaining * 100) / 100,
     dailyFree: Math.round(dailyFree * 100) / 100,
     activityCostsMyr,
     tripDays,
-    spendingByDate: spending.byDate,
-    spendingByCategory: spending.byCategory,
+    spendingByDate,
+    spendingByCategory,
   };
 }
