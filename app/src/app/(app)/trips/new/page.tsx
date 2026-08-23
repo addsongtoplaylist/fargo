@@ -25,12 +25,15 @@ export default function NewTripPage() {
     setSubmitting(true);
     formData.set("tripType", selectedType);
     try {
-      await createTrip(formData);
-    } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Failed to create trip";
-      toast(message, "error");
-      setSubmitting(false);
+      const result = await createTrip(formData);
+      if (result?.error) {
+        toast(result.error, "error");
+        setSubmitting(false);
+      }
+      // On success, createTrip calls redirect() which throws (expected)
+    } catch {
+      // redirect() throws a NEXT_REDIRECT error — that's normal.
+      // Only real errors should show a toast, which we handle above via result.error
     }
   }
 

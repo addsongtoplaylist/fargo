@@ -14,9 +14,9 @@ const TRIP_TYPE_MAP: Record<string, string> = {
   Business: "business",
 };
 
-export async function createTrip(formData: FormData) {
+export async function createTrip(formData: FormData): Promise<{ error?: string }> {
   const account = await getOrCreateAccount();
-  if (!account) throw new Error("Not signed in");
+  if (!account) return { error: "Not signed in" };
 
   const supabase = await createClient();
 
@@ -29,7 +29,7 @@ export async function createTrip(formData: FormData) {
   const fxRate = formData.get("fxRate") as string;
 
   if (!name || !destination || !startDate || !endDate || !tripType || !localCurrency || !fxRate) {
-    throw new Error("All fields are required");
+    return { error: "All fields are required" };
   }
 
   // Compute initial status from dates
@@ -57,16 +57,20 @@ export async function createTrip(formData: FormData) {
 
   if (error) {
     console.error("Failed to create trip:", error);
-    throw new Error(`Failed to create trip: ${error.message}`);
+    return { error: `Failed to create trip: ${error.message}` };
   }
 
   // Add the planner as a traveller
-  await supabase.from("travellers").insert({
+  const { error: travellerError } = await supabase.from("travellers").insert({
     trip_id: trip.id,
     display_name: account.name,
     role: "planner",
     account_id: account.id,
   });
+
+  if (travellerError) {
+    console.error("Failed to add planner as traveller:", travellerError);
+  }
 
   redirect(`/trips/${trip.id}/overview`);
 }
