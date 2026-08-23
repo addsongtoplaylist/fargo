@@ -40,6 +40,7 @@ export function ActivityList({
   const trip = useTrip();
   if (!trip) return null;
 
+  const isPlanner = trip.myRole === "planner";
   const today = format(new Date(), "yyyy-MM-dd");
 
   // Default to today if within trip dates, otherwise trip start
@@ -168,9 +169,9 @@ export function ActivityList({
       <div className="px-4 space-y-2">
         {dayActivities.length === 0 ? (
           <p className="text-sm text-muted py-6 text-center">
-            No activities yet. Tap below to add one.
+            {isPlanner ? "No activities yet. Tap below to add one." : "No activities planned for this day."}
           </p>
-        ) : (
+        ) : isPlanner ? (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -192,16 +193,29 @@ export function ActivityList({
               </div>
             </SortableContext>
           </DndContext>
+        ) : (
+          <div className="space-y-2">
+            {dayActivities.map((activity) => (
+              <ActivityCard
+                key={activity.id}
+                activity={activity}
+                isYouAreHere={activity.id === youAreHereId}
+                onEdit={() => {}} // read-only — no edit panel
+              />
+            ))}
+          </div>
         )}
 
-        {/* Add activity button */}
-        <button
-          onClick={handleAdd}
-          className="w-full py-2.5 flex items-center justify-center gap-1.5 text-sm font-medium text-accent border border-dashed border-accent/40 rounded-lg hover:bg-accent-soft transition-colors"
-        >
-          <Plus size={15} />
-          Add activity
-        </button>
+        {/* Add activity button — planner only */}
+        {isPlanner && (
+          <button
+            onClick={handleAdd}
+            className="w-full py-2.5 flex items-center justify-center gap-1.5 text-sm font-medium text-accent border border-dashed border-accent/40 rounded-lg hover:bg-accent-soft transition-colors"
+          >
+            <Plus size={15} />
+            Add activity
+          </button>
+        )}
       </div>
 
       {/* Add/Edit panel */}

@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateAccount } from "@/lib/account";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 const TRIP_TYPE_MAP: Record<string, string> = {
   "Free & easy": "free_and_easy",
@@ -70,11 +71,22 @@ export async function getMyTrips() {
   const supabase = await createClient();
   const today = new Date().toISOString().split("T")[0];
 
-  // Get all trips for this planner
+  // Get trip IDs where this user is a traveller (planner or member)
+  const { data: memberships } = await supabase
+    .from("travellers")
+    .select("trip_id")
+    .eq("account_id", account.id);
+
+  if (!memberships || memberships.length === 0) {
+    return { active: null, upcoming: [], past: [] };
+  }
+
+  const tripIds = memberships.map((m) => m.trip_id);
+
   const { data: trips } = await supabase
     .from("trips")
     .select("*, travellers(*)")
-    .eq("planner_id", account.id)
+    .in("id", tripIds)
     .order("start_date", { ascending: true });
 
   if (!trips) return { active: null, upcoming: [], past: [] };
@@ -119,7 +131,7 @@ export async function getOrCreateShareCode(tripId: string) {
   if (trip?.share_code) return trip.share_code;
 
   // Generate a unique 8-char code
-  const code = generateShareCode();
+  const code = generateCode();
 
   const { error } = await supabase
     .from("trips")
@@ -146,7 +158,140 @@ export async function getTripByShareCode(code: string) {
   return data;
 }
 
-function generateShareCode(): string {
+/** Generate or return the invite code for a trip (planner only) */
+export async function getOrCreateInviteCode(tripId: string) {
+  const account = await getOrCreateAccount();
+  if (!account) throw new Error("Not signed in");
+
+  const supabase = await createClient();
+
+  // Verify caller is the planner
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("invite_code, planner_id")
+    .eq("id", tripId)
+    .single();
+
+  if (!trip || trip.planner_id !== account.id) {
+    throw new Error("Only the planner can generate invite links");
+  }
+
+  if (trip.invite_code) return trip.invite_code;
+
+  const code = generateCode();
+
+  const { error } = await supabase
+    .from("trips")
+    .update({ invite_code: code })
+    .eq("id", tripId);
+
+  if (error) {
+    console.error("Failed to create invite code:", error);
+    throw new Error("Failed to create invite link");
+  }
+
+  return code;
+}
+
+/** Look up a trip by its invite code */
+export async function getTripByInviteCode(code: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("trips")
+    .select("*, travellers(*)")
+    .eq("invite_code", code)
+    .single();
+
+  return data;
+}
+
+/** Join a trip using an invite code */
+export async function joinTripByInviteCode(code: string) {
+  const account = await getOrCreateAccount();
+  if (!account) throw new Error("Not signed in");
+
+  const supabase = await createClient();
+
+  // Look up the trip
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("id, travellers(account_id)")
+    .eq("invite_code", code)
+    .single();
+
+  if (!trip) throw new Error("Invalid invite link");
+
+  // Check if already a member
+  const alreadyMember = trip.travellers?.some(
+    (t: { account_id: string }) => t.account_id === account.id
+  );
+  if (alreadyMember) return trip.id;
+
+  // Add as member
+  const { error } = await supabase.from("travellers").insert({
+    trip_id: trip.id,
+    display_name: account.name,
+    role: "member",
+    account_id: account.id,
+  });
+
+  if (error) {
+    console.error("Failed to join trip:", error);
+    throw new Error("Failed to join trip");
+  }
+
+  return trip.id;
+}
+
+/** Remove a traveller from a trip (planner only) */
+export async function removeTraveller(tripId: string, travellerId: string) {
+  const account = await getOrCreateAccount();
+  if (!account) throw new Error("Not signed in");
+
+  const supabase = await createClient();
+
+  // Verify caller is the planner
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("planner_id")
+    .eq("id", tripId)
+    .single();
+
+  if (!trip || trip.planner_id !== account.id) {
+    throw new Error("Only the planner can remove travellers");
+  }
+
+  const { error } = await supabase
+    .from("travellers")
+    .delete()
+    .eq("id", travellerId)
+    .eq("trip_id", tripId);
+
+  if (error) {
+    console.error("Failed to remove traveller:", error);
+    throw new Error("Failed to remove traveller");
+  }
+
+  revalidatePath(`/trips/${tripId}/people`);
+}
+
+/** Get the current user's role for a trip */
+export async function getMyRole(tripId: string) {
+  const account = await getOrCreateAccount();
+  if (!account) return null;
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("travellers")
+    .select("role")
+    .eq("trip_id", tripId)
+    .eq("account_id", account.id)
+    .single();
+
+  return data?.role ?? null;
+}
+
+function generateCode(): string {
   const chars = "abcdefghijkmnpqrstuvwxyz23456789"; // no confusing chars (0/o, 1/l)
   let code = "";
   for (let i = 0; i < 8; i++) {

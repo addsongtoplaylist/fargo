@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Sora } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegistrar } from "@/components/sw-registrar";
+import { ToastProvider } from "@/components/toast";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -51,7 +52,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-startup-image" href="/splash/splash-1536x2048.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2)" />
       </head>
       <body className="min-h-full flex flex-col font-sans bg-ground text-ink">
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
         <ServiceWorkerRegistrar />
       </body>
     </html>

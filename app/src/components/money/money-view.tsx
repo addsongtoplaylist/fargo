@@ -37,6 +37,7 @@ type MoneyViewProps = {
 
 export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const trip = useTrip();
+  const isPlanner = trip?.myRole === "planner";
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [editingBudget, setEditingBudget] = useState(false);
@@ -183,7 +184,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
               </div>
             )}
           </div>
-        ) : (
+        ) : isPlanner ? (
           <button
             onClick={() => {
               setEditingBudget(true);
@@ -193,19 +194,23 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
           >
             Set your budget
           </button>
+        ) : (
+          <p className="text-sm text-muted text-center py-3">No budget set.</p>
         )}
       </div>
 
       {/* Expenses header */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-semibold text-ink">Expenses</h3>
-        <button
-          onClick={handleAddExpense}
-          className="flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-hover transition-colors"
-        >
-          <Plus size={14} />
-          Log expense
-        </button>
+        {isPlanner && (
+          <button
+            onClick={handleAddExpense}
+            className="flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+          >
+            <Plus size={14} />
+            Log expense
+          </button>
+        )}
       </div>
 
       {/* Expense list grouped by date */}

@@ -3,7 +3,7 @@ import { ShareButton } from "@/components/share-button";
 import { getBudgetSummary } from "@/lib/actions/expense";
 import { getActivities } from "@/lib/actions/activity";
 import { getChecklists } from "@/lib/actions/checklist";
-import { getTrip } from "@/lib/actions/trip";
+import { getTrip, getMyRole } from "@/lib/actions/trip";
 import { format, parseISO, isAfter } from "date-fns";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -22,12 +22,15 @@ export default async function OverviewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [budget, activities, checklists, trip] = await Promise.all([
+  const [budget, activities, checklists, trip, myRole] = await Promise.all([
     getBudgetSummary(id),
     getActivities(id),
     getChecklists(id),
     getTrip(id),
+    getMyRole(id),
   ]);
+
+  const isPlanner = myRole === "planner";
 
   // Check if trip has ended
   const tripEnded = trip
@@ -53,8 +56,8 @@ export default async function OverviewPage({
 
   return (
     <Column className="py-4 pb-8 space-y-4">
-      {/* Share */}
-      <ShareButton tripId={id} />
+      {/* Share — planner only */}
+      {isPlanner && <ShareButton tripId={id} />}
 
       {/* Quick stats */}
       <div className="grid grid-cols-2 gap-3">

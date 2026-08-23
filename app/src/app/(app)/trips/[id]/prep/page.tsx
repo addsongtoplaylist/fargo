@@ -1,6 +1,7 @@
 import { Column } from "@/components/column";
 import { getChecklists } from "@/lib/actions/checklist";
 import { getIdeas } from "@/lib/actions/idea";
+import { getMyRole } from "@/lib/actions/trip";
 import { ChecklistSection } from "@/components/prep/checklist-section";
 import { IdeasSection } from "@/components/prep/ideas-section";
 
@@ -10,30 +11,21 @@ export default async function PrepPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [checklists, ideas] = await Promise.all([
+  const [checklists, ideas, myRole] = await Promise.all([
     getChecklists(id),
     getIdeas(id),
+    getMyRole(id),
   ]);
+
+  const isPlanner = myRole === "planner";
 
   return (
     <Column className="py-4 pb-8 space-y-6">
-      {/* Bookings — placeholder until Phase 3 */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-ink">Bookings</h3>
-        </div>
-        <div className="bg-card rounded-lg border border-border px-3 py-4">
-          <p className="text-sm text-muted text-center">
-            Bookings coming in Phase 3.
-          </p>
-        </div>
-      </div>
-
       {/* Checklists */}
-      <ChecklistSection checklists={checklists} tripId={id} />
+      <ChecklistSection checklists={checklists} tripId={id} isPlanner={isPlanner} />
 
       {/* Ideas */}
-      <IdeasSection ideas={ideas} tripId={id} />
+      <IdeasSection ideas={ideas} tripId={id} isPlanner={isPlanner} />
     </Column>
   );
 }

@@ -10,9 +10,10 @@ import type { Idea } from "@/lib/actions/idea";
 type IdeasSectionProps = {
   ideas: Idea[];
   tripId: string;
+  isPlanner?: boolean;
 };
 
-export function IdeasSection({ ideas, tripId }: IdeasSectionProps) {
+export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionProps) {
   const trip = useTrip();
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
@@ -79,15 +80,17 @@ export function IdeasSection({ ideas, tripId }: IdeasSectionProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-semibold text-ink">Ideas</h3>
-        <button
-          onClick={() => {
-            setAdding(true);
-            setTimeout(() => titleRef.current?.focus(), 100);
-          }}
-          className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
-        >
-          + Add
-        </button>
+        {isPlanner && (
+          <button
+            onClick={() => {
+              setAdding(true);
+              setTimeout(() => titleRef.current?.focus(), 100);
+            }}
+            className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+          >
+            + Add
+          </button>
+        )}
       </div>
 
       {/* Ideas list */}
@@ -148,7 +151,7 @@ export function IdeasSection({ ideas, tripId }: IdeasSectionProps) {
                 )}
               </div>
 
-              {!idea.promoted && (
+              {!idea.promoted && isPlanner && (
                 <div className="flex items-center gap-1 shrink-0">
                   {/* Promote button */}
                   <button

@@ -26,7 +26,7 @@ export function BottomNav() {
             <Link
               key={href}
               href={href}
-              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 text-xs transition-colors ${
+              className={`flex flex-col items-center gap-0.5 px-4 py-2 text-xs transition-colors ${
                 isActive
                   ? "text-accent font-medium"
                   : "text-muted hover:text-ink"

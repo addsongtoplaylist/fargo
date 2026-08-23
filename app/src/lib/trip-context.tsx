@@ -12,7 +12,10 @@ type Trip = {
   local_currency: string;
   fx_rate: string;
   status: string;
-  travellers?: { id: string; display_name: string; role: string }[];
+  planner_id: string;
+  travellers?: { id: string; display_name: string; role: string; account_id: string }[];
+  /** Current user's role on this trip — "planner" or "member" */
+  myRole?: string;
 };
 
 const TripContext = createContext<Trip | null>(null);
@@ -29,4 +32,10 @@ export function TripProvider({
 
 export function useTrip() {
   return useContext(TripContext);
+}
+
+/** Returns true if the current user is the planner */
+export function useIsPlanner() {
+  const trip = useTrip();
+  return trip?.myRole === "planner";
 }

@@ -9,9 +9,12 @@ export default function ExplorePage() {
         <div className="w-16 h-16 rounded-full bg-accent-soft flex items-center justify-center mb-4">
           <Compass size={28} className="text-accent" />
         </div>
-        <h2 className="text-lg font-semibold text-ink mb-1">Trips coming soon</h2>
+        <h2 className="text-lg font-semibold text-ink mb-1">
+          Explore is on its way
+        </h2>
         <p className="text-sm text-muted max-w-[280px]">
-          Published trips from other travellers will appear here.
+          Discover trip ideas and itineraries shared by other travellers.
+          Stay tuned.
         </p>
       </div>
     </Column>

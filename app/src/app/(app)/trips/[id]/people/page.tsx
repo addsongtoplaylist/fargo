@@ -1,12 +1,25 @@
 import { Column } from "@/components/column";
+import { getTrip, getMyRole } from "@/lib/actions/trip";
+import { PeopleList } from "@/components/people/people-list";
 
-export default function PeoplePage() {
+export default async function PeoplePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const [trip, myRole] = await Promise.all([getTrip(id), getMyRole(id)]);
+
+  if (!trip) return null;
+
   return (
     <Column className="py-4">
-      <div className="bg-card rounded-md border border-border p-3">
-        <h2 className="text-base font-semibold mb-2">People</h2>
-        <p className="text-sm text-muted">Content coming in Phase 2.</p>
-      </div>
+      <PeopleList
+        tripId={trip.id}
+        travellers={trip.travellers ?? []}
+        plannerId={trip.planner_id}
+        isPlanner={myRole === "planner"}
+      />
     </Column>
   );
 }

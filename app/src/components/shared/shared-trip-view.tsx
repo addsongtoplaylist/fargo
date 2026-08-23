@@ -8,7 +8,6 @@ import {
   ChevronDown,
   Check,
   Lightbulb,
-  Copy,
 } from "lucide-react";
 
 const CATEGORY_EMOJI: Record<string, string> = {
@@ -121,14 +120,13 @@ export function SharedTripView({
             )}
           </div>
 
-          {/* Save as own — coming soon */}
-          <button
-            onClick={() => alert("Coming soon! You'll be able to save this trip to your own account.")}
+          {/* Sign up CTA for viewers */}
+          <a
+            href="/sign-in"
             className="mt-3 w-full py-2 flex items-center justify-center gap-1.5 text-xs font-medium text-accent border border-accent/30 rounded-md hover:bg-accent-soft transition-colors"
           >
-            <Copy size={13} />
-            Save as my trip
-          </button>
+            Plan your own trip on Fargo →
+          </a>
         </div>
       </div>
 

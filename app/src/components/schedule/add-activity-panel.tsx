@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { createActivity, updateActivity, deleteActivity } from "@/lib/actions/activity";
 import { LocationSearch } from "./location-search";
+import { useToast } from "@/components/toast";
 import type { Activity } from "@/lib/actions/activity";
 
 const CATEGORIES = [
@@ -48,6 +49,7 @@ export function AddActivityPanel({
   );
   const [saving, setSaving] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Focus the title input on open
@@ -84,6 +86,7 @@ export function AddActivityPanel({
       onClose();
     } catch (err) {
       console.error(err);
+      toast("Failed to save activity. Please try again.");
       setSaving(false);
     }
   }
@@ -96,6 +99,7 @@ export function AddActivityPanel({
       onClose();
     } catch (err) {
       console.error(err);
+      toast("Failed to delete activity. Please try again.");
       setSaving(false);
     }
   }
