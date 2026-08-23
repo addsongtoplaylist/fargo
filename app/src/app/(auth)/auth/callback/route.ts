@@ -1,33 +1,27 @@
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 
-export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/trips";
 
   // Build the redirect base URL (Vercel uses x-forwarded-host)
   const forwardedHost = request.headers.get("x-forwarded-host");
   const isLocalEnv = process.env.NODE_ENV === "development";
-  let redirectBase: string;
-
-  if (isLocalEnv) {
-    redirectBase = origin;
-  } else if (forwardedHost) {
-    redirectBase = `https://${forwardedHost}`;
-  } else {
-    redirectBase = origin;
-  }
+  const origin = isLocalEnv
+    ? new URL(request.url).origin
+    : forwardedHost
+      ? `https://${forwardedHost}`
+      : new URL(request.url).origin;
 
   if (!code) {
-    // No code parameter — show why
-    return NextResponse.redirect(
-      `${redirectBase}/sign-in?error=no_code`
-    );
+    return NextResponse.redirect(`${origin}/sign-in?error=no_code`);
   }
 
-  const cookieStore = await cookies();
+  // Use request/response cookie pattern (more reliable on Vercel than cookies())
+  const redirectUrl = `${origin}${next}`;
+  const response = NextResponse.redirect(redirectUrl);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,12 +29,12 @@ export async function GET(request: Request) {
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll();
+          return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
-          );
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
         },
       },
     }
@@ -49,12 +43,12 @@ export async function GET(request: Request) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (!error) {
-    return NextResponse.redirect(`${redirectBase}${next}`);
+    return response;
   }
 
-  // Exchange failed — include error details in URL so we can debug
+  // Exchange failed — include error details in URL
   const errorMsg = encodeURIComponent(error.message || "unknown");
   return NextResponse.redirect(
-    `${redirectBase}/sign-in?error=exchange_failed&message=${errorMsg}`
+    `${origin}/sign-in?error=exchange_failed&message=${errorMsg}`
   );
 }
