@@ -14,11 +14,31 @@ export function ShareButton({ tripId }: { tripId: string }) {
       const code = await getOrCreateShareCode(tripId);
       const url = `${window.location.origin}/s/${code}`;
 
-      // Try native share first (mobile), fall back to clipboard
-      if (navigator.share) {
-        await navigator.share({ title: "Check out my trip on Fargo", url });
-      } else {
-        await navigator.clipboard.writeText(url);
+      // Use native share on mobile (touch devices), clipboard on desktop
+      const isMobile = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+      let shared = false;
+      if (isMobile && navigator.share) {
+        try {
+          await navigator.share({ title: "Check out my trip on Fargo", url });
+          shared = true;
+        } catch {
+          // Native share cancelled — fall through to clipboard
+        }
+      }
+      if (!shared) {
+        try {
+          await navigator.clipboard.writeText(url);
+        } catch {
+          // Fallback for insecure contexts (e.g. localhost without HTTPS)
+          const textarea = document.createElement("textarea");
+          textarea.value = url;
+          textarea.style.position = "fixed";
+          textarea.style.opacity = "0";
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          document.body.removeChild(textarea);
+        }
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       }
