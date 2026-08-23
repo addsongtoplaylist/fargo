@@ -136,3 +136,62 @@ export const activities = pgTable("activities", {
     .notNull()
     .defaultNow(),
 });
+
+// ──────────────────────────────────────────
+// Idea
+// ──────────────────────────────────────────
+
+export const ideas = pgTable("ideas", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tripId: uuid("trip_id")
+    .notNull()
+    .references(() => trips.id, { onDelete: "cascade" }),
+  title: text("title").notNull(),
+  link: text("link"),
+  notes: text("notes"),
+  promoted: boolean("promoted").notNull().default(false),
+  promotedActivityId: uuid("promoted_activity_id").references(() => activities.id, {
+    onDelete: "set null",
+  }),
+  promotedDate: text("promoted_date"), // "Day 3" label
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ──────────────────────────────────────────
+// Checklist
+// ──────────────────────────────────────────
+
+export const checklists = pgTable("checklists", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tripId: uuid("trip_id")
+    .notNull()
+    .references(() => trips.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+// ──────────────────────────────────────────
+// Checklist Item
+// ──────────────────────────────────────────
+
+export const checklistItems = pgTable("checklist_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  checklistId: uuid("checklist_id")
+    .notNull()
+    .references(() => checklists.id, { onDelete: "cascade" }),
+  text: text("text").notNull(),
+  done: boolean("done").notNull().default(false),
+  assignedTo: uuid("assigned_to").references(() => travellers.id, {
+    onDelete: "set null",
+  }),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
