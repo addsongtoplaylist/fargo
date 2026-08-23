@@ -1,12 +1,21 @@
 import { Column } from "@/components/column";
+import { getExpenses, getBudgetSummary } from "@/lib/actions/expense";
+import { MoneyView } from "@/components/money/money-view";
 
-export default function MoneyPage() {
+export default async function MoneyPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const [expenses, budget] = await Promise.all([
+    getExpenses(id),
+    getBudgetSummary(id),
+  ]);
+
   return (
-    <Column className="py-4">
-      <div className="bg-card rounded-md border border-border p-3">
-        <h2 className="text-base font-semibold mb-2">Money</h2>
-        <p className="text-sm text-muted">Content coming in Phase 2.</p>
-      </div>
+    <Column className="py-4 pb-8">
+      <MoneyView expenses={expenses} budget={budget} tripId={id} />
     </Column>
   );
 }

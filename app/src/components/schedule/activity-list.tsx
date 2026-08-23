@@ -22,13 +22,20 @@ import { reorderActivities } from "@/lib/actions/activity";
 import { DayPicker } from "./day-picker";
 import { ActivityCard } from "./activity-card";
 import { AddActivityPanel } from "./add-activity-panel";
+import { BudgetStrip } from "./budget-strip";
 import type { Activity } from "@/lib/actions/activity";
 
 type ActivityListProps = {
   activities: Activity[];
+  dailyFree: number;
+  spendingByDate: Record<string, number>;
 };
 
-export function ActivityList({ activities: initialActivities }: ActivityListProps) {
+export function ActivityList({
+  activities: initialActivities,
+  dailyFree,
+  spendingByDate,
+}: ActivityListProps) {
   const trip = useTrip();
   if (!trip) return null;
 
@@ -135,6 +142,16 @@ export function ActivityList({ activities: initialActivities }: ActivityListProp
         onSelect={setSelectedDate}
         tripStatus={trip.status}
       />
+
+      {/* Daily budget strip — shows when budget is set */}
+      {dailyFree > 0 && (
+        <div className="pt-2">
+          <BudgetStrip
+            dailyFree={dailyFree}
+            spentToday={Math.round((spendingByDate[selectedDate] ?? 0) * 100) / 100}
+          />
+        </div>
+      )}
 
       {/* Day header */}
       <div className="px-4 pt-3 pb-2">

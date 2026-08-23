@@ -195,3 +195,33 @@ export const checklistItems = pgTable("checklist_items", {
     .notNull()
     .defaultNow(),
 });
+
+// ──────────────────────────────────────────
+// Expense
+// ──────────────────────────────────────────
+
+export const expenses = pgTable("expenses", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  tripId: uuid("trip_id")
+    .notNull()
+    .references(() => trips.id, { onDelete: "cascade" }),
+  date: date("date").notNull(),
+  title: text("title").notNull(),
+  category: activityCategoryEnum("category").notNull().default("misc"),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(), // local currency
+  amountMyr: numeric("amount_myr", { precision: 12, scale: 2 }).notNull(),
+  paidBy: uuid("paid_by")
+    .notNull()
+    .references(() => travellers.id, { onDelete: "cascade" }),
+  isShared: boolean("is_shared").notNull().default(false),
+  activityId: uuid("activity_id").references(() => activities.id, {
+    onDelete: "set null",
+  }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
