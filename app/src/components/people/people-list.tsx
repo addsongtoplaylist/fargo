@@ -4,6 +4,7 @@ import { useState } from "react";
 import { UserPlus, Crown, X, Link, Check } from "lucide-react";
 import { getOrCreateInviteCode, removeTraveller } from "@/lib/actions/trip";
 import { useToast } from "@/components/toast";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useRouter } from "next/navigation";
 
 type Traveller = {
@@ -32,6 +33,7 @@ export function PeopleList({
   const [copied, setCopied] = useState(false);
   const [loadingInvite, setLoadingInvite] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [removeConfirmId, setRemoveConfirmId] = useState<string | null>(null);
 
   async function handleGenerateInvite() {
     setLoadingInvite(true);
@@ -76,6 +78,7 @@ export function PeopleList({
       toast("Failed to remove traveller. Please try again.");
     } finally {
       setRemoving(null);
+      setRemoveConfirmId(null);
     }
   }
 
@@ -125,7 +128,7 @@ export function PeopleList({
             {/* Remove button — only planner can remove members (not self) */}
             {isPlanner && t.role !== "planner" && (
               <button
-                onClick={() => handleRemove(t.id)}
+                onClick={() => setRemoveConfirmId(t.id)}
                 disabled={removing === t.id}
                 className="text-muted hover:text-money-over transition-colors shrink-0 disabled:opacity-50"
                 title="Remove traveller"
@@ -190,6 +193,15 @@ export function PeopleList({
           You're a member of this trip. Only the planner can invite or remove travellers.
         </p>
       )}
+
+      <ConfirmDialog
+        open={!!removeConfirmId}
+        title="Remove traveller"
+        message={`Are you sure you want to remove ${travellers.find((t) => t.id === removeConfirmId)?.display_name}?`}
+        confirmLabel="Remove"
+        onConfirm={() => { if (removeConfirmId) return handleRemove(removeConfirmId); }}
+        onCancel={() => setRemoveConfirmId(null)}
+      />
     </div>
   );
 }

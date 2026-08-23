@@ -217,9 +217,9 @@ export async function getTripByInviteCode(code: string) {
 }
 
 /** Join a trip using an invite code */
-export async function joinTripByInviteCode(code: string) {
+export async function joinTripByInviteCode(code: string): Promise<{ tripId?: string; error?: string }> {
   const account = await getOrCreateAccount();
-  if (!account) throw new Error("Not signed in");
+  if (!account) return { error: "Not signed in" };
 
   const supabase = await createClient();
 
@@ -230,13 +230,13 @@ export async function joinTripByInviteCode(code: string) {
     .eq("invite_code", code)
     .single();
 
-  if (!trip) throw new Error("Invalid invite link");
+  if (!trip) return { error: "Invalid invite link" };
 
   // Check if already a member
   const alreadyMember = trip.travellers?.some(
     (t: { account_id: string }) => t.account_id === account.id
   );
-  if (alreadyMember) return trip.id;
+  if (alreadyMember) return { tripId: trip.id };
 
   // Add as member
   const { error } = await supabase.from("travellers").insert({
@@ -248,10 +248,10 @@ export async function joinTripByInviteCode(code: string) {
 
   if (error) {
     console.error("Failed to join trip:", error);
-    throw new Error("Failed to join trip");
+    return { error: `Failed to join trip: ${error.message}` };
   }
 
-  return trip.id;
+  return { tripId: trip.id };
 }
 
 /** Remove a traveller from a trip (planner only) */
@@ -300,6 +300,182 @@ export async function getMyRole(tripId: string) {
     .single();
 
   return data?.role ?? null;
+}
+
+/** Update trip details (planner only) */
+export async function updateTrip(
+  tripId: string,
+  data: {
+    name?: string;
+    destination?: string;
+    start_date?: string;
+    end_date?: string;
+    local_currency?: string;
+    fx_rate?: number;
+  }
+): Promise<{ error?: string }> {
+  const account = await getOrCreateAccount();
+  if (!account) return { error: "Not signed in" };
+
+  const supabase = await createClient();
+
+  // Verify caller is the planner
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("planner_id")
+    .eq("id", tripId)
+    .single();
+
+  if (!trip || trip.planner_id !== account.id) {
+    return { error: "Only the planner can edit trip settings" };
+  }
+
+  // Recompute status if dates changed
+  const updateData: Record<string, unknown> = { ...data };
+  if (data.start_date || data.end_date) {
+    const today = new Date().toISOString().split("T")[0];
+    const startDate = data.start_date ?? "";
+    const endDate = data.end_date ?? "";
+    if (startDate && endDate) {
+      if (startDate <= today && endDate >= today) updateData.status = "active";
+      else if (endDate < today) updateData.status = "completed";
+      else updateData.status = "planning";
+    }
+  }
+
+  const { error } = await supabase
+    .from("trips")
+    .update(updateData)
+    .eq("id", tripId);
+
+  if (error) {
+    console.error("Failed to update trip:", error);
+    return { error: `Failed to update trip: ${error.message}` };
+  }
+
+  revalidatePath(`/trips/${tripId}`);
+  return {};
+}
+
+/** Delete a trip (planner only) */
+export async function deleteTrip(tripId: string): Promise<{ error?: string }> {
+  const account = await getOrCreateAccount();
+  if (!account) return { error: "Not signed in" };
+
+  const supabase = await createClient();
+
+  // Verify caller is the planner
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("planner_id")
+    .eq("id", tripId)
+    .single();
+
+  if (!trip || trip.planner_id !== account.id) {
+    return { error: "Only the planner can delete a trip" };
+  }
+
+  const { error } = await supabase.from("trips").delete().eq("id", tripId);
+
+  if (error) {
+    console.error("Failed to delete trip:", error);
+    return { error: `Failed to delete trip: ${error.message}` };
+  }
+
+  return {};
+}
+
+/** Clone a shared trip as your own (activities + ideas, not expenses/checklists) */
+export async function cloneTrip(
+  shareCode: string
+): Promise<{ tripId?: string; error?: string }> {
+  const account = await getOrCreateAccount();
+  if (!account) return { error: "Not signed in" };
+
+  const supabase = await createClient();
+
+  // Look up the source trip by share code
+  const { data: source } = await supabase
+    .from("trips")
+    .select("*")
+    .eq("share_code", shareCode)
+    .single();
+
+  if (!source) return { error: "Trip not found" };
+
+  // Create the new trip
+  const { data: newTrip, error: tripError } = await supabase
+    .from("trips")
+    .insert({
+      name: `${source.name} (copy)`,
+      destination: source.destination,
+      start_date: source.start_date,
+      end_date: source.end_date,
+      trip_type: source.trip_type,
+      local_currency: source.local_currency,
+      fx_rate: source.fx_rate,
+      planner_id: account.id,
+      status: "planning",
+    })
+    .select()
+    .single();
+
+  if (tripError || !newTrip) {
+    console.error("Failed to clone trip:", tripError);
+    return { error: "Failed to clone trip" };
+  }
+
+  // Add cloner as planner
+  await supabase.from("travellers").insert({
+    trip_id: newTrip.id,
+    display_name: account.name,
+    role: "planner",
+    account_id: account.id,
+  });
+
+  // Clone activities
+  const { data: activities } = await supabase
+    .from("activities")
+    .select("*")
+    .eq("trip_id", source.id)
+    .order("date")
+    .order("sort_order");
+
+  if (activities && activities.length > 0) {
+    const clonedActivities = activities.map((a) => ({
+      trip_id: newTrip.id,
+      date: a.date,
+      title: a.title,
+      time: a.time,
+      notes: a.notes,
+      category: a.category,
+      place_name: a.place_name,
+      place_lat: a.place_lat,
+      place_lng: a.place_lng,
+      sort_order: a.sort_order,
+    }));
+    await supabase.from("activities").insert(clonedActivities);
+  }
+
+  // Clone ideas (unpromoted only)
+  const { data: ideas } = await supabase
+    .from("ideas")
+    .select("*")
+    .eq("trip_id", source.id)
+    .eq("promoted", false);
+
+  if (ideas && ideas.length > 0) {
+    const clonedIdeas = ideas.map((i) => ({
+      trip_id: newTrip.id,
+      title: i.title,
+      link: i.link,
+      notes: i.notes,
+      promoted: false,
+    }));
+    await supabase.from("ideas").insert(clonedIdeas);
+  }
+
+  return { tripId: newTrip.id };
 }
 
 function generateCode(): string {

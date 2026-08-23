@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Plus, Trash2, ExternalLink, ArrowRight } from "lucide-react";
 import { createIdea, updateIdea, deleteIdea, promoteIdea } from "@/lib/actions/idea";
 import { useTrip } from "@/lib/trip-context";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { eachDayOfInterval, parseISO, format } from "date-fns";
 import type { Idea } from "@/lib/actions/idea";
 
@@ -23,6 +24,7 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
   const [promoteId, setPromoteId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const titleRef = useRef<HTMLInputElement>(null);
 
   // Trip days for the promote picker
@@ -54,6 +56,7 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
 
   async function handleDelete(ideaId: string) {
     await deleteIdea(ideaId, tripId);
+    setDeleteId(null);
   }
 
   function startEditing(idea: Idea) {
@@ -151,9 +154,9 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
                 )}
               </div>
 
-              {!idea.promoted && isPlanner && (
+              {isPlanner && (
                 <div className="flex items-center gap-1 shrink-0">
-                  {/* Promote button */}
+                  {/* Schedule / Reschedule button */}
                   <button
                     onClick={() =>
                       setPromoteId(promoteId === idea.id ? null : idea.id)
@@ -161,11 +164,11 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
                     className="text-xs font-medium text-accent hover:text-accent-hover transition-colors flex items-center gap-0.5 px-1.5 py-0.5"
                   >
                     <ArrowRight size={12} />
-                    Schedule
+                    {idea.promoted ? "Reschedule" : "Schedule"}
                   </button>
                   {/* Delete */}
                   <button
-                    onClick={() => handleDelete(idea.id)}
+                    onClick={() => setDeleteId(idea.id)}
                     className="text-muted hover:text-money-over transition-colors p-0.5"
                   >
                     <Trash2 size={13} />
@@ -247,6 +250,14 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!deleteId}
+        title="Delete idea"
+        message={`Are you sure you want to delete "${ideas.find((i) => i.id === deleteId)?.title}"?`}
+        onConfirm={() => { if (deleteId) return handleDelete(deleteId); }}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 }

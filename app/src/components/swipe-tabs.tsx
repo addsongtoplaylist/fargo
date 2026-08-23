@@ -40,7 +40,7 @@ export function SwipeTabs({ children }: SwipeTabsProps) {
       // Only count as a horizontal swipe if X distance > Y distance and > threshold
       const absX = Math.abs(deltaX);
       const absY = Math.abs(deltaY);
-      if (absX < 60 || absX < absY * 1.5) return;
+      if (absX < 40 || absX < absY) return;
 
       let nextIndex = currentIndex;
       if (deltaX < 0 && currentIndex < TAB_ORDER.length - 1) {

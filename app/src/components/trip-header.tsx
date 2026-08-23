@@ -20,12 +20,16 @@ export function TripHeader() {
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-base font-semibold truncate">
-            {trip?.destination || "Trip"}
+          <h1 className="text-sm font-semibold truncate leading-tight">
+            {trip?.name || "Trip"}
           </h1>
+          <p className="text-[11px] text-muted truncate leading-tight">
+            {trip?.destination}
+          </p>
         </div>
         {isPlanner && (
           <button
+            onClick={() => router.push(`/trips/${trip?.id}/settings`)}
             className="text-muted hover:text-ink transition-colors"
             aria-label="Trip settings"
           >

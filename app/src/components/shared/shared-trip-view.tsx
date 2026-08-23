@@ -9,6 +9,7 @@ import {
   Check,
   Lightbulb,
 } from "lucide-react";
+import { CloneTripButton } from "./clone-trip-button";
 
 const CATEGORY_EMOJI: Record<string, string> = {
   flights: "✈️",
@@ -66,6 +67,8 @@ type SharedTripViewProps = {
     link: string | null;
     promoted: boolean;
   }[];
+  shareCode: string;
+  isSignedIn: boolean;
 };
 
 type Tab = "schedule" | "money" | "prep";
@@ -76,6 +79,8 @@ export function SharedTripView({
   expenses,
   checklists,
   ideas,
+  shareCode,
+  isSignedIn,
 }: SharedTripViewProps) {
   const [activeTab, setActiveTab] = useState<Tab>("schedule");
 
@@ -120,13 +125,19 @@ export function SharedTripView({
             )}
           </div>
 
-          {/* Sign up CTA for viewers */}
-          <a
-            href="/sign-in"
-            className="mt-3 w-full py-2 flex items-center justify-center gap-1.5 text-xs font-medium text-accent border border-accent/30 rounded-md hover:bg-accent-soft transition-colors"
-          >
-            Plan your own trip on Fargo →
-          </a>
+          {/* CTA — clone if signed in, sign up otherwise */}
+          <div className="mt-3 space-y-1.5">
+            {isSignedIn ? (
+              <CloneTripButton shareCode={shareCode} />
+            ) : (
+              <a
+                href="/sign-in"
+                className="w-full py-2 flex items-center justify-center gap-1.5 text-xs font-medium text-accent border border-accent/30 rounded-md hover:bg-accent-soft transition-colors"
+              >
+                Sign in to save this trip →
+              </a>
+            )}
+          </div>
         </div>
       </div>
 

@@ -16,6 +16,7 @@ import {
   toggleChecklistItem,
   deleteChecklistItem,
 } from "@/lib/actions/checklist";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import type { Checklist } from "@/lib/actions/checklist";
 
 type ChecklistSectionProps = {
@@ -235,23 +236,16 @@ function ChecklistCard({
                   <Pencil size={13} />
                   Rename
                 </button>
-                {!confirmDelete ? (
-                  <button
-                    onClick={() => setConfirmDelete(true)}
-                    className="w-full px-3 py-1.5 text-left text-sm text-money-over hover:bg-ground flex items-center gap-2"
-                  >
-                    <Trash2 size={13} />
-                    Delete list
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleDeleteList}
-                    className="w-full px-3 py-1.5 text-left text-sm text-money-over hover:bg-money-over-soft flex items-center gap-2"
-                  >
-                    <Trash2 size={13} />
-                    Delete &ldquo;{checklist.name}&rdquo;?
-                  </button>
-                )}
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setConfirmDelete(true);
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-sm text-money-over hover:bg-ground flex items-center gap-2"
+                >
+                  <Trash2 size={13} />
+                  Delete list
+                </button>
               </div>
             </>
           )}
@@ -305,11 +299,11 @@ function ChecklistCard({
               </span>
             )}
 
-            {/* Delete — visible on hover / always on touch — planner only */}
+            {/* Delete — always visible on touch, hover-reveal on desktop */}
             {isPlanner && (
               <button
                 onClick={() => handleDeleteItem(item.id)}
-                className="text-muted hover:text-money-over transition-colors opacity-0 group-hover:opacity-100 p-0.5"
+                className="text-muted hover:text-money-over transition-colors p-0.5 sm:opacity-0 sm:group-hover:opacity-100"
               >
                 <Trash2 size={13} />
               </button>
@@ -334,6 +328,14 @@ function ChecklistCard({
           />
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Delete checklist"
+        message={`Are you sure you want to delete "${checklist.name}" and all its items?`}
+        onConfirm={handleDeleteList}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   );
 }

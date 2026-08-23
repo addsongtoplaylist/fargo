@@ -1,9 +1,6 @@
 import { notFound } from "next/navigation";
 import { getTripByShareCode } from "@/lib/actions/trip";
-import { getActivities } from "@/lib/actions/activity";
-import { getExpenses, getBudgetSummary } from "@/lib/actions/expense";
-import { getChecklists } from "@/lib/actions/checklist";
-import { getIdeas } from "@/lib/actions/idea";
+import { getOrCreateAccount } from "@/lib/account";
 import { SharedTripView } from "@/components/shared/shared-trip-view";
 
 export default async function SharedTripPage({
@@ -18,12 +15,13 @@ export default async function SharedTripPage({
     notFound();
   }
 
-  // Fetch all trip data in parallel
-  const [activities, expenses, checklists, ideas] = await Promise.all([
+  // Fetch all trip data + auth state in parallel
+  const [activities, expenses, checklists, ideas, account] = await Promise.all([
     getActivitiesPublic(trip.id),
     getExpensesPublic(trip.id),
     getChecklistsPublic(trip.id),
     getIdeasPublic(trip.id),
+    getOrCreateAccount().catch(() => null),
   ]);
 
   return (
@@ -33,6 +31,8 @@ export default async function SharedTripPage({
       expenses={expenses}
       checklists={checklists}
       ideas={ideas}
+      shareCode={code}
+      isSignedIn={!!account}
     />
   );
 }

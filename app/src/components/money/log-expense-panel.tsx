@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { X, Trash2 } from "lucide-react";
 import { createExpense, updateExpense, deleteExpense } from "@/lib/actions/expense";
 import { useToast } from "@/components/toast";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { format } from "date-fns";
 import type { Expense } from "@/lib/actions/expense";
 
@@ -108,7 +109,7 @@ export function LogExpensePanel({
       />
 
       {/* Panel */}
-      <div className="fixed inset-x-0 bottom-0 z-[60] bg-card rounded-t-2xl border-t border-border max-w-[var(--max-width-column)] mx-auto animate-slide-up">
+      <div className="fixed inset-x-0 bottom-0 z-[60] bg-card rounded-t-2xl border-t border-border max-w-[var(--max-width-column)] mx-auto animate-slide-up max-h-[90dvh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <h3 className="text-sm font-semibold text-ink">
@@ -236,34 +237,24 @@ export function LogExpensePanel({
           </button>
 
           {editing && (
-            confirmDelete ? (
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setConfirmDelete(false)}
-                  className="flex-1 py-2 text-xs font-medium text-muted border border-border rounded-lg hover:bg-ground transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleDelete}
-                  disabled={saving}
-                  className="flex-1 py-2 text-xs font-medium text-money-over border border-money-over/30 rounded-lg hover:bg-money-over/10 transition-colors disabled:opacity-50"
-                >
-                  Confirm delete
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setConfirmDelete(true)}
-                className="w-full py-2 flex items-center justify-center gap-1.5 text-xs font-medium text-money-over hover:bg-money-over/10 rounded-lg transition-colors"
-              >
-                <Trash2 size={13} />
-                Delete expense
-              </button>
-            )
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="w-full py-2 flex items-center justify-center gap-1.5 text-xs font-medium text-money-over hover:bg-money-over/10 rounded-lg transition-colors"
+            >
+              <Trash2 size={13} />
+              Delete expense
+            </button>
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Delete expense"
+        message={`Are you sure you want to delete "${editing?.title}"?`}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </>
   );
 }

@@ -35,8 +35,29 @@ export default async function InvitePage({
   // If the user is already signed in, try to join automatically
   const account = await getOrCreateAccount();
   if (account) {
-    const tripId = await joinTripByInviteCode(code);
-    redirect(`/trips/${tripId}/overview`);
+    const result = await joinTripByInviteCode(code);
+    if (result.tripId) {
+      redirect(`/trips/${result.tripId}/overview`);
+    }
+    // If join failed, show error
+    return (
+      <div className="min-h-full flex flex-col items-center justify-center px-4 bg-ground">
+        <div className="w-full max-w-[360px] text-center">
+          <h1 className="text-2xl font-semibold text-ink mb-2">
+            Couldn&apos;t join trip
+          </h1>
+          <p className="text-sm text-muted mb-6">
+            {result.error || "Something went wrong. Please try again."}
+          </p>
+          <a
+            href="/trips"
+            className="text-sm text-accent hover:underline"
+          >
+            Go to My Trips
+          </a>
+        </div>
+      </div>
+    );
   }
 
   // Not signed in — show the invite landing page

@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import { createActivity, updateActivity, deleteActivity } from "@/lib/actions/activity";
 import { LocationSearch } from "./location-search";
 import { useToast } from "@/components/toast";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import type { Activity } from "@/lib/actions/activity";
 
 const CATEGORIES = [
@@ -48,6 +49,7 @@ export function AddActivityPanel({
       : null
   );
   const [saving, setSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -112,8 +114,8 @@ export function AddActivityPanel({
         onClick={onClose}
       />
 
-      {/* Panel — z-[60] to sit above the bottom nav (z-50) */}
-      <div className="fixed inset-x-0 bottom-0 z-[60] bg-card rounded-t-2xl border-t border-border max-w-[var(--max-width-column)] mx-auto animate-slide-up">
+      {/* Panel — z-[60] to sit above the bottom nav (z-50), max-h + overflow for small screens */}
+      <div className="fixed inset-x-0 bottom-0 z-[60] bg-card rounded-t-2xl border-t border-border max-w-[var(--max-width-column)] mx-auto animate-slide-up max-h-[90dvh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
           <h3 className="text-sm font-semibold text-ink">
@@ -198,7 +200,7 @@ export function AddActivityPanel({
         <div className="px-4 pt-3 pb-[calc(0.75rem+56px)] border-t border-border flex items-center gap-2">
           {editing && (
             <button
-              onClick={handleDelete}
+              onClick={() => setShowDeleteConfirm(true)}
               disabled={saving}
               className="text-xs text-money-over hover:text-money-over/80 transition-colors disabled:opacity-50"
             >
@@ -221,6 +223,14 @@ export function AddActivityPanel({
           </button>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Delete activity"
+        message={`Are you sure you want to delete "${editing?.title}"?`}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </>
   );
 }
