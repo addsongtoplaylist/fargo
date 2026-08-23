@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X } from "lucide-react";
-import { createExpense } from "@/lib/actions/expense";
+import { X, Trash2 } from "lucide-react";
+import { createExpense, updateExpense, deleteExpense } from "@/lib/actions/expense";
 import { format } from "date-fns";
+import type { Expense } from "@/lib/actions/expense";
 
 const CATEGORIES = [
   { value: "food", label: "🍜 Food" },
@@ -18,6 +19,7 @@ type LogExpensePanelProps = {
   localCurrency: string;
   fxRate: number;
   travellerId: string;
+  editing?: Expense | null;
   onClose: () => void;
 };
 
@@ -26,15 +28,17 @@ export function LogExpensePanel({
   localCurrency,
   fxRate,
   travellerId,
+  editing,
   onClose,
 }: LogExpensePanelProps) {
-  const [amount, setAmount] = useState("");
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("food");
-  const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [isShared, setIsShared] = useState(false);
-  const [notes, setNotes] = useState("");
+  const [amount, setAmount] = useState(editing ? parseFloat(editing.amount).toString() : "");
+  const [title, setTitle] = useState(editing?.title ?? "");
+  const [category, setCategory] = useState(editing?.category ?? "food");
+  const [date, setDate] = useState(editing?.date ?? format(new Date(), "yyyy-MM-dd"));
+  const [isShared, setIsShared] = useState(editing?.is_shared ?? false);
+  const [notes, setNotes] = useState(editing?.notes ?? "");
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const amountRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -49,16 +53,41 @@ export function LogExpensePanel({
     setSaving(true);
 
     try {
-      await createExpense(tripId, {
-        date,
-        title: title.trim(),
-        category,
-        amount: numericAmount,
-        fxRate,
-        paidBy: travellerId,
-        isShared,
-        notes: notes.trim() || undefined,
-      });
+      if (editing) {
+        await updateExpense(editing.id, tripId, {
+          date,
+          title: title.trim(),
+          category,
+          amount: numericAmount,
+          fxRate,
+          paidBy: travellerId,
+          isShared,
+          notes: notes.trim() || undefined,
+        });
+      } else {
+        await createExpense(tripId, {
+          date,
+          title: title.trim(),
+          category,
+          amount: numericAmount,
+          fxRate,
+          paidBy: travellerId,
+          isShared,
+          notes: notes.trim() || undefined,
+        });
+      }
+      onClose();
+    } catch (err) {
+      console.error(err);
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (!editing) return;
+    setSaving(true);
+    try {
+      await deleteExpense(editing.id, tripId);
       onClose();
     } catch (err) {
       console.error(err);
@@ -78,7 +107,9 @@ export function LogExpensePanel({
       <div className="fixed inset-x-0 bottom-0 z-[60] bg-card rounded-t-2xl border-t border-border max-w-[var(--max-width-column)] mx-auto animate-slide-up">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <h3 className="text-sm font-semibold text-ink">Log expense</h3>
+          <h3 className="text-sm font-semibold text-ink">
+            {editing ? "Edit expense" : "Log expense"}
+          </h3>
           <button
             onClick={onClose}
             className="text-muted hover:text-ink transition-colors"
@@ -190,15 +221,43 @@ export function LogExpensePanel({
           </div>
         </div>
 
-        {/* Sticky submit — pb clears the bottom nav */}
-        <div className="px-4 pt-3 pb-[calc(0.75rem+56px)] border-t border-border">
+        {/* Sticky footer — pb clears the bottom nav */}
+        <div className="px-4 pt-3 pb-[calc(0.75rem+56px)] border-t border-border space-y-2">
           <button
             onClick={handleSave}
             disabled={!amount || !title.trim() || numericAmount <= 0 || saving}
             className="w-full py-2.5 bg-accent text-accent-on text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
           >
-            {saving ? "Saving…" : "Log expense"}
+            {saving ? "Saving…" : editing ? "Save changes" : "Log expense"}
           </button>
+
+          {editing && (
+            confirmDelete ? (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setConfirmDelete(false)}
+                  className="flex-1 py-2 text-xs font-medium text-muted border border-border rounded-lg hover:bg-ground transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={saving}
+                  className="flex-1 py-2 text-xs font-medium text-money-over border border-money-over/30 rounded-lg hover:bg-money-over/10 transition-colors disabled:opacity-50"
+                >
+                  Confirm delete
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="w-full py-2 flex items-center justify-center gap-1.5 text-xs font-medium text-money-over hover:bg-money-over/10 rounded-lg transition-colors"
+              >
+                <Trash2 size={13} />
+                Delete expense
+              </button>
+            )
+          )}
         </div>
       </div>
     </>

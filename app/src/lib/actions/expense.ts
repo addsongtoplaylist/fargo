@@ -75,6 +75,49 @@ export async function createExpense(
   revalidatePath(`/trips/${tripId}/schedule`);
 }
 
+export async function updateExpense(
+  expenseId: string,
+  tripId: string,
+  fields: {
+    date: string;
+    title: string;
+    category: string;
+    amount: number;
+    fxRate: number;
+    paidBy: string;
+    isShared?: boolean;
+    notes?: string;
+  }
+) {
+  const account = await getOrCreateAccount();
+  if (!account) throw new Error("Not signed in");
+
+  const supabase = await createClient();
+  const amountMyr = fields.amount / fields.fxRate;
+
+  const { error } = await supabase
+    .from("expenses")
+    .update({
+      date: fields.date,
+      title: fields.title,
+      category: fields.category,
+      amount: fields.amount,
+      amount_myr: Math.round(amountMyr * 100) / 100,
+      paid_by: fields.paidBy,
+      is_shared: fields.isShared ?? false,
+      notes: fields.notes || null,
+    })
+    .eq("id", expenseId);
+
+  if (error) {
+    console.error("Failed to update expense:", error);
+    throw new Error("Failed to update expense");
+  }
+
+  revalidatePath(`/trips/${tripId}/money`);
+  revalidatePath(`/trips/${tripId}/schedule`);
+}
+
 export async function deleteExpense(expenseId: string, tripId: string) {
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");

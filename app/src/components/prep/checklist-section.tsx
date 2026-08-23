@@ -12,6 +12,7 @@ import {
   renameChecklist,
   deleteChecklist,
   addChecklistItem,
+  updateChecklistItem,
   toggleChecklistItem,
   deleteChecklistItem,
 } from "@/lib/actions/checklist";
@@ -113,6 +114,8 @@ function ChecklistCard({
   const [renameName, setRenameName] = useState(checklist.name);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [newItemText, setNewItemText] = useState("");
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editItemText, setEditItemText] = useState("");
   const renameRef = useRef<HTMLInputElement>(null);
   const addItemRef = useRef<HTMLInputElement>(null);
 
@@ -143,6 +146,21 @@ function ChecklistCard({
 
   async function handleToggle(itemId: string, currentDone: boolean) {
     await toggleChecklistItem(itemId, tripId, !currentDone);
+  }
+
+  function startEditingItem(item: { id: string; text: string }) {
+    setEditingItemId(item.id);
+    setEditItemText(item.text);
+  }
+
+  async function handleEditItemSave(itemId: string) {
+    const original = items.find((i) => i.id === itemId);
+    if (!editItemText.trim() || editItemText.trim() === original?.text) {
+      setEditingItemId(null);
+      return;
+    }
+    await updateChecklistItem(itemId, tripId, editItemText.trim());
+    setEditingItemId(null);
   }
 
   async function handleDeleteItem(itemId: string) {
@@ -257,14 +275,30 @@ function ChecklistCard({
               {item.done && <Check size={12} strokeWidth={3} />}
             </button>
 
-            {/* Text */}
-            <span
-              className={`flex-1 text-sm ${
-                item.done ? "line-through text-muted" : "text-ink"
-              }`}
-            >
-              {item.text}
-            </span>
+            {/* Text — tap to edit */}
+            {editingItemId === item.id ? (
+              <input
+                type="text"
+                value={editItemText}
+                onChange={(e) => setEditItemText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleEditItemSave(item.id);
+                  if (e.key === "Escape") setEditingItemId(null);
+                }}
+                onBlur={() => handleEditItemSave(item.id)}
+                className="flex-1 text-sm text-ink bg-transparent outline-none border-b border-accent"
+                autoFocus
+              />
+            ) : (
+              <span
+                className={`flex-1 text-sm cursor-text ${
+                  item.done ? "line-through text-muted" : "text-ink"
+                }`}
+                onClick={() => startEditingItem(item)}
+              >
+                {item.text}
+              </span>
+            )}
 
             {/* Delete — visible on hover / always on touch */}
             <button

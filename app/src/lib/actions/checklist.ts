@@ -148,6 +148,28 @@ export async function addChecklistItem(
   revalidatePath(`/trips/${tripId}/prep`);
 }
 
+export async function updateChecklistItem(
+  itemId: string,
+  tripId: string,
+  text: string
+) {
+  const account = await getOrCreateAccount();
+  if (!account) throw new Error("Not signed in");
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("checklist_items")
+    .update({ text })
+    .eq("id", itemId);
+
+  if (error) {
+    console.error("Failed to update checklist item:", error);
+    throw new Error("Failed to update checklist item");
+  }
+
+  revalidatePath(`/trips/${tripId}/prep`);
+}
+
 export async function toggleChecklistItem(
   itemId: string,
   tripId: string,

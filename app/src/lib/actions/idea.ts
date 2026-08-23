@@ -66,6 +66,33 @@ export async function createIdea(
   revalidatePath(`/trips/${tripId}/prep`);
 }
 
+export async function updateIdea(
+  ideaId: string,
+  tripId: string,
+  fields: { title?: string; link?: string; notes?: string }
+) {
+  const account = await getOrCreateAccount();
+  if (!account) throw new Error("Not signed in");
+
+  const supabase = await createClient();
+  const updates: Record<string, unknown> = {};
+  if (fields.title !== undefined) updates.title = fields.title;
+  if (fields.link !== undefined) updates.link = fields.link || null;
+  if (fields.notes !== undefined) updates.notes = fields.notes || null;
+
+  const { error } = await supabase
+    .from("ideas")
+    .update(updates)
+    .eq("id", ideaId);
+
+  if (error) {
+    console.error("Failed to update idea:", error);
+    throw new Error("Failed to update idea");
+  }
+
+  revalidatePath(`/trips/${tripId}/prep`);
+}
+
 export async function deleteIdea(ideaId: string, tripId: string) {
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");

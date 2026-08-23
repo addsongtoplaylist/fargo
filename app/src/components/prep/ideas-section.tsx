@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Plus, Trash2, ExternalLink, ArrowRight } from "lucide-react";
-import { createIdea, deleteIdea, promoteIdea } from "@/lib/actions/idea";
+import { createIdea, updateIdea, deleteIdea, promoteIdea } from "@/lib/actions/idea";
 import { useTrip } from "@/lib/trip-context";
 import { eachDayOfInterval, parseISO, format } from "date-fns";
 import type { Idea } from "@/lib/actions/idea";
@@ -20,6 +20,8 @@ export function IdeasSection({ ideas, tripId }: IdeasSectionProps) {
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [promoteId, setPromoteId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
 
   // Trip days for the promote picker
@@ -51,6 +53,20 @@ export function IdeasSection({ ideas, tripId }: IdeasSectionProps) {
 
   async function handleDelete(ideaId: string) {
     await deleteIdea(ideaId, tripId);
+  }
+
+  function startEditing(idea: Idea) {
+    setEditingId(idea.id);
+    setEditText(idea.title);
+  }
+
+  async function handleEditSave(ideaId: string) {
+    if (!editText.trim() || editText.trim() === ideas.find((i) => i.id === ideaId)?.title) {
+      setEditingId(null);
+      return;
+    }
+    await updateIdea(ideaId, tripId, { title: editText.trim() });
+    setEditingId(null);
   }
 
   async function handlePromote(ideaId: string, date: Date, dayIndex: number) {
@@ -85,13 +101,29 @@ export function IdeasSection({ ideas, tripId }: IdeasSectionProps) {
           >
             <div className="flex items-start gap-2">
               <div className="flex-1 min-w-0">
-                <p
-                  className={`text-sm font-medium text-ink ${
-                    idea.promoted ? "line-through" : ""
-                  }`}
-                >
-                  {idea.title}
-                </p>
+                {editingId === idea.id ? (
+                  <input
+                    type="text"
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleEditSave(idea.id);
+                      if (e.key === "Escape") setEditingId(null);
+                    }}
+                    onBlur={() => handleEditSave(idea.id)}
+                    className="text-sm font-medium text-ink bg-transparent outline-none w-full border-b border-accent"
+                    autoFocus
+                  />
+                ) : (
+                  <p
+                    className={`text-sm font-medium text-ink ${
+                      idea.promoted ? "line-through" : ""
+                    } ${!idea.promoted ? "cursor-text" : ""}`}
+                    onClick={() => !idea.promoted && startEditing(idea)}
+                  >
+                    {idea.title}
+                  </p>
+                )}
                 {idea.promoted && idea.promoted_date && (
                   <p className="text-xs text-accent mt-0.5">
                     → Promoted to {idea.promoted_date}

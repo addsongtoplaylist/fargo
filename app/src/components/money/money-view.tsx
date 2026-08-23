@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useTrip } from "@/lib/trip-context";
-import { deleteExpense, updateBudget } from "@/lib/actions/expense";
+import { updateBudget } from "@/lib/actions/expense";
 import { LogExpensePanel } from "./log-expense-panel";
 import type { Expense } from "@/lib/actions/expense";
 
@@ -38,6 +38,7 @@ type MoneyViewProps = {
 export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const trip = useTrip();
   const [panelOpen, setPanelOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [editingBudget, setEditingBudget] = useState(false);
   const [budgetInput, setBudgetInput] = useState(
     budget?.budgetTotal?.toString() ?? ""
@@ -54,8 +55,19 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
     setEditingBudget(false);
   }
 
-  async function handleDelete(expenseId: string) {
-    await deleteExpense(expenseId, tripId);
+  function handleEditExpense(expense: Expense) {
+    setEditingExpense(expense);
+    setPanelOpen(true);
+  }
+
+  function handleAddExpense() {
+    setEditingExpense(null);
+    setPanelOpen(true);
+  }
+
+  function handlePanelClose() {
+    setPanelOpen(false);
+    setEditingExpense(null);
   }
 
   // Group expenses by date
@@ -188,7 +200,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-semibold text-ink">Expenses</h3>
         <button
-          onClick={() => setPanelOpen(true)}
+          onClick={handleAddExpense}
           className="flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-hover transition-colors"
         >
           <Plus size={14} />
@@ -212,9 +224,10 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
               </p>
               <div className="bg-card rounded-lg border border-border overflow-hidden">
                 {groupedByDate[date].map((expense, i) => (
-                  <div
+                  <button
                     key={expense.id}
-                    className={`flex items-center gap-2 px-3 py-2.5 group ${
+                    onClick={() => handleEditExpense(expense)}
+                    className={`flex items-center gap-2 px-3 py-2.5 w-full text-left hover:bg-ground/50 transition-colors active:bg-ground ${
                       i > 0 ? "border-t border-border" : ""
                     }`}
                   >
@@ -231,22 +244,13 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-sm font-medium text-ink money">
-                        {parseFloat(expense.amount).toLocaleString()}{" "}
-                        <span className="text-xs text-muted font-normal">
-                          {trip.local_currency}
-                        </span>
+                        {parseFloat(expense.amount).toLocaleString()}
                       </p>
                       <p className="text-[10px] text-muted money">
-                        RM {parseFloat(expense.amount_myr).toFixed(2)}
+                        ≈ RM {parseFloat(expense.amount_myr).toFixed(2)}
                       </p>
                     </div>
-                    <button
-                      onClick={() => handleDelete(expense.id)}
-                      className="text-muted hover:text-money-over transition-colors opacity-0 group-hover:opacity-100 p-0.5"
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -254,14 +258,15 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
         </div>
       )}
 
-      {/* Log expense panel */}
+      {/* Log/Edit expense panel */}
       {panelOpen && budget && (
         <LogExpensePanel
           tripId={tripId}
           localCurrency={trip.local_currency}
           fxRate={fxRate}
           travellerId={budget.travellerId}
-          onClose={() => setPanelOpen(false)}
+          editing={editingExpense}
+          onClose={handlePanelClose}
         />
       )}
     </div>
