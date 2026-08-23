@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Plane, Compass, User } from "lucide-react";
 
 const navItems = [
-  { href: "/trips", label: "My trips", icon: Plane },
+  { href: "/trips?noauto=1", label: "My trips", icon: Plane },
   { href: "/explore", label: "Explore", icon: Compass },
   { href: "/profile", label: "Profile", icon: User },
 ] as const;
@@ -17,8 +17,10 @@ export function BottomNav() {
     <nav className="fixed bottom-0 inset-x-0 z-50 bg-card border-t border-border">
       <div className="mx-auto max-w-[var(--max-width-column)] flex items-center justify-around h-14">
         {navItems.map(({ href, label, icon: Icon }) => {
+          // Strip query params for matching; /trips?noauto=1 should match /trips/*
+          const basePath = href.split("?")[0];
           const isActive =
-            pathname === href || pathname.startsWith(`${href}/`);
+            pathname === basePath || pathname.startsWith(`${basePath}/`);
 
           return (
             <Link

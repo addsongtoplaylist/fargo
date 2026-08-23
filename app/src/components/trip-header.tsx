@@ -12,7 +12,7 @@ export function TripHeader() {
     <header className="bg-card border-b border-border">
       <div className="mx-auto max-w-[var(--max-width-column)] px-4 flex items-center h-12 gap-3">
         <button
-          onClick={() => router.push("/trips")}
+          onClick={() => router.push("/trips?noauto=1")}
           className="text-muted hover:text-ink transition-colors -ml-1"
           aria-label="Back to My trips"
         >
