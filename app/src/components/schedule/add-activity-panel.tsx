@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { X } from "lucide-react";
 import { createActivity, updateActivity, deleteActivity } from "@/lib/actions/activity";
+import { LocationSearch } from "./location-search";
 import type { Activity } from "@/lib/actions/activity";
 
 const CATEGORIES = [
@@ -32,6 +33,19 @@ export function AddActivityPanel({
   const [time, setTime] = useState(editing?.time ?? "");
   const [notes, setNotes] = useState(editing?.notes ?? "");
   const [category, setCategory] = useState(editing?.category ?? "misc");
+  const [place, setPlace] = useState<{
+    name: string;
+    lat: number;
+    lng: number;
+  } | null>(
+    editing?.place_name && editing?.place_lat && editing?.place_lng
+      ? {
+          name: editing.place_name,
+          lat: parseFloat(editing.place_lat),
+          lng: parseFloat(editing.place_lng),
+        }
+      : null
+  );
   const [saving, setSaving] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -51,6 +65,9 @@ export function AddActivityPanel({
           time: time || null,
           notes: notes.trim() || null,
           category,
+          place_name: place?.name ?? null,
+          place_lat: place ? String(place.lat) : null,
+          place_lng: place ? String(place.lng) : null,
         });
       } else {
         await createActivity(tripId, {
@@ -59,6 +76,9 @@ export function AddActivityPanel({
           time: time || undefined,
           notes: notes.trim() || undefined,
           category,
+          place_name: place?.name,
+          place_lat: place ? String(place.lat) : undefined,
+          place_lng: place ? String(place.lng) : undefined,
         });
       }
       onClose();
@@ -136,6 +156,9 @@ export function AddActivityPanel({
               </button>
             )}
           </div>
+
+          {/* Location */}
+          <LocationSearch value={place} onChange={setPlace} />
 
           {/* Category chips */}
           <div className="flex gap-1.5 flex-wrap">

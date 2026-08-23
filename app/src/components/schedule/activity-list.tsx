@@ -23,6 +23,7 @@ import { DayPicker } from "./day-picker";
 import { ActivityCard } from "./activity-card";
 import { AddActivityPanel } from "./add-activity-panel";
 import { BudgetStrip } from "./budget-strip";
+import { DayMap } from "./day-map";
 import type { Activity } from "@/lib/actions/activity";
 
 type ActivityListProps = {
@@ -156,6 +157,11 @@ export function ActivityList({
       {/* Day header */}
       <div className="px-4 pt-3 pb-2">
         <h3 className="text-sm font-semibold text-ink">{dayLabel}</h3>
+      </div>
+
+      {/* Day map — shows pins for activities with locations */}
+      <div className="px-4 pb-2">
+        <DayMap activities={dayActivities} />
       </div>
 
       {/* Activity cards with drag-and-drop */}
