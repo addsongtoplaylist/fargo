@@ -6,22 +6,13 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { getMyTrips } from "@/lib/actions/trip";
 import { differenceInCalendarDays } from "date-fns";
-import { redirect } from "next/navigation";
 
-export default async function TripsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ noauto?: string }>;
-}) {
-  const { noauto } = await searchParams;
+export default async function TripsPage() {
+  // Auto-land redirect is now handled in middleware for faster response.
+  // This page only renders when there's no active trip, or ?noauto is set.
   const { active, upcoming, past } = await getMyTrips();
   const today = new Date();
   const hasTrips = active || upcoming.length > 0 || past.length > 0;
-
-  // Auto-land: if exactly one active trip and not opted out, go to its schedule
-  if (active && !noauto) {
-    redirect(`/trips/${active.id}/schedule`);
-  }
 
   return (
     <Column className="py-6">

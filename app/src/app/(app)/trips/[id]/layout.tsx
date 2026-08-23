@@ -2,7 +2,8 @@ import { TripHeader } from "@/components/trip-header";
 import { TripTabs } from "@/components/trip-tabs";
 import { SwipeTabs } from "@/components/swipe-tabs";
 import { TripProvider } from "@/lib/trip-context";
-import { getTrip, getMyRole } from "@/lib/actions/trip";
+import { getTrip } from "@/lib/actions/trip";
+import { getOrCreateAccount } from "@/lib/account";
 import { notFound } from "next/navigation";
 
 export default async function TripLayout({
@@ -13,11 +14,19 @@ export default async function TripLayout({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [trip, myRole] = await Promise.all([getTrip(id), getMyRole(id)]);
+  const [trip, account] = await Promise.all([
+    getTrip(id),
+    getOrCreateAccount(),
+  ]);
 
   if (!trip) {
     notFound();
   }
+
+  // Derive role from travellers array — no extra query needed
+  const myRole = trip.travellers?.find(
+    (t: { account_id: string; role: string }) => t.account_id === account?.id
+  )?.role;
 
   return (
     <TripProvider trip={{ ...trip, myRole: myRole ?? undefined }}>
