@@ -32,6 +32,12 @@ export async function createTrip(formData: FormData) {
     throw new Error("All fields are required");
   }
 
+  // Compute initial status from dates
+  const today = new Date().toISOString().split("T")[0];
+  let status: "planning" | "active" | "completed" = "planning";
+  if (startDate <= today && endDate >= today) status = "active";
+  else if (endDate < today) status = "completed";
+
   // Create the trip
   const { data: trip, error } = await supabase
     .from("trips")
@@ -44,13 +50,14 @@ export async function createTrip(formData: FormData) {
       local_currency: localCurrency.toUpperCase(),
       fx_rate: parseFloat(fxRate),
       planner_id: account.id,
+      status,
     })
     .select()
     .single();
 
   if (error) {
     console.error("Failed to create trip:", error);
-    throw new Error("Failed to create trip");
+    throw new Error(`Failed to create trip: ${error.message}`);
   }
 
   // Add the planner as a traveller

@@ -5,6 +5,7 @@ import { Column } from "@/components/column";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { createTrip } from "@/lib/actions/trip";
+import { useToast } from "@/components/toast";
 
 const tripTypes = [
   "Free & easy",
@@ -18,13 +19,17 @@ const tripTypes = [
 export default function NewTripPage() {
   const [selectedType, setSelectedType] = useState<string>("Free & easy");
   const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
     formData.set("tripType", selectedType);
     try {
       await createTrip(formData);
-    } catch {
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to create trip";
+      toast(message, "error");
       setSubmitting(false);
     }
   }
@@ -82,7 +87,7 @@ export default function NewTripPage() {
               name="startDate"
               type="date"
               required
-              className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink focus:outline-none focus:border-accent transition-colors"
+              className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink focus:outline-none focus:border-accent transition-colors min-w-0"
             />
           </div>
           <div>
@@ -93,7 +98,7 @@ export default function NewTripPage() {
               name="endDate"
               type="date"
               required
-              className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink focus:outline-none focus:border-accent transition-colors"
+              className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink focus:outline-none focus:border-accent transition-colors min-w-0"
             />
           </div>
         </div>

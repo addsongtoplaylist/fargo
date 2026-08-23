@@ -98,3 +98,10 @@ body {
 .animate-slide-down {
   animation: slide-down 0.2s ease-out;
 }
+
+/* Prevent date inputs from overflowing their grid cell on mobile */
+input[type="date"] {
+  min-width: 0;
+  -webkit-appearance: none;
+  appearance: none;
+}
