@@ -1,9 +1,13 @@
-const CACHE_NAME = "fargo-v1";
+const CACHE_NAME = "fargo-v2";
 
 // App shell files to pre-cache
-const PRECACHE_URLS = ["/", "/icon-192x192.png", "/icon-512x512.png"];
+const PRECACHE_URLS = [
+  "/offline.html",
+  "/icon-192x192.png",
+  "/icon-512x512.png",
+];
 
-// Install — pre-cache app shell
+// Install — pre-cache app shell + offline page
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
@@ -32,16 +36,23 @@ self.addEventListener("fetch", (event) => {
   // Skip non-GET and cross-origin
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
-  // Navigation requests (HTML pages) — network first, fall back to cache
+  // Navigation requests (HTML pages) — network first, offline fallback
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          // Only cache successful (non-redirect) responses
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
           return response;
         })
-        .catch(() => caches.match(request).then((r) => r || caches.match("/")))
+        .catch(() =>
+          caches.match(request).then((cached) =>
+            cached || caches.match("/offline.html")
+          )
+        )
     );
     return;
   }
