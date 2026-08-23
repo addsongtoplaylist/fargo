@@ -101,3 +101,56 @@ export async function getTrip(id: string) {
 
   return data;
 }
+
+/** Generate or return the share code for a trip */
+export async function getOrCreateShareCode(tripId: string) {
+  const account = await getOrCreateAccount();
+  if (!account) throw new Error("Not signed in");
+
+  const supabase = await createClient();
+
+  // Check if code already exists
+  const { data: trip } = await supabase
+    .from("trips")
+    .select("share_code")
+    .eq("id", tripId)
+    .single();
+
+  if (trip?.share_code) return trip.share_code;
+
+  // Generate a unique 8-char code
+  const code = generateShareCode();
+
+  const { error } = await supabase
+    .from("trips")
+    .update({ share_code: code })
+    .eq("id", tripId);
+
+  if (error) {
+    console.error("Failed to create share code:", error);
+    throw new Error("Failed to create share link");
+  }
+
+  return code;
+}
+
+/** Look up a trip by its share code (no auth required) */
+export async function getTripByShareCode(code: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("trips")
+    .select("*, travellers(*)")
+    .eq("share_code", code)
+    .single();
+
+  return data;
+}
+
+function generateShareCode(): string {
+  const chars = "abcdefghijkmnpqrstuvwxyz23456789"; // no confusing chars (0/o, 1/l)
+  let code = "";
+  for (let i = 0; i < 8; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
