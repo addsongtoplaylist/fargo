@@ -5,6 +5,7 @@ import { getActivities } from "@/lib/actions/activity";
 import { getChecklists } from "@/lib/actions/checklist";
 import { getTrip, getMyRole } from "@/lib/actions/trip";
 import { format, parseISO, isAfter } from "date-fns";
+import { notFound } from "next/navigation";
 
 const CATEGORY_LABELS: Record<string, string> = {
   flights: "✈️ Flights",
@@ -29,6 +30,8 @@ export default async function OverviewPage({
     getTrip(id),
     getMyRole(id),
   ]);
+
+  if (!trip) notFound();
 
   const isPlanner = myRole === "planner";
 

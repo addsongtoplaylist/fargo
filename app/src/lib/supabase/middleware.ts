@@ -38,7 +38,8 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute =
     request.nextUrl.pathname.startsWith("/sign-in") ||
     request.nextUrl.pathname.startsWith("/auth") ||
-    request.nextUrl.pathname.startsWith("/s/"); // shared trip view
+    request.nextUrl.pathname.startsWith("/s/") || // shared trip view
+    request.nextUrl.pathname.startsWith("/invite/"); // invite link (handles its own auth)
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();

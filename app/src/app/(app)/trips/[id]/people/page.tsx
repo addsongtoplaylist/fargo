@@ -1,6 +1,7 @@
 import { Column } from "@/components/column";
 import { getTrip, getMyRole } from "@/lib/actions/trip";
 import { PeopleList } from "@/components/people/people-list";
+import { notFound } from "next/navigation";
 
 export default async function PeoplePage({
   params,
@@ -10,7 +11,7 @@ export default async function PeoplePage({
   const { id } = await params;
   const [trip, myRole] = await Promise.all([getTrip(id), getMyRole(id)]);
 
-  if (!trip) return null;
+  if (!trip) notFound();
 
   return (
     <Column className="py-4">
