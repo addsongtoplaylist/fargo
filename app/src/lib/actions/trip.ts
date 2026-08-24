@@ -75,6 +75,31 @@ export async function createTrip(formData: FormData): Promise<{ error?: string }
   redirect(`/trips/${trip.id}/overview`);
 }
 
+/**
+ * Lightweight check: return the active trip ID if one exists.
+ * Uses a single query with a join — much faster than getMyTrips()
+ * which fetches all trips with all travellers.
+ */
+export async function getActiveTrip(): Promise<string | null> {
+  const account = await getOrCreateAccount();
+  if (!account) return null;
+
+  const supabase = await createClient();
+  const today = new Date().toISOString().split("T")[0];
+
+  // Single query: join travellers → trips, filter for active dates
+  const { data } = await supabase
+    .from("travellers")
+    .select("trip_id, trips!inner(id, start_date, end_date)")
+    .eq("account_id", account.id)
+    .lte("trips.start_date", today)
+    .gte("trips.end_date", today)
+    .limit(1)
+    .single();
+
+  return data?.trip_id ?? null;
+}
+
 export async function getMyTrips() {
   const account = await getOrCreateAccount();
   if (!account) return { active: null, upcoming: [], past: [] };

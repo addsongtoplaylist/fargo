@@ -4,12 +4,25 @@ import { CompactTripCard } from "@/components/compact-trip-card";
 import { EmptyTrips } from "@/components/empty-trips";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { getMyTrips } from "@/lib/actions/trip";
+import { getMyTrips, getActiveTrip } from "@/lib/actions/trip";
 import { differenceInCalendarDays } from "date-fns";
+import { redirect } from "next/navigation";
 
-export default async function TripsPage() {
-  // Auto-land redirect is now handled in middleware for faster response.
-  // This page only renders when there's no active trip, or ?noauto is set.
+export default async function TripsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ noauto?: string }>;
+}) {
+  const { noauto } = await searchParams;
+
+  // Fast auto-land: lightweight query for active trip only (1 query vs 3+)
+  if (!noauto) {
+    const activeTripId = await getActiveTrip();
+    if (activeTripId) {
+      redirect(`/trips/${activeTripId}/schedule`);
+    }
+  }
+
   const { active, upcoming, past } = await getMyTrips();
   const today = new Date();
   const hasTrips = active || upcoming.length > 0 || past.length > 0;

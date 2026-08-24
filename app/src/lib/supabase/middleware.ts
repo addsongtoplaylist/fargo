@@ -53,58 +53,5 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Auto-land: if hitting /trips (without ?noauto), find active trip
-  // and rewrite directly — avoids a server redirect roundtrip (~350ms)
-  if (
-    user &&
-    request.nextUrl.pathname === "/trips" &&
-    !request.nextUrl.searchParams.has("noauto")
-  ) {
-    // Look up account
-    const { data: account } = await supabase
-      .from("accounts")
-      .select("id")
-      .eq("auth_id", user.id)
-      .single();
-
-    if (account) {
-      const today = new Date().toISOString().split("T")[0];
-
-      // Find trip IDs where user is a traveller
-      const { data: memberships } = await supabase
-        .from("travellers")
-        .select("trip_id")
-        .eq("account_id", account.id);
-
-      if (memberships && memberships.length > 0) {
-        const tripIds = memberships.map((m) => m.trip_id);
-
-        // Find active trip (start_date <= today <= end_date)
-        const { data: activeTrip } = await supabase
-          .from("trips")
-          .select("id")
-          .in("id", tripIds)
-          .lte("start_date", today)
-          .gte("end_date", today)
-          .limit(1)
-          .single();
-
-        if (activeTrip) {
-          const url = request.nextUrl.clone();
-          url.pathname = `/trips/${activeTrip.id}/schedule`;
-          // Redirect instead of rewrite so the URL updates correctly
-          const response = NextResponse.redirect(url);
-          // Copy auth cookies to the redirect response
-          supabaseResponse.headers.forEach((value, key) => {
-            if (key.toLowerCase() === "set-cookie") {
-              response.headers.append(key, value);
-            }
-          });
-          return response;
-        }
-      }
-    }
-  }
-
   return supabaseResponse;
 }
