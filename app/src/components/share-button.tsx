@@ -26,12 +26,13 @@ export function ShareButton({ tripId }: { tripId: string }) {
         }
       }
       if (!shared) {
+        const copyText = `Check out my trip on Fargo ✈️\n${url}`;
         try {
-          await navigator.clipboard.writeText(url);
+          await navigator.clipboard.writeText(copyText);
         } catch {
           // Fallback for insecure contexts (e.g. localhost without HTTPS)
           const textarea = document.createElement("textarea");
-          textarea.value = url;
+          textarea.value = copyText;
           textarea.style.position = "fixed";
           textarea.style.opacity = "0";
           document.body.appendChild(textarea);

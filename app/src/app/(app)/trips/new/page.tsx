@@ -16,6 +16,32 @@ const tripTypes = [
   "Business",
 ] as const;
 
+const CURRENCIES = [
+  { code: "USD", label: "USD — US Dollar" },
+  { code: "EUR", label: "EUR — Euro" },
+  { code: "GBP", label: "GBP — British Pound" },
+  { code: "JPY", label: "JPY — Japanese Yen" },
+  { code: "KRW", label: "KRW — Korean Won" },
+  { code: "CNY", label: "CNY — Chinese Yuan" },
+  { code: "TWD", label: "TWD — Taiwan Dollar" },
+  { code: "HKD", label: "HKD — Hong Kong Dollar" },
+  { code: "SGD", label: "SGD — Singapore Dollar" },
+  { code: "MYR", label: "MYR — Malaysian Ringgit" },
+  { code: "THB", label: "THB — Thai Baht" },
+  { code: "VND", label: "VND — Vietnamese Dong" },
+  { code: "IDR", label: "IDR — Indonesian Rupiah" },
+  { code: "PHP", label: "PHP — Philippine Peso" },
+  { code: "INR", label: "INR — Indian Rupee" },
+  { code: "AUD", label: "AUD — Australian Dollar" },
+  { code: "NZD", label: "NZD — New Zealand Dollar" },
+  { code: "CAD", label: "CAD — Canadian Dollar" },
+  { code: "CHF", label: "CHF — Swiss Franc" },
+  { code: "AED", label: "AED — UAE Dirham" },
+  { code: "TRY", label: "TRY — Turkish Lira" },
+  { code: "BRL", label: "BRL — Brazilian Real" },
+  { code: "MXN", label: "MXN — Mexican Peso" },
+] as const;
+
 export default function NewTripPage() {
   const [selectedType, setSelectedType] = useState<string>("Free & easy");
   const [submitting, setSubmitting] = useState(false);
@@ -135,13 +161,17 @@ export default function NewTripPage() {
             <label className="block text-[13px] font-medium text-muted mb-1">
               Local currency
             </label>
-            <input
+            <select
               name="localCurrency"
-              type="text"
-              placeholder="e.g. VND"
               required
-              className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink placeholder:text-muted/50 focus:outline-none focus:border-accent transition-colors uppercase"
-            />
+              defaultValue=""
+              className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink focus:outline-none focus:border-accent transition-colors appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%236b6560%22%20d%3D%22M2%204l4%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-8"
+            >
+              <option value="" disabled>Select currency</option>
+              {CURRENCIES.map(({ code, label }) => (
+                <option key={code} value={code}>{label}</option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="block text-[13px] font-medium text-muted mb-1">

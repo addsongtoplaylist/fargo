@@ -3,7 +3,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateAccount } from "@/lib/account";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
+import { getCachedTrip, getCachedMyTrips } from "@/lib/data/trip";
 
 const TRIP_TYPE_MAP: Record<string, string> = {
   "Free & easy": "free_and_easy",
@@ -72,6 +73,8 @@ export async function createTrip(formData: FormData): Promise<{ error?: string }
     console.error("Failed to add planner as traveller:", travellerError);
   }
 
+  updateTag(`trip-${trip.id}`);
+  updateTag(`my-trips-${account.id}`);
   redirect(`/trips/${trip.id}/overview`);
 }
 
@@ -104,50 +107,14 @@ export async function getMyTrips() {
   const account = await getOrCreateAccount();
   if (!account) return { active: null, upcoming: [], past: [] };
 
-  const supabase = await createClient();
-  const today = new Date().toISOString().split("T")[0];
-
-  // Get trip IDs where this user is a traveller (planner or member)
-  const { data: memberships } = await supabase
-    .from("travellers")
-    .select("trip_id")
-    .eq("account_id", account.id);
-
-  if (!memberships || memberships.length === 0) {
-    return { active: null, upcoming: [], past: [] };
-  }
-
-  const tripIds = memberships.map((m) => m.trip_id);
-
-  const { data: trips } = await supabase
-    .from("trips")
-    .select("*, travellers(*)")
-    .in("id", tripIds)
-    .order("start_date", { ascending: true });
-
-  if (!trips) return { active: null, upcoming: [], past: [] };
-
-  const active = trips.find(
-    (t) => t.start_date <= today && t.end_date >= today
-  );
-  const upcoming = trips.filter((t) => t.start_date > today);
-  const past = trips.filter((t) => t.end_date < today && t !== active);
-
-  return { active: active || null, upcoming, past };
+  return getCachedMyTrips(account.id);
 }
 
 export async function getTrip(id: string) {
   const account = await getOrCreateAccount();
   if (!account) return null;
 
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("trips")
-    .select("*, travellers(*)")
-    .eq("id", id)
-    .single();
-
-  return data;
+  return getCachedTrip(id);
 }
 
 /** Generate or return the share code for a trip */
@@ -276,6 +243,8 @@ export async function joinTripByInviteCode(code: string): Promise<{ tripId?: str
     return { error: `Failed to join trip: ${error.message}` };
   }
 
+  updateTag(`trip-${trip.id}`);
+  updateTag(`my-trips-${account.id}`);
   return { tripId: trip.id };
 }
 
@@ -308,6 +277,7 @@ export async function removeTraveller(tripId: string, travellerId: string) {
     throw new Error("Failed to remove traveller");
   }
 
+  updateTag(`trip-${tripId}`);
   revalidatePath(`/trips/${tripId}/people`);
 }
 
@@ -378,6 +348,8 @@ export async function updateTrip(
     return { error: `Failed to update trip: ${error.message}` };
   }
 
+  updateTag(`trip-${tripId}`);
+  updateTag(`my-trips-${account.id}`);
   revalidatePath(`/trips/${tripId}`);
   return {};
 }
@@ -407,6 +379,8 @@ export async function deleteTrip(tripId: string): Promise<{ error?: string }> {
     return { error: `Failed to delete trip: ${error.message}` };
   }
 
+  updateTag(`trip-${tripId}`);
+  updateTag(`my-trips-${account.id}`);
   return {};
 }
 

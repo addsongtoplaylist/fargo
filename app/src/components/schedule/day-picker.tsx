@@ -85,6 +85,7 @@ export function DayPicker({
       {/* Day pills */}
       <div
         ref={scrollRef}
+        data-swipe-ignore
         className="flex gap-1.5 overflow-x-auto scrollbar-none py-2 flex-1"
       >
         {days.map((day, index) => {

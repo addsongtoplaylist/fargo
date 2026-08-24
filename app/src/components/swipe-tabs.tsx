@@ -34,6 +34,10 @@ export function SwipeTabs({ children }: SwipeTabsProps) {
     (e: React.TouchEvent) => {
       if (currentIndex === -1) return;
 
+      // Don't hijack swipes that started inside a scrollable area (e.g. day picker)
+      const target = e.target as HTMLElement;
+      if (target.closest("[data-swipe-ignore]")) return;
+
       const deltaX = e.changedTouches[0].clientX - touchStartX.current;
       const deltaY = e.changedTouches[0].clientY - touchStartY.current;
 
