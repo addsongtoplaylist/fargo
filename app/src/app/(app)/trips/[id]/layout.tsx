@@ -53,12 +53,13 @@ function TripLayoutSkeleton() {
  * Wrapped in Suspense so the skeleton streams to the browser immediately.
  */
 async function TripLayoutInner({
-  id,
+  params,
   children,
 }: {
-  id: string;
+  params: Promise<{ id: string }>;
   children: React.ReactNode;
 }) {
+  const { id } = await params;
   const [trip, account] = await Promise.all([
     getTrip(id),
     getOrCreateAccount(),
@@ -86,18 +87,16 @@ async function TripLayoutInner({
   );
 }
 
-export default async function TripLayout({
+export default function TripLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-
   return (
     <Suspense fallback={<TripLayoutSkeleton />}>
-      <TripLayoutInner id={id}>{children}</TripLayoutInner>
+      <TripLayoutInner params={params}>{children}</TripLayoutInner>
     </Suspense>
   );
 }
