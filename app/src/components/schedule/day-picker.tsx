@@ -76,10 +76,10 @@ export function DayPicker({
       <button
         onClick={goToPrev}
         disabled={selectedIndex <= 0}
-        className="shrink-0 w-7 h-7 flex items-center justify-center text-muted hover:text-ink transition-colors disabled:opacity-30 disabled:cursor-default"
+        className="shrink-0 w-10 h-11 flex items-center justify-center text-muted hover:text-ink transition-colors disabled:opacity-30 disabled:cursor-default"
         aria-label="Previous day"
       >
-        <ChevronLeft size={18} />
+        <ChevronLeft size={20} />
       </button>
 
       {/* Day pills */}
@@ -128,10 +128,10 @@ export function DayPicker({
       <button
         onClick={goToNext}
         disabled={selectedIndex >= days.length - 1}
-        className="shrink-0 w-7 h-7 flex items-center justify-center text-muted hover:text-ink transition-colors disabled:opacity-30 disabled:cursor-default"
+        className="shrink-0 w-10 h-11 flex items-center justify-center text-muted hover:text-ink transition-colors disabled:opacity-30 disabled:cursor-default"
         aria-label="Next day"
       >
-        <ChevronRight size={18} />
+        <ChevronRight size={20} />
       </button>
     </div>
   );

@@ -130,7 +130,7 @@ export function PeopleList({
               <button
                 onClick={() => setRemoveConfirmId(t.id)}
                 disabled={removing === t.id}
-                className="text-muted hover:text-money-over transition-colors shrink-0 disabled:opacity-50"
+                className="w-10 h-10 flex items-center justify-center text-muted hover:text-money-over transition-colors shrink-0 disabled:opacity-50 -mr-2"
                 title="Remove traveller"
               >
                 <X size={16} />

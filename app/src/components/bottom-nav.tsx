@@ -14,7 +14,7 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 bg-card border-t border-border">
+    <nav className="fixed bottom-0 inset-x-0 z-50 bg-card border-t border-border pb-[env(safe-area-inset-bottom)]">
       <div className="mx-auto max-w-[var(--max-width-column)] flex items-center justify-around h-14">
         {navItems.map(({ href, label, icon: Icon }) => {
           // Strip query params for matching; /trips?noauto=1 should match /trips/*

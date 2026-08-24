@@ -1,14 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Share2, Check, Link } from "lucide-react";
 import { getOrCreateShareCode } from "@/lib/actions/trip";
 
 export function ShareButton({ tripId }: { tripId: string }) {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
+  const busyRef = useRef(false); // prevents double-click race
 
   async function handleShare() {
+    if (busyRef.current) return;
+    busyRef.current = true;
     setLoading(true);
     try {
       const code = await getOrCreateShareCode(tripId);
@@ -47,6 +50,7 @@ export function ShareButton({ tripId }: { tripId: string }) {
       console.error("Share failed:", err);
     } finally {
       setLoading(false);
+      busyRef.current = false;
     }
   }
 

@@ -123,7 +123,7 @@ export function AddActivityPanel({
           </h3>
           <button
             onClick={onClose}
-            className="text-muted hover:text-ink transition-colors"
+            className="w-10 h-10 flex items-center justify-center -mr-2 text-muted hover:text-ink transition-colors"
           >
             <X size={18} />
           </button>
@@ -173,7 +173,7 @@ export function AddActivityPanel({
                 key={cat.value}
                 onClick={() => setCategory(cat.value)}
                 className={`
-                  px-2.5 py-1 rounded-full text-xs font-medium transition-colors
+                  px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors
                   ${
                     category === cat.value
                       ? "bg-accent text-accent-on"
@@ -196,8 +196,8 @@ export function AddActivityPanel({
           />
         </div>
 
-        {/* Footer — pb-[calc(0.75rem+56px)] clears the 56px bottom nav */}
-        <div className="px-4 pt-3 pb-[calc(0.75rem+56px)] border-t border-border flex items-center gap-2">
+        {/* Footer — clears the 56px bottom nav + safe area */}
+        <div className="px-4 pt-3 pb-[calc(0.75rem+56px+env(safe-area-inset-bottom))] border-t border-border flex items-center gap-2">
           {editing && (
             <button
               onClick={() => setShowDeleteConfirm(true)}
