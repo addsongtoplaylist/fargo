@@ -7,16 +7,7 @@ import { useTrip } from "@/lib/trip-context";
 import { updateBudget } from "@/lib/actions/expense";
 import { LogExpensePanel } from "./log-expense-panel";
 import type { Expense } from "@/lib/actions/expense";
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  flights: "✈️",
-  accommodation: "🏨",
-  food: "🍜",
-  transport: "🚕",
-  activities: "🏛",
-  shopping: "🛒",
-  misc: "📦",
-};
+import { CATEGORY_EMOJI } from "@/lib/categories";
 
 type BudgetSummary = {
   travellerId: string;
@@ -47,7 +38,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
 
   if (!trip) return null;
 
-  const fxRate = parseFloat(trip.fx_rate) || 1;
+  const fxRate = trip.fx_rate;
 
   async function handleBudgetSave() {
     const value = parseInt(budgetInput);

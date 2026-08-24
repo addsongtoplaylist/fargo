@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react";
 
-type Trip = {
+type TripInput = {
   id: string;
   name: string;
   destination: string;
@@ -10,12 +10,17 @@ type Trip = {
   end_date: string;
   trip_type: string;
   local_currency: string;
-  fx_rate: string;
+  fx_rate: string | number;
   status: string;
   planner_id: string;
   travellers?: { id: string; display_name: string; role: string; account_id: string }[];
   /** Current user's role on this trip — "planner" or "member" */
   myRole?: string;
+};
+
+type Trip = Omit<TripInput, "fx_rate"> & {
+  /** Parsed to number at the context boundary — safe to use directly */
+  fx_rate: number;
 };
 
 const TripContext = createContext<Trip | null>(null);
@@ -24,10 +29,15 @@ export function TripProvider({
   trip,
   children,
 }: {
-  trip: Trip;
+  trip: TripInput;
   children: React.ReactNode;
 }) {
-  return <TripContext.Provider value={trip}>{children}</TripContext.Provider>;
+  // Parse fx_rate to number at the boundary so consumers don't need to
+  const parsed: Trip = {
+    ...trip,
+    fx_rate: typeof trip.fx_rate === "number" ? trip.fx_rate : parseFloat(trip.fx_rate) || 1,
+  };
+  return <TripContext.Provider value={parsed}>{children}</TripContext.Provider>;
 }
 
 export function useTrip() {

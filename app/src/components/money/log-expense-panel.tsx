@@ -7,14 +7,7 @@ import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { format } from "date-fns";
 import type { Expense } from "@/lib/actions/expense";
-
-const CATEGORIES = [
-  { value: "food", label: "🍜 Food" },
-  { value: "transport", label: "🚕 Transport" },
-  { value: "activities", label: "🏛 Activities" },
-  { value: "shopping", label: "🛒 Shopping" },
-  { value: "misc", label: "📦 Other" },
-] as const;
+import { EXPENSE_CATEGORIES as CATEGORIES } from "@/lib/categories";
 
 type LogExpensePanelProps = {
   tripId: string;

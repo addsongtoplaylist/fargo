@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { format, parseISO, isToday } from "date-fns";
 import {
@@ -57,7 +57,7 @@ export function ActivityList({
   const [activities, setActivities] = useState(initialActivities);
 
   // Sync when server data changes (e.g. after add/edit/delete)
-  useMemo(() => {
+  useEffect(() => {
     setActivities(initialActivities);
   }, [initialActivities]);
 

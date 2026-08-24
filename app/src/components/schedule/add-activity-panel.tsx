@@ -7,16 +7,7 @@ import { LocationSearch } from "./location-search";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import type { Activity } from "@/lib/actions/activity";
-
-const CATEGORIES = [
-  { value: "food", label: "🍜 Food" },
-  { value: "transport", label: "🚕 Transport" },
-  { value: "activities", label: "🏛 Activities" },
-  { value: "shopping", label: "🛒 Shopping" },
-  { value: "flights", label: "✈️ Flights" },
-  { value: "accommodation", label: "🏨 Stay" },
-  { value: "misc", label: "📦 Other" },
-] as const;
+import { ACTIVITY_CATEGORIES as CATEGORIES } from "@/lib/categories";
 
 type AddActivityPanelProps = {
   tripId: string;

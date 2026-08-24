@@ -107,7 +107,8 @@ export async function updateExpense(
       is_shared: fields.isShared ?? false,
       notes: fields.notes || null,
     })
-    .eq("id", expenseId);
+    .eq("id", expenseId)
+    .eq("trip_id", tripId);
 
   if (error) {
     console.error("Failed to update expense:", error);
@@ -126,7 +127,8 @@ export async function deleteExpense(expenseId: string, tripId: string) {
   const { error } = await supabase
     .from("expenses")
     .delete()
-    .eq("id", expenseId);
+    .eq("id", expenseId)
+    .eq("trip_id", tripId);
 
   if (error) {
     console.error("Failed to delete expense:", error);

@@ -3,16 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { Activity } from "@/lib/actions/activity";
-
-const CATEGORY_EMOJI: Record<string, string> = {
-  flights: "✈️",
-  accommodation: "🏨",
-  food: "🍜",
-  transport: "🚕",
-  activities: "🏛",
-  shopping: "🛒",
-  misc: "📦",
-};
+import { CATEGORY_EMOJI } from "@/lib/categories";
 
 type DayMapProps = {
   activities: Activity[];
@@ -28,6 +19,11 @@ export function DayMap({ activities }: DayMapProps) {
   const locatedActivities = activities.filter(
     (a) => a.place_lat && a.place_lng
   );
+
+  // Stable fingerprint so the map re-inits when locations change, not just count
+  const mapKey = locatedActivities
+    .map((a) => `${a.id}:${a.place_lat}:${a.place_lng}`)
+    .join(",");
 
   useEffect(() => {
     if (!expanded || !mapContainerRef.current || locatedActivities.length === 0)
@@ -113,16 +109,31 @@ export function DayMap({ activities }: DayMapProps) {
             </div>
           `;
 
-          // Add popup with activity name
+          // Build popup with safe text (no raw HTML injection)
+          const popupEl = document.createElement("div");
+          const titleEl = document.createElement("div");
+          titleEl.style.cssText = "font-size:13px;font-weight:500;color:#1a1a1a;padding:2px 0;";
+          titleEl.textContent = activity.title;
+          popupEl.appendChild(titleEl);
+
+          if (activity.time) {
+            const timeEl = document.createElement("div");
+            timeEl.style.cssText = "font-size:11px;color:#888;margin-top:2px;";
+            timeEl.textContent = activity.time;
+            popupEl.appendChild(timeEl);
+          }
+          if (activity.place_name) {
+            const placeEl = document.createElement("div");
+            placeEl.style.cssText = "font-size:11px;color:#888;margin-top:2px;";
+            placeEl.textContent = activity.place_name;
+            popupEl.appendChild(placeEl);
+          }
+
           const popup = new mapboxgl.Popup({
             offset: 20,
             closeButton: false,
             maxWidth: "200px",
-          }).setHTML(
-            `<div style="font-size:13px;font-weight:500;color:#1a1a1a;padding:2px 0;">${activity.title}</div>
-             ${activity.time ? `<div style="font-size:11px;color:#888;margin-top:2px;">${activity.time}</div>` : ""}
-             ${activity.place_name ? `<div style="font-size:11px;color:#888;margin-top:2px;">${activity.place_name}</div>` : ""}`
-          );
+          }).setDOMContent(popupEl);
 
           new mapboxgl.Marker({ element: el })
             .setLngLat([lng, lat])
@@ -154,7 +165,7 @@ export function DayMap({ activities }: DayMapProps) {
       setMapReady(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expanded, locatedActivities.length]);
+  }, [expanded, mapKey]);
 
   // Don't render if no activities have locations
   if (locatedActivities.length === 0) return null;

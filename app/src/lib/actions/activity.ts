@@ -114,7 +114,8 @@ export async function updateActivity(
   const { error } = await supabase
     .from("activities")
     .update({ ...fields, updated_at: new Date().toISOString() })
-    .eq("id", activityId);
+    .eq("id", activityId)
+    .eq("trip_id", tripId);
 
   if (error) {
     console.error("Failed to update activity:", error);
@@ -133,7 +134,8 @@ export async function deleteActivity(activityId: string, tripId: string) {
   const { error } = await supabase
     .from("activities")
     .delete()
-    .eq("id", activityId);
+    .eq("id", activityId)
+    .eq("trip_id", tripId);
 
   if (error) {
     console.error("Failed to delete activity:", error);
