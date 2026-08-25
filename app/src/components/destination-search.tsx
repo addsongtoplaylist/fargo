@@ -179,15 +179,20 @@ export function DestinationSearch({
       {/* Dropdown */}
       {open && results.length > 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 bg-card border border-border rounded-md shadow-lg z-50 overflow-hidden">
-          {results.map((feature, i) => {
-            const countryCtx = feature.context?.find((c) => c.id.startsWith("country"));
-            const regionCtx = feature.context?.find((c) => c.id.startsWith("region"));
-            const isCountry = feature.place_type.includes("country");
-            const isRegion = feature.place_type.includes("region");
-            const country = isCountry ? feature.text : countryCtx?.text ?? "";
-            const label = buildDisplayName(feature.text, regionCtx?.text, country, isCountry, isRegion);
-
-            return (
+          {(() => {
+            const seen = new Set<string>();
+            return results.reduce<{ feature: MapboxFeature; label: string }[]>((acc, feature) => {
+              const countryCtx = feature.context?.find((c) => c.id.startsWith("country"));
+              const regionCtx = feature.context?.find((c) => c.id.startsWith("region"));
+              const isCountry = feature.place_type.includes("country");
+              const isRegion = feature.place_type.includes("region");
+              const country = isCountry ? feature.text : countryCtx?.text ?? "";
+              const label = buildDisplayName(feature.text, regionCtx?.text, country, isCountry, isRegion);
+              if (seen.has(label)) return acc;
+              seen.add(label);
+              acc.push({ feature, label });
+              return acc;
+            }, []).map(({ feature, label }, i) => (
               <button
                 key={i}
                 type="button"
@@ -197,8 +202,8 @@ export function DestinationSearch({
                 <MapPin size={13} className="text-muted shrink-0 mt-0.5" />
                 <span className="truncate">{label}</span>
               </button>
-            );
-          })}
+            ));
+          })()}
         </div>
       )}
     </div>
