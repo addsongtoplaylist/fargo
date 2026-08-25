@@ -6,6 +6,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { createTrip } from "@/lib/actions/trip";
 import { useToast } from "@/components/toast";
+import { DestinationSearch, type Destination } from "@/components/destination-search";
 
 const tripTypes = [
   "Free & easy",
@@ -44,6 +45,7 @@ const CURRENCIES = [
 
 export default function NewTripPage() {
   const [selectedType, setSelectedType] = useState<string>("Free & easy");
+  const [destination, setDestination] = useState<Destination | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
   const { toast } = useToast();
@@ -54,6 +56,12 @@ export default function NewTripPage() {
     submittingRef.current = true;
     setSubmitting(true);
     formData.set("tripType", selectedType);
+    if (destination) {
+      formData.set("destination", destination.name);
+      formData.set("destinationCountry", destination.country);
+      formData.set("destinationLat", String(destination.lat));
+      formData.set("destinationLng", String(destination.lng));
+    }
     try {
       const result = await createTrip(formData);
       if (result?.error) {
@@ -102,13 +110,13 @@ export default function NewTripPage() {
           <label className="block text-[13px] font-medium text-muted mb-1">
             Destination
           </label>
-          <input
-            name="destination"
-            type="text"
+          <DestinationSearch
+            value={destination}
+            onChange={setDestination}
             placeholder="e.g. Hanoi, Vietnam"
-            required
-            className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink placeholder:text-muted/50 focus:outline-none focus:border-accent transition-colors"
           />
+          {/* Hidden input for form validation — destination is required */}
+          <input type="hidden" name="destination" value={destination?.name ?? ""} required />
         </div>
 
         {/* Dates */}

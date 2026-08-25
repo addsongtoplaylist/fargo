@@ -1,9 +1,8 @@
 import { Column } from "@/components/column";
-import { ShareButton } from "@/components/share-button";
 import { getBudgetSummary } from "@/lib/actions/expense";
 import { getActivities } from "@/lib/actions/activity";
 import { getChecklists } from "@/lib/actions/checklist";
-import { getTrip, getMyRole } from "@/lib/actions/trip";
+import { getTrip } from "@/lib/actions/trip";
 import { format, parseISO, isAfter } from "date-fns";
 import { notFound } from "next/navigation";
 
@@ -23,17 +22,14 @@ export default async function OverviewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [budget, activities, checklists, trip, myRole] = await Promise.all([
+  const [budget, activities, checklists, trip] = await Promise.all([
     getBudgetSummary(id),
     getActivities(id),
     getChecklists(id),
     getTrip(id),
-    getMyRole(id),
   ]);
 
   if (!trip) notFound();
-
-  const isPlanner = myRole === "planner";
 
   // Check if trip has ended
   const tripEnded = trip
@@ -59,9 +55,6 @@ export default async function OverviewPage({
 
   return (
     <Column className="py-4 pb-8 space-y-4">
-      {/* Share — planner only */}
-      {isPlanner && <ShareButton tripId={id} />}
-
       {/* Quick stats */}
       <div className="grid grid-cols-2 gap-3">
         <StatCard

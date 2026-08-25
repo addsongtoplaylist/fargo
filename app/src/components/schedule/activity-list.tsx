@@ -231,13 +231,15 @@ export function ActivityList({
           editing={editing}
           onClose={handlePanelClose}
           proximity={
-            // NOTE fix: bias location search toward existing activity locations
-            activities.find((a) => a.place_lat && a.place_lng)
-              ? {
-                  lat: parseFloat(activities.find((a) => a.place_lat)!.place_lat!),
-                  lng: parseFloat(activities.find((a) => a.place_lng)!.place_lng!),
-                }
-              : undefined
+            // Prefer trip destination coords, fall back to first geolocated activity
+            trip.destination_lat && trip.destination_lng
+              ? { lat: trip.destination_lat, lng: trip.destination_lng }
+              : activities.find((a) => a.place_lat && a.place_lng)
+                ? {
+                    lat: parseFloat(activities.find((a) => a.place_lat)!.place_lat!),
+                    lng: parseFloat(activities.find((a) => a.place_lng)!.place_lng!),
+                  }
+                : undefined
           }
         />
       )}

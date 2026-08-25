@@ -6,6 +6,9 @@ type TripInput = {
   id: string;
   name: string;
   destination: string;
+  destination_country?: string | null;
+  destination_lat?: number | null;
+  destination_lng?: number | null;
   start_date: string;
   end_date: string;
   trip_type: string;

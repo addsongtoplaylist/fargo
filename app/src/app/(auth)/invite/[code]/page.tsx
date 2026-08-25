@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
-import { getTripByInviteCode, joinTripByInviteCode } from "@/lib/actions/trip";
+import { getTripByInviteCode } from "@/lib/actions/trip";
 import { getOrCreateAccount } from "@/lib/account";
 import { InviteLanding } from "./invite-landing";
+import { InvitePreview } from "./invite-preview";
 
 export default async function InvitePage({
   params,
@@ -19,7 +19,7 @@ export default async function InvitePage({
             Invalid invite link
           </h1>
           <p className="text-sm text-muted mb-6">
-            This invite link is expired or doesn't exist.
+            This invite link is expired or doesn&apos;t exist.
           </p>
           <a
             href="/sign-in"
@@ -32,34 +32,22 @@ export default async function InvitePage({
     );
   }
 
-  // If the user is already signed in, try to join automatically
+  // Signed-in user: show preview with "Join Trip" button
   const account = await getOrCreateAccount();
   if (account) {
-    const result = await joinTripByInviteCode(code);
-    if (result.tripId) {
-      redirect(`/trips/${result.tripId}/overview`);
-    }
-    // If join failed, show error
+    // Check if already a member
+    const alreadyMember = trip.travellers?.some(
+      (t: { account_id: string }) => t.account_id === account.id
+    );
     return (
-      <div className="min-h-full flex flex-col items-center justify-center px-4 bg-ground">
-        <div className="w-full max-w-[360px] text-center">
-          <h1 className="text-2xl font-semibold text-ink mb-2">
-            Couldn&apos;t join trip
-          </h1>
-          <p className="text-sm text-muted mb-6">
-            {result.error || "Something went wrong. Please try again."}
-          </p>
-          <a
-            href="/trips"
-            className="text-sm text-accent hover:underline"
-          >
-            Go to My Trips
-          </a>
-        </div>
-      </div>
+      <InvitePreview
+        trip={trip}
+        inviteCode={code}
+        alreadyMember={!!alreadyMember}
+      />
     );
   }
 
-  // Not signed in — show the invite landing page
+  // Not signed in — show the invite landing page with Google sign-in
   return <InviteLanding trip={trip} inviteCode={code} />;
 }

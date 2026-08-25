@@ -28,6 +28,9 @@ export async function createTrip(formData: FormData): Promise<{ error?: string }
   const tripType = formData.get("tripType") as string;
   const localCurrency = formData.get("localCurrency") as string;
   const fxRate = formData.get("fxRate") as string;
+  const destinationCountry = formData.get("destinationCountry") as string | null;
+  const destinationLat = formData.get("destinationLat") as string | null;
+  const destinationLng = formData.get("destinationLng") as string | null;
 
   if (!name || !destination || !startDate || !endDate || !tripType || !localCurrency || !fxRate) {
     return { error: "All fields are required" };
@@ -52,6 +55,9 @@ export async function createTrip(formData: FormData): Promise<{ error?: string }
       fx_rate: parseFloat(fxRate),
       planner_id: account.id,
       status,
+      destination_country: destinationCountry || null,
+      destination_lat: destinationLat ? parseFloat(destinationLat) : null,
+      destination_lng: destinationLng ? parseFloat(destinationLng) : null,
     })
     .select()
     .single();
@@ -335,6 +341,9 @@ export async function updateTrip(
     end_date?: string;
     local_currency?: string;
     fx_rate?: number;
+    destination_country?: string | null;
+    destination_lat?: number | null;
+    destination_lng?: number | null;
   }
 ): Promise<{ error?: string }> {
   try {

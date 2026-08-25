@@ -46,6 +46,9 @@ export const updateTripSchema = z.object({
   end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   local_currency: z.string().min(1).max(10).optional(),
   fx_rate: z.number().positive().optional(),
+  destination_country: z.string().max(100).nullable().optional(),
+  destination_lat: z.number().nullable().optional(),
+  destination_lng: z.number().nullable().optional(),
 });
 
 // ─── Helpers ────────────────────────────────────────────────
