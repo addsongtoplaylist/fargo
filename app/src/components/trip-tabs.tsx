@@ -8,7 +8,6 @@ const tabs = [
   { slug: "schedule", label: "Schedule" },
   { slug: "money", label: "Money" },
   { slug: "prep", label: "Prep" },
-  { slug: "people", label: "People" },
 ] as const;
 
 export function TripTabs() {

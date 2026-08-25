@@ -1,30 +1,17 @@
 import Link from "next/link";
 import { Column } from "@/components/column";
-import { getBudgetSummary } from "@/lib/actions/expense";
 import { getActivities } from "@/lib/actions/activity";
-import { getChecklists } from "@/lib/actions/checklist";
-import { getTrip } from "@/lib/actions/trip";
+import { getTrip, getMyRole } from "@/lib/actions/trip";
+import { OverviewPeople } from "@/components/people/overview-people";
 import { CATEGORY_EMOJI } from "@/lib/categories";
 import {
   format,
   parseISO,
   isAfter,
   isBefore,
-  isToday,
-  differenceInCalendarDays,
 } from "date-fns";
 import { notFound } from "next/navigation";
-import { MapPin, Clock } from "lucide-react";
-
-const CATEGORY_LABELS: Record<string, string> = {
-  flights: "✈️ Flights",
-  accommodation: "🏨 Accommodation",
-  food: "🍜 Food",
-  transport: "🚕 Transport",
-  activities: "🏛 Activities",
-  shopping: "🛒 Shopping",
-  misc: "📦 Misc",
-};
+import { MapPin } from "lucide-react";
 
 export default async function OverviewPage({
   params,
@@ -32,11 +19,10 @@ export default async function OverviewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [budget, activities, checklists, trip] = await Promise.all([
-    getBudgetSummary(id),
+  const [activities, trip, myRole] = await Promise.all([
     getActivities(id),
-    getChecklists(id),
     getTrip(id),
+    getMyRole(id),
   ]);
 
   if (!trip) notFound();
@@ -47,15 +33,6 @@ export default async function OverviewPage({
   const tripEnded = isAfter(now, endDate);
   const tripStarted = !isBefore(now, startDate);
   const isActive = tripStarted && !tripEnded;
-
-  // Trip progress
-  const totalDays = differenceInCalendarDays(endDate, startDate) + 1;
-  const currentDay = isActive
-    ? differenceInCalendarDays(now, startDate) + 1
-    : tripEnded
-      ? totalDays
-      : 0;
-  const progressPct = totalDays > 0 ? Math.min((currentDay / totalDays) * 100, 100) : 0;
 
   // Today's activities (for active trips)
   const todayStr = format(now, "yyyy-MM-dd");
@@ -76,48 +53,8 @@ export default async function OverviewPage({
     (a) => !a.time || a.time >= nowTime
   );
 
-  // Checklist stats
-  const allItems = checklists.flatMap((c) => c.checklist_items);
-  const checkedCount = allItems.filter((i) => i.done).length;
-  const totalItems = allItems.length;
-
-  // Top spending category
-  let topCategory: string | null = null;
-  let topCategoryAmount = 0;
-  if (budget?.spendingByCategory) {
-    for (const [cat, amount] of Object.entries(budget.spendingByCategory)) {
-      if (amount > topCategoryAmount) {
-        topCategoryAmount = amount;
-        topCategory = cat;
-      }
-    }
-  }
-
   return (
     <Column className="py-4 pb-8 space-y-4">
-      {/* Trip progress — active or upcoming */}
-      {!tripEnded && (
-        <div className="bg-card rounded-lg border border-border p-4">
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-semibold text-ink">
-              {isActive
-                ? `Day ${currentDay} of ${totalDays}`
-                : `${differenceInCalendarDays(startDate, now)} days to go`}
-            </p>
-            <p className="text-xs text-muted">
-              {format(startDate, "d MMM")} – {format(endDate, "d MMM yyyy")}
-            </p>
-          </div>
-          {/* Progress bar */}
-          <div className="h-2 bg-ground rounded-full overflow-hidden">
-            <div
-              className="h-full bg-accent rounded-full transition-all"
-              style={{ width: `${isActive ? progressPct : 0}%` }}
-            />
-          </div>
-        </div>
-      )}
-
       {/* Today's plan — active trips only */}
       {isActive && (
         <div className="bg-card rounded-lg border border-border p-4">
@@ -137,7 +74,7 @@ export default async function OverviewPage({
             </p>
           ) : (
             <div className="space-y-2">
-              {todayActivities.slice(0, 4).map((activity, i) => {
+              {todayActivities.slice(0, 3).map((activity, i) => {
                 const isNext = i === nextIdx;
                 return (
                   <div
@@ -192,7 +129,7 @@ export default async function OverviewPage({
                       )}
                     </div>
 
-                    {/* "Up next" label */}
+                    {/* "Next" label */}
                     {isNext && (
                       <span className="text-[10px] font-medium text-accent bg-accent/10 px-1.5 py-0.5 rounded shrink-0">
                         Next
@@ -201,12 +138,12 @@ export default async function OverviewPage({
                   </div>
                 );
               })}
-              {todayActivities.length > 4 && (
+              {todayActivities.length > 3 && (
                 <Link
                   href={`/trips/${id}/schedule`}
                   className="block text-center text-xs text-muted hover:text-accent py-1 transition-colors"
                 >
-                  +{todayActivities.length - 4} more
+                  +{todayActivities.length - 3} more
                 </Link>
               )}
             </div>
@@ -214,148 +151,30 @@ export default async function OverviewPage({
         </div>
       )}
 
-      {/* Quick stats — tappable */}
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard
-          label="Activities"
-          value={activities.length.toString()}
-          sub="planned"
-          href={`/trips/${id}/schedule`}
-        />
-        <StatCard
-          label="Budget"
-          value={
-            budget && budget.budgetTotal > 0
-              ? `RM ${budget.budgetTotal.toLocaleString()}`
-              : "Not set"
-          }
-          sub={
-            budget && budget.budgetTotal > 0
-              ? `RM ${budget.remaining.toLocaleString()} left`
-              : undefined
-          }
-          href={`/trips/${id}/money`}
-        />
-        <StatCard
-          label="Expenses"
-          value={
-            budget
-              ? `RM ${budget.totalSpent.toLocaleString()}`
-              : "RM 0"
-          }
-          sub={`across ${budget?.tripDays ?? 0} days`}
-          href={`/trips/${id}/money`}
-        />
-        <StatCard
-          label="Daily budget"
-          value={
-            budget && budget.dailyFree > 0
-              ? `RM ${budget.dailyFree.toLocaleString()}`
-              : "—"
-          }
-          sub="per day free"
-          href={`/trips/${id}/money`}
-        />
-      </div>
-
-      {/* Post-trip summary — only shows after trip ends */}
-      {tripEnded && (
-        <div className="space-y-3">
-          <div className="bg-card rounded-lg border border-border p-4">
-            <p className="text-sm font-semibold text-ink mb-3">
-              🎉 Trip complete
-            </p>
-            <div className="space-y-2.5">
-              {/* Total spent */}
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted">Total spent</span>
-                <span className="text-sm font-medium text-ink">
-                  RM {budget ? budget.totalSpent.toLocaleString() : "0"}
-                </span>
-              </div>
-
-              {/* Top category */}
-              {topCategory && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted">Biggest category</span>
-                  <span className="text-sm font-medium text-ink">
-                    {CATEGORY_LABELS[topCategory] ?? topCategory}{" "}
-                    <span className="text-muted font-normal">
-                      RM {Math.round(topCategoryAmount).toLocaleString()}
-                    </span>
-                  </span>
-                </div>
-              )}
-
-              {/* Daily average */}
-              {budget && budget.tripDays > 0 && budget.totalSpent > 0 && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted">Daily average</span>
-                  <span className="text-sm font-medium text-ink">
-                    RM{" "}
-                    {Math.round(
-                      budget.totalSpent / budget.tripDays
-                    ).toLocaleString()}
-                    /day
-                  </span>
-                </div>
-              )}
-
-              {/* Checklist completion */}
-              {totalItems > 0 && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted">Packing & prep</span>
-                  <span className="text-sm font-medium text-ink">
-                    {checkedCount}/{totalItems} done
-                    {checkedCount === totalItems && " ✅"}
-                  </span>
-                </div>
-              )}
-
-              {/* Budget status */}
-              {budget && budget.budgetTotal > 0 && (
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted">Budget</span>
-                  <span
-                    className={`text-sm font-medium ${
-                      budget.remaining >= 0 ? "text-accent" : "text-red-500"
-                    }`}
-                  >
-                    {budget.remaining >= 0
-                      ? `RM ${budget.remaining.toLocaleString()} under`
-                      : `RM ${Math.abs(budget.remaining).toLocaleString()} over`}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
+      {/* Upcoming trips — show a prompt to check the schedule */}
+      {!isActive && !tripEnded && (
+        <div className="bg-card rounded-lg border border-border p-4">
+          <p className="text-sm font-semibold text-ink mb-1">
+            {activities.length > 0
+              ? `${activities.length} activities planned`
+              : "No activities yet"}
+          </p>
+          <Link
+            href={`/trips/${id}/schedule`}
+            className="text-xs text-accent font-medium hover:text-accent-hover transition-colors"
+          >
+            {activities.length > 0 ? "View schedule →" : "Start planning →"}
+          </Link>
         </div>
       )}
-    </Column>
-  );
-}
 
-function StatCard({
-  label,
-  value,
-  sub,
-  href,
-}: {
-  label: string;
-  value: string;
-  sub?: string;
-  href: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="block bg-card rounded-lg border border-border p-3 hover:border-accent/40 transition-colors"
-    >
-      <p className="text-[10px] font-medium text-muted uppercase tracking-wide mb-1">
-        {label}
-      </p>
-      <p className="text-lg font-semibold text-ink leading-tight">{value}</p>
-      {sub && <p className="text-xs text-muted mt-0.5">{sub}</p>}
-    </Link>
+      {/* People section */}
+      <OverviewPeople
+        tripId={trip.id}
+        travellers={trip.travellers ?? []}
+        plannerId={trip.planner_id}
+        isPlanner={myRole === "planner"}
+      />
+    </Column>
   );
 }

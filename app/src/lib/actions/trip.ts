@@ -258,35 +258,23 @@ export async function joinTripByInviteCode(code: string): Promise<{ tripId?: str
 
   const supabase = await createClient();
 
-  // Look up the trip
-  const { data: trip } = await supabase
-    .from("trips")
-    .select("id, travellers(account_id)")
-    .eq("invite_code", code)
-    .single();
-
-  if (!trip) return { error: "Invalid invite link" };
-
-  // Check if already a member
-  const alreadyMember = trip.travellers?.some(
-    (t: { account_id: string }) => t.account_id === account.id
-  );
-  if (alreadyMember) return { tripId: trip.id };
-
-  // Add as member
-  const { error } = await supabase.from("travellers").insert({
-    trip_id: trip.id,
-    display_name: account.name,
-    role: "member",
-    account_id: account.id,
+  // Use RPC function (SECURITY DEFINER) so the invite code lookup
+  // bypasses RLS — authenticated users may not have read access to
+  // the trips table for trips they haven't joined yet.
+  const { data, error } = await supabase.rpc("join_trip_by_invite", {
+    p_code: code,
+    p_account_id: account.id,
+    p_display_name: account.name,
   });
 
   if (error) {
     console.error("Failed to join trip:", error);
-    return { error: `Failed to join trip: ${error.message}` };
+    return { error: "Failed to join trip" };
   }
 
-  return { tripId: trip.id };
+  const result = data as { tripId?: string; error?: string } | null;
+  if (!result) return { error: "Invalid invite link" };
+  return result;
 }
 
 /** Remove a traveller from a trip (planner only) */

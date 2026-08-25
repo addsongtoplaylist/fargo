@@ -30,7 +30,7 @@ function TripLayoutSkeleton() {
       {/* Tab bar skeleton — matches TripTabs */}
       <nav className="bg-card border-b border-border sticky top-0 z-40">
         <div className="mx-auto max-w-[var(--max-width-column)] px-4 flex gap-1 py-2.5">
-          {["Overview", "Schedule", "Money", "Prep", "People"].map((label) => (
+          {["Overview", "Schedule", "Money", "Prep"].map((label) => (
             <Skeleton key={label} className="h-4 w-16 shrink-0" />
           ))}
         </div>
