@@ -135,8 +135,8 @@ export default async function OverviewPage({
 
   return (
     <Column className="py-4 pb-8 space-y-4">
-      {/* Local time & weather — active trips with destination set */}
-      {isActive && localTime && (
+      {/* Local time & weather — active + upcoming trips with destination set */}
+      {!tripEnded && localTime && (
         <div className="bg-card rounded-lg border border-border p-4">
           <div className="flex items-center gap-2 mb-2">
             <MapPin size={13} className="text-accent shrink-0" />
@@ -271,7 +271,7 @@ export default async function OverviewPage({
         <div className="bg-card rounded-lg border border-border p-4">
           <p className="text-sm font-semibold text-ink mb-1">
             {activities.length > 0
-              ? `${activities.length} activities planned`
+              ? `${activities.length} ${activities.length === 1 ? "activity" : "activities"} planned`
               : "No activities yet"}
           </p>
           <Link
