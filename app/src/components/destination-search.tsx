@@ -90,15 +90,23 @@ export function DestinationSearch({
   function handleSelect(feature: MapboxFeature) {
     // Extract country name and ISO code from context
     const countryCtx = feature.context?.find((c) => c.id.startsWith("country"));
+    const regionCtx = feature.context?.find((c) => c.id.startsWith("region"));
     const isCountry = feature.place_type.includes("country");
+    const isRegion = feature.place_type.includes("region");
     const country = isCountry ? feature.text : countryCtx?.text ?? "";
     // Mapbox short_code for countries is lowercase ISO 3166-1 alpha-2 (e.g. "vn")
     const countryCode = isCountry
       ? (feature as any).properties?.short_code?.toUpperCase() ?? ""
       : countryCtx?.short_code?.toUpperCase() ?? "";
 
+    // Build a clean display name: "City, Country" or "Region, Country"
+    // instead of Mapbox's raw place_name which can be verbose
+    // e.g. "Tokyo, Japan" instead of "Tokyo, Tokyo Prefecture, Japan"
+    // e.g. "Malacca, Malaysia" instead of "Malacca, Malacca, Malaysia"
+    const displayName = buildDisplayName(feature.text, regionCtx?.text, country, isCountry, isRegion);
+
     onChange({
-      name: feature.place_name,
+      name: displayName,
       country,
       countryCode,
       lat: feature.center[1],
@@ -107,6 +115,23 @@ export function DestinationSearch({
     setQuery("");
     setResults([]);
     setOpen(false);
+  }
+
+  /** Build a clean "City, Country" display name from Mapbox parts. */
+  function buildDisplayName(
+    text: string,
+    region: string | undefined,
+    country: string,
+    isCountry: boolean,
+    isRegion: boolean,
+  ): string {
+    if (isCountry) return text; // "Japan"
+    if (isRegion) return country ? `${text}, ${country}` : text; // "Tokyo, Japan"
+    // place type — include region only if it differs from the place name
+    if (region && region !== text && country) {
+      return `${text}, ${country}`; // "Puchong, Malaysia" (skip region for brevity)
+    }
+    return country ? `${text}, ${country}` : text; // "Malacca, Malaysia"
   }
 
   function handleClear() {
@@ -154,17 +179,26 @@ export function DestinationSearch({
       {/* Dropdown */}
       {open && results.length > 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 bg-card border border-border rounded-md shadow-lg z-50 overflow-hidden">
-          {results.map((feature, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => handleSelect(feature)}
-              className="w-full text-left px-3 py-2.5 text-sm text-ink hover:bg-accent-soft transition-colors flex items-start gap-2 border-b border-border last:border-b-0"
-            >
-              <MapPin size={13} className="text-muted shrink-0 mt-0.5" />
-              <span className="truncate">{feature.place_name}</span>
-            </button>
-          ))}
+          {results.map((feature, i) => {
+            const countryCtx = feature.context?.find((c) => c.id.startsWith("country"));
+            const regionCtx = feature.context?.find((c) => c.id.startsWith("region"));
+            const isCountry = feature.place_type.includes("country");
+            const isRegion = feature.place_type.includes("region");
+            const country = isCountry ? feature.text : countryCtx?.text ?? "";
+            const label = buildDisplayName(feature.text, regionCtx?.text, country, isCountry, isRegion);
+
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => handleSelect(feature)}
+                className="w-full text-left px-3 py-2.5 text-sm text-ink hover:bg-accent-soft transition-colors flex items-start gap-2 border-b border-border last:border-b-0"
+              >
+                <MapPin size={13} className="text-muted shrink-0 mt-0.5" />
+                <span className="truncate">{label}</span>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
