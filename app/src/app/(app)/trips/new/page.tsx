@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Column } from "@/components/column";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { createTrip } from "@/lib/actions/trip";
 import { useToast } from "@/components/toast";
@@ -45,9 +45,13 @@ const CURRENCIES = [
 export default function NewTripPage() {
   const [selectedType, setSelectedType] = useState<string>("Free & easy");
   const [submitting, setSubmitting] = useState(false);
+  const submittingRef = useRef(false);
   const { toast } = useToast();
 
   async function handleSubmit(formData: FormData) {
+    // BUG-7 fix: ref guard catches rapid double-clicks before React state updates
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     setSubmitting(true);
     formData.set("tripType", selectedType);
     try {
@@ -55,6 +59,7 @@ export default function NewTripPage() {
       if (result?.error) {
         toast(result.error, "error");
         setSubmitting(false);
+        submittingRef.current = false;
       }
       // On success, createTrip calls redirect() which throws (expected)
     } catch {
@@ -69,7 +74,7 @@ export default function NewTripPage() {
       <div className="flex items-center gap-3 mb-6">
         <Link
           href="/trips"
-          className="text-muted hover:text-ink transition-colors"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-ink transition-colors -ml-2"
           aria-label="Back"
         >
           <ArrowLeft size={20} />
@@ -192,9 +197,10 @@ export default function NewTripPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full h-11 bg-accent text-accent-on font-medium rounded-md hover:bg-accent-hover transition-colors mt-2 disabled:opacity-50"
+          className="w-full h-11 bg-accent text-accent-on font-medium rounded-md hover:bg-accent-hover transition-colors mt-2 disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          {submitting ? "Creating…" : "Create trip"}
+          {submitting && <Loader2 size={16} className="animate-spin" />}
+          {submitting ? "Creating trip…" : "Create trip"}
         </button>
       </form>
     </Column>

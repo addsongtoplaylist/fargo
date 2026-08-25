@@ -14,7 +14,7 @@ export function TripHeader() {
       <div className="mx-auto max-w-[var(--max-width-column)] px-4 flex items-center h-12 gap-3">
         <button
           onClick={() => router.push("/trips?noauto=1")}
-          className="text-muted hover:text-ink transition-colors -ml-1"
+          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-ink transition-colors -ml-2"
           aria-label="Back to My trips"
         >
           <ArrowLeft size={20} />
@@ -30,7 +30,7 @@ export function TripHeader() {
         {isPlanner && (
           <button
             onClick={() => router.push(`/trips/${trip?.id}/settings`)}
-            className="text-muted hover:text-ink transition-colors"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-ink transition-colors -mr-2"
             aria-label="Trip settings"
           >
             <Settings size={18} />

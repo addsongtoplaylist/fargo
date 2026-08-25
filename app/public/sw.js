@@ -1,4 +1,4 @@
-const CACHE_NAME = "fargo-v2";
+const CACHE_NAME = "fargo-v3";
 
 // App shell files to pre-cache
 const PRECACHE_URLS = [
@@ -36,12 +36,15 @@ self.addEventListener("fetch", (event) => {
   // Skip non-GET and cross-origin
   if (request.method !== "GET" || url.origin !== self.location.origin) return;
 
-  // Navigation requests (HTML pages) — network first, offline fallback
+  // Skip Supabase auth & API routes — never cache these
+  if (url.pathname.startsWith("/auth/") || url.pathname.startsWith("/api/")) return;
+
+  // Navigation requests (HTML pages) — network first, cache fallback, then offline page
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Only cache successful (non-redirect) responses
+          // Cache successful navigations so they work offline next time
           if (response.ok) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
@@ -53,6 +56,22 @@ self.addEventListener("fetch", (event) => {
             cached || caches.match("/offline.html")
           )
         )
+    );
+    return;
+  }
+
+  // RSC payloads (_rsc) — network first with cache fallback so offline pages render
+  if (url.searchParams.has("_rsc") || request.headers.get("RSC") === "1") {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then((cached) => cached || Response.error()))
     );
     return;
   }

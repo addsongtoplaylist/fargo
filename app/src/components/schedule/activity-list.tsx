@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
 import { format, parseISO, isToday } from "date-fns";
 import {
@@ -38,6 +39,7 @@ export function ActivityList({
   spendingByDate,
 }: ActivityListProps) {
   const trip = useTrip();
+  const router = useRouter();
   if (!trip) return null;
 
   const isPlanner = trip.myRole === "planner";
@@ -126,6 +128,9 @@ export function ActivityList({
   function handlePanelClose() {
     setPanelOpen(false);
     setEditing(null);
+    // BUG-1 fix: revalidatePath alone doesn't refresh the client Router Cache.
+    // Calling router.refresh() forces the RSC payload to re-fetch.
+    router.refresh();
   }
 
   // Format the selected date for the header
@@ -225,6 +230,15 @@ export function ActivityList({
           date={selectedDate}
           editing={editing}
           onClose={handlePanelClose}
+          proximity={
+            // NOTE fix: bias location search toward existing activity locations
+            activities.find((a) => a.place_lat && a.place_lng)
+              ? {
+                  lat: parseFloat(activities.find((a) => a.place_lat)!.place_lat!),
+                  lng: parseFloat(activities.find((a) => a.place_lng)!.place_lng!),
+                }
+              : undefined
+          }
         />
       )}
     </div>

@@ -14,6 +14,8 @@ type AddActivityPanelProps = {
   date: string;
   editing: Activity | null;
   onClose: () => void;
+  /** Bias location search toward this point (e.g. trip destination or existing activity) */
+  proximity?: { lat: number; lng: number };
 };
 
 export function AddActivityPanel({
@@ -21,6 +23,7 @@ export function AddActivityPanel({
   date,
   editing,
   onClose,
+  proximity,
 }: AddActivityPanelProps) {
   const [title, setTitle] = useState(editing?.title ?? "");
   const [time, setTime] = useState(editing?.time ?? "");
@@ -155,7 +158,7 @@ export function AddActivityPanel({
           </div>
 
           {/* Location */}
-          <LocationSearch value={place} onChange={setPlace} />
+          <LocationSearch value={place} onChange={setPlace} proximity={proximity} />
 
           {/* Category chips */}
           <div className="flex gap-1.5 flex-wrap">

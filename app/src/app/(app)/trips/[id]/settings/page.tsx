@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 import { useTrip } from "@/lib/trip-context";
 import { updateTrip, deleteTrip } from "@/lib/actions/trip";
 import { useToast } from "@/components/toast";
@@ -53,26 +52,12 @@ export default function TripSettingsPage() {
     if (result.error) {
       toast(result.error, "error");
     } else {
-      router.push("/trips");
+      router.push("/trips?noauto=1");
     }
   }
 
   return (
     <div className="min-h-full bg-ground">
-      {/* Header */}
-      <header className="bg-card border-b border-border">
-        <div className="mx-auto max-w-[var(--max-width-column)] px-4 flex items-center h-12 gap-3">
-          <button
-            onClick={() => router.back()}
-            className="text-muted hover:text-ink transition-colors -ml-1"
-            aria-label="Back"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <h1 className="text-base font-semibold text-ink">Trip Settings</h1>
-        </div>
-      </header>
-
       <div className="mx-auto max-w-[var(--max-width-column)] px-4 py-5 space-y-4">
         {/* Trip name */}
         <div>
