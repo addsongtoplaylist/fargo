@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateAccount } from "@/lib/account";
 import { revalidatePath } from "next/cache";
+import { createActivitySchema, updateActivitySchema, tripIdSchema, uuidSchema } from "@/lib/validations";
 
 export type Activity = {
   id: string;
@@ -54,6 +55,9 @@ export async function createActivity(
     place_lng?: string;
   }
 ) {
+  tripIdSchema.parse(tripId);
+  const validated = createActivitySchema.parse(fields);
+
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 
@@ -72,15 +76,15 @@ export async function createActivity(
 
   const { error } = await supabase.from("activities").insert({
     trip_id: tripId,
-    date: fields.date,
-    time: fields.time || null,
-    title: fields.title,
-    notes: fields.notes || null,
-    category: fields.category || "misc",
+    date: validated.date,
+    time: validated.time || null,
+    title: validated.title,
+    notes: validated.notes || null,
+    category: validated.category || "misc",
     sort_order: nextOrder,
-    place_name: fields.place_name || null,
-    place_lat: fields.place_lat || null,
-    place_lng: fields.place_lng || null,
+    place_name: validated.place_name || null,
+    place_lat: validated.place_lat || null,
+    place_lng: validated.place_lng || null,
   });
 
   if (error) {
@@ -107,13 +111,17 @@ export async function updateActivity(
     place_lng?: string | null;
   }
 ) {
+  uuidSchema.parse(activityId);
+  tripIdSchema.parse(tripId);
+  const validated = updateActivitySchema.parse(fields);
+
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 
   const supabase = await createClient();
   const { error } = await supabase
     .from("activities")
-    .update({ ...fields, updated_at: new Date().toISOString() })
+    .update({ ...validated, updated_at: new Date().toISOString() })
     .eq("id", activityId)
     .eq("trip_id", tripId);
 
@@ -127,6 +135,9 @@ export async function updateActivity(
 
 /** Delete an activity */
 export async function deleteActivity(activityId: string, tripId: string) {
+  uuidSchema.parse(activityId);
+  tripIdSchema.parse(tripId);
+
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 
@@ -150,19 +161,24 @@ export async function reorderActivities(
   tripId: string,
   orderedIds: string[]
 ) {
+  tripIdSchema.parse(tripId);
+  orderedIds.forEach((id) => uuidSchema.parse(id));
+
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 
   const supabase = await createClient();
 
-  // Update each activity's sort_order
-  const updates = orderedIds.map((id, index) =>
-    supabase
-      .from("activities")
-      .update({ sort_order: index, updated_at: new Date().toISOString() })
-      .eq("id", id)
-  );
+  // Single atomic RPC call instead of N individual UPDATEs
+  const { error } = await supabase.rpc("batch_reorder_activities", {
+    p_trip_id: tripId,
+    p_ids: orderedIds,
+  });
 
-  await Promise.all(updates);
+  if (error) {
+    console.error("Failed to reorder activities:", error);
+    throw new Error("Failed to reorder activities");
+  }
+
   revalidatePath(`/trips/${tripId}/schedule`);
 }

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getOrCreateAccount } from "@/lib/account";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { updateTripSchema, tripIdSchema, uuidSchema } from "@/lib/validations";
 
 const TRIP_TYPE_MAP: Record<string, string> = {
   "Free & easy": "free_and_easy",
@@ -107,30 +108,25 @@ export async function getMyTrips() {
   const supabase = await createClient();
   const today = new Date().toISOString().split("T")[0];
 
-  const { data: memberships } = await supabase
-    .from("travellers")
-    .select("trip_id")
-    .eq("account_id", account.id);
+  // Single RPC call replaces the 2-query waterfall
+  const { data: trips } = await supabase.rpc("get_my_trips", {
+    p_account_id: account.id,
+  });
 
-  if (!memberships || memberships.length === 0) {
+  if (!trips || !Array.isArray(trips) || trips.length === 0) {
     return { active: null, upcoming: [], past: [] };
   }
 
-  const tripIds = memberships.map((m) => m.trip_id);
-
-  const { data: trips } = await supabase
-    .from("trips")
-    .select("*, travellers(*)")
-    .in("id", tripIds)
-    .order("start_date", { ascending: true });
-
-  if (!trips) return { active: null, upcoming: [], past: [] };
-
   const active = trips.find(
-    (t) => t.start_date <= today && t.end_date >= today
+    (t: { start_date: string; end_date: string }) =>
+      t.start_date <= today && t.end_date >= today
   );
-  const upcoming = trips.filter((t) => t.start_date > today);
-  const past = trips.filter((t) => t.end_date < today && t !== active);
+  const upcoming = trips.filter(
+    (t: { start_date: string }) => t.start_date > today
+  );
+  const past = trips.filter(
+    (t: { end_date: string }) => t.end_date < today && t !== active
+  );
 
   return { active: active || null, upcoming, past };
 }
@@ -280,6 +276,9 @@ export async function joinTripByInviteCode(code: string): Promise<{ tripId?: str
 
 /** Remove a traveller from a trip (planner only) */
 export async function removeTraveller(tripId: string, travellerId: string) {
+  tripIdSchema.parse(tripId);
+  uuidSchema.parse(travellerId);
+
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 
@@ -338,6 +337,13 @@ export async function updateTrip(
     fx_rate?: number;
   }
 ): Promise<{ error?: string }> {
+  try {
+    tripIdSchema.parse(tripId);
+    updateTripSchema.parse(data);
+  } catch {
+    return { error: "Invalid input" };
+  }
+
   const account = await getOrCreateAccount();
   if (!account) return { error: "Not signed in" };
 
@@ -383,6 +389,8 @@ export async function updateTrip(
 
 /** Delete a trip (planner only) */
 export async function deleteTrip(tripId: string): Promise<{ error?: string }> {
+  try { tripIdSchema.parse(tripId); } catch { return { error: "Invalid trip ID" }; }
+
   const account = await getOrCreateAccount();
   if (!account) return { error: "Not signed in" };
 

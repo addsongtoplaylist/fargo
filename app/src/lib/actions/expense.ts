@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateAccount } from "@/lib/account";
 import { revalidatePath } from "next/cache";
+import { createExpenseSchema, updateExpenseSchema, tripIdSchema, uuidSchema } from "@/lib/validations";
 
 export type Expense = {
   id: string;
@@ -48,22 +49,25 @@ export async function createExpense(
     notes?: string;
   }
 ) {
+  tripIdSchema.parse(tripId);
+  const validated = createExpenseSchema.parse(fields);
+
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 
   const supabase = await createClient();
-  const amountMyr = fields.amount / fields.fxRate;
+  const amountMyr = validated.amount / validated.fxRate;
 
   const { error } = await supabase.from("expenses").insert({
     trip_id: tripId,
-    date: fields.date,
-    title: fields.title,
-    category: fields.category,
-    amount: fields.amount,
+    date: validated.date,
+    title: validated.title,
+    category: validated.category,
+    amount: validated.amount,
     amount_myr: Math.round(amountMyr * 100) / 100,
-    paid_by: fields.paidBy,
-    is_shared: fields.isShared ?? false,
-    notes: fields.notes || null,
+    paid_by: validated.paidBy,
+    is_shared: validated.isShared ?? false,
+    notes: validated.notes || null,
   });
 
   if (error) {
@@ -89,23 +93,27 @@ export async function updateExpense(
     notes?: string;
   }
 ) {
+  uuidSchema.parse(expenseId);
+  tripIdSchema.parse(tripId);
+  const validated = updateExpenseSchema.parse(fields);
+
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 
   const supabase = await createClient();
-  const amountMyr = fields.amount / fields.fxRate;
+  const amountMyr = validated.amount / validated.fxRate;
 
   const { error } = await supabase
     .from("expenses")
     .update({
-      date: fields.date,
-      title: fields.title,
-      category: fields.category,
-      amount: fields.amount,
+      date: validated.date,
+      title: validated.title,
+      category: validated.category,
+      amount: validated.amount,
       amount_myr: Math.round(amountMyr * 100) / 100,
-      paid_by: fields.paidBy,
-      is_shared: fields.isShared ?? false,
-      notes: fields.notes || null,
+      paid_by: validated.paidBy,
+      is_shared: validated.isShared ?? false,
+      notes: validated.notes || null,
     })
     .eq("id", expenseId)
     .eq("trip_id", tripId);
@@ -120,6 +128,9 @@ export async function updateExpense(
 }
 
 export async function deleteExpense(expenseId: string, tripId: string) {
+  uuidSchema.parse(expenseId);
+  tripIdSchema.parse(tripId);
+
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 

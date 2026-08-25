@@ -44,40 +44,32 @@ export function LogExpensePanel({
   const numericAmount = parseFloat(amount) || 0;
   const myrAmount = fxRate > 0 ? numericAmount / fxRate : 0;
 
-  async function handleSave() {
+  function handleSave() {
     if (!amount || !title.trim() || numericAmount <= 0) return;
-    setSaving(true);
 
-    try {
-      if (editing) {
-        await updateExpense(editing.id, tripId, {
-          date,
-          title: title.trim(),
-          category,
-          amount: numericAmount,
-          fxRate,
-          paidBy: travellerId,
-          isShared,
-          notes: notes.trim() || undefined,
-        });
-      } else {
-        await createExpense(tripId, {
-          date,
-          title: title.trim(),
-          category,
-          amount: numericAmount,
-          fxRate,
-          paidBy: travellerId,
-          isShared,
-          notes: notes.trim() || undefined,
-        });
-      }
-      onClose();
-    } catch (err) {
+    const payload = {
+      date,
+      title: title.trim(),
+      category,
+      amount: numericAmount,
+      fxRate,
+      paidBy: travellerId,
+      isShared,
+      notes: notes.trim() || undefined,
+    };
+
+    // Close panel immediately — optimistic UX
+    onClose();
+
+    // Fire server action in the background; toast on failure
+    const action = editing
+      ? updateExpense(editing.id, tripId, payload)
+      : createExpense(tripId, payload);
+
+    action.catch((err) => {
       console.error(err);
       toast("Failed to save expense. Please try again.");
-      setSaving(false);
-    }
+    });
   }
 
   async function handleDelete() {
@@ -223,10 +215,10 @@ export function LogExpensePanel({
         <div className="px-4 pt-3 pb-[calc(0.75rem+56px+env(safe-area-inset-bottom))] border-t border-border space-y-2">
           <button
             onClick={handleSave}
-            disabled={!amount || !title.trim() || numericAmount <= 0 || saving}
+            disabled={!amount || !title.trim() || numericAmount <= 0}
             className="w-full py-2.5 bg-accent text-accent-on text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
           >
-            {saving ? "Saving…" : editing ? "Save changes" : "Log expense"}
+            {editing ? "Save changes" : "Log expense"}
           </button>
 
           {editing && (
