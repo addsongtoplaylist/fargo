@@ -97,51 +97,7 @@ export function OverviewPeople({
         <p className="text-sm font-semibold text-ink">
           Travellers ({travellers.length})
         </p>
-        {isPlanner && (
-          <button
-            onClick={handleInvite}
-            disabled={loadingInvite}
-            className="flex items-center gap-1 text-xs text-accent font-medium hover:text-accent-hover transition-colors disabled:opacity-60"
-          >
-            {loadingInvite ? (
-              <Loader2 size={12} className="animate-spin" />
-            ) : (
-              <UserPlus size={12} />
-            )}
-            Invite
-          </button>
-        )}
       </div>
-
-      {/* Invite URL — shown after clicking Invite */}
-      {inviteUrl && (
-        <div className="bg-ground rounded-md border border-border p-2.5 mb-3">
-          <p className="text-[11px] text-muted mb-1.5">
-            Share this link — anyone with it can join:
-          </p>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 bg-card border border-border rounded px-2 py-1.5 text-[11px] text-ink truncate font-mono">
-              {inviteUrl}
-            </div>
-            <button
-              onClick={handleCopyLink}
-              className="shrink-0 px-2.5 py-1.5 bg-accent text-accent-on text-[11px] font-medium rounded hover:bg-accent-hover transition-colors flex items-center gap-1"
-            >
-              {copied ? (
-                <>
-                  <Check size={11} />
-                  Copied
-                </>
-              ) : (
-                <>
-                  <LinkIcon size={11} />
-                  Copy
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Traveller avatars — horizontal scroll if > 6 */}
       <div
@@ -178,6 +134,52 @@ export function OverviewPeople({
           );
         })}
       </div>
+
+      {/* Invite button — prominent, full-width (planner only) */}
+      {isPlanner && !inviteUrl && (
+        <button
+          onClick={handleInvite}
+          disabled={loadingInvite}
+          className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 bg-accent text-accent-on text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-60"
+        >
+          {loadingInvite ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <UserPlus size={16} />
+          )}
+          {loadingInvite ? "Generating…" : "Invite traveller"}
+        </button>
+      )}
+
+      {/* Invite URL — shown after clicking Invite */}
+      {inviteUrl && (
+        <div className="bg-ground rounded-md border border-border p-2.5 mt-3">
+          <p className="text-[11px] text-muted mb-1.5">
+            Share this link — anyone with it can join:
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-card border border-border rounded px-2 py-1.5 text-[11px] text-ink truncate font-mono">
+              {inviteUrl}
+            </div>
+            <button
+              onClick={handleCopyLink}
+              className="shrink-0 px-2.5 py-1.5 bg-accent text-accent-on text-[11px] font-medium rounded hover:bg-accent-hover transition-colors flex items-center gap-1"
+            >
+              {copied ? (
+                <>
+                  <Check size={11} />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <LinkIcon size={11} />
+                  Copy
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Selected traveller details */}
       {selectedTraveller && (

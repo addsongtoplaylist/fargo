@@ -7,11 +7,61 @@ import { CATEGORY_EMOJI } from "@/lib/categories";
 import {
   format,
   parseISO,
+  addDays,
   isAfter,
   isBefore,
+  isToday,
+  isTomorrow,
 } from "date-fns";
 import { notFound } from "next/navigation";
-import { MapPin } from "lucide-react";
+import { MapPin, Clock, CloudSun } from "lucide-react";
+
+/** Map country code → IANA timezone (common destinations). */
+const COUNTRY_TIMEZONE: Record<string, string> = {
+  US: "America/New_York",
+  GB: "Europe/London",
+  JP: "Asia/Tokyo",
+  KR: "Asia/Seoul",
+  CN: "Asia/Shanghai",
+  TW: "Asia/Taipei",
+  HK: "Asia/Hong_Kong",
+  SG: "Asia/Singapore",
+  MY: "Asia/Kuala_Lumpur",
+  TH: "Asia/Bangkok",
+  VN: "Asia/Ho_Chi_Minh",
+  ID: "Asia/Jakarta",
+  PH: "Asia/Manila",
+  IN: "Asia/Kolkata",
+  AU: "Australia/Sydney",
+  NZ: "Pacific/Auckland",
+  CA: "America/Toronto",
+  DE: "Europe/Berlin",
+  FR: "Europe/Paris",
+  IT: "Europe/Rome",
+  ES: "Europe/Madrid",
+  NL: "Europe/Amsterdam",
+  CH: "Europe/Zurich",
+  AE: "Asia/Dubai",
+  TR: "Europe/Istanbul",
+  BR: "America/Sao_Paulo",
+  MX: "America/Mexico_City",
+  PT: "Europe/Lisbon",
+  AT: "Europe/Vienna",
+  BE: "Europe/Brussels",
+  IE: "Europe/Dublin",
+  FI: "Europe/Helsinki",
+  GR: "Europe/Athens",
+};
+
+const HOME_TIMEZONE = "Asia/Kuala_Lumpur";
+
+function getLocalTime(timezone: string): string {
+  return new Date().toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: timezone,
+  });
+}
 
 export default async function OverviewPage({
   params,
@@ -34,32 +84,97 @@ export default async function OverviewPage({
   const tripStarted = !isBefore(now, startDate);
   const isActive = tripStarted && !tripEnded;
 
-  // Today's activities (for active trips)
+  // Find upcoming activities: today first, then tomorrow, then day after
   const todayStr = format(now, "yyyy-MM-dd");
-  const todayActivities = isActive
-    ? activities
-        .filter((a) => a.date === todayStr)
+  let upcomingActivities: typeof activities = [];
+  let upcomingLabel = "Today's plan";
+  let upcomingDate = todayStr;
+
+  if (isActive) {
+    for (let offset = 0; offset <= 2; offset++) {
+      const dateStr = format(addDays(now, offset), "yyyy-MM-dd");
+      const dayActivities = activities
+        .filter((a) => a.date === dateStr)
         .sort((a, b) => {
           if (!a.time && !b.time) return a.sort_order - b.sort_order;
           if (!a.time) return 1;
           if (!b.time) return -1;
           return a.time.localeCompare(b.time);
-        })
-    : [];
+        });
 
-  // Find next upcoming activity (with time >= now)
+      if (dayActivities.length > 0) {
+        upcomingActivities = dayActivities;
+        upcomingDate = dateStr;
+
+        const dateObj = parseISO(dateStr);
+        if (isToday(dateObj)) {
+          upcomingLabel = "Today's plan";
+        } else if (isTomorrow(dateObj)) {
+          upcomingLabel = "Tomorrow's plan";
+        } else {
+          upcomingLabel = format(dateObj, "EEEE, d MMM");
+        }
+        break;
+      }
+    }
+  }
+
+  // Find next upcoming activity (with time >= now) — only for today
   const nowTime = format(now, "HH:mm");
-  const nextIdx = todayActivities.findIndex(
-    (a) => !a.time || a.time >= nowTime
-  );
+  const nextIdx =
+    upcomingDate === todayStr
+      ? upcomingActivities.findIndex((a) => !a.time || a.time >= nowTime)
+      : 0; // For future days, highlight the first one
+
+  // Local time/weather
+  const countryCode = trip.destination_country_code;
+  const localTz = countryCode ? COUNTRY_TIMEZONE[countryCode] : null;
+  const localTime = localTz ? getLocalTime(localTz) : null;
+  const homeTime = getLocalTime(HOME_TIMEZONE);
+  const isSameTimezone = localTz === HOME_TIMEZONE;
 
   return (
     <Column className="py-4 pb-8 space-y-4">
-      {/* Today's plan — active trips only */}
+      {/* Local time & weather — active trips with destination set */}
+      {isActive && localTime && (
+        <div className="bg-card rounded-lg border border-border p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <MapPin size={13} className="text-accent shrink-0" />
+            <span className="text-sm font-medium text-ink">
+              {trip.destination}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1.5">
+                <Clock size={12} className="text-muted" />
+                <span className="text-sm tabular-nums text-ink font-medium">
+                  {localTime}
+                </span>
+                <span className="text-[10px] text-muted">local</span>
+              </div>
+              {!isSameTimezone && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm tabular-nums text-muted">
+                    {homeTime}
+                  </span>
+                  <span className="text-[10px] text-muted">home</span>
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <CloudSun size={16} className="text-amber-500" />
+              <span className="text-sm text-ink">32°C</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upcoming plan — active trips */}
       {isActive && (
         <div className="bg-card rounded-lg border border-border p-4">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-ink">Today's plan</p>
+            <p className="text-sm font-semibold text-ink">{upcomingLabel}</p>
             <Link
               href={`/trips/${id}/schedule`}
               className="text-xs text-accent font-medium hover:text-accent-hover transition-colors"
@@ -68,13 +183,13 @@ export default async function OverviewPage({
             </Link>
           </div>
 
-          {todayActivities.length === 0 ? (
+          {upcomingActivities.length === 0 ? (
             <p className="text-sm text-muted py-2">
-              Nothing planned for today.
+              No upcoming activities in the next few days.
             </p>
           ) : (
             <div className="space-y-2">
-              {todayActivities.slice(0, 3).map((activity, i) => {
+              {upcomingActivities.slice(0, 3).map((activity, i) => {
                 const isNext = i === nextIdx;
                 return (
                   <div
@@ -138,12 +253,12 @@ export default async function OverviewPage({
                   </div>
                 );
               })}
-              {todayActivities.length > 3 && (
+              {upcomingActivities.length > 3 && (
                 <Link
                   href={`/trips/${id}/schedule`}
                   className="block text-center text-xs text-muted hover:text-accent py-1 transition-colors"
                 >
-                  +{todayActivities.length - 3} more
+                  +{upcomingActivities.length - 3} more
                 </Link>
               )}
             </div>
@@ -151,7 +266,7 @@ export default async function OverviewPage({
         </div>
       )}
 
-      {/* Upcoming trips — show a prompt to check the schedule */}
+      {/* Upcoming trips (not started yet) — show a prompt */}
       {!isActive && !tripEnded && (
         <div className="bg-card rounded-lg border border-border p-4">
           <p className="text-sm font-semibold text-ink mb-1">
