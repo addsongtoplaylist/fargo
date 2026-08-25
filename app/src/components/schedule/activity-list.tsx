@@ -241,6 +241,7 @@ export function ActivityList({
                   }
                 : undefined
           }
+          country={trip.destination_country_code ?? undefined}
         />
       )}
     </div>

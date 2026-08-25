@@ -40,11 +40,12 @@ export function HeroTripCard({
         {trip.tripType}
       </span>
 
-      {/* Destination */}
-      <h2 className="text-lg font-semibold mb-0.5">{trip.destination}</h2>
+      {/* Trip name + destination */}
+      <h2 className="text-lg font-semibold mb-0.5">{trip.name}</h2>
+      <p className="text-sm text-white/80 mb-0.5">{trip.destination}</p>
 
       {/* Dates */}
-      <p className="text-xs text-white/80 mb-4">
+      <p className="text-xs text-white/60 mb-4">
         {formatDateRange(trip.startDate, trip.endDate)} · {trip.totalDays} days
       </p>
 

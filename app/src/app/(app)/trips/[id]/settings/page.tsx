@@ -20,6 +20,7 @@ export default function TripSettingsPage() {
       ? {
           name: trip.destination,
           country: trip.destination_country ?? "",
+          countryCode: trip.destination_country_code ?? "",
           lat: trip.destination_lat ?? 0,
           lng: trip.destination_lng ?? 0,
         }
@@ -54,6 +55,7 @@ export default function TripSettingsPage() {
       local_currency: localCurrency.toUpperCase(),
       fx_rate: parseFloat(fxRate) || undefined,
       destination_country: destination.country || null,
+      destination_country_code: destination.countryCode || null,
       destination_lat: destination.lat || null,
       destination_lng: destination.lng || null,
     });

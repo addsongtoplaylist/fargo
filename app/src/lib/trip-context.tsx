@@ -7,6 +7,7 @@ type TripInput = {
   name: string;
   destination: string;
   destination_country?: string | null;
+  destination_country_code?: string | null;
   destination_lat?: number | null;
   destination_lng?: number | null;
   start_date: string;

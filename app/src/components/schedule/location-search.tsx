@@ -14,6 +14,8 @@ type LocationSearchProps = {
   onChange: (place: Place | null) => void;
   /** Bias results toward the trip destination */
   proximity?: { lat: number; lng: number };
+  /** ISO 3166-1 alpha-2 country code to restrict results (e.g. "VN") */
+  country?: string;
 };
 
 type MapboxFeature = {
@@ -26,6 +28,7 @@ export function LocationSearch({
   value,
   onChange,
   proximity,
+  country,
 }: LocationSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<MapboxFeature[]>([]);
@@ -67,6 +70,9 @@ export function LocationSearch({
         if (proximity) {
           params.set("proximity", `${proximity.lng},${proximity.lat}`);
         }
+        if (country) {
+          params.set("country", country.toLowerCase());
+        }
         const res = await fetch(
           `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
             text
@@ -81,7 +87,7 @@ export function LocationSearch({
         setLoading(false);
       }
     },
-    [token, proximity]
+    [token, proximity, country]
   );
 
   function handleInput(text: string) {

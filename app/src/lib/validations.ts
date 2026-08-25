@@ -47,6 +47,7 @@ export const updateTripSchema = z.object({
   local_currency: z.string().min(1).max(10).optional(),
   fx_rate: z.number().positive().optional(),
   destination_country: z.string().max(100).nullable().optional(),
+  destination_country_code: z.string().max(2).nullable().optional(),
   destination_lat: z.number().nullable().optional(),
   destination_lng: z.number().nullable().optional(),
 });

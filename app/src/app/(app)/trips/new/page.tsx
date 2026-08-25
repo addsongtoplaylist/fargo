@@ -43,12 +43,36 @@ const CURRENCIES = [
   { code: "MXN", label: "MXN — Mexican Peso" },
 ] as const;
 
+/** ISO country code → currency code (covers CURRENCIES list above) */
+const COUNTRY_CURRENCY: Record<string, string> = {
+  US: "USD", GB: "GBP", JP: "JPY", KR: "KRW", CN: "CNY",
+  TW: "TWD", HK: "HKD", SG: "SGD", MY: "MYR", TH: "THB",
+  VN: "VND", ID: "IDR", PH: "PHP", IN: "INR", AU: "AUD",
+  NZ: "NZD", CA: "CAD", CH: "CHF", AE: "AED", TR: "TRY",
+  BR: "BRL", MX: "MXN",
+  // Eurozone
+  DE: "EUR", FR: "EUR", IT: "EUR", ES: "EUR", NL: "EUR",
+  BE: "EUR", AT: "EUR", PT: "EUR", IE: "EUR", FI: "EUR",
+  GR: "EUR", LU: "EUR", SK: "EUR", SI: "EUR", EE: "EUR",
+  LV: "EUR", LT: "EUR", CY: "EUR", MT: "EUR", HR: "EUR",
+};
+
 export default function NewTripPage() {
   const [selectedType, setSelectedType] = useState<string>("Free & easy");
   const [destination, setDestination] = useState<Destination | null>(null);
+  const [currency, setCurrency] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
   const { toast } = useToast();
+
+  function handleDestinationChange(dest: Destination | null) {
+    setDestination(dest);
+    // Auto-fill currency based on country code
+    if (dest?.countryCode) {
+      const matched = COUNTRY_CURRENCY[dest.countryCode];
+      if (matched) setCurrency(matched);
+    }
+  }
 
   async function handleSubmit(formData: FormData) {
     // BUG-7 fix: ref guard catches rapid double-clicks before React state updates
@@ -59,6 +83,7 @@ export default function NewTripPage() {
     if (destination) {
       formData.set("destination", destination.name);
       formData.set("destinationCountry", destination.country);
+      formData.set("destinationCountryCode", destination.countryCode);
       formData.set("destinationLat", String(destination.lat));
       formData.set("destinationLng", String(destination.lng));
     }
@@ -112,7 +137,7 @@ export default function NewTripPage() {
           </label>
           <DestinationSearch
             value={destination}
-            onChange={setDestination}
+            onChange={handleDestinationChange}
             placeholder="e.g. Hanoi, Vietnam"
           />
           {/* Hidden input for form validation — destination is required */}
@@ -177,7 +202,8 @@ export default function NewTripPage() {
             <select
               name="localCurrency"
               required
-              defaultValue=""
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
               className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink focus:outline-none focus:border-accent transition-colors appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%236b6560%22%20d%3D%22M2%204l4%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-8"
             >
               <option value="" disabled>Select currency</option>

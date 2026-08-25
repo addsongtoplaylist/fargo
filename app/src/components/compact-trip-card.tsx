@@ -26,8 +26,9 @@ export function CompactTripCard({ trip }: { trip: UpcomingTrip }) {
             {trip.tripType}
           </span>
           <h3 className="text-base font-semibold truncate">
-            {trip.destination}
+            {trip.name}
           </h3>
+          <p className="text-xs text-white/80 truncate">{trip.destination}</p>
           <p className="text-xs text-white/80 mt-0.5">
             {formatDateRange(trip.startDate, trip.endDate)}
           </p>

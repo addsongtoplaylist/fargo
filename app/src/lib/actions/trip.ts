@@ -29,6 +29,7 @@ export async function createTrip(formData: FormData): Promise<{ error?: string }
   const localCurrency = formData.get("localCurrency") as string;
   const fxRate = formData.get("fxRate") as string;
   const destinationCountry = formData.get("destinationCountry") as string | null;
+  const destinationCountryCode = formData.get("destinationCountryCode") as string | null;
   const destinationLat = formData.get("destinationLat") as string | null;
   const destinationLng = formData.get("destinationLng") as string | null;
 
@@ -56,6 +57,7 @@ export async function createTrip(formData: FormData): Promise<{ error?: string }
       planner_id: account.id,
       status,
       destination_country: destinationCountry || null,
+      destination_country_code: destinationCountryCode || null,
       destination_lat: destinationLat ? parseFloat(destinationLat) : null,
       destination_lng: destinationLng ? parseFloat(destinationLng) : null,
     })
@@ -233,13 +235,20 @@ export async function getOrCreateInviteCode(tripId: string) {
 /** Look up a trip by its invite code */
 export async function getTripByInviteCode(code: string) {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("trips")
-    .select("*, travellers(*)")
-    .eq("invite_code", code)
-    .single();
+  // Use RPC function (SECURITY DEFINER) so unauthenticated visitors
+  // can see the invite preview without being blocked by RLS.
+  const { data } = await supabase.rpc("get_trip_by_invite", {
+    p_code: code,
+  });
 
-  return data;
+  return data as {
+    id: string;
+    name: string;
+    destination: string;
+    start_date: string;
+    end_date: string;
+    travellers: { display_name: string; account_id: string }[];
+  } | null;
 }
 
 /** Join a trip using an invite code */
@@ -342,6 +351,7 @@ export async function updateTrip(
     local_currency?: string;
     fx_rate?: number;
     destination_country?: string | null;
+    destination_country_code?: string | null;
     destination_lat?: number | null;
     destination_lng?: number | null;
   }

@@ -6,6 +6,8 @@ import { MapPin, X, Loader2 } from "lucide-react";
 export type Destination = {
   name: string;
   country: string;
+  /** ISO 3166-1 alpha-2 country code (e.g. "VN", "JP") */
+  countryCode: string;
   lat: number;
   lng: number;
 };
@@ -21,7 +23,7 @@ type MapboxFeature = {
   place_name: string;
   text: string;
   center: [number, number]; // [lng, lat]
-  context?: { id: string; text: string }[];
+  context?: { id: string; text: string; short_code?: string }[];
   place_type: string[];
 };
 
@@ -86,16 +88,19 @@ export function DestinationSearch({
   }
 
   function handleSelect(feature: MapboxFeature) {
-    // Extract country from context
+    // Extract country name and ISO code from context
     const countryCtx = feature.context?.find((c) => c.id.startsWith("country"));
-    const country =
-      feature.place_type.includes("country")
-        ? feature.text
-        : countryCtx?.text ?? "";
+    const isCountry = feature.place_type.includes("country");
+    const country = isCountry ? feature.text : countryCtx?.text ?? "";
+    // Mapbox short_code for countries is lowercase ISO 3166-1 alpha-2 (e.g. "vn")
+    const countryCode = isCountry
+      ? (feature as any).properties?.short_code?.toUpperCase() ?? ""
+      : countryCtx?.short_code?.toUpperCase() ?? "";
 
     onChange({
       name: feature.place_name,
       country,
+      countryCode,
       lat: feature.center[1],
       lng: feature.center[0],
     });

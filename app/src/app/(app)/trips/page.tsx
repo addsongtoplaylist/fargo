@@ -63,14 +63,36 @@ export default async function TripsPage({
               <h2 className="text-sm font-medium text-muted mb-2">
                 Past trips
               </h2>
-              {past.map((trip) => (
+              {past.map((trip: any) => (
                 <Link
                   key={trip.id}
                   href={`/trips/${trip.id}/overview`}
                   className="block bg-card rounded-md border border-border p-3 mb-2"
                 >
-                  <h3 className="text-sm font-semibold">{trip.destination}</h3>
-                  <p className="text-xs text-muted">{trip.name}</p>
+                  <h3 className="text-sm font-semibold text-ink">{trip.name}</h3>
+                  <p className="text-xs text-muted">{trip.destination}</p>
+                  <div className="flex items-center gap-3 mt-1.5">
+                    <span className="text-[11px] text-muted">
+                      {formatDateRange(trip.start_date, trip.end_date)}
+                    </span>
+                    {trip.travellers && trip.travellers.length > 0 && (
+                      <div className="flex items-center gap-1">
+                        <div className="flex -space-x-1">
+                          {trip.travellers.slice(0, 4).map((t: any, i: number) => (
+                            <div
+                              key={i}
+                              className="w-4 h-4 rounded-full bg-accent/20 border border-card flex items-center justify-center text-[8px] font-medium text-accent"
+                            >
+                              {t.display_name?.charAt(0).toUpperCase()}
+                            </div>
+                          ))}
+                        </div>
+                        <span className="text-[11px] text-muted">
+                          {trip.travellers.length}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </Link>
               ))}
             </div>
@@ -146,4 +168,11 @@ function formatUpcomingTrip(trip: any, today: Date) {
     })),
     color: TRIP_COLORS[1],
   };
+}
+
+function formatDateRange(start: string, end: string): string {
+  const s = new Date(start);
+  const e = new Date(end);
+  const opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+  return `${s.toLocaleDateString("en-GB", opts)} – ${e.toLocaleDateString("en-GB", opts)} ${e.getFullYear()}`;
 }
