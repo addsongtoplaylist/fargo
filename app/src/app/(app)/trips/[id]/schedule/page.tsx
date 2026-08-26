@@ -1,5 +1,6 @@
 import { getActivities } from "@/lib/actions/activity";
 import { getBudgetSummary } from "@/lib/actions/expense";
+import { getOrCreateAccount } from "@/lib/account";
 import { ActivityList } from "@/components/schedule/activity-list";
 
 export default async function SchedulePage({
@@ -8,9 +9,10 @@ export default async function SchedulePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [activities, budget] = await Promise.all([
+  const [activities, budget, account] = await Promise.all([
     getActivities(id),
     getBudgetSummary(id),
+    getOrCreateAccount(),
   ]);
 
   return (
@@ -19,6 +21,7 @@ export default async function SchedulePage({
         activities={activities}
         dailyFree={budget?.dailyFree ?? 0}
         spendingByDate={budget?.spendingByDate ?? {}}
+        homeCountryCode={account?.home_country_code ?? undefined}
       />
     </div>
   );

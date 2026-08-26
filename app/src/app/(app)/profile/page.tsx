@@ -1,6 +1,7 @@
 import { Column } from "@/components/column";
 import { getOrCreateAccount } from "@/lib/account";
 import { SignOutButton } from "@/components/sign-out-button";
+import { ProfileSettings } from "@/components/profile-settings";
 
 export default async function ProfilePage() {
   const account = await getOrCreateAccount();
@@ -19,14 +20,10 @@ export default async function ProfilePage() {
             <p className="text-sm text-muted">{account?.email}</p>
           </div>
         </div>
-        <div className="border-t border-border pt-3 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted">Home currency</span>
-            <span className="text-sm font-medium">
-              {account?.home_currency || "MYR"}
-            </span>
-          </div>
-        </div>
+        <ProfileSettings
+          homeCurrency={account?.home_currency || "MYR"}
+          homeCountryCode={account?.home_country_code ?? null}
+        />
       </div>
 
       <h2 className="text-base font-semibold mt-8 mb-3">Recently viewed</h2>

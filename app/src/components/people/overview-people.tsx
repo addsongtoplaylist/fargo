@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Crown, UserPlus, X, Link as LinkIcon, Check, Loader2 } from "lucide-react";
-import { getOrCreateInviteCode, removeTraveller } from "@/lib/actions/trip";
+import { Crown, UserPlus, X, LogOut, Link as LinkIcon, Check, Loader2 } from "lucide-react";
+import { getOrCreateInviteCode, removeTraveller, leaveTrip } from "@/lib/actions/trip";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
@@ -19,6 +19,7 @@ type OverviewPeopleProps = {
   travellers: Traveller[];
   plannerId: string;
   isPlanner: boolean;
+  myAccountId: string;
 };
 
 export function OverviewPeople({
@@ -26,6 +27,7 @@ export function OverviewPeople({
   travellers,
   plannerId,
   isPlanner,
+  myAccountId,
 }: OverviewPeopleProps) {
   const router = useRouter();
   const { toast } = useToast();
@@ -35,6 +37,8 @@ export function OverviewPeople({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [removing, setRemoving] = useState(false);
   const [removeConfirmId, setRemoveConfirmId] = useState<string | null>(null);
+  const [leaveConfirm, setLeaveConfirm] = useState(false);
+  const [leaving, setLeaving] = useState(false);
 
   // Sort: planner first, then alphabetical
   const sorted = [...travellers].sort((a, b) => {
@@ -88,7 +92,25 @@ export function OverviewPeople({
     }
   }
 
+  async function handleLeave() {
+    setLeaving(true);
+    try {
+      const result = await leaveTrip(tripId);
+      if (result.error) {
+        toast(result.error, "error");
+        setLeaving(false);
+      } else {
+        router.push("/trips?noauto=1");
+      }
+    } catch {
+      toast("Failed to leave trip.");
+      setLeaving(false);
+    }
+    setLeaveConfirm(false);
+  }
+
   const selectedTraveller = sorted.find((t) => t.id === selectedId);
+  const isSelf = selectedTraveller?.account_id === myAccountId;
 
   return (
     <div className="bg-card rounded-lg border border-border p-4">
@@ -199,8 +221,20 @@ export function OverviewPeople({
             </span>
           </div>
 
+          {/* Leave trip — member taps their own profile */}
+          {isSelf && !isPlanner && (
+            <button
+              onClick={() => setLeaveConfirm(true)}
+              disabled={leaving}
+              className="text-xs text-money-over hover:text-money-over/80 transition-colors disabled:opacity-50 flex items-center gap-1"
+            >
+              <LogOut size={12} />
+              Leave trip
+            </button>
+          )}
+
           {/* Remove button — planner can remove members (not self) */}
-          {isPlanner && selectedTraveller.role !== "planner" && (
+          {isPlanner && selectedTraveller.role !== "planner" && !isSelf && (
             <button
               onClick={() => setRemoveConfirmId(selectedTraveller.id)}
               disabled={removing}
@@ -229,6 +263,15 @@ export function OverviewPeople({
           if (removeConfirmId) return handleRemove(removeConfirmId);
         }}
         onCancel={() => setRemoveConfirmId(null)}
+      />
+
+      <ConfirmDialog
+        open={leaveConfirm}
+        title="Leave trip"
+        message="Are you sure you want to leave this trip? You'll lose access to all shared activities, expenses, and checklists."
+        confirmLabel="Leave"
+        onConfirm={handleLeave}
+        onCancel={() => setLeaveConfirm(false)}
       />
     </div>
   );

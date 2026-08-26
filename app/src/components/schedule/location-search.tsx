@@ -14,8 +14,8 @@ type LocationSearchProps = {
   onChange: (place: Place | null) => void;
   /** Bias results toward the trip destination */
   proximity?: { lat: number; lng: number };
-  /** ISO 3166-1 alpha-2 country code to restrict results (e.g. "VN") */
-  country?: string;
+  /** ISO 3166-1 alpha-2 country codes to restrict results (e.g. ["VN", "MY"]) */
+  countries?: string[];
 };
 
 type GooglePlace = {
@@ -40,7 +40,7 @@ export function LocationSearch({
   value,
   onChange,
   proximity,
-  country,
+  countries,
 }: LocationSearchProps) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<GoogleSuggestion[]>([]);
@@ -88,9 +88,9 @@ export function LocationSearch({
           };
         }
 
-        // Restrict to country if available
-        if (country) {
-          body.includedRegionCodes = [country.toLowerCase()];
+        // Restrict to specified countries (home + destination)
+        if (countries && countries.length > 0) {
+          body.includedRegionCodes = countries.map((c) => c.toLowerCase());
         }
 
         const res = await fetch(
@@ -113,7 +113,7 @@ export function LocationSearch({
         setLoading(false);
       }
     },
-    [apiKey, proximity, country]
+    [apiKey, proximity, countries]
   );
 
   function handleInput(text: string) {

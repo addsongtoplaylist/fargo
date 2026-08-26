@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Column } from "@/components/column";
 import { getActivities } from "@/lib/actions/activity";
 import { getTrip, getMyRole } from "@/lib/actions/trip";
+import { getOrCreateAccount } from "@/lib/account";
 import { OverviewPeople } from "@/components/people/overview-people";
 import { CATEGORY_EMOJI } from "@/lib/categories";
 import {
@@ -69,10 +70,11 @@ export default async function OverviewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [activities, trip, myRole] = await Promise.all([
+  const [activities, trip, myRole, account] = await Promise.all([
     getActivities(id),
     getTrip(id),
     getMyRole(id),
+    getOrCreateAccount(),
   ]);
 
   if (!trip) notFound();
@@ -347,6 +349,7 @@ export default async function OverviewPage({
         travellers={trip.travellers ?? []}
         plannerId={trip.planner_id}
         isPlanner={myRole === "planner"}
+        myAccountId={account?.id ?? ""}
       />
     </Column>
   );

@@ -312,6 +312,42 @@ export async function removeTraveller(tripId: string, travellerId: string) {
   revalidatePath(`/trips/${tripId}/people`);
 }
 
+/** Leave a trip (member only — planner cannot leave, they should delete) */
+export async function leaveTrip(tripId: string): Promise<{ error?: string }> {
+  try { tripIdSchema.parse(tripId); } catch { return { error: "Invalid trip ID" }; }
+
+  const account = await getOrCreateAccount();
+  if (!account) return { error: "Not signed in" };
+
+  const supabase = await createClient();
+
+  // Find the traveller row for this user
+  const { data: traveller } = await supabase
+    .from("travellers")
+    .select("id, role")
+    .eq("trip_id", tripId)
+    .eq("account_id", account.id)
+    .single();
+
+  if (!traveller) return { error: "You are not a member of this trip" };
+  if (traveller.role === "planner") return { error: "The planner cannot leave. Delete the trip instead." };
+
+  const { error } = await supabase
+    .from("travellers")
+    .delete()
+    .eq("id", traveller.id)
+    .eq("trip_id", tripId);
+
+  if (error) {
+    console.error("Failed to leave trip:", error);
+    return { error: "Failed to leave trip" };
+  }
+
+  revalidatePath("/trips");
+  revalidatePath(`/trips/${tripId}`);
+  return {};
+}
+
 /** Get the current user's role for a trip */
 export async function getMyRole(tripId: string) {
   const account = await getOrCreateAccount();

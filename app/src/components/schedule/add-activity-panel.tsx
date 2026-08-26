@@ -16,8 +16,8 @@ type AddActivityPanelProps = {
   onClose: () => void;
   /** Bias location search toward this point (e.g. trip destination or existing activity) */
   proximity?: { lat: number; lng: number };
-  /** ISO country code to filter location results (e.g. "VN") */
-  country?: string;
+  /** ISO country codes to filter location results (e.g. ["VN", "MY"]) */
+  countries?: string[];
 };
 
 export function AddActivityPanel({
@@ -26,7 +26,7 @@ export function AddActivityPanel({
   editing,
   onClose,
   proximity,
-  country,
+  countries,
 }: AddActivityPanelProps) {
   const [title, setTitle] = useState(editing?.title ?? "");
   const [time, setTime] = useState(editing?.time ?? "");
@@ -161,7 +161,7 @@ export function AddActivityPanel({
           </div>
 
           {/* Location */}
-          <LocationSearch value={place} onChange={setPlace} proximity={proximity} country={country} />
+          <LocationSearch value={place} onChange={setPlace} proximity={proximity} countries={countries} />
 
           {/* Category chips */}
           <div className="flex gap-1.5 flex-wrap">

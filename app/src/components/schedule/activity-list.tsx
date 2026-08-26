@@ -31,12 +31,14 @@ type ActivityListProps = {
   activities: Activity[];
   dailyFree: number;
   spendingByDate: Record<string, number>;
+  homeCountryCode?: string;
 };
 
 export function ActivityList({
   activities: initialActivities,
   dailyFree,
   spendingByDate,
+  homeCountryCode,
 }: ActivityListProps) {
   const trip = useTrip();
   const router = useRouter();
@@ -241,7 +243,12 @@ export function ActivityList({
                   }
                 : undefined
           }
-          country={trip.destination_country_code ?? undefined}
+          countries={(() => {
+            const codes = new Set<string>();
+            if (trip.destination_country_code) codes.add(trip.destination_country_code);
+            if (homeCountryCode) codes.add(homeCountryCode);
+            return codes.size > 0 ? [...codes] : undefined;
+          })()}
         />
       )}
     </div>

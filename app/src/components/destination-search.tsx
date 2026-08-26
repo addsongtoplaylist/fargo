@@ -63,7 +63,7 @@ export function DestinationSearch({
         const params = new URLSearchParams({
           access_token: token,
           limit: "5",
-          types: "place,region,country",
+          types: "country",
           language: "en",
         });
         const res = await fetch(
