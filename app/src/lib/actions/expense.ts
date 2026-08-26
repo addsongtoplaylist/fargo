@@ -250,7 +250,7 @@ export async function getBudgetSummary(tripId: string) {
       .eq("trip_id", tripId),
     supabase
       .from("activities")
-      .select("cost, cost_shared")
+      .select("cost, cost_shared, category")
       .eq("trip_id", tripId)
       .not("cost", "is", null),
     supabase
@@ -285,18 +285,27 @@ export async function getBudgetSummary(tripId: string) {
 
   // Compute activity costs in MYR
   let activityCostsMyr = 0;
+  // Fixed costs = flights, accommodation, activities (attractions) only
+  const FIXED_CATEGORIES = ["flights", "accommodation", "activities"];
+  let fixedCostsMyr = 0;
   if (activities) {
     for (const a of activities) {
       if (a.cost) {
-        activityCostsMyr += parseFloat(a.cost) / fxRate;
+        const costMyr = parseFloat(a.cost) / fxRate;
+        activityCostsMyr += costMyr;
+        if (FIXED_CATEGORIES.includes(a.category)) {
+          fixedCostsMyr += costMyr;
+        }
       }
     }
   }
   activityCostsMyr = Math.round(activityCostsMyr * 100) / 100;
+  fixedCostsMyr = Math.round(fixedCostsMyr * 100) / 100;
 
   const budgetTotal = traveller.budget_total ?? 0;
   const remaining = budgetTotal - totalSpent;
-  const dailyFree = tripDays > 0 ? (budgetTotal - activityCostsMyr) / tripDays : 0;
+  // Daily free = (total budget - fixed expenses) / total days
+  const dailyFree = tripDays > 0 ? (budgetTotal - fixedCostsMyr) / tripDays : 0;
 
   return {
     travellerId: traveller.id,

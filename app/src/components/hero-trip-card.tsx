@@ -26,43 +26,31 @@ export function HeroTripCard({
       href={`/trips/${trip.id}/overview`}
       className={`block rounded-lg p-4 text-white ${trip.color}`}
     >
-      {/* Active now indicator */}
-      <div className="flex items-center gap-1.5 mb-3">
-        <span className="relative flex h-2 w-2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-75" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
-        </span>
-        <span className="text-xs font-medium text-white/90">Active now</span>
-      </div>
+      <div className="flex items-start justify-between">
+        {/* Left: chip + name + destination + dates */}
+        <div className="flex-1 min-w-0">
+          <span className="inline-block px-2 py-0.5 rounded-sm text-[11px] font-medium bg-white/20 mb-2">
+            {trip.tripType}
+          </span>
+          <h2 className="text-lg font-semibold mb-0.5">{trip.name}</h2>
+          <p className="text-sm text-white/80 mb-0.5">{trip.destination}</p>
+          <p className="text-xs text-white/60">
+            {formatDateRange(trip.startDate, trip.endDate)} · {trip.totalDays} days
+          </p>
+        </div>
 
-      {/* Trip type chip */}
-      <span className="inline-block px-2 py-0.5 rounded-sm text-[11px] font-medium bg-white/20 mb-2">
-        {trip.tripType}
-      </span>
-
-      {/* Trip name + destination */}
-      <h2 className="text-lg font-semibold mb-0.5">{trip.name}</h2>
-      <p className="text-sm text-white/80 mb-0.5">{trip.destination}</p>
-
-      {/* Dates */}
-      <p className="text-xs text-white/60 mb-4">
-        {formatDateRange(trip.startDate, trip.endDate)} · {trip.totalDays} days
-      </p>
-
-      {/* Day counter — hero number */}
-      <div className="flex items-end justify-between">
-        <div>
+        {/* Right: day counter */}
+        <div className="text-right ml-3 shrink-0">
           <span className="block text-[42px] font-medium leading-none tabular-nums">
             Day {trip.currentDay}
           </span>
           <span className="text-sm text-white/80">of {trip.totalDays}</span>
         </div>
-        <div className="flex flex-col items-end gap-2">
-          <TravellerAvatars travellers={trip.travellers} size={26} />
-          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-xs font-medium bg-white/20">
-            Open →
-          </span>
-        </div>
+      </div>
+
+      {/* Traveller avatars — bottom left */}
+      <div className="mt-3">
+        <TravellerAvatars travellers={trip.travellers} size={26} />
       </div>
     </Link>
   );
