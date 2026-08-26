@@ -35,7 +35,7 @@ export function HeroTripCard({
           <h2 className="text-lg font-semibold mb-0.5">{trip.name}</h2>
           <p className="text-sm text-white/80 mb-0.5">{trip.destination}</p>
           <p className="text-xs text-white/60">
-            {formatDateRange(trip.startDate, trip.endDate)} · {trip.totalDays} days
+            {formatDateRange(trip.startDate, trip.endDate)}
           </p>
         </div>
 
