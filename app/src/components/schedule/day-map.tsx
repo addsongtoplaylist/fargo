@@ -83,7 +83,7 @@ export function DayMap({ activities }: DayMapProps) {
               width: 32px;
               height: 32px;
               background: white;
-              border: 2px solid #1a8a6e;
+              border: 2px solid #0085d9;
               border-radius: 50%;
               box-shadow: 0 2px 6px rgba(0,0,0,0.15);
               font-size: 14px;
@@ -95,7 +95,7 @@ export function DayMap({ activities }: DayMapProps) {
                 position: absolute;
                 top: -6px;
                 right: -6px;
-                background: #1a8a6e;
+                background: #0085d9;
                 color: white;
                 font-size: 9px;
                 font-weight: 700;

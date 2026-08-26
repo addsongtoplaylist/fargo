@@ -105,7 +105,7 @@ export default async function TripsPage({
 
 // Trip colour rotation — cool/neutral palette
 const TRIP_COLORS = [
-  "bg-accent", // Active: Cyan #22B8E0
+  "bg-accent", // Active: Electric Blue #0085D9
   "bg-trip-blue-1", // Upcoming 1: Slate-blue #7BA3B8
   "bg-trip-blue-2", // Upcoming 2: Dusty blue #6B96A8
   "bg-trip-green-1", // Upcoming 3: Cool sage #7DB5A0
