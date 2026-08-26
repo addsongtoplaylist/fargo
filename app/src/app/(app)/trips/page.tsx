@@ -103,13 +103,12 @@ export default async function TripsPage({
   );
 }
 
-// Trip colour rotation
+// Trip colour rotation — cool/neutral palette
 const TRIP_COLORS = [
-  "bg-accent",
-  "bg-purple-600",
-  "bg-amber-600",
-  "bg-rose-600",
-  "bg-sky-600",
+  "bg-accent", // Active: Cyan #22B8E0
+  "bg-trip-blue-1", // Upcoming 1: Slate-blue #7BA3B8
+  "bg-trip-blue-2", // Upcoming 2: Dusty blue #6B96A8
+  "bg-trip-green-1", // Upcoming 3: Cool sage #7DB5A0
 ];
 
 function getTripColor(index: number) {
