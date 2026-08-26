@@ -32,7 +32,7 @@ function SignInContent() {
   }
 
   return (
-    <div className="min-h-full flex flex-col items-center justify-center px-4 bg-ground">
+    <div className="min-h-dvh flex flex-col items-center justify-center px-4 bg-ground">
       <div className="w-full max-w-[360px]">
         {/* Brand */}
         <div className="flex flex-col items-center mb-8">
@@ -46,8 +46,8 @@ function SignInContent() {
           <img
             src="/logo.png"
             alt="Fargo"
-            width={150}
-            height={56}
+            width={90}
+            height={34}
             className="mb-2"
           />
           <p className="text-sm text-muted">
