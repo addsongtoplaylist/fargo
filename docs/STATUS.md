@@ -4,6 +4,42 @@
 
 ---
 
+**2026-08-27 — Branding & design system update**
+
+Visual identity refresh: accent colour, trip cards, app icons, and sign-in branding.
+
+**What changed:**
+
+- **Accent colour:** swapped from Bright Cyan (#22B8E0) to Electric Blue (#0085D9) — passes WCAG AA Large (3.92:1 on white). Cyan reserved for frog mascot assets only (hybrid rule)
+- **Trip card tints:** muted grey rotation replaced with Soft Sky tints — #5BAED6 (soft blue), #6AB8C9 (sky cyan), #6DC4A8 (mint). Lighter, fresher, clearly secondary to active trip
+- **App icon & favicon:** regenerated from full mascot on cyan background (previously cropped to head only). All sizes: 16px → 512px, favicon.ico, apple-touch-icon
+- **Sign-in page:** text heading replaced with frog mascot + "fargo" wordmark logo (cropped, transparent backgrounds)
+- **Map markers:** hardcoded old teal (#1A8A6E) updated to Electric Blue
+- **Theme colour:** viewport and PWA manifest updated to #0085D9
+
+**Files updated:**
+- `app/src/app/globals.css` — accent tokens, trip card tokens, utility classes
+- `app/src/app/layout.tsx` — viewport themeColor, favicon link tags
+- `app/src/app/manifest.ts` — theme_color
+- `app/src/app/(auth)/sign-in/page.tsx` — mascot + logo images
+- `app/src/app/(app)/trips/page.tsx` — trip colour comments
+- `app/src/components/schedule/day-map.tsx` — map marker colours
+- `app/public/` — all favicon/icon PNGs regenerated, logo.png and mascot.png added
+- `docs/DESIGN.md` — updated to v0.6
+
+| Doc | Version | Last updated |
+|---|---|---|
+| `PRODUCT.md` | v0.7 | 2026-08-26 |
+| `EXPERIENCE.md` | v0.7 | 2026-08-26 |
+| `DESIGN.md` | v0.6 | 2026-08-27 |
+| `TECHNICAL.md` | v0.2 | 2026-08-26 |
+| `ROADMAP.md` | v0.5 | 2026-08-26 |
+| `STATUS.md` | — | now |
+
+**Next:** bug buffer (Aug 29), launch (Aug 30).
+
+---
+
 **2026-08-26 — Launch-ready, hardening complete, 4 days to go**
 
 All core development, bug fixes, hardening, and UAT complete. Production deployed at `fargotravel.vercel.app`. Launch target: **Aug 30, 2026** — v0.1 internal launch with 1 invited traveller on a real trip.

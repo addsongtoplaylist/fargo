@@ -1,6 +1,6 @@
 # Fargo — Design System
 
-> **v0.5 — 2026-08-27.** Brand palette evolved: teal → vibrant cyan. Added secondary navy and cool/neutral trip card rotation. Frog mascot introduced (favicon, onboarding, empty states).
+> **v0.6 — 2026-08-27.** Accent colour swapped to Electric Blue (#0085D9) — passes WCAG AA Large. Bright Cyan (#22B8E0) reserved for frog mascot assets only. Trip card tints lightened (Soft Sky). Sign-in page now shows frog mascot + wordmark logo. Favicon uses full mascot on cyan background.
 >
 > Built on the locked decisions in [PRODUCT.md](PRODUCT.md) and [EXPERIENCE.md](EXPERIENCE.md).
 
@@ -23,10 +23,10 @@ Headspace's visual language: warm, shadowless, confident use of colour and white
 | `ink` | `#2d2a27` | Primary text — warm near-black |
 | `muted` | `#6b6560` | Secondary text, timestamps, labels |
 | `border` | `#e2dad3` | Dividers, card edges, input borders |
-| `accent` | `#22b8e0` | Primary action, active tab, links — Fargo cyan |
-| `accent-hover` | `#1a9ec4` | Accent on hover/press — slightly darker |
+| `accent` | `#0085d9` | Primary action, active tab, links — Electric Blue |
+| `accent-hover` | `#0070b8` | Accent on hover/press — slightly darker |
 | `accent-on` | `#ffffff` | Text on accent backgrounds |
-| `accent-soft` | `#e0f6fc` | Accent tint for backgrounds (selected states, chips) |
+| `accent-soft` | `#e0effa` | Accent tint for backgrounds (selected states, chips) |
 
 ### Money states
 
@@ -50,20 +50,21 @@ These are **independent of accent** — they carry meaning and must never be con
 
 ### Trip card rotation
 
-Cool/neutral colour rotation for upcoming trip cards (active trip always uses `accent` cyan):
+Soft Sky tints for upcoming trip cards (active trip always uses `accent` Electric Blue):
 
 | Token | Hex | Usage |
 |---|---|---|
-| `trip-blue-1` | `#7ba3b8` | Upcoming trip card 1 — slate-blue |
-| `trip-blue-2` | `#6b96a8` | Upcoming trip card 2 — dusty blue |
-| `trip-green-1` | `#7db5a0` | Upcoming trip card 3 — cool sage |
+| `trip-blue-1` | `#5baed6` | Upcoming trip card 1 — soft blue |
+| `trip-blue-2` | `#6ab8c9` | Upcoming trip card 2 — sky cyan |
+| `trip-green-1` | `#6dc4a8` | Upcoming trip card 3 — mint |
 
 ### Rules
 
 - **No drop shadows anywhere.** Depth is communicated through `ground` → `card` background shift and `border` lines.
 - **Money colours are semantic, not decorative.** Green/amber/rose appear only on money states — never on buttons, tabs, or decoration.
-- **Accent cyan is never used for money.** Even when the budget is healthy, use `money-ok` green, not `accent` cyan.
-- **Trip card rotation is cool/neutral.** All three colours pass AA contrast with white text. Never use warm colours (yellow, rose) for trip cards.
+- **Accent blue is never used for money.** Even when the budget is healthy, use `money-ok` green, not `accent` blue.
+- **Trip card rotation is Soft Sky tints.** Lighter than accent, clearly secondary. White text on all three. Never use warm colours (yellow, rose) for trip cards.
+- **Hybrid colour rule:** Electric Blue (#0085D9) for all app UI. Bright Cyan (#22B8E0) reserved for frog mascot assets only (favicon, app icon PNGs).
 
 ---
 
@@ -71,25 +72,31 @@ Cool/neutral colour rotation for upcoming trip cards (active trip always uses `a
 
 ### Logo
 
-The Fargo logotype is set in a bright cyan (#22b8e0) that matches the brand accent. Available in:
+The Fargo logotype is set in Bright Cyan (#22B8E0). Available in:
 - Full word mark: `branding/Logo-white-bg.png` (white background), `branding/Logo-blue-bg.png` (cyan background)
-- Usage: headers, marketing, brand guidelines only — not in the app UI
+- Cropped transparent version: `app/public/logo.png` — used on sign-in page
+- Usage: sign-in page, marketing, brand guidelines
 
 ### Mascot
 
-The Fargo frog is a playful character with a cyan body and navy legs. The character is used to give the app personality without cluttering everyday UI.
+The Fargo frog is a playful character with a Bright Cyan body and navy legs. The character is used to give the app personality without cluttering everyday UI.
 
 **Placement:**
-- **Favicon & app icon** — frog head, multiple sizes (16px → 512px) for browser tabs, Android PWA, iOS home screen
-- **Onboarding / sign-in** — full mascot on landing page — first brand impression
+- **Favicon & app icon** — full mascot on cyan background, multiple sizes (16px → 512px) for browser tabs, Android PWA, iOS home screen
+- **Onboarding / sign-in** — full mascot + wordmark logo stacked vertically — first brand impression
 - **Empty states** — frog appears when there's nothing to show — adds warmth to blank screens
 - **Not in everyday UI** — no mascot in cards, headers, buttons, nav, or lists
 
-**Style:** flat, vector illustration. Cyan (#22b8e0) body, navy (#1b2d50) legs. No animation in V1.
+**Style:** flat, vector illustration. Bright Cyan (#22B8E0) body, navy (#1b2d50) legs. No animation in V1.
+
+**Assets:**
+- `app/public/mascot.png` — cropped, transparent background (for sign-in page)
+- `branding/Mascot-white-bg.png` — full size, white background
+- `branding/Mascot-blue-bg.png` — full size, cyan background (source for all favicons/icons)
 
 ### Favicon & app icon
 
-All favicon sizes are cropped to the frog's head. Transparent PNG at all sizes:
+Full mascot on cyan background, resized to each target size:
 - 16×16, 32×32, 48×48, 64×64, 128×128 — favicon (browser tabs, pinned tabs)
 - 180×180 — `apple-touch-icon.png` (iOS home screen)
 - 192×192, 512×512 — PWA manifest icons (Android home screen, splash)
