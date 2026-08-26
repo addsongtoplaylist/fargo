@@ -18,10 +18,22 @@ type LocationSearchProps = {
   country?: string;
 };
 
-type MapboxFeature = {
-  place_name: string;
-  center: [number, number]; // [lng, lat]
-  text: string;
+type GooglePlace = {
+  displayName: { text: string };
+  formattedAddress: string;
+  location: { latitude: number; longitude: number };
+  id: string;
+};
+
+type GoogleSuggestion = {
+  placePrediction?: {
+    placeId: string;
+    text: { text: string };
+    structuredFormat?: {
+      mainText: { text: string };
+      secondaryText?: { text: string };
+    };
+  };
 };
 
 export function LocationSearch({
@@ -31,13 +43,13 @@ export function LocationSearch({
   country,
 }: LocationSearchProps) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<MapboxFeature[]>([]);
+  const [suggestions, setSuggestions] = useState<GoogleSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_KEY;
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -55,39 +67,53 @@ export function LocationSearch({
 
   const search = useCallback(
     async (text: string) => {
-      if (!text.trim() || !token) {
-        setResults([]);
+      if (!text.trim() || !apiKey) {
+        setSuggestions([]);
         return;
       }
       setLoading(true);
       try {
-        const params = new URLSearchParams({
-          access_token: token,
-          limit: "5",
-          types: "poi,address,place",
-          language: "en",
-        });
+        const body: Record<string, unknown> = {
+          input: text,
+          languageCode: "en",
+        };
+
+        // Bias toward trip destination
         if (proximity) {
-          params.set("proximity", `${proximity.lng},${proximity.lat}`);
+          body.locationBias = {
+            circle: {
+              center: { latitude: proximity.lat, longitude: proximity.lng },
+              radius: 50000, // 50km radius
+            },
+          };
         }
+
+        // Restrict to country if available
         if (country) {
-          params.set("country", country.toLowerCase());
+          body.includedRegionCodes = [country.toLowerCase()];
         }
+
         const res = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-            text
-          )}.json?${params}`
+          "https://places.googleapis.com/v1/places:autocomplete",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Goog-Api-Key": apiKey,
+            },
+            body: JSON.stringify(body),
+          }
         );
         const data = await res.json();
-        setResults(data.features ?? []);
+        setSuggestions(data.suggestions ?? []);
         setOpen(true);
       } catch {
-        setResults([]);
+        setSuggestions([]);
       } finally {
         setLoading(false);
       }
     },
-    [token, proximity, country]
+    [apiKey, proximity, country]
   );
 
   function handleInput(text: string) {
@@ -96,21 +122,49 @@ export function LocationSearch({
     debounceRef.current = setTimeout(() => search(text), 300);
   }
 
-  function handleSelect(feature: MapboxFeature) {
-    onChange({
-      name: feature.text || feature.place_name,
-      lat: feature.center[1],
-      lng: feature.center[0],
-    });
-    setQuery("");
-    setResults([]);
-    setOpen(false);
+  async function handleSelect(suggestion: GoogleSuggestion) {
+    const placeId = suggestion.placePrediction?.placeId;
+    if (!placeId || !apiKey) return;
+
+    setLoading(true);
+    try {
+      // Fetch place details to get coordinates
+      const res = await fetch(
+        `https://places.googleapis.com/v1/places/${placeId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": apiKey,
+            "X-Goog-FieldMask": "displayName,location,formattedAddress",
+          },
+        }
+      );
+      const place: GooglePlace = await res.json();
+
+      onChange({
+        name: place.displayName?.text ?? suggestion.placePrediction?.structuredFormat?.mainText?.text ?? "",
+        lat: place.location.latitude,
+        lng: place.location.longitude,
+      });
+    } catch {
+      // Fallback: use suggestion text without coordinates
+      onChange({
+        name: suggestion.placePrediction?.structuredFormat?.mainText?.text ?? "",
+        lat: 0,
+        lng: 0,
+      });
+    } finally {
+      setQuery("");
+      setSuggestions([]);
+      setOpen(false);
+      setLoading(false);
+    }
   }
 
   function handleClear() {
     onChange(null);
     setQuery("");
-    setResults([]);
+    setSuggestions([]);
   }
 
   // If a location is selected, show it as a pill
@@ -145,7 +199,7 @@ export function LocationSearch({
             placeholder="Search location…"
             value={query}
             onChange={(e) => handleInput(e.target.value)}
-            onFocus={() => results.length > 0 && setOpen(true)}
+            onFocus={() => suggestions.length > 0 && setOpen(true)}
             className="w-full bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink placeholder:text-muted/50 outline-none focus:border-accent transition-colors pr-7"
           />
           {loading && (
@@ -158,22 +212,33 @@ export function LocationSearch({
       </div>
 
       {/* Dropdown */}
-      {open && results.length > 0 && (
+      {open && suggestions.length > 0 && (
         <div className="absolute left-[calc(40px+0.5rem)] right-0 top-full mt-1 bg-card border border-border rounded-md shadow-lg z-50 overflow-hidden">
-          {results.map((feature, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => handleSelect(feature)}
-              className="w-full text-left px-3 py-2 text-sm text-ink hover:bg-accent-soft transition-colors flex items-start gap-2 border-b border-border last:border-b-0"
-            >
-              <MapPin
-                size={13}
-                className="text-muted shrink-0 mt-0.5"
-              />
-              <span className="truncate">{feature.place_name}</span>
-            </button>
-          ))}
+          {suggestions.map((suggestion, i) => {
+            const pred = suggestion.placePrediction;
+            if (!pred) return null;
+            const main = pred.structuredFormat?.mainText?.text ?? pred.text.text;
+            const secondary = pred.structuredFormat?.secondaryText?.text;
+            return (
+              <button
+                key={pred.placeId || i}
+                type="button"
+                onClick={() => handleSelect(suggestion)}
+                className="w-full text-left px-3 py-2 text-sm text-ink hover:bg-accent-soft transition-colors flex items-start gap-2 border-b border-border last:border-b-0"
+              >
+                <MapPin
+                  size={13}
+                  className="text-muted shrink-0 mt-0.5"
+                />
+                <div className="min-w-0">
+                  <span className="block truncate">{main}</span>
+                  {secondary && (
+                    <span className="block text-xs text-muted truncate">{secondary}</span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
