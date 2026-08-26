@@ -35,8 +35,21 @@ function SignInContent() {
     <div className="min-h-full flex flex-col items-center justify-center px-4 bg-ground">
       <div className="w-full max-w-[360px]">
         {/* Brand */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-semibold text-ink mb-1">Fargo</h1>
+        <div className="flex flex-col items-center mb-8">
+          <img
+            src="/mascot.png"
+            alt="Fargo mascot"
+            width={100}
+            height={114}
+            className="mb-2"
+          />
+          <img
+            src="/logo.png"
+            alt="Fargo"
+            width={150}
+            height={56}
+            className="mb-2"
+          />
           <p className="text-sm text-muted">
             Every trip starts here.
           </p>

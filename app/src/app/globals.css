@@ -20,10 +20,10 @@
   --color-navy: #1b2d50;
   --color-navy-soft: #e8edf4;
 
-  /* Trip card rotation */
-  --color-trip-blue-1: #7ba3b8;
-  --color-trip-blue-2: #6b96a8;
-  --color-trip-green-1: #7db5a0;
+  /* Trip card rotation — Soft Sky tints */
+  --color-trip-blue-1: #5baed6;
+  --color-trip-blue-2: #6ab8c9;
+  --color-trip-green-1: #6dc4a8;
 
   /* Money states */
   --color-money-ok: #1a7a42;
@@ -115,15 +115,15 @@ input[type="date"] {
   appearance: none;
 }
 
-/* Trip card colour utilities — cool/neutral rotation */
+/* Trip card colour utilities — Soft Sky tints */
 .bg-trip-blue-1 {
-  background-color: #7ba3b8;
+  background-color: #5baed6;
 }
 
 .bg-trip-blue-2 {
-  background-color: #6b96a8;
+  background-color: #6ab8c9;
 }
 
 .bg-trip-green-1 {
-  background-color: #7db5a0;
+  background-color: #6dc4a8;
 }
