@@ -266,20 +266,78 @@ export default async function OverviewPage({
         </div>
       )}
 
-      {/* Upcoming trips (not started yet) — show a prompt */}
+      {/* Upcoming trips (not started yet) — show first 3 soonest activities */}
       {!isActive && !tripEnded && (
         <div className="bg-card rounded-lg border border-border p-4">
-          <p className="text-sm font-semibold text-ink mb-1">
-            {activities.length > 0
-              ? `${activities.length} ${activities.length === 1 ? "activity" : "activities"} planned`
-              : "No activities yet"}
-          </p>
-          <Link
-            href={`/trips/${id}/schedule`}
-            className="text-xs text-accent font-medium hover:text-accent-hover transition-colors"
-          >
-            {activities.length > 0 ? "View schedule →" : "Start planning →"}
-          </Link>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-semibold text-ink">
+              {activities.length > 0
+                ? `${activities.length} ${activities.length === 1 ? "activity" : "activities"} planned`
+                : "No activities yet"}
+            </p>
+            <Link
+              href={`/trips/${id}/schedule`}
+              className="text-xs text-accent font-medium hover:text-accent-hover transition-colors"
+            >
+              {activities.length > 0 ? "View schedule →" : "Start planning →"}
+            </Link>
+          </div>
+
+          {activities.length > 0 && (() => {
+            const sorted = [...activities].sort((a, b) => {
+              const dateCmp = a.date.localeCompare(b.date);
+              if (dateCmp !== 0) return dateCmp;
+              if (!a.time && !b.time) return a.sort_order - b.sort_order;
+              if (!a.time) return 1;
+              if (!b.time) return -1;
+              return a.time.localeCompare(b.time);
+            });
+            const first3 = sorted.slice(0, 3);
+            return (
+              <div className="space-y-2">
+                {first3.map((activity) => (
+                  <div
+                    key={activity.id}
+                    className="flex items-start gap-3 rounded-md px-2.5 py-2 bg-ground"
+                  >
+                    <div className="w-12 shrink-0 pt-0.5">
+                      {activity.time ? (
+                        <span className="text-xs font-medium tabular-nums text-muted">
+                          {activity.time}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted/50">—</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs">
+                          {CATEGORY_EMOJI[activity.category] ?? "📦"}
+                        </span>
+                        <span className="text-sm font-medium text-ink truncate">
+                          {activity.title}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-muted">
+                        {format(parseISO(activity.date), "d MMM")}
+                        {activity.place_name && (
+                          <> · {activity.place_name}</>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+                {activities.length > 3 && (
+                  <Link
+                    href={`/trips/${id}/schedule`}
+                    className="block text-center text-xs text-muted hover:text-accent py-1 transition-colors"
+                  >
+                    +{activities.length - 3} more
+                  </Link>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
 

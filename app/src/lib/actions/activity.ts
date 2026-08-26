@@ -63,16 +63,41 @@ export async function createActivity(
 
   const supabase = await createClient();
 
-  // Get the next sort_order for this day
-  const { data: existing } = await supabase
+  // Determine sort_order: if this activity has a time, insert it in
+  // chronological position among the day's activities; otherwise append to end
+  const { data: dayActivities } = await supabase
     .from("activities")
-    .select("sort_order")
+    .select("id, time, sort_order")
     .eq("trip_id", tripId)
     .eq("date", fields.date)
-    .order("sort_order", { ascending: false })
-    .limit(1);
+    .order("sort_order", { ascending: true });
 
-  const nextOrder = existing && existing.length > 0 ? existing[0].sort_order + 1 : 0;
+  let nextOrder = 0;
+  if (dayActivities && dayActivities.length > 0) {
+    if (fields.time) {
+      // Find the first activity whose time is after this one (or has no time)
+      const insertIdx = dayActivities.findIndex(
+        (a) => !a.time || a.time > fields.time!
+      );
+      if (insertIdx === -1) {
+        // Goes at the end — after all existing
+        nextOrder = dayActivities[dayActivities.length - 1].sort_order + 1;
+      } else {
+        // Insert before this activity — shift everything from insertIdx onward
+        nextOrder = dayActivities[insertIdx].sort_order;
+        const toShift = dayActivities.slice(insertIdx);
+        for (let i = 0; i < toShift.length; i++) {
+          await supabase
+            .from("activities")
+            .update({ sort_order: nextOrder + i + 1 })
+            .eq("id", toShift[i].id);
+        }
+      }
+    } else {
+      // No time — append to end
+      nextOrder = dayActivities[dayActivities.length - 1].sort_order + 1;
+    }
+  }
 
   const { error } = await supabase.from("activities").insert({
     trip_id: tripId,
