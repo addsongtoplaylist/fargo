@@ -1,46 +1,46 @@
 # Fargo — Roadmap
 
-> **v0.4 — 2026-08-21.** Refined development phases: fully styled from Phase 1, active trip auto-land moved to Phase 2, share trip moved to Phase 3, Phase 6 is polish + explore.
+> **v0.5 — 2026-08-26.** Phases 1–3 complete and deployed. Phase 4 partially done (invite flow). Launch deadline set: Aug 30, 2026. Auth simplified to Google-only. People tab merged into Overview (5 → 4 tabs).
 
 **Sequencing principle:** the planner working alone *is* the product. Multi-user is the most expensive thing in MVP, so it comes after the single-planner trip works end to end — not because it's optional, but because everything it multiplies must be right first.
 
 ---
 
-## Phase 1 — The shell
+## Phase 1 — The shell ✅
 
-Project scaffold (Next.js + Supabase + Drizzle + Tailwind), auth (Google sign-in + magic link), the app layout (bottom nav, routing), trip CRUD (create/list/edit/delete), and the trip shell with its 5-tab structure. **Fully styled from day one** — design tokens (Sora font, cream ground, teal accent, shadowless cards), hero trip cards on My trips, the complete visual language.
+Project scaffold (Next.js + Supabase + Tailwind), auth (Google sign-in), the app layout (bottom nav, routing), trip CRUD (create/list/edit/delete), and the trip shell with its 4-tab structure. **Fully styled from day one** — design tokens (Sora font, cream ground, teal accent, shadowless cards), hero trip cards on My trips, the complete visual language.
 
-**What gets built:**
-- Next.js project with App Router, Tailwind config with all design tokens
-- Supabase project, Drizzle schema for Account + Trip + Traveller (planner-only)
-- Auth: Google OAuth + magic link, long-lived session, auth middleware
+**What was built:**
+- Next.js 16 project with App Router, Tailwind v4 with `@theme inline` design tokens
+- Supabase project with SQL-managed schema for Account + Trip + Traveller
+- Auth: Google OAuth only (magic link removed — unnecessary complexity for v0.1)
 - App layout: bottom nav (My trips · Explore · Profile), centred column (480px)
 - My trips page: hero trip cards (active + upcoming variants), past trips, "+ New trip"
-- Create trip form: name, destination, dates, trip type, local currency, frozen rate
-- Trip interior: header (name, destination, back arrow) + 5-tab bar (Overview · Schedule · Money · Prep · People) — tabs present but content is placeholder
-- Profile page: account settings (display name, home currency), sign out
+- Create trip form: name, destination (Mapbox search), dates, trip type, local currency, frozen rate
+- Trip interior: header + 4-tab bar (Overview · Schedule · Money · Prep) — People merged into Overview
+- Profile page: account settings, sign out
 
-**Done when:** you sign in, see My trips with styled hero cards, create the Vietnam trip, and land inside it with all five tabs visible.
+**Completed:** Aug 22, 2026.
 
-## Phase 2 — The plan
+## Phase 2 — The plan ✅
 
-Schedule (day picker → activities with drag-to-reorder), ideas backlog with promote-to-schedule, checklists with full CRUD (••• menu, swipe-to-delete, inline add). The map (Mapbox, per-day pins in schedule order, search-and-pick places) — built last in this phase. Active trip auto-land on Schedule scrolled to today, "you are here" teal left-border marker, swipe-to-switch tabs on mobile.
+Schedule (day picker → activities with drag-to-reorder), ideas backlog with promote-to-schedule, checklists with full CRUD (••• menu, swipe-to-delete, inline add). Active trip auto-land on Schedule scrolled to today, swipe-to-switch tabs on mobile. Map deferred to future phase.
 
-**Done when:** a full itinerary lives in Fargo, plots on the day map in order, and you'd stop opening Wanderlog.
+**Completed:** Aug 23, 2026.
 
-## Phase 3 — The money + share ⭐
+## Phase 3 — The money + share ✅ ⭐
 
-The USP. Budget setup (single total), bookings (each owns an expense), expense logging (phone-first form with 3 essential fields, smart defaults, sticky submit), daily budget strip on Schedule, category breakdown, per-traveller cost view, post-trip summary in Overview tab. Plus **share trip** — public read-only link + save as own trip. Solo/shared expenses with explicit Shares — **name-only travellers arrive here**.
+Budget setup (single total), expense logging (phone-first form with optimistic UI), daily budget strip on Schedule, category breakdown, solo/shared expenses. Plus **invite flow** — planner generates invite link, unauthenticated users see trip preview, sign in via Google, join as traveller. Share trip as read-only public link.
 
-**Done when:** budget vs actual is correct for the whole trip with no spreadsheet anywhere, and you can share the trip with a link.
+**Completed:** Aug 25, 2026.
 
-> **If time runs out before the trip, ship here.** Phases 1–3 are a complete, genuinely useful product for one planner — the thing no existing tool does. Phases 4–5 make it a group product, which is valuable but not what makes Fargo worth building.
+> Phases 1–3 are a complete, genuinely useful product for one planner + invited travellers.
 
-## Phase 4 — Real travellers
+## Phase 4 — Real travellers 🟡
 
-Invites by email, accounts binding to existing Traveller slots, the **upgrade path** from name-only to account. Traveller's read-first view. Server-side authorisation (RLS) on every trip resource.
+Invite flow is built (via SECURITY DEFINER RPCs that bypass RLS safely). **Remaining:** traveller's read-first view restrictions, full RLS policy audit, account binding/upgrade path for name-only travellers.
 
-**Done when:** Biju signs in, sees the trip, and sees his own cost to date without asking you.
+**Partially done** — invite + join works end-to-end.
 
 ## Phase 5 — Proposals and approvals
 
@@ -62,11 +62,11 @@ Settlement (who owes whom) · co-planners · publishing trips by trip type · fi
 
 ---
 
-## No deadline
+## Launch deadline
 
-There's no trip to chase. Vietnam, the dates, the currency and the travellers throughout these docs are **illustrative** — they exist to keep the writing concrete, not because they're real.
+**v0.1 internal launch: Aug 30, 2026.** Target: the planner + 1 invited traveller on a real trip.
 
-That makes the Phase 3 milestone more useful, not less. Without a deadline the risk isn't running out of time, it's building all six phases before anything gets used. **Phases 1–3 are a complete product for one planner** — plan a trip, track what it costs, see budget against actual. Ship there, put a real trip through it, and let what you learn shape Phases 4–6. Multi-user built on a money model that's never been used in anger is the expensive way to find out it's wrong.
+Phases 1–3 are complete. The remaining days (Aug 26–29) are hardening, UAT, and bug buffer — no new features. Platform strategy: PWA on Vercel Hobby plan (`fargotravel.vercel.app`) as the beta, with a native iOS app planned for maturity.
 
 ---
 
@@ -84,7 +84,7 @@ That makes the Phase 3 milestone more useful, not less. Without a deadline the r
 | 2026-08-16 | No trip comparison in-app, ever |
 | 2026-08-16 | Multi-user in MVP — cost raised and accepted |
 | 2026-08-17 | Hosted, always online. No offline mode |
-| 2026-08-17 | Auth: Google sign-in + email magic link. **No passwords anywhere** |
+| 2026-08-17 | Auth: Google sign-in only. **No passwords anywhere.** *(Magic link removed Aug 23 — unnecessary for v0.1)* |
 | 2026-08-17 | Name-only travellers, upgradeable to accounts, history preserved |
 | 2026-08-17 | Everything a traveller submits needs approval; contribution is the exception, not the norm |
 | 2026-08-17 | Budgets at both category and activity level → Budgeted / Planned / Actual |
@@ -113,6 +113,12 @@ That makes the Phase 3 milestone more useful, not less. Without a deadline the r
 | 2026-08-21 | **Post-trip summary lives in Overview tab** — same tab transforms when trip status is "completed" |
 | 2026-08-21 | No "Shared" badge on recently viewed cards — owner name is sufficient |
 
+| 2026-08-25 | **People tab merged into Overview** — traveller avatars + invite button live in Overview. Trip tabs reduced from 5 → 4 (Overview · Schedule · Money · Prep) |
+| 2026-08-25 | **Overview redesign** — stat cards and progress bar removed (felt stressful). Replaced with: local time/weather card, upcoming plan with 2-day lookahead, people section with prominent invite button |
+| 2026-08-25 | **Invite flow via SECURITY DEFINER RPCs** — `get_trip_by_invite` and `join_trip_by_invite` bypass RLS safely for unauthenticated invite preview + join |
+| 2026-08-26 | **Destination search** — structured display names from Mapbox context, country code extraction for timezone/currency mapping |
+| 2026-08-26 | **Launch deadline set** — Aug 30, 2026. PWA on Vercel as beta, native iOS planned for maturity |
+
 ### Open
 
-None blocking. Scoping is closed. Stack is chosen. Design lockdown in progress.
+None blocking. Scoping is closed. Stack is chosen. Phases 1–3 built and deployed.

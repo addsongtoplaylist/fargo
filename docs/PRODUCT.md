@@ -1,6 +1,6 @@
 # Fargo — Product
 
-> **v0.6 — 2026-08-21.** Added app-level navigation, share trip, explore page, active trip auto-land, and illustration placement plan.
+> **v0.7 — 2026-08-26.** Auth simplified to Google-only (magic link removed). People tab merged into Overview (5 → 4 tabs). Invite flow built via SECURITY DEFINER RPCs. Launch deadline set: Aug 30, 2026.
 >
 > **On the examples:** Vietnam, the September dates, VND, MYR amounts and the named travellers are **illustrative throughout these docs** — chosen to keep the writing concrete. There is no real trip and no deadline. The product decisions are real; the trip isn't.
 
@@ -221,8 +221,8 @@ Six rules. Each is falsifiable — point at a feature idea and check it against 
 | Feature | Priority |
 |---|---|
 | Google sign-in | Must |
-| Email magic link (for anyone without Google) | Must |
-| Same email via either method resolves to **one account** | Must |
+| ~~Email magic link~~ | ~~Must~~ — **Removed Aug 23.** Unnecessary complexity for v0.1; Google-only simplifies the auth flow |
+| ~~Same email via either method resolves to **one account**~~ | ~~Must~~ — N/A with single auth method |
 | Long-lived session — you don't re-authenticate every visit | Must |
 | Sign out | Must |
 | Profile: display name, avatar (from Google), home currency | Should |
@@ -280,9 +280,9 @@ The reasoning matters more than the rule. **The planner is meant to do the work.
 
 ### Auth & permission edge cases
 
-- **Same human, two sign-in methods** — Google and magic link on the same address must land in one account, not two
-- **Invited to one address, signs up with another** — binding follows the invite token, never the email string
-- **Invite links** — single-use and expiring
+- ~~**Same human, two sign-in methods**~~ — N/A, Google-only
+- **Invited to one address, signs up with another** — binding follows the invite code, never the email string
+- **Invite links** — single-use; implemented via SECURITY DEFINER RPCs (`get_trip_by_invite`, `join_trip_by_invite`) that bypass RLS for the invite preview and join flow
 - **Planner deletes their account mid-trip** — ownership must transfer, or the trip is orphaned
 - **Someone opens a trip URL without an invite** — sees nothing, not a 404 that confirms the trip exists
 - **Every trip resource is authorised server-side.** Role is never trusted from the client.

@@ -1,6 +1,6 @@
 # Fargo — Design System
 
-> **v0.3 — 2026-08-21.** Active trip gets hero card treatment (replaces compact bar). Schedule reordered: day picker → budget strip → activities. Added drag handles, prep CRUD patterns (••• menu, swipe-to-delete, inline add), phone-first log expense layout, swipe-to-switch trip tabs, post-trip summary in Overview. Removed "Shared" badge from recently viewed.
+> **v0.4 — 2026-08-26.** People tab merged into Overview (5 → 4 trip tabs). Overview redesigned: local time/weather card + upcoming plan replaces stat cards. Tab bar updated to 4 tabs.
 >
 > Built on the locked decisions in [PRODUCT.md](PRODUCT.md) and [EXPERIENCE.md](EXPERIENCE.md).
 
@@ -156,13 +156,14 @@ Everything inside the column stacks vertically. No multi-column grids, no sideba
 - **Always visible**, even inside a trip — this is how the user escapes back to app-level
 - Explore tab is hidden or shows an empty state until publishing ships
 
-**2. Trip-level tab bar** — five tabs inside a trip: **Overview · Schedule · Money · Prep · People**
+**2. Trip-level tab bar** — four tabs inside a trip: **Overview · Schedule · Money · Prep**
 
 - Sits below the trip header, above the content — **not** at the bottom (bottom is reserved for app-level nav)
 - Active tab uses `accent` colour; inactive tabs use `muted`
 - No icons in V1 — text labels only, keeping it simple
 - **Swipe to switch tabs** — on mobile, swiping left/right on the content area switches between tabs. The tab bar highlight follows the swipe. This is the primary navigation gesture inside a trip
-- Planner sees two additional items: **Approvals** (with a pending count badge) and **Trip settings** — these sit in a secondary row or overflow, not crowding the five main tabs
+- **People tab removed** (Aug 25) — traveller avatars and invite button now live in Overview, reducing visual clutter and keeping people visible on the landing tab
+- Planner sees **Trip settings** accessible from the trip header — not as a tab
 
 ### Trip header
 

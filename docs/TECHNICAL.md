@@ -1,6 +1,6 @@
 # Fargo — Technical Decisions
 
-> **v0.1 — 2026-08-21.** Stack chosen. No code yet — this is the reference for implementation.
+> **v0.2 — 2026-08-26.** Updated to reflect what was actually built. Key divergences from v0.1: Supabase JS client replaces Drizzle for queries (IPv6 issue), npm replaces pnpm, magic link auth removed, People tab merged into Overview, SECURITY DEFINER RPCs for invite flow, destination_country_code added to trips.
 >
 > Built on the locked decisions in [PRODUCT.md](PRODUCT.md), [EXPERIENCE.md](EXPERIENCE.md), and [DESIGN.md](DESIGN.md).
 
@@ -36,26 +36,27 @@ Full-stack in one project. Server Components for data-heavy pages (schedule, bud
 ### Route structure
 
 ```
-app/
+app/src/app/
 ├── (auth)/
-│   ├── sign-in/page.tsx           # Landing + sign in
-│   └── auth/callback/route.ts     # OAuth + magic link callback
+│   ├── sign-in/page.tsx           # Landing + Google sign in
+│   ├── invite/[code]/page.tsx     # Invite preview + join (public)
+│   └── auth/callback/route.ts     # OAuth callback
 ├── (app)/                          # Authenticated layout (bottom nav)
 │   ├── trips/page.tsx             # My trips (main)
 │   ├── trips/new/page.tsx         # Create trip
 │   ├── trips/[id]/
-│   │   ├── layout.tsx             # Trip header + trip tabs
-│   │   ├── overview/page.tsx
-│   │   ├── schedule/page.tsx
-│   │   ├── money/page.tsx
-│   │   ├── prep/page.tsx
-│   │   ├── people/page.tsx
-│   │   ├── approvals/page.tsx     # Planner only
+│   │   ├── layout.tsx             # Trip header + trip tabs (4 tabs)
+│   │   ├── overview/page.tsx      # Time/weather, upcoming plan, people
+│   │   ├── schedule/page.tsx      # Day picker + activities
+│   │   ├── money/page.tsx         # Budget, expenses
+│   │   ├── prep/page.tsx          # Checklists + ideas
 │   │   └── settings/page.tsx      # Planner only
-│   ├── explore/page.tsx           # Explore (future)
-│   └── profile/page.tsx           # Profile + recently viewed
+│   ├── explore/page.tsx           # Explore (placeholder)
+│   └── profile/page.tsx           # Profile
 └── s/[slug]/page.tsx              # Shared trip view (public, no auth)
 ```
+
+**Removed from original plan:** `people/page.tsx` (merged into Overview), `approvals/page.tsx` (deferred to Phase 5).
 
 ---
 
@@ -163,28 +164,36 @@ This runs as a database view or a server-side function — not stored, so it's a
 
 ---
 
-## ORM: Drizzle
+## Data access: Supabase JS client
 
-Type-safe SQL that stays close to the metal. The budget calculation above is real SQL — Drizzle lets you write it as a query and get TypeScript types back, without fighting an abstraction layer.
+All queries use `@supabase/supabase-js` directly — not Drizzle. The Drizzle schema file exists for reference but is not used at runtime.
 
-### Why not Prisma
+### Why not Drizzle (original plan)
 
-- Prisma's query engine adds cold-start latency on serverless (Vercel).
-- Drizzle generates zero runtime overhead — it's a query builder, not a client-server architecture.
-- For the complex budget aggregation queries, Drizzle's SQL-like API is more natural than Prisma's nested object syntax.
+- **IPv6 resolution fails** from the dev machine when connecting to Supabase's Postgres endpoint via `postgres` (node-postgres). The Supabase JS client uses the REST API over HTTPS, which works everywhere.
+- The Supabase client provides typed queries, RLS enforcement, and auth context in one import — no separate connection pool management.
+
+### SECURITY DEFINER RPCs
+
+Two Postgres functions bypass RLS for the invite flow, where unauthenticated users need to read trip data:
+
+- **`get_trip_by_invite(invite_code text)`** — returns trip name, destination, dates, and traveller list for the invite preview page. Called without auth.
+- **`join_trip_by_invite(invite_code text)`** — binds the authenticated user's account to the matching traveller slot. Validates the invite code, checks it hasn't been used, and marks it consumed. Called after Google sign-in.
+
+Both run as `SECURITY DEFINER` (execute with the function owner's privileges, not the caller's), scoped to only the columns needed.
 
 ---
 
 ## Auth: Supabase Auth
 
-Google OAuth and email magic link are both first-party Supabase Auth features.
+Google OAuth is a first-party Supabase Auth feature.
 
 ### Key behaviours (matching PRODUCT.md requirements)
 
-- **Same email, two methods → one account.** Supabase Auth handles this natively — signing in with Google and then with a magic link on the same email resolves to one user.
+- **Google sign-in only.** Magic link was removed Aug 23 — unnecessary complexity for v0.1. One auth method simplifies the flow.
 - **Long-lived session.** Supabase uses refresh tokens; the session persists across browser restarts.
-- **No passwords anywhere.** Google + magic link only. No password field, no hashing, no reset flow.
-- **Invite links.** Generated with a unique token, single-use, expiring. Accepting binds the account to the existing Traveller slot. The token is the identity, not the email address.
+- **No passwords anywhere.** Google only. No password field, no hashing, no reset flow.
+- **Invite links.** Generated with a unique code, single-use. Accepting binds the Google account to the existing Traveller slot via `join_trip_by_invite` RPC. The code is the identity, not the email address.
 
 ---
 
@@ -195,7 +204,8 @@ Already decided in PRODUCT.md. Implementation details:
 - **Map component:** `react-map-gl` (React wrapper for Mapbox GL JS). One map instance per day on the Schedule tab, showing activity and booking pins connected in schedule order.
 - **Geocoding:** Mapbox Geocoding API via `@mapbox/mapbox-sdk`. Powers the search-and-pick for places. Falls back to manual pin drop when search can't find the place.
 - **Pin drop:** Long-press on the map to drop a pin manually. Stores lat/lng + a user-entered name.
-- **Mapbox token:** stored as an environment variable, proxied through a Next.js API route to avoid exposing it client-side.
+- **Destination search:** Uses Mapbox Geocoding API with structured `context` array for clean display names ("Tokyo, Japan" not "Tokyo, Tokyo Prefecture, Japan"). Extracts `country_code` (ISO 3166-1 alpha-2) for timezone and currency mapping.
+- **Mapbox token:** stored as `NEXT_PUBLIC_MAPBOX_TOKEN` environment variable, used client-side for geocoding search.
 
 ---
 
@@ -250,15 +260,13 @@ Next.js on Vercel. Zero-config deployment.
 - **Preview deployments** — every git push gets a preview URL. Test on phone before merging.
 - **Edge functions** — API routes run at the edge for low latency.
 - **Free tier** — sufficient for development and early use. 100GB bandwidth, serverless function invocations.
-- **Custom domain** — `fargo.app` (or similar) pointed at Vercel.
+- **Domain** — `fargotravel.vercel.app` (Vercel Hobby plan). Custom domain deferred to post-launch.
 
 ---
 
-## Email: Resend
+## Email: Resend (deferred)
 
-For magic link emails and (later) invite emails. Simple API, generous free tier (100 emails/day), good deliverability.
-
-Supabase Auth uses its own email sending for magic links by default, but Resend can be configured as a custom SMTP provider for branded emails.
+Not yet configured. Invite flow uses in-app link generation (copy to clipboard), not email. Resend remains the plan for branded invite emails in a future phase.
 
 ---
 
@@ -282,24 +290,16 @@ Supabase Auth uses its own email sending for magic links by default, but Resend 
 ```bash
 # Prerequisites
 node >= 20
-pnpm (package manager)
+npm (package manager)
 
-# Create project
-pnpm create next-app@latest fargo --typescript --tailwind --app --src-dir
-cd fargo
+# The project lives in app/ subdirectory
+cd app
 
-# Install core dependencies
-pnpm add @supabase/supabase-js @supabase/ssr drizzle-orm postgres
-pnpm add -D drizzle-kit
+# Install dependencies
+npm install
 
-# Install UI/map dependencies
-pnpm add react-map-gl mapbox-gl @mapbox/mapbox-sdk
-pnpm add @dnd-kit/core @dnd-kit/sortable
-pnpm add @headlessui/react lucide-react
-pnpm add date-fns react-hook-form zod @hookform/resolvers
-
-# Install dev tools
-pnpm add -D @types/mapbox-gl
+# Run dev server
+npm run dev
 ```
 
 ### Environment variables
@@ -310,11 +310,8 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 
-# Mapbox
-MAPBOX_ACCESS_TOKEN=
-
-# Resend (email)
-RESEND_API_KEY=
+# Mapbox (client-side geocoding)
+NEXT_PUBLIC_MAPBOX_TOKEN=
 ```
 
 ---
@@ -325,11 +322,11 @@ RESEND_API_KEY=
 |---|---|---|
 | Framework | Next.js (App Router) — full-stack, SSR for shared views, file-based routing | 2026-08-21 |
 | Database | PostgreSQL on Supabase — relational data, managed, free tier | 2026-08-21 |
-| Auth | Supabase Auth — Google + magic link, same-email resolution, no passwords | 2026-08-21 |
-| ORM | Drizzle — type-safe SQL, low overhead on serverless | 2026-08-21 |
+| Auth | Supabase Auth — Google only, no passwords | 2026-08-21 |
+| Data access | Supabase JS client — replaced Drizzle (IPv6 issue with direct Postgres connection) | 2026-08-22 |
 | Maps | Mapbox GL JS via react-map-gl — already decided, cheapest option | 2026-08-21 |
 | Styling | Tailwind CSS — design tokens as theme config, no component library except Headless UI | 2026-08-21 |
 | Hosting | Vercel — zero-config Next.js deployment, preview URLs, free tier | 2026-08-21 |
-| Email | Resend — magic links and invite emails | 2026-08-21 |
-| Package manager | pnpm — fast, disk-efficient | 2026-08-21 |
+| Email | Resend — deferred; invite flow uses in-app link copy | 2026-08-21 |
+| Package manager | npm — switched from pnpm during development | 2026-08-22 |
 | No component library | Custom components with Tailwind. Design is opinionated enough that a library would fight it | 2026-08-21 |

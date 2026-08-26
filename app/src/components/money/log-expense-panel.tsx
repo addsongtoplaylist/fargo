@@ -34,6 +34,7 @@ export function LogExpensePanel({
   const [notes, setNotes] = useState(editing?.notes ?? "");
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [inputCurrency, setInputCurrency] = useState<"local" | "myr">("local");
   const amountRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -42,16 +43,19 @@ export function LogExpensePanel({
   }, []);
 
   const numericAmount = parseFloat(amount) || 0;
-  const myrAmount = fxRate > 0 ? numericAmount / fxRate : 0;
+  // Convert based on which currency the user is typing in
+  const localAmount = inputCurrency === "local" ? numericAmount : numericAmount * fxRate;
+  const myrAmount = inputCurrency === "local" ? (fxRate > 0 ? numericAmount / fxRate : 0) : numericAmount;
 
   function handleSave() {
     if (!amount || !title.trim() || numericAmount <= 0) return;
 
+    // Always send the local currency amount to the server
     const payload = {
       date,
       title: title.trim(),
       category,
-      amount: numericAmount,
+      amount: inputCurrency === "local" ? numericAmount : localAmount,
       fxRate,
       paidBy: travellerId,
       isShared,
@@ -109,9 +113,30 @@ export function LogExpensePanel({
         </div>
 
         <div className="px-4 py-4 space-y-4">
-          {/* Amount — large centered */}
+          {/* Amount — large centered with currency toggle */}
           <div className="text-center">
-            <p className="text-xs text-muted mb-1">{localCurrency}</p>
+            <div className="inline-flex items-center gap-1 mb-1">
+              <button
+                onClick={() => {
+                  if (inputCurrency === "local") {
+                    // Switch to MYR: convert current amount
+                    if (numericAmount > 0 && fxRate > 0) {
+                      setAmount((numericAmount / fxRate).toFixed(2));
+                    }
+                    setInputCurrency("myr");
+                  } else {
+                    // Switch to local: convert current amount
+                    if (numericAmount > 0) {
+                      setAmount(Math.round(numericAmount * fxRate).toString());
+                    }
+                    setInputCurrency("local");
+                  }
+                }}
+                className="text-xs font-medium text-accent hover:text-accent-hover transition-colors px-1.5 py-0.5 rounded border border-accent/30 hover:bg-accent-soft"
+              >
+                {inputCurrency === "local" ? localCurrency : "MYR"} ⇄
+              </button>
+            </div>
             <input
               ref={amountRef}
               type="number"
@@ -123,7 +148,7 @@ export function LogExpensePanel({
             />
             {numericAmount > 0 && (
               <p className="text-xs text-muted mt-1">
-                ≈ RM {myrAmount.toFixed(2)}
+                ≈ {inputCurrency === "local" ? `RM ${myrAmount.toFixed(2)}` : `${localCurrency} ${localAmount.toLocaleString()}`}
               </p>
             )}
           </div>

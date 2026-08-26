@@ -421,6 +421,7 @@ export async function deleteTrip(tripId: string): Promise<{ error?: string }> {
     return { error: `Failed to delete trip: ${error.message}` };
   }
 
+  revalidatePath("/trips");
   return {};
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, StickyNote } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useTrip } from "@/lib/trip-context";
 import { updateBudget } from "@/lib/actions/expense";
@@ -231,16 +231,21 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                       {CATEGORY_EMOJI[expense.category] ?? "📦"}
                     </span>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-ink truncate">
-                        {expense.title}
-                      </p>
+                      <div className="flex items-center gap-1">
+                        <p className="text-sm text-ink truncate">
+                          {expense.title}
+                        </p>
+                        {expense.notes && (
+                          <StickyNote size={10} className="text-muted/60 shrink-0" />
+                        )}
+                      </div>
                       {expense.is_shared && (
                         <p className="text-[10px] text-muted">Shared</p>
                       )}
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-sm font-medium text-ink money">
-                        {parseFloat(expense.amount).toLocaleString()}
+                        {trip.local_currency} {parseFloat(expense.amount).toLocaleString()}
                       </p>
                       <p className="text-[10px] text-muted money">
                         ≈ RM {parseFloat(expense.amount_myr).toFixed(2)}

@@ -4,6 +4,51 @@
 
 ---
 
+**2026-08-26 — Phases 1–3 complete, UAT done, 4 days to launch**
+
+All three core development phases are built, deployed, and tested on production (`fargotravel.vercel.app`). Two rounds of UAT completed (Aug 25 + Aug 26). Pass rate: 93% (41/44 testable cases). Launch target: **Aug 30, 2026** — v0.1 internal launch with 1 invited traveller on a real trip.
+
+**What's built and shipped:**
+
+- **Phase 1 (The shell)** ✅ — Google OAuth (magic link removed), app layout with bottom nav, trip CRUD with hero cards, full design system
+- **Phase 2 (The plan)** ✅ — Schedule with day picker, activities with drag-to-reorder, ideas backlog with promote-to-schedule, checklists with full CRUD, swipe-to-switch tabs (4 tabs: Overview · Schedule · Money · Prep), active trip auto-land
+- **Phase 3 (The money + share)** ✅ — Budget setup, expense logging with optimistic UI, daily budget strip, category breakdown, solo/shared expenses, invite flow via SECURITY DEFINER RPCs, share link for read-only view
+- **Phase 4 (partial)** — Invite flow works end-to-end: planner generates invite link → unauthenticated user sees trip preview → signs in via Google → joins as traveller. Implemented via `get_trip_by_invite` and `join_trip_by_invite` SECURITY DEFINER RPCs to bypass RLS safely
+- **Perf review 1** ✅ — Loading skeletons, Suspense streaming for trip layout
+
+**Key changes since design docs (Aug 21):**
+
+- **Auth:** Google OAuth only — magic link removed per user request
+- **Tabs:** 4 tabs, not 5 — People tab merged into Overview as a traveller section with avatars + prominent invite button
+- **Overview redesign:** Stat cards and progress bar removed (felt stressful). Replaced with: local time/weather card (30+ country timezone mapping, placeholder weather), upcoming plan with 2-day lookahead, people section
+- **Destination search:** Structured display names from Mapbox context ("Tokyo, Japan" not "Tokyo, Tokyo Prefecture, Japan"), deduplication, country code extraction for timezone/currency
+- **ORM:** Supabase JS client used for all queries instead of Drizzle (IPv6 resolution fails from dev machine). Drizzle schema exists for reference only
+- **Package manager:** npm, not pnpm
+- **Domain:** `fargotravel.vercel.app` (Vercel Hobby plan)
+
+**UAT results (artifact):** https://claude.ai/code/artifact/d16b1a7c-270b-4bcd-aa7f-a6a4feb20167
+
+**Remaining before launch (Aug 27–29):**
+
+- Edge case sweep: deleted trip, expired session, bad network, empty states
+- Error feedback audit
+- Mobile UX pass on real phone (keyboard, touch targets, PWA install)
+- Final UAT on 2-3 devices (iPhone Safari, Android Chrome, desktop)
+- Bug buffer day (Aug 29) — no new features
+
+| Doc | Version | Last updated |
+|---|---|---|
+| `PRODUCT.md` | v0.7 | 2026-08-26 |
+| `EXPERIENCE.md` | v0.7 | 2026-08-26 |
+| `DESIGN.md` | v0.4 | 2026-08-26 |
+| `TECHNICAL.md` | v0.2 | 2026-08-26 |
+| `ROADMAP.md` | v0.5 | 2026-08-26 |
+| `STATUS.md` | — | now |
+
+**Next:** hardening pass (Aug 26-27), final UAT (Aug 28), bug buffer (Aug 29), launch (Aug 30).
+
+---
+
 **2026-08-21 — Development phases finalised, ready to build**
 
 Design lockdown complete. Development phases refined and locked in ROADMAP.md v0.4:

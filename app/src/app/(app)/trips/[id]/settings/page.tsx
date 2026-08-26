@@ -245,7 +245,7 @@ export default function TripSettingsPage() {
       <ConfirmDialog
         open={showDeleteConfirm}
         title="Delete trip"
-        message={`Are you sure you want to delete "${name}"? This will remove all activities, expenses, and checklists. This cannot be undone.`}
+        message={`Are you sure you want to delete "${name}"? This will permanently remove all activities, expenses, checklists, and traveller data. All members will lose access. This cannot be undone.`}
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />

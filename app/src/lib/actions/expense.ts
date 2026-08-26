@@ -150,18 +150,26 @@ export async function deleteExpense(expenseId: string, tripId: string) {
   revalidatePath(`/trips/${tripId}/schedule`);
 }
 
-/** Get the total spent (in MYR) for a trip */
+/** Get the total spent (in MYR) for a trip, splitting shared expenses equally */
 export async function getTripSpending(tripId: string) {
   const account = await getOrCreateAccount();
   if (!account) return { total: 0, byDate: {} as Record<string, number>, byCategory: {} as Record<string, number> };
 
   const supabase = await createClient();
-  const { data: expenses } = await supabase
-    .from("expenses")
-    .select("amount_myr, date, category")
-    .eq("trip_id", tripId);
+  const [{ data: expenses }, { count: travellerCount }] = await Promise.all([
+    supabase
+      .from("expenses")
+      .select("amount_myr, date, category, is_shared")
+      .eq("trip_id", tripId),
+    supabase
+      .from("travellers")
+      .select("id", { count: "exact", head: true })
+      .eq("trip_id", tripId),
+  ]);
 
   if (!expenses) return { total: 0, byDate: {} as Record<string, number>, byCategory: {} as Record<string, number> };
+
+  const splitBy = travellerCount && travellerCount > 1 ? travellerCount : 1;
 
   let total = 0;
   const byDate: Record<string, number> = {};
@@ -169,9 +177,11 @@ export async function getTripSpending(tripId: string) {
 
   for (const e of expenses) {
     const myr = parseFloat(e.amount_myr);
-    total += myr;
-    byDate[e.date] = (byDate[e.date] || 0) + myr;
-    byCategory[e.category] = (byCategory[e.category] || 0) + myr;
+    // Shared expenses: your share = total ÷ number of travellers
+    const myShare = e.is_shared ? myr / splitBy : myr;
+    total += myShare;
+    byDate[e.date] = (byDate[e.date] || 0) + myShare;
+    byCategory[e.category] = (byCategory[e.category] || 0) + myShare;
   }
 
   return { total: Math.round(total * 100) / 100, byDate, byCategory };
@@ -215,13 +225,13 @@ export async function getBudgetSummary(tripId: string) {
 
   const supabase = await createClient();
 
-  // Parallel fetch: traveller, trip (single query for dates + fx_rate),
-  // expenses, and activity costs — 4 queries instead of 7
+  // Parallel fetch: traveller, trip, expenses, activity costs, and traveller count
   const [
     { data: traveller },
     { data: trip },
     { data: expenses },
     { data: activities },
+    { count: travellerCount },
   ] = await Promise.all([
     supabase
       .from("travellers")
@@ -236,13 +246,17 @@ export async function getBudgetSummary(tripId: string) {
       .single(),
     supabase
       .from("expenses")
-      .select("amount_myr, date, category")
+      .select("amount_myr, date, category, is_shared")
       .eq("trip_id", tripId),
     supabase
       .from("activities")
       .select("cost, cost_shared")
       .eq("trip_id", tripId)
       .not("cost", "is", null),
+    supabase
+      .from("travellers")
+      .select("id", { count: "exact", head: true })
+      .eq("trip_id", tripId),
   ]);
 
   if (!traveller || !trip) return null;
@@ -251,8 +265,9 @@ export async function getBudgetSummary(tripId: string) {
   const end = new Date(trip.end_date);
   const tripDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
   const fxRate = parseFloat(trip.fx_rate) || 1;
+  const splitBy = travellerCount && travellerCount > 1 ? travellerCount : 1;
 
-  // Compute spending totals inline (no separate getTripSpending call)
+  // Compute spending totals — shared expenses split equally among travellers
   let totalSpent = 0;
   const spendingByDate: Record<string, number> = {};
   const spendingByCategory: Record<string, number> = {};
@@ -260,9 +275,10 @@ export async function getBudgetSummary(tripId: string) {
   if (expenses) {
     for (const e of expenses) {
       const myr = parseFloat(e.amount_myr);
-      totalSpent += myr;
-      spendingByDate[e.date] = (spendingByDate[e.date] || 0) + myr;
-      spendingByCategory[e.category] = (spendingByCategory[e.category] || 0) + myr;
+      const myShare = e.is_shared ? myr / splitBy : myr;
+      totalSpent += myShare;
+      spendingByDate[e.date] = (spendingByDate[e.date] || 0) + myShare;
+      spendingByCategory[e.category] = (spendingByCategory[e.category] || 0) + myShare;
     }
   }
   totalSpent = Math.round(totalSpent * 100) / 100;

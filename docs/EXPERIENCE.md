@@ -1,6 +1,6 @@
 # Fargo — Experience
 
-> **v0.6 — 2026-08-21.** Active trip gets hero card treatment (replaces persistent bar). Schedule order: day picker → budget strip → activities. Swipe-to-switch trip tabs on mobile. Prep CRUD interactions (••• menu, swipe-to-delete, inline add). Overview tab transforms for completed trips. Log expense phone-first layout.
+> **v0.7 — 2026-08-26.** People tab merged into Overview (5 → 4 tabs). Auth simplified to Google-only (magic link removed). Overview redesigned: stat cards replaced with local time/weather card, upcoming plan with 2-day lookahead, people section with invite button. Invite flow built.
 >
 > The Vietnam walkthrough below is **illustrative** — a worked example to keep the flow concrete. There is no real trip behind it.
 
@@ -42,7 +42,7 @@ Deliberately thin. Accept the invite → see the whole trip → see my own cost 
 
 **Traveller:** invite accept · trip overview · schedule (read) · expenses (read + own cost) · checklists (own items) · propose
 
-**Account:** sign in · magic-link landing · profile
+**Account:** sign in (Google) · profile
 
 ### States that get forgotten
 
@@ -95,7 +95,7 @@ Category breakdown (food, transport, activities, etc.) is **read-only** — it s
 
 ### Screen map
 
-**Signed out** — Landing · Sign in · Magic-link landing · Invite accept · Shared trip view (read-only, no auth required)
+**Signed out** — Landing · Sign in (Google) · Invite preview · Shared trip view (read-only, no auth required)
 
 **Signed in** — three app-level pages via bottom nav:
 
@@ -109,17 +109,18 @@ A trip is always something you navigate *into* from My trips (or from recently v
 
 **Active trip auto-land:** when a trip's dates include today and the user opens the app fresh, the app lands directly on that trip's Schedule tab scrolled to today, with a daily budget bar showing daily free budget and today's spend. No activities are marked "done" — the schedule stays fully editable throughout; only a "you are here" teal left-border highlights the next upcoming activity. If multiple trips are active simultaneously (rare), stay on My trips with both marked "Active now." The bottom nav remains visible inside the active trip for escape.
 
-**Inside a Trip** (five tabs):
+**Inside a Trip** (four tabs):
 
 | Tab | Holds |
 |---|---|
-| **Overview** | Dates, travellers, Budgeted / Planned / Actual, pending approvals. **Transforms for completed trips** — shows post-trip summary (total spent, budget vs actual, category breakdown, per-traveller costs) in the same tab, not a separate screen |
+| **Overview** | Local time/weather card (country code → timezone mapping, 30+ countries), upcoming plan with 2-day lookahead (today/tomorrow/next day with activities), **people section** (traveller avatars + invite button — merged from former People tab). **Transforms for completed trips** — shows post-trip summary (total spent, budget vs actual, category breakdown, per-traveller costs) in the same tab, not a separate screen |
 | **Schedule** | **Day picker** at top → **daily budget strip** below it → **day-by-day Activities** with drag handles (⠿) for reorder and "+ Add activity" buttons. Per-day map with pins connected in schedule order. Day picker scrolled to today when active |
 | **Money** | Expenses, budgets, per-traveller cost to date. **Log expense** is phone-first: 3 essential fields (amount, title, category) up top, smart defaults collapsed below, sticky submit button |
 | **Prep** | Bookings · Checklists · Ideas. Each section has "+ Add" buttons. Checklists: inline "+ Add item…" input, ••• menu on list headers (rename/delete), swipe-to-delete on items. Ideas: "→ Schedule" promote button, swipe-to-delete |
-| **People** | Travellers, invites, roles |
 
-Planner-only: **Approvals** (its own tab, *plus* a pending badge on Overview) and **Trip settings** (includes share link generation). Travellers see the five tabs, read-first.
+**People tab removed** — merged into Overview (Aug 25). Traveller avatars and invite button now live directly in the Overview tab, reducing tab count from 5 to 4 and keeping people visible on the landing tab.
+
+Planner-only: **Approvals** (deferred to Phase 5) and **Trip settings** (includes share/invite link generation). Travellers see the four tabs, read-first.
 
 **Share trip flow:**
 
@@ -135,7 +136,7 @@ Planner-only: **Approvals** (its own tab, *plus* a pending badge on Overview) an
 **Two navigation layers:**
 
 1. **App-level** — bottom nav with three items: My trips · Explore · Profile. Fixed at the bottom on phone, could sit as a top bar on desktop.
-2. **Trip-level** — five tabs (Overview · Schedule · Money · Prep · People) inside a trip. **Swipe left/right on mobile** to switch between tabs — the primary navigation gesture inside a trip. Back arrow returns to My trips.
+2. **Trip-level** — four tabs (Overview · Schedule · Money · Prep) inside a trip. **Swipe left/right on mobile** to switch between tabs — the primary navigation gesture inside a trip. Back arrow returns to My trips.
 
 Both layers coexist — when inside a trip, the bottom nav stays visible so the user can always escape to app-level. The trip tabs handle movement within the trip.
 
