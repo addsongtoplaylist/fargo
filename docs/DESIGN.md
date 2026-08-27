@@ -18,7 +18,7 @@ Headspace's visual language: warm, shadowless, confident use of colour and white
 
 | Token | Hex | Usage |
 |---|---|---|
-| `ground` | `#f7f2ee` | Page background — warm cream, never pure white |
+| `ground` | `#eff2fa` | Page background — soft cool grey, never pure white |
 | `card` | `#ffffff` | Card / elevated surface background |
 | `ink` | `#2d2a27` | Primary text — warm near-black |
 | `muted` | `#6b6560` | Secondary text, timestamps, labels |

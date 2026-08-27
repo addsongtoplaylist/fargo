@@ -218,7 +218,7 @@ Utility-first CSS. The design tokens from DESIGN.md become a Tailwind theme:
 theme: {
   extend: {
     colors: {
-      ground: '#f7f2ee',
+      ground: '#eff2fa',
       card: '#ffffff',
       ink: '#2d2a27',
       muted: '#6b6560',

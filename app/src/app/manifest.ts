@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Every trip starts here",
     start_url: "/",
     display: "standalone",
-    background_color: "#f7f2ee",
+    background_color: "#eff2fa",
     theme_color: "#0085d9",
     orientation: "portrait",
     icons: [
