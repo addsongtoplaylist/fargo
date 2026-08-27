@@ -304,8 +304,8 @@ export async function getBudgetSummary(tripId: string) {
 
   const budgetTotal = traveller.budget_total ?? 0;
   const remaining = budgetTotal - totalSpent;
-  // Daily free = (total budget - fixed expenses) / total days
-  const dailyFree = tripDays > 0 ? (budgetTotal - fixedCostsMyr) / tripDays : 0;
+  // Daily free = (total budget - fixed expenses - total spent) / total days
+  const dailyFree = tripDays > 0 ? (budgetTotal - fixedCostsMyr - totalSpent) / tripDays : 0;
 
   return {
     travellerId: traveller.id,
