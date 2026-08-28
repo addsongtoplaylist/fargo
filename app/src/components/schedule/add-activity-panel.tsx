@@ -6,6 +6,8 @@ import { createActivity, updateActivity, deleteActivity } from "@/lib/actions/ac
 import { LocationSearch } from "./location-search";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useTrip } from "@/lib/trip-context";
+import { format, parseISO } from "date-fns";
 import type { Activity } from "@/lib/actions/activity";
 import { ACTIVITY_CATEGORIES as CATEGORIES } from "@/lib/categories";
 
@@ -45,10 +47,12 @@ export function AddActivityPanel({
         }
       : null
   );
+  const [activityDate, setActivityDate] = useState(editing?.date ?? date);
   const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const trip = useTrip();
 
   useEffect(() => {
     // Focus the title input on open
@@ -62,6 +66,7 @@ export function AddActivityPanel({
     try {
       if (editing) {
         await updateActivity(editing.id, tripId, {
+          date: activityDate,
           title: title.trim(),
           time: time || null,
           notes: notes.trim() || null,
@@ -72,7 +77,7 @@ export function AddActivityPanel({
         });
       } else {
         await createActivity(tripId, {
-          date,
+          date: activityDate,
           title: title.trim(),
           time: time || undefined,
           notes: notes.trim() || undefined,
@@ -158,6 +163,22 @@ export function AddActivityPanel({
                 Clear
               </button>
             )}
+          </div>
+
+          {/* Date — always shown so you can change which day */}
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-muted w-10">Date</label>
+            <input
+              type="date"
+              value={activityDate}
+              min={trip?.start_date}
+              max={trip?.end_date}
+              onChange={(e) => setActivityDate(e.target.value)}
+              className="bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent transition-colors"
+            />
+            <span className="text-xs text-muted">
+              {format(parseISO(activityDate), "EEE, d MMM")}
+            </span>
           </div>
 
           {/* Location */}

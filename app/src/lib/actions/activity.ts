@@ -125,6 +125,7 @@ export async function updateActivity(
   activityId: string,
   tripId: string,
   fields: {
+    date?: string;
     time?: string | null;
     title?: string;
     notes?: string | null;
