@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { TravellerAvatars } from "./traveller-avatars";
 
-type UpcomingTrip = {
+type CompactTrip = {
   id: string;
   name: string;
   destination: string;
@@ -11,12 +11,13 @@ type UpcomingTrip = {
   daysUntil: number;
   travellers: { name: string; avatar: string | null }[];
   color: string;
+  variant?: "upcoming" | "active";
 };
 
-export function CompactTripCard({ trip }: { trip: UpcomingTrip }) {
+export function CompactTripCard({ trip }: { trip: CompactTrip }) {
   return (
     <Link
-      href={`/trips/${trip.id}/overview`}
+      href={`/trips/${trip.id}/${trip.variant === "active" ? "schedule" : "overview"}`}
       className={`block rounded-lg p-3 text-white ${trip.color}`}
     >
       <div className="flex items-start justify-between">
@@ -34,12 +35,14 @@ export function CompactTripCard({ trip }: { trip: UpcomingTrip }) {
           </p>
         </div>
 
-        {/* Right: countdown */}
+        {/* Right: countdown / day indicator */}
         <div className="text-right ml-3 shrink-0">
           <span className="block text-[28px] font-medium leading-none tabular-nums">
             {trip.daysUntil}
           </span>
-          <span className="text-xs text-white/80">days to go</span>
+          <span className="text-xs text-white/80">
+            {trip.variant === "active" ? "day" : "days to go"}
+          </span>
         </div>
       </div>
 

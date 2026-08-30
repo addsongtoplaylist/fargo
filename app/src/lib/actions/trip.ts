@@ -111,7 +111,7 @@ export async function getActiveTrip(): Promise<string | null> {
 
 export async function getMyTrips() {
   const account = await getOrCreateAccount();
-  if (!account) return { active: null, upcoming: [], past: [] };
+  if (!account) return { active: [], upcoming: [], past: [] };
 
   const supabase = await createClient();
   const today = new Date().toISOString().split("T")[0];
@@ -122,10 +122,10 @@ export async function getMyTrips() {
   });
 
   if (!trips || !Array.isArray(trips) || trips.length === 0) {
-    return { active: null, upcoming: [], past: [] };
+    return { active: [], upcoming: [], past: [] };
   }
 
-  const active = trips.find(
+  const active = trips.filter(
     (t: { start_date: string; end_date: string }) =>
       t.start_date <= today && t.end_date >= today
   );
@@ -133,10 +133,11 @@ export async function getMyTrips() {
     (t: { start_date: string }) => t.start_date > today
   );
   const past = trips.filter(
-    (t: { end_date: string }) => t.end_date < today && t !== active
+    (t: { end_date: string; start_date: string }) =>
+      t.end_date < today
   );
 
-  return { active: active || null, upcoming, past };
+  return { active, upcoming, past };
 }
 
 export async function getTrip(id: string) {

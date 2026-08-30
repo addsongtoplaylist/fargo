@@ -25,7 +25,7 @@ export default async function TripsPage({
 
   const { active, upcoming, past } = await getMyTrips();
   const today = new Date();
-  const hasTrips = active || upcoming.length > 0 || past.length > 0;
+  const hasTrips = active.length > 0 || upcoming.length > 0 || past.length > 0;
 
   return (
     <Column className="py-6">
@@ -44,12 +44,19 @@ export default async function TripsPage({
         <EmptyTrips />
       ) : (
         <div className="flex flex-col gap-3">
-          {active && (
+          {active.length > 0 && (
             <HeroTripCard
-              trip={formatActiveTrip(active, today)}
+              trip={formatActiveTrip(active[0], today)}
               variant="active"
             />
           )}
+
+          {active.slice(1).map((trip) => (
+            <CompactTripCard
+              key={trip.id}
+              trip={formatActiveAsCompact(trip, today)}
+            />
+          ))}
 
           {upcoming.map((trip) => (
             <CompactTripCard
@@ -166,6 +173,29 @@ function formatUpcomingTrip(trip: any, today: Date) {
       avatar: null,
     })),
     color: TRIP_COLORS[1],
+  };
+}
+
+function formatActiveAsCompact(trip: any, today: Date) {
+  const start = new Date(trip.start_date);
+  const end = new Date(trip.end_date);
+  const currentDay = differenceInCalendarDays(today, start) + 1;
+  const totalDays = differenceInCalendarDays(end, start) + 1;
+
+  return {
+    id: trip.id,
+    name: trip.name,
+    destination: trip.destination,
+    startDate: trip.start_date,
+    endDate: trip.end_date,
+    tripType: TRIP_TYPE_LABELS[trip.trip_type] || trip.trip_type,
+    daysUntil: currentDay,
+    travellers: (trip.travellers || []).map((t: any) => ({
+      name: t.display_name,
+      avatar: null,
+    })),
+    color: TRIP_COLORS[0],
+    variant: "active" as const,
   };
 }
 
