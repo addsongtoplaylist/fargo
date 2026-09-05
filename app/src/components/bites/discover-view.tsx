@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useTrip, useIsPlanner } from "@/lib/trip-context";
 import { searchDiningSpots, type DiningSpot } from "@/lib/actions/bites";
+import { FILTER_TYPES } from "@/lib/bites-filters";
 import { DiningCard } from "@/components/bites/dining-card";
 import { SpotDetail } from "@/components/bites/spot-detail";
 import { LocationPicker } from "@/components/bites/location-picker";
@@ -66,10 +67,16 @@ export function DiscoverView() {
   } | null>(null);
   const [allSpots, setAllSpots] = useState<DiningSpot[]>([]);
   const [visibleCount, setVisibleCount] = useState(5);
+  const [filterType, setFilterType] = useState("all");
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedSpot, setSelectedSpot] = useState<DiningSpot | null>(null);
+  // Track last search coords so filter changes can re-search
+  const [lastCoords, setLastCoords] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const currentCategory = CATEGORIES.find((c) => c.value === category)!;
 
@@ -77,11 +84,12 @@ export function DiscoverView() {
   const hasMore = visibleCount < allSpots.length;
 
   const doSearch = useCallback(
-    async (lat: number, lng: number) => {
+    async (lat: number, lng: number, filter: string = "all") => {
       setLoading(true);
       setError(null);
+      setLastCoords({ lat, lng });
 
-      const result = await searchDiningSpots({ lat, lng });
+      const result = await searchDiningSpots({ lat, lng, filterType: filter });
 
       if (result.error) {
         setError(result.error);
@@ -105,7 +113,7 @@ export function DiscoverView() {
       setLoading(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          doSearch(pos.coords.latitude, pos.coords.longitude);
+          doSearch(pos.coords.latitude, pos.coords.longitude, filterType);
         },
         (err) => {
           setLoading(false);
@@ -118,7 +126,16 @@ export function DiscoverView() {
         { enableHighAccuracy: true, timeout: 10000 }
       );
     } else if (customLocation) {
-      doSearch(customLocation.lat, customLocation.lng);
+      doSearch(customLocation.lat, customLocation.lng, filterType);
+    }
+  }
+
+  function handleFilterChange(key: string) {
+    if (key === filterType) return;
+    setFilterType(key);
+    // Re-search with the new filter using last known coords
+    if (lastCoords) {
+      doSearch(lastCoords.lat, lastCoords.lng, key);
     }
   }
 
@@ -130,8 +147,10 @@ export function DiscoverView() {
     setLocationMode(mode);
     setAllSpots([]);
     setVisibleCount(5);
+    setFilterType("all");
     setSearched(false);
     setError(null);
+    setLastCoords(null);
   }
 
   function handleCategoryChange(value: DiscoverCategory) {
@@ -139,8 +158,10 @@ export function DiscoverView() {
     // Reset results when switching category
     setAllSpots([]);
     setVisibleCount(5);
+    setFilterType("all");
     setSearched(false);
     setError(null);
+    setLastCoords(null);
   }
 
   // Non-planner view
@@ -239,6 +260,28 @@ export function DiscoverView() {
         </div>
       )}
 
+      {/* Filter chips — shown after any search */}
+      {searched && !loading && (
+        <div
+          className="flex gap-2 overflow-x-auto pb-2 mb-3 -mx-1 px-1 no-scrollbar"
+          data-swipe-ignore
+        >
+          {FILTER_TYPES.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => handleFilterChange(f.key)}
+              className={`shrink-0 px-3 py-1 text-xs rounded-full border transition-colors ${
+                filterType === f.key
+                  ? "border-accent bg-accent text-white font-medium"
+                  : "border-border text-muted hover:border-ink/30 hover:text-ink"
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Results */}
       {searched && !loading && spots.length > 0 && (
         <>
@@ -274,16 +317,18 @@ export function DiscoverView() {
 
       {/* No results */}
       {searched && !loading && !error && spots.length === 0 && (
-        <div className="text-center py-10">
+        <div className="text-center py-6">
           <p className="text-sm text-muted mb-3">
-            No spots found matching your preferences.
+            No {filterType !== "all" ? FILTER_TYPES.find((f) => f.key === filterType)?.label?.toLowerCase() + " " : ""}spots found nearby.
           </p>
-          <button
-            onClick={handleSearch}
-            className="text-sm text-accent hover:underline"
-          >
-            Search again
-          </button>
+          {filterType !== "all" && (
+            <button
+              onClick={() => handleFilterChange("all")}
+              className="text-sm text-accent hover:underline"
+            >
+              Show all types
+            </button>
+          )}
         </div>
       )}
 

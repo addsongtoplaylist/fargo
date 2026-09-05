@@ -1,6 +1,7 @@
 "use server";
 
 import { getOrCreateAccount } from "@/lib/account";
+import { FILTER_TYPES } from "@/lib/bites-filters";
 
 // ──────────────────────────────────────────
 // Types
@@ -34,7 +35,20 @@ export type BitesSearchResult = {
 type SearchParams = {
   lat: number;
   lng: number;
+  filterType?: string; // filter key from FILTER_TYPES, default "all"
 };
+
+// Default food types for "all" filter
+const ALL_FOOD_TYPES = [
+  "restaurant",
+  "cafe",
+  "bakery",
+  "coffee_shop",
+  "fast_food_restaurant",
+  "meal_takeaway",
+  "bar",
+  "ice_cream_shop",
+];
 
 // ──────────────────────────────────────────
 // Google Places price level mapping
@@ -95,24 +109,6 @@ const TYPE_TO_CUISINE: Record<string, string> = {
   restaurant: "Restaurant",
 };
 
-// Map user cuisine prefs to Google place types for boosting
-const CUISINE_PREF_TO_TYPES: Record<string, string[]> = {
-  local: [], // no specific type — can't filter for "local"
-  japanese: ["japanese_restaurant", "sushi_restaurant", "ramen_restaurant"],
-  chinese: ["chinese_restaurant"],
-  korean: ["korean_restaurant"],
-  thai: ["thai_restaurant"],
-  indian: ["indian_restaurant"],
-  italian: ["italian_restaurant", "pizza_restaurant"],
-  mexican: ["mexican_restaurant"],
-  middle_eastern: ["middle_eastern_restaurant"],
-  american: ["american_restaurant", "hamburger_restaurant"],
-  french: ["french_restaurant"],
-  vietnamese: ["vietnamese_restaurant"],
-  seafood: ["seafood_restaurant"],
-  cafe: ["cafe", "coffee_shop"],
-};
-
 // Dietary keywords to check against Google types
 const DIETARY_TYPE_MATCHES: Record<string, string[]> = {
   vegetarian: ["vegetarian_restaurant"],
@@ -148,23 +144,9 @@ function distanceLabel(meters: number): string {
 // Scoring
 // ──────────────────────────────────────────
 
-function scoreDiningSpot(
-  spot: DiningSpot,
-  cuisinePrefs: string[],
-  spotTypes: string[]
-): number {
+function scoreDiningSpot(spot: DiningSpot): number {
   // Base score: rating × log(reviewCount + 1) — favors well-reviewed places
   const ratingScore = spot.rating * Math.log10(spot.reviewCount + 1);
-
-  // Cuisine preference boost (+20% if spot matches a preferred cuisine)
-  let cuisineBoost = 1.0;
-  if (cuisinePrefs.length > 0) {
-    const preferredTypes = cuisinePrefs.flatMap(
-      (p) => CUISINE_PREF_TO_TYPES[p] ?? []
-    );
-    const matches = spotTypes.some((t) => preferredTypes.includes(t));
-    cuisineBoost = matches ? 1.2 : 1.0;
-  }
 
   // Distance penalty: closer is better (linear decay over 3km)
   const distanceFactor = Math.max(0.3, 1 - spot.distance / 3000);
@@ -172,7 +154,7 @@ function scoreDiningSpot(
   // Open-now boost
   const openBoost = spot.isOpen === true ? 1.1 : 1.0;
 
-  return ratingScore * cuisineBoost * distanceFactor * openBoost;
+  return ratingScore * distanceFactor * openBoost;
 }
 
 // Soft-deduplicate by cuisine type — allow up to 2 of the same cuisine,
@@ -213,10 +195,13 @@ export async function searchDiningSpots(
     return { spots: [], total: 0, error: "Google Places API key not configured" };
   }
 
-  const { lat, lng } = params;
+  const { lat, lng, filterType = "all" } = params;
   const diningBudget = (account.dining_budget as string) || "moderate";
-  const dietaryRestrictions = (account.dietary_restrictions as string[]) || [];
-  const cuisinePreferences = (account.cuisine_preferences as string[]) || [];
+  const isFiltered = filterType !== "all";
+
+  // Resolve filter to Google includedTypes
+  const filter = FILTER_TYPES.find((f) => f.key === filterType);
+  const includedTypes = filter?.types ?? ALL_FOOD_TYPES;
 
   try {
     // Call Google Places Nearby Search (New)
@@ -224,16 +209,7 @@ export async function searchDiningSpots(
     const maxResults = 20;
 
     const requestBody: Record<string, unknown> = {
-      includedTypes: [
-        "restaurant",
-        "cafe",
-        "bakery",
-        "coffee_shop",
-        "fast_food_restaurant",
-        "meal_takeaway",
-        "bar",
-        "ice_cream_shop",
-      ],
+      includedTypes,
       maxResultCount: maxResults,
       locationRestriction: {
         circle: {
@@ -287,10 +263,7 @@ export async function searchDiningSpots(
     // Transform to DiningSpot
     const maxPrice = BUDGET_TO_MAX_PRICE[diningBudget] ?? 2;
 
-    // Track Google types alongside each spot for scoring
-    type SpotWithTypes = DiningSpot & { _types: string[] };
-
-    let spots: SpotWithTypes[] = places
+    let spots: DiningSpot[] = places
       .map((place) => {
         const types = (place.types as string[]) ?? [];
         const priceLevelStr = (place.priceLevel as string) ?? "PRICE_LEVEL_FREE";
@@ -336,7 +309,6 @@ export async function searchDiningSpots(
           isOpen: openingHours?.openNow ?? null,
           googleMapsUri: (place.googleMapsUri as string) ?? "",
           score: 0, // computed below
-          _types: types, // keep for scoring, stripped before return
         };
       })
       // Hard filter: budget
@@ -353,21 +325,21 @@ export async function searchDiningSpots(
     // Score each spot
     spots = spots.map((spot) => ({
       ...spot,
-      score: scoreDiningSpot(spot, cuisinePreferences, spot._types),
+      score: scoreDiningSpot(spot),
     }));
 
     // Sort by score descending
     spots.sort((a, b) => b.score - a.score);
 
-    // Deduplicate by cuisine for variety
-    spots = deduplicateByCuisine(spots);
-
-    // Strip internal _types field before returning
-    const cleanSpots = spots.map(({ _types, ...spot }) => spot);
+    // Deduplicate by cuisine for variety — only when showing "all" types.
+    // When user picks a specific filter, show all results of that type.
+    if (!isFiltered) {
+      spots = deduplicateByCuisine(spots);
+    }
 
     return {
-      spots: cleanSpots,
-      total: cleanSpots.length,
+      spots,
+      total: spots.length,
     };
   } catch (err) {
     console.error("Bites search error:", err);

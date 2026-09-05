@@ -7,7 +7,6 @@ import { useToast } from "@/components/toast";
 import {
   DINING_BUDGETS,
   DIETARY_OPTIONS,
-  CUISINE_OPTIONS,
   type DiningBudget,
 } from "@/db/schema";
 
@@ -28,27 +27,9 @@ const DIETARY_LABELS: Record<string, string> = {
   pescatarian: "Pescatarian",
 };
 
-const CUISINE_LABELS: Record<string, string> = {
-  local: "Local",
-  japanese: "Japanese",
-  chinese: "Chinese",
-  korean: "Korean",
-  thai: "Thai",
-  indian: "Indian",
-  italian: "Italian",
-  mexican: "Mexican",
-  middle_eastern: "Middle Eastern",
-  american: "American",
-  french: "French",
-  vietnamese: "Vietnamese",
-  seafood: "Seafood",
-  cafe: "Cafe",
-};
-
 type DiningPreferencesProps = {
   diningBudget: string;
   dietaryRestrictions: string[];
-  cuisinePreferences: string[];
 };
 
 const selectClass =
@@ -66,33 +47,24 @@ const chipOn =
 export function DiningPreferences({
   diningBudget: initialBudget,
   dietaryRestrictions: initialDietary,
-  cuisinePreferences: initialCuisine,
 }: DiningPreferencesProps) {
   const [budget, setBudget] = useState(initialBudget);
   const [dietary, setDietary] = useState<string[]>(initialDietary);
-  const [cuisine, setCuisine] = useState<string[]>(initialCuisine);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
   // Track whether anything changed from the initial/saved state
   const [savedBudget, setSavedBudget] = useState(initialBudget);
   const [savedDietary, setSavedDietary] = useState<string[]>(initialDietary);
-  const [savedCuisine, setSavedCuisine] = useState<string[]>(initialCuisine);
 
   const hasChanges =
     budget !== savedBudget ||
-    JSON.stringify([...dietary].sort()) !== JSON.stringify([...savedDietary].sort()) ||
-    JSON.stringify([...cuisine].sort()) !== JSON.stringify([...savedCuisine].sort());
+    JSON.stringify([...dietary].sort()) !==
+      JSON.stringify([...savedDietary].sort());
 
   function toggleDietary(value: string) {
     setDietary((prev) =>
       prev.includes(value) ? prev.filter((d) => d !== value) : [...prev, value]
-    );
-  }
-
-  function toggleCuisine(value: string) {
-    setCuisine((prev) =>
-      prev.includes(value) ? prev.filter((c) => c !== value) : [...prev, value]
     );
   }
 
@@ -101,7 +73,6 @@ export function DiningPreferences({
     const result = await updateProfile({
       dining_budget: budget,
       dietary_restrictions: dietary,
-      cuisine_preferences: cuisine,
     } as Parameters<typeof updateProfile>[0]);
     setSaving(false);
 
@@ -111,7 +82,6 @@ export function DiningPreferences({
       toast("Dining preferences saved", "success");
       setSavedBudget(budget);
       setSavedDietary([...dietary]);
-      setSavedCuisine([...cuisine]);
     }
   }
 
@@ -146,23 +116,6 @@ export function DiningPreferences({
               className={dietary.includes(d) ? chipOn : chipOff}
             >
               {DIETARY_LABELS[d]}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Cuisine — multi-select chips */}
-      <div>
-        <span className="text-sm text-muted">Cuisine preferences</span>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {CUISINE_OPTIONS.map((c) => (
-            <button
-              key={c}
-              onClick={() => toggleCuisine(c)}
-              disabled={saving}
-              className={cuisine.includes(c) ? chipOn : chipOff}
-            >
-              {CUISINE_LABELS[c]}
             </button>
           ))}
         </div>

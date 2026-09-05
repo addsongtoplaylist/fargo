@@ -30,12 +30,11 @@ export default async function ProfilePage() {
       <h2 className="text-base font-semibold mt-8 mb-3">Dining preferences</h2>
       <div className="bg-card rounded-md border border-border p-3">
         <p className="text-sm text-muted mb-4">
-          Used by Bites to find spots that match your taste.
+          Used by Discover to filter spots by your budget and dietary needs.
         </p>
         <DiningPreferences
           diningBudget={account?.dining_budget || "moderate"}
           dietaryRestrictions={account?.dietary_restrictions || []}
-          cuisinePreferences={account?.cuisine_preferences || []}
         />
       </div>
 
