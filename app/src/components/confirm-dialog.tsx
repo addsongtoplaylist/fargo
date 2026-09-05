@@ -7,6 +7,8 @@ type ConfirmDialogProps = {
   title: string;
   message: string;
   confirmLabel?: string;
+  /** Use false for non-destructive confirmations (accent colour instead of red). Default true. */
+  destructive?: boolean;
   onConfirm: () => void | Promise<void>;
   onCancel: () => void;
 };
@@ -15,13 +17,19 @@ export function ConfirmDialog({
   open,
   title,
   message,
-  confirmLabel = "Delete",
+  confirmLabel,
+  destructive = true,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
   const [loading, setLoading] = useState(false);
 
   if (!open) return null;
+
+  const label = confirmLabel ?? (destructive ? "Delete" : "Confirm");
+  const btnClass = destructive
+    ? "bg-red-500 hover:bg-red-600"
+    : "bg-accent hover:bg-accent-hover";
 
   async function handleConfirm() {
     setLoading(true);
@@ -39,8 +47,12 @@ export function ConfirmDialog({
         if (e.target === e.currentTarget) onCancel();
       }}
     >
-      <div className="bg-card rounded-lg border border-border shadow-lg w-[calc(100%-2rem)] max-w-[320px] p-5 animate-slide-up">
-        <h3 className="text-base font-semibold text-ink mb-1">{title}</h3>
+      <div className={`bg-card rounded-lg border shadow-lg w-[calc(100%-2rem)] max-w-[320px] p-5 animate-slide-up ${
+        destructive ? "border-border" : "border-accent/30"
+      }`}>
+        <h3 className={`text-base font-semibold mb-1 ${
+          destructive ? "text-ink" : "text-accent"
+        }`}>{title}</h3>
         <p className="text-sm text-muted mb-5">{message}</p>
         <div className="flex gap-3">
           <button
@@ -53,9 +65,9 @@ export function ConfirmDialog({
           <button
             onClick={handleConfirm}
             disabled={loading}
-            className="flex-1 h-10 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 transition-colors disabled:opacity-50"
+            className={`flex-1 h-10 text-sm font-medium text-white rounded-md transition-colors disabled:opacity-50 ${btnClass}`}
           >
-            {loading ? "Deleting…" : confirmLabel}
+            {loading ? "Working…" : label}
           </button>
         </div>
       </div>

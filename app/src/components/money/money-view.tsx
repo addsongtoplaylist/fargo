@@ -15,7 +15,7 @@ type BudgetSummary = {
   totalSpent: number;
   remaining: number;
   dailyFree: number;
-  activityCostsMyr: number;
+  fixedExpensesMyr: number;
   tripDays: number;
   spendingByCategory: Record<string, number>;
 };
@@ -146,10 +146,12 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
 
             <div className="flex justify-between mt-1.5">
               <p className="text-xs text-muted">
-                Spent: RM {budget.totalSpent.toLocaleString()}
+                Spent: {trip.local_currency}{" "}
+                {Math.round(budget.totalSpent * fxRate).toLocaleString()}
               </p>
               <p className="text-xs text-muted">
-                Daily free: RM {budget.dailyFree.toLocaleString()}
+                Daily free: {trip.local_currency}{" "}
+                {Math.round(budget.dailyFree * fxRate).toLocaleString()}
               </p>
             </div>
 
@@ -168,7 +170,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                         {cat.charAt(0).toUpperCase() + cat.slice(1)}
                       </span>
                       <span className="text-ink money">
-                        RM {Math.round(amount).toLocaleString()}
+                        {trip.local_currency} {Math.round(amount * fxRate).toLocaleString()}
                       </span>
                     </div>
                   ))}
@@ -239,9 +241,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                           <StickyNote size={10} className="text-muted/60 shrink-0" />
                         )}
                       </div>
-                      {expense.is_shared && (
-                        <p className="text-[10px] text-muted">Shared</p>
-                      )}
+                      {/* All expenses are shared — no label needed */}
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-sm font-medium text-ink money">

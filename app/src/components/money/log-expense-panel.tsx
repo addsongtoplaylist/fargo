@@ -30,7 +30,6 @@ export function LogExpensePanel({
   const [title, setTitle] = useState(editing?.title ?? "");
   const [category, setCategory] = useState(editing?.category ?? "food");
   const [date, setDate] = useState(editing?.date ?? format(new Date(), "yyyy-MM-dd"));
-  const [isShared, setIsShared] = useState(editing?.is_shared ?? false);
   const [notes, setNotes] = useState(editing?.notes ?? "");
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -58,7 +57,7 @@ export function LogExpensePanel({
       amount: inputCurrency === "local" ? numericAmount : localAmount,
       fxRate,
       paidBy: travellerId,
-      isShared,
+      isShared: true,
       notes: notes.trim() || undefined,
     };
 
@@ -141,9 +140,13 @@ export function LogExpensePanel({
               ref={amountRef}
               type="number"
               inputMode="decimal"
-              placeholder="0"
+              placeholder="0.00"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+              onBlur={() => {
+                const n = parseFloat(amount);
+                if (!isNaN(n) && n > 0) setAmount(n.toFixed(2));
+              }}
               className="w-full text-center text-4xl font-semibold text-ink bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
             {numericAmount > 0 && (
@@ -189,40 +192,15 @@ export function LogExpensePanel({
           <div className="pt-2 border-t border-border space-y-3">
             <p className="text-xs text-muted">Defaults — tap to change</p>
 
-            <div className="flex gap-3">
-              {/* Solo/Shared toggle */}
-              <div className="flex-1">
-                <p className="text-xs text-muted mb-1">Type</p>
-                <div className="flex rounded-md border border-border overflow-hidden">
-                  <button
-                    onClick={() => setIsShared(false)}
-                    className={`flex-1 py-1.5 text-xs font-medium transition-colors ${
-                      !isShared ? "bg-accent text-accent-on" : "bg-ground text-muted"
-                    }`}
-                  >
-                    Solo
-                  </button>
-                  <button
-                    onClick={() => setIsShared(true)}
-                    className={`flex-1 py-1.5 text-xs font-medium transition-colors ${
-                      isShared ? "bg-accent text-accent-on" : "bg-ground text-muted"
-                    }`}
-                  >
-                    Shared
-                  </button>
-                </div>
-              </div>
-
-              {/* Date */}
-              <div className="flex-1">
-                <p className="text-xs text-muted mb-1">Date</p>
-                <input
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full bg-ground border border-border rounded-md px-2 py-1.5 text-xs text-ink outline-none focus:border-accent transition-colors"
-                />
-              </div>
+            {/* Date */}
+            <div>
+              <p className="text-xs text-muted mb-1">Date</p>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="w-full bg-ground border border-border rounded-md px-2 py-1.5 text-xs text-ink outline-none focus:border-accent transition-colors"
+              />
             </div>
 
             {/* Notes */}

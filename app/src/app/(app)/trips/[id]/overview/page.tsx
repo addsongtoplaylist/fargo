@@ -9,13 +9,14 @@ import {
   format,
   parseISO,
   addDays,
+  differenceInDays,
   isAfter,
   isBefore,
   isToday,
   isTomorrow,
 } from "date-fns";
 import { notFound } from "next/navigation";
-import { MapPin, Clock, CloudSun } from "lucide-react";
+import { MapPin, Clock, CloudSun, CalendarDays, Compass, Building2 } from "lucide-react";
 
 /** Map country code → IANA timezone (common destinations). */
 const COUNTRY_TIMEZONE: Record<string, string> = {
@@ -123,10 +124,25 @@ export default async function OverviewPage({
 
   // Find next upcoming activity (with time >= now) — only for today
   const nowTime = format(now, "HH:mm");
-  const nextIdx =
-    upcomingDate === todayStr
-      ? upcomingActivities.findIndex((a) => !a.time || a.time >= nowTime)
-      : 0; // For future days, highlight the first one
+  let nextIdx: number;
+  let nextLabel = "Next";
+
+  if (upcomingDate === todayStr) {
+    // Find first activity whose time hasn't passed yet
+    const futureIdx = upcomingActivities.findIndex(
+      (a) => !a.time || a.time >= nowTime
+    );
+    if (futureIdx >= 0) {
+      nextIdx = futureIdx;
+    } else {
+      // All activities have passed — show the last one as "Latest"
+      nextIdx = upcomingActivities.length - 1;
+      nextLabel = "Latest";
+    }
+  } else {
+    // Future day — highlight the first one
+    nextIdx = 0;
+  }
 
   // Local time/weather
   const countryCode = trip.destination_country_code;
@@ -249,7 +265,7 @@ export default async function OverviewPage({
                     {/* "Next" label */}
                     {isNext && (
                       <span className="text-[10px] font-medium text-accent bg-accent/10 px-1.5 py-0.5 rounded shrink-0">
-                        Next
+                        {nextLabel}
                       </span>
                     )}
                   </div>
@@ -342,6 +358,93 @@ export default async function OverviewPage({
           })()}
         </div>
       )}
+
+      {/* Post-trip summary — ended trips (dashboard layout) */}
+      {tripEnded && (() => {
+        const tripDays = differenceInDays(endDate, startDate) + 1;
+        const accommodations = activities.filter(
+          (a) => a.category === "accommodation"
+        );
+        const dateRange = `${format(startDate, "d MMM")} – ${format(endDate, "d MMM yyyy")}`;
+
+        // Attractions visited — only "activities" category
+        const attractions = activities
+          .filter((a) => a.category === "activities")
+          .map((a) => a.title)
+          .filter((t, i, arr) => arr.indexOf(t) === i); // unique
+
+        return (
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-ink">Trip summary</p>
+              <Link
+                href={`/trips/${id}/schedule`}
+                className="text-xs text-accent font-medium hover:text-accent-hover transition-colors"
+              >
+                View schedule →
+              </Link>
+            </div>
+
+            {/* Dashboard grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Duration */}
+              <div className="bg-card rounded-lg border border-border p-4">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <CalendarDays size={13} className="text-accent" />
+                  <span className="text-[10px] font-medium text-muted uppercase tracking-wide">Duration</span>
+                </div>
+                <p className="text-lg font-semibold text-ink">{tripDays} days</p>
+                <p className="text-[11px] text-muted mt-0.5">{dateRange}</p>
+              </div>
+
+              {/* Destination */}
+              <div className="bg-card rounded-lg border border-border p-4">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <MapPin size={13} className="text-accent" />
+                  <span className="text-[10px] font-medium text-muted uppercase tracking-wide">Destination</span>
+                </div>
+                <p className="text-lg font-semibold text-ink">{trip.destination}</p>
+              </div>
+
+              {/* Activities — attractions visited */}
+              {attractions.length > 0 && (
+                <div className="bg-card rounded-lg border border-border p-4" style={{ gridColumn: "1 / -1" }}>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Compass size={13} className="text-accent" />
+                    <span className="text-[10px] font-medium text-muted uppercase tracking-wide">
+                      Activities
+                    </span>
+                  </div>
+                  <ol className="space-y-1" style={{ listStyleType: "decimal", listStylePosition: "inside" }}>
+                    {attractions.map((name) => (
+                      <li key={name} className="text-sm text-ink">
+                        {name}
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              )}
+
+              {/* Hotel — full width, only if accommodations exist */}
+              {accommodations.length > 0 && (
+                <div className="bg-card rounded-lg border border-border p-4" style={{ gridColumn: "1 / -1" }}>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Building2 size={13} className="text-accent" />
+                    <span className="text-[10px] font-medium text-muted uppercase tracking-wide">Stay</span>
+                  </div>
+                  <div className="space-y-1">
+                    {accommodations.map((a) => (
+                      <p key={a.id} className="text-sm font-medium text-ink">
+                        🏨 {a.place_name || a.title}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* People section */}
       <OverviewPeople

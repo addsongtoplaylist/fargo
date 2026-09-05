@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X } from "lucide-react";
-import { createActivity, updateActivity, deleteActivity } from "@/lib/actions/activity";
+import { X, ArrowDownToLine } from "lucide-react";
+import { createActivity, updateActivity, deleteActivity, demoteActivity } from "@/lib/actions/activity";
 import { LocationSearch } from "./location-search";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -50,6 +50,7 @@ export function AddActivityPanel({
   const [activityDate, setActivityDate] = useState(editing?.date ?? date);
   const [saving, setSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDemoteConfirm, setShowDemoteConfirm] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const trip = useTrip();
@@ -104,6 +105,20 @@ export function AddActivityPanel({
     } catch (err) {
       console.error(err);
       toast("Failed to delete activity. Please try again.");
+      setSaving(false);
+    }
+  }
+
+  async function handleDemote() {
+    if (!editing) return;
+    setSaving(true);
+    try {
+      await demoteActivity(editing.id, tripId);
+      toast("Moved back to ideas");
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast("Failed to demote activity. Please try again.");
       setSaving(false);
     }
   }
@@ -217,13 +232,23 @@ export function AddActivityPanel({
         {/* Footer — clears the 56px bottom nav + safe area */}
         <div className="px-4 pt-3 pb-[calc(0.75rem+56px+env(safe-area-inset-bottom))] border-t border-border flex items-center gap-2">
           {editing && (
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              disabled={saving}
-              className="text-xs text-money-over hover:text-money-over/80 transition-colors disabled:opacity-50"
-            >
-              Delete
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowDemoteConfirm(true)}
+                disabled={saving}
+                className="flex items-center gap-1 text-xs text-muted hover:text-ink transition-colors disabled:opacity-50"
+              >
+                <ArrowDownToLine size={12} />
+                To ideas
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={saving}
+                className="text-xs text-money-over hover:text-money-over/80 transition-colors disabled:opacity-50"
+              >
+                Delete
+              </button>
+            </div>
           )}
           <div className="flex-1" />
           <button
@@ -248,6 +273,16 @@ export function AddActivityPanel({
         message={`Are you sure you want to delete "${editing?.title}"?`}
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteConfirm(false)}
+      />
+
+      <ConfirmDialog
+        open={showDemoteConfirm}
+        title="Move to ideas"
+        message={`Move "${editing?.title}" back to your ideas list? Its time, location, and notes will be preserved.`}
+        confirmLabel="Move"
+        destructive={false}
+        onConfirm={handleDemote}
+        onCancel={() => setShowDemoteConfirm(false)}
       />
     </>
   );

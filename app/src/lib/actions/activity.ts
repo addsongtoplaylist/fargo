@@ -182,6 +182,72 @@ export async function deleteActivity(activityId: string, tripId: string) {
   revalidatePath(`/trips/${tripId}/schedule`);
 }
 
+/** Demote an activity back to an idea, preserving all its data */
+export async function demoteActivity(activityId: string, tripId: string) {
+  uuidSchema.parse(activityId);
+  tripIdSchema.parse(tripId);
+
+  const account = await getOrCreateAccount();
+  if (!account) throw new Error("Not signed in");
+
+  const supabase = await createClient();
+
+  // Fetch the activity to preserve its data
+  const { data: activity, error: fetchErr } = await supabase
+    .from("activities")
+    .select("*")
+    .eq("id", activityId)
+    .eq("trip_id", tripId)
+    .single();
+
+  if (fetchErr || !activity) {
+    throw new Error("Activity not found");
+  }
+
+  // Get next sort_order for ideas
+  const { data: existing } = await supabase
+    .from("ideas")
+    .select("sort_order")
+    .eq("trip_id", tripId)
+    .order("sort_order", { ascending: false })
+    .limit(1);
+
+  const nextOrder = existing && existing.length > 0 ? existing[0].sort_order + 1 : 0;
+
+  // Create the idea with all the activity's data
+  const { error: insertErr } = await supabase.from("ideas").insert({
+    trip_id: tripId,
+    title: activity.title,
+    notes: activity.notes || null,
+    time: activity.time || null,
+    category: activity.category || null,
+    place_name: activity.place_name || null,
+    place_lat: activity.place_lat || null,
+    place_lng: activity.place_lng || null,
+    sort_order: nextOrder,
+  });
+
+  if (insertErr) {
+    console.error("Failed to create idea from activity:", insertErr);
+    throw new Error("Failed to demote activity");
+  }
+
+  // Delete the activity
+  const { error: deleteErr } = await supabase
+    .from("activities")
+    .delete()
+    .eq("id", activityId)
+    .eq("trip_id", tripId);
+
+  if (deleteErr) {
+    console.error("Failed to delete demoted activity:", deleteErr);
+    throw new Error("Failed to delete activity after demotion");
+  }
+
+  revalidatePath(`/trips/${tripId}/schedule`);
+  revalidatePath(`/trips/${tripId}/prep`);
+}
+
 /** Reorder activities within a day */
 export async function reorderActivities(
   tripId: string,

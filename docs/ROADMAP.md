@@ -1,6 +1,6 @@
 # Fargo — Roadmap
 
-> **v0.5 — 2026-08-26.** Phases 1–3 complete and deployed. Phase 4 partially done (invite flow). Launch deadline set: Aug 30, 2026. Auth simplified to Google-only. People tab merged into Overview (5 → 4 tabs).
+> **v0.6 — 2026-09-05.** Phases 1–3 complete and deployed. Phase 4 partially done (invite flow). v0.1 launched Aug 30. v0.2 shipped Sep 5 — post-trip polish from Singapore trip (money logic, schedule UX, post-trip summary). Auth simplified to Google-only. People tab merged into Overview (5 → 4 tabs).
 
 **Sequencing principle:** the planner working alone *is* the product. Multi-user is the most expensive thing in MVP, so it comes after the single-planner trip works end to end — not because it's optional, but because everything it multiplies must be right first.
 

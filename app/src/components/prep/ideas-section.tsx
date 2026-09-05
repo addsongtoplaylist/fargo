@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Plus, Trash2, ExternalLink, ArrowRight } from "lucide-react";
+import { Plus, Trash2, ExternalLink, ArrowRight, Clock, MapPin } from "lucide-react";
 import { createIdea, updateIdea, deleteIdea, promoteIdea } from "@/lib/actions/idea";
 import { useTrip } from "@/lib/trip-context";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -134,6 +134,23 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
                   <p className="text-xs text-accent mt-0.5">
                     → Promoted to {idea.promoted_date}
                   </p>
+                )}
+                {/* Time + location from demoted activities */}
+                {!idea.promoted && (idea.time || idea.place_name) && (
+                  <div className="flex items-center gap-3 mt-0.5">
+                    {idea.time && (
+                      <span className="flex items-center gap-1 text-xs text-muted">
+                        <Clock size={10} />
+                        {idea.time}
+                      </span>
+                    )}
+                    {idea.place_name && (
+                      <span className="flex items-center gap-1 text-xs text-muted truncate">
+                        <MapPin size={10} />
+                        {idea.place_name}
+                      </span>
+                    )}
+                  </div>
                 )}
                 {!idea.promoted && idea.notes && (
                   <p className="text-xs text-muted mt-0.5 truncate">

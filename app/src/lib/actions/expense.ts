@@ -225,12 +225,12 @@ export async function getBudgetSummary(tripId: string) {
 
   const supabase = await createClient();
 
-  // Parallel fetch: traveller, trip, expenses, activity costs, and traveller count
+  // Parallel fetch: traveller, trip, expenses, and traveller count
+  // Fixed costs are now derived from the expenses table, not activity costs.
   const [
     { data: traveller },
     { data: trip },
     { data: expenses },
-    { data: activities },
     { count: travellerCount },
   ] = await Promise.all([
     supabase
@@ -249,11 +249,6 @@ export async function getBudgetSummary(tripId: string) {
       .select("amount_myr, date, category, is_shared")
       .eq("trip_id", tripId),
     supabase
-      .from("activities")
-      .select("cost, cost_shared, category")
-      .eq("trip_id", tripId)
-      .not("cost", "is", null),
-    supabase
       .from("travellers")
       .select("id", { count: "exact", head: true })
       .eq("trip_id", tripId),
@@ -264,11 +259,14 @@ export async function getBudgetSummary(tripId: string) {
   const start = new Date(trip.start_date);
   const end = new Date(trip.end_date);
   const tripDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-  const fxRate = parseFloat(trip.fx_rate) || 1;
   const splitBy = travellerCount && travellerCount > 1 ? travellerCount : 1;
+
+  // Fixed expense categories — deducted from budget before calculating daily free
+  const FIXED_CATEGORIES = ["flights", "accommodation", "activities"];
 
   // Compute spending totals — shared expenses split equally among travellers
   let totalSpent = 0;
+  let fixedExpensesMyr = 0;
   const spendingByDate: Record<string, number> = {};
   const spendingByCategory: Record<string, number> = {};
 
@@ -279,33 +277,23 @@ export async function getBudgetSummary(tripId: string) {
       totalSpent += myShare;
       spendingByDate[e.date] = (spendingByDate[e.date] || 0) + myShare;
       spendingByCategory[e.category] = (spendingByCategory[e.category] || 0) + myShare;
-    }
-  }
-  totalSpent = Math.round(totalSpent * 100) / 100;
 
-  // Compute activity costs in MYR
-  let activityCostsMyr = 0;
-  // Fixed costs = flights, accommodation, activities (attractions) only
-  const FIXED_CATEGORIES = ["flights", "accommodation", "activities"];
-  let fixedCostsMyr = 0;
-  if (activities) {
-    for (const a of activities) {
-      if (a.cost) {
-        const costMyr = parseFloat(a.cost) / fxRate;
-        activityCostsMyr += costMyr;
-        if (FIXED_CATEGORIES.includes(a.category)) {
-          fixedCostsMyr += costMyr;
-        }
+      // Track fixed expenses (your share)
+      if (FIXED_CATEGORIES.includes(e.category)) {
+        fixedExpensesMyr += myShare;
       }
     }
   }
-  activityCostsMyr = Math.round(activityCostsMyr * 100) / 100;
-  fixedCostsMyr = Math.round(fixedCostsMyr * 100) / 100;
+  totalSpent = Math.round(totalSpent * 100) / 100;
+  fixedExpensesMyr = Math.round(fixedExpensesMyr * 100) / 100;
 
   const budgetTotal = traveller.budget_total ?? 0;
   const remaining = budgetTotal - totalSpent;
-  // Daily free = (total budget - fixed expenses - total spent) / total days
-  const dailyFree = tripDays > 0 ? (budgetTotal - fixedCostsMyr - totalSpent) / tripDays : 0;
+
+  // Daily free = (total budget - fixed expenses) / total days
+  // This is a STATIC number — it does not change with daily spending.
+  // Fixed expenses = flights + accommodation + activities (your share).
+  const dailyFree = tripDays > 0 ? (budgetTotal - fixedExpensesMyr) / tripDays : 0;
 
   return {
     travellerId: traveller.id,
@@ -313,7 +301,7 @@ export async function getBudgetSummary(tripId: string) {
     totalSpent,
     remaining: Math.round(remaining * 100) / 100,
     dailyFree: Math.round(dailyFree * 100) / 100,
-    activityCostsMyr,
+    fixedExpensesMyr,
     tripDays,
     spendingByDate,
     spendingByCategory,

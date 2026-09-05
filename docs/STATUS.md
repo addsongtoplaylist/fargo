@@ -4,6 +4,37 @@
 
 ---
 
+**2026-09-05 — v0.2 released: post-trip polish**
+
+First feedback round after the Singapore trip (We Are Riise Singapore, 31 Aug – 2 Sep 2026). 10 findings addressed across Money tab and Schedule/Overview.
+
+**What changed:**
+
+- **Money tab (6 fixes):** dual currency display, fixed expense logic rewritten (static daily budget), expense categories expanded (flights + accommodation), solo toggle removed, decimal formatting on amount input, budget strip in destination currency
+- **Schedule & Overview (4 fixes):** demote activity back to ideas (with full data round-trip), schedule defaults to today for active trips, "Latest" badge when all activities passed, post-trip summary dashboard (duration, destination, attractions, hotel)
+- **UI polish:** ConfirmDialog destructive/non-destructive variants, ideas section shows time + location for demoted items
+
+**DB migration required:** `docs/migrations/sch1-ideas-extra-columns.sql` (adds time, category, place columns to ideas table) — already run on production.
+
+**Files changed:** 13 files, +352 / −111 lines.
+
+See `CHANGELOG.md` for full details.
+
+| Doc | Version | Last updated |
+|---|---|---|
+| `PRODUCT.md` | v0.7 | 2026-08-26 |
+| `EXPERIENCE.md` | v0.7 | 2026-08-26 |
+| `DESIGN.md` | v0.6 | 2026-08-27 |
+| `TECHNICAL.md` | v0.2 | 2026-08-26 |
+| `ROADMAP.md` | v0.5 | 2026-08-26 |
+| `REVIEW.md` | — | 2026-09-05 |
+| `STATUS.md` | — | now |
+| `CHANGELOG.md` | v0.2 | 2026-09-05 |
+
+**Next:** deploy to production, manual re-categorise Singapore hotel expense from "misc" to "🏨 Stay".
+
+---
+
 **2026-08-27 — Branding & design system update**
 
 Visual identity refresh: accent colour, trip cards, app icons, and sign-in branding.

@@ -11,6 +11,11 @@ export type Idea = {
   title: string;
   link: string | null;
   notes: string | null;
+  time: string | null;
+  category: string | null;
+  place_name: string | null;
+  place_lat: string | null;
+  place_lng: string | null;
   promoted: boolean;
   promoted_activity_id: string | null;
   promoted_date: string | null;
@@ -108,7 +113,7 @@ export async function deleteIdea(ideaId: string, tripId: string) {
   revalidatePath(`/trips/${tripId}/prep`);
 }
 
-/** Promote an idea to a scheduled activity */
+/** Promote an idea to a scheduled activity, preserving all its data */
 export async function promoteIdea(
   ideaId: string,
   tripId: string,
@@ -118,14 +123,29 @@ export async function promoteIdea(
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 
-  // Create the activity from this idea
+  // Fetch full idea data
+  const supabase = await createClient();
+  const { data: idea } = await supabase
+    .from("ideas")
+    .select("*")
+    .eq("id", ideaId)
+    .single();
+
+  if (!idea) throw new Error("Idea not found");
+
+  // Create the activity from this idea, carrying over all saved data
   await createActivity(tripId, {
     date,
-    title: (await getIdeaTitle(ideaId)) ?? "Untitled",
+    title: idea.title ?? "Untitled",
+    time: idea.time || undefined,
+    category: idea.category || undefined,
+    notes: idea.notes || undefined,
+    place_name: idea.place_name || undefined,
+    place_lat: idea.place_lat || undefined,
+    place_lng: idea.place_lng || undefined,
   });
 
   // Mark the idea as promoted
-  const supabase = await createClient();
   await supabase
     .from("ideas")
     .update({ promoted: true, promoted_date: dayLabel })
@@ -133,14 +153,4 @@ export async function promoteIdea(
 
   revalidatePath(`/trips/${tripId}/prep`);
   revalidatePath(`/trips/${tripId}/schedule`);
-}
-
-async function getIdeaTitle(ideaId: string): Promise<string | null> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("ideas")
-    .select("title")
-    .eq("id", ideaId)
-    .single();
-  return data?.title ?? null;
 }

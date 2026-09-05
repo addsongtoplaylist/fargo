@@ -57,6 +57,23 @@ export function ActivityList({
   const [panelOpen, setPanelOpen] = useState(false);
   const [editing, setEditing] = useState<Activity | null>(null);
 
+  // Reset to today when the page becomes visible (e.g. switching tabs, returning to app)
+  const tripStatus = trip.status;
+  const tripStart = trip.start_date;
+  const tripEnd = trip.end_date;
+  useEffect(() => {
+    function handleVisibility() {
+      if (document.visibilityState === "visible") {
+        const now = format(new Date(), "yyyy-MM-dd");
+        if (tripStatus === "active" && now >= tripStart && now <= tripEnd) {
+          setSelectedDate(now);
+        }
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [tripStatus, tripStart, tripEnd]);
+
   // Local state for optimistic reorder
   const [activities, setActivities] = useState(initialActivities);
 
@@ -158,6 +175,8 @@ export function ActivityList({
           <BudgetStrip
             dailyFree={dailyFree}
             spentToday={Math.round((spendingByDate[selectedDate] ?? 0) * 100) / 100}
+            localCurrency={trip?.local_currency ?? ""}
+            fxRate={trip?.fx_rate ?? 1}
           />
         </div>
       )}

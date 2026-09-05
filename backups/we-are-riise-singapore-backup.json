@@ -1,0 +1,132 @@
+{
+  "backup_date": "2026-09-05",
+  "backup_note": "Full export of 'We are Riise Singapore' trip from Fargo PWA. This is a read-only backup — do not edit or delete.",
+  "trip": {
+    "id": "ef029119-6ad9-48a4-8027-1f2a3f80be6a",
+    "name": "We are Riise Singapore",
+    "destination": "Singapore",
+    "start_date": "2026-08-31",
+    "end_date": "2026-09-02",
+    "travellers": [
+      { "name": "Song", "role": "planner" },
+      { "name": "Camy", "role": "traveller" }
+    ],
+    "budget": {
+      "total_myr": 1300,
+      "spent_myr": 1072.02,
+      "remaining_myr": 227.98,
+      "daily_free_myr": 75.99,
+      "breakdown": {
+        "misc": 378,
+        "food": 360,
+        "activities": 213,
+        "transport": 113,
+        "shopping": 8
+      }
+    }
+  },
+  "schedule": {
+    "day_1": {
+      "date": "2026-08-31",
+      "label": "Monday, 31 Aug",
+      "spent_today_myr": 237.27,
+      "locations_pinned": 6,
+      "activities": [
+        { "time": "07:00", "title": "Sky -> KL Sentral", "category": "transport" },
+        { "time": "08:00", "title": "Arrive at KL Sentral", "category": "transport" },
+        { "time": "09:00", "title": "ETS KL Sentral -> JB Sentral", "category": "transport" },
+        { "time": "14:00", "title": "Clear MY immigration and board CW2", "category": "transport" },
+        { "time": "13:20", "title": "ETS Arrival JB Sentral", "category": "transport" },
+        { "time": "14:30", "title": "Woodland checkpoint", "category": "transport" },
+        { "time": "15:00", "title": "Clear SG immigration and board CW2", "category": "transport" },
+        { "time": "15:30", "title": "Arrive at Queen street bus terminal", "category": "transport" },
+        { "time": "16:00", "title": "Check in hotel", "category": "accommodation", "place": "Heritage Collection on KG" },
+        { "time": "17:00", "title": "TeamLabs", "category": "activities", "notes": "Buy ticket", "place": "ArtScience Museum" },
+        { "time": "19:00", "title": "Red dot museum", "category": "activities", "place": "Red Dot Design Museum Cafe Bar" },
+        { "time": "19:00", "title": "Evening sunset walk", "category": "activities", "place": "Marina Bay Sands Singapore" },
+        { "time": "19:00", "title": "Song fa bah kut teh @ chinatown", "category": "food", "notes": "30min queue", "place": "Chinatown" },
+        { "time": "20:00", "title": "New bahru", "category": "activities", "place": "New Bahru" }
+      ]
+    },
+    "day_2": {
+      "date": "2026-09-01",
+      "label": "Tuesday, 1 Sep",
+      "spent_today_myr": 92.26,
+      "locations_pinned": 8,
+      "activities": [
+        { "time": "10:00", "title": "Singapore oceanarium", "category": "activities", "place": "Singapore Oceanarium" },
+        { "time": "12:30", "title": "Mr Donut", "category": "food", "place": "VivoCity" },
+        { "time": null, "title": "Tiong bahru market", "category": "misc" },
+        { "time": null, "title": "Cat socrates", "category": "misc" },
+        { "time": null, "title": "Yenidraws", "category": "misc" },
+        { "time": "13:00", "title": "Heartware store and gallery", "category": "shopping", "place": "Heartware Store and Gallery" },
+        { "time": "13:00", "title": "Monocot shop", "category": "shopping", "place": "the monocot shop" },
+        { "time": "14:00", "title": "Sojao home goods", "category": "shopping", "place": "SOJAO Home Goods Store, Joo Chiat Road" },
+        { "time": "16:00", "title": "Move to Star Vista", "category": "activities" },
+        { "time": "17:00", "title": "Fan sign", "category": "activities", "notes": "Reach earlier", "place": "The Star Vista" },
+        { "time": "19:00", "title": "Holland village", "category": "food", "place": "Holland Village" },
+        { "time": "22:00", "title": "Ridout tea garden", "category": "food", "place": "Ridout Tea Garden" }
+      ]
+    },
+    "day_3": {
+      "date": "2026-09-02",
+      "label": "Wednesday, 2 Sep",
+      "spent_today_myr": 174.36,
+      "activities": [
+        { "time": "10:00", "title": "Joo chiat road", "category": "shopping" },
+        { "time": "12:30", "title": "Board CW2 bus", "category": "transport" },
+        { "time": "13:30", "title": "Arrive at woodlands, clear SG immigration", "category": "transport" },
+        { "time": "14:00", "title": "Arrive at JB sentral clear MY immigration", "category": "transport" },
+        { "time": "15:00", "title": "ETS JB Sentral -> KL Sentral", "category": "transport" },
+        { "time": "19:20", "title": "ETS Arrival KL Sentral", "category": "transport" }
+      ]
+    }
+  },
+  "expenses": [
+    { "date": "2026-08-27", "title": "Train to KL sentral", "category": "transport", "amount_sgd": 15, "amount_myr": 48.39, "shared": true },
+    { "date": "2026-08-27", "title": "Hotel", "category": "misc", "amount_sgd": 234.36, "amount_myr": 756.00, "shared": true },
+    { "date": "2026-08-29", "title": "Singapore oceanarium", "category": "activities", "amount_sgd": 88, "amount_myr": 283.87, "shared": true },
+    { "date": "2026-08-29", "title": "Grab to KL sentral", "category": "transport", "amount_sgd": 14.88, "amount_myr": 48.00, "shared": true },
+    { "date": "2026-08-31", "title": "Breakfast @ KL sentral", "category": "food", "amount_sgd": 4.03, "amount_myr": 13.00, "shared": false },
+    { "date": "2026-08-31", "title": "Rotiboy", "category": "food", "amount_sgd": 2.33, "amount_myr": 7.50, "shared": true },
+    { "date": "2026-08-31", "title": "Ez link card", "category": "transport", "amount_sgd": 20, "amount_myr": 64.52, "shared": true },
+    { "date": "2026-08-31", "title": "Ez link balance", "category": "transport", "amount_sgd": 20, "amount_myr": 64.52, "shared": true },
+    { "date": "2026-08-31", "title": "Into the ocean", "category": "activities", "amount_sgd": 44, "amount_myr": 141.94, "shared": true },
+    { "date": "2026-08-31", "title": "Bento lunch", "category": "food", "amount_sgd": 14, "amount_myr": 45.16, "shared": true },
+    { "date": "2026-08-31", "title": "Mynews bread", "category": "food", "amount_sgd": 1.86, "amount_myr": 6.00, "shared": false },
+    { "date": "2026-08-31", "title": "Song fa bah kut teh", "category": "food", "amount_sgd": 35, "amount_myr": 112.90, "shared": true },
+    { "date": "2026-09-01", "title": "Mr donut", "category": "food", "amount_sgd": 7.2, "amount_myr": 23.23, "shared": true },
+    { "date": "2026-09-01", "title": "Yoshinoya", "category": "food", "amount_sgd": 13, "amount_myr": 41.94, "shared": true },
+    { "date": "2026-09-01", "title": "Acai", "category": "food", "amount_sgd": 7, "amount_myr": 22.58, "shared": true },
+    { "date": "2026-09-01", "title": "Apam", "category": "food", "amount_sgd": 2, "amount_myr": 6.45, "shared": false },
+    { "date": "2026-09-01", "title": "Sushiri", "category": "food", "amount_sgd": 26, "amount_myr": 83.87, "shared": true },
+    { "date": "2026-09-02", "title": "Chin mee chin confectionery", "category": "food", "amount_sgd": 19, "amount_myr": 61.29, "shared": true },
+    { "date": "2026-09-02", "title": "Chocolate", "category": "food", "amount_sgd": 39, "amount_myr": 125.81, "shared": true },
+    { "date": "2026-09-02", "title": "Heartware sticker", "category": "shopping", "amount_sgd": 5, "amount_myr": 16.13, "shared": true },
+    { "date": "2026-09-02", "title": "Fig", "category": "food", "amount_sgd": 17, "amount_myr": 54.84, "shared": true },
+    { "date": "2026-09-02", "title": "Grab", "category": "food", "amount_sgd": 25, "amount_myr": 80.65, "shared": true },
+    { "date": "2026-09-02", "title": "100plus", "category": "food", "amount_sgd": 0.93, "amount_myr": 3.00, "shared": true },
+    { "date": "2026-09-02", "title": "Roti biy", "category": "food", "amount_sgd": 2.17, "amount_myr": 7.00, "shared": true }
+  ],
+  "prep": {
+    "checklists": [
+      {
+        "name": "Passport",
+        "items_completed": "1 of 1"
+      },
+      {
+        "name": "Important",
+        "items": ["Important"]
+      }
+    ],
+    "ideas": [
+      { "title": "Mr donut", "status": "unpromoted" },
+      { "title": "Aquarium", "status": "unpromoted" },
+      { "title": "Art science museum", "status": "unpromoted" },
+      { "title": "Heartware store and gallery", "status": "unpromoted" },
+      { "title": "Monocot shop", "status": "unpromoted" },
+      { "title": "Sojao home goods", "status": "promoted", "promoted_to": "Day 2" },
+      { "title": "Open door store", "status": "unpromoted" }
+    ]
+  }
+}
