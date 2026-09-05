@@ -3,7 +3,7 @@
 import { useRef, useCallback } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 
-const TAB_ORDER = ["overview", "schedule", "money", "prep"] as const;
+const TAB_ORDER = ["overview", "schedule", "money", "prep", "discover"] as const;
 
 type SwipeTabsProps = {
   children: React.ReactNode;

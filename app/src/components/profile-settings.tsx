@@ -33,10 +33,6 @@ export function ProfileSettings({
   return (
     <div className="border-t border-border pt-3 space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-sm text-muted">Home currency</span>
-        <span className="text-sm font-medium">{homeCurrency || "MYR"}</span>
-      </div>
-      <div className="flex items-center justify-between">
         <span className="text-sm text-muted">Home country</span>
         <select
           value={countryCode}
@@ -50,6 +46,10 @@ export function ProfileSettings({
             </option>
           ))}
         </select>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-muted">Home currency</span>
+        <span className="text-sm font-medium">{homeCurrency || "MYR"}</span>
       </div>
     </div>
   );
