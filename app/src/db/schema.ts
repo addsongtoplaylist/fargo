@@ -28,23 +28,6 @@ export const DIETARY_OPTIONS = [
 ] as const;
 export type DietaryOption = (typeof DIETARY_OPTIONS)[number];
 
-export const CUISINE_OPTIONS = [
-  "local",
-  "japanese",
-  "chinese",
-  "korean",
-  "thai",
-  "indian",
-  "italian",
-  "mexican",
-  "middle_eastern",
-  "american",
-  "french",
-  "vietnamese",
-  "seafood",
-  "cafe",
-] as const;
-export type CuisineOption = (typeof CUISINE_OPTIONS)[number];
 
 // ──────────────────────────────────────────
 // Enums
@@ -93,10 +76,6 @@ export const accounts = pgTable("accounts", {
   homeCurrency: text("home_currency").notNull().default("MYR"),
   diningBudget: text("dining_budget").notNull().default("moderate"),
   dietaryRestrictions: text("dietary_restrictions")
-    .array()
-    .notNull()
-    .default([]),
-  cuisinePreferences: text("cuisine_preferences")
     .array()
     .notNull()
     .default([]),

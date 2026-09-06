@@ -98,7 +98,7 @@ export function LocationPicker({
         setLoading(false);
       }
     },
-    [apiKey]
+    [apiKey, countryCode]
   );
 
   function handleInput(text: string) {

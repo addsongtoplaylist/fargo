@@ -9,7 +9,6 @@ export async function updateProfile(data: {
   home_country_code?: string | null;
   dining_budget?: string;
   dietary_restrictions?: string[];
-  cuisine_preferences?: string[];
 }): Promise<{ error?: string }> {
   const account = await getOrCreateAccount();
   if (!account) return { error: "Not signed in" };
@@ -25,9 +24,6 @@ export async function updateProfile(data: {
   }
   if (data.dietary_restrictions !== undefined) {
     update.dietary_restrictions = data.dietary_restrictions;
-  }
-  if (data.cuisine_preferences !== undefined) {
-    update.cuisine_preferences = data.cuisine_preferences;
   }
 
   if (Object.keys(update).length === 0) return {};

@@ -2,7 +2,7 @@
 // Separated from bites.ts (server actions) because "use server" files
 // can only export async functions.
 
-const ALL_FOOD_TYPES = [
+export const ALL_FOOD_TYPES = [
   "restaurant",
   "cafe",
   "bakery",

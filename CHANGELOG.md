@@ -2,6 +2,55 @@
 
 ---
 
+## v0.3 — 2026-09-06 · Smart Meal Discovery
+
+New **Discover** tab inside trips with the Bites dining discovery feature. Find nearby restaurants, cafes, and bars powered by Google Places API, filtered by type, scored by rating and proximity.
+
+### Discover tab (Bites)
+
+- **Discover tab** — New 5th tab in the trip view. Category chips: Bites (active), Shop and Attractions (coming soon).
+- **Location picker** — "Near me" (GPS) or search a custom location using Google Places Autocomplete, restricted to the trip's destination country.
+- **Google Places search** — Nearby Search (New) with 2km radius, 20 max results, scored by `rating × log(reviews) × distance_factor × open_boost`.
+- **Filter chips** — Single-select inline filter chips appear after results load: All, Cafe, Restaurant, Bakery, Fast Food, Bar, Japanese, Chinese, Korean, Thai, Indian, Italian, Seafood. Tapping a chip re-searches Google with the matching `includedTypes`.
+- **Client-side pagination** — All results fetched in one API call, displayed 5 at a time with "Show more".
+- **Cuisine dedup** — When "All" is selected, soft-deduplicates by cuisine type (max 2 per cuisine) for variety. Specific filters show all matches.
+- **Spot detail sheet** — Bottom sheet with photo, rating, address, Google Maps link. "Add to schedule" creates a food activity on a chosen trip day/time. "Navigate" opens Google Maps directions.
+- **Budget filter** — Hard-filters results by the user's dining budget preference (set in Profile).
+- **Planner-only** — Non-planners see a locked state.
+
+### Profile — Dining preferences
+
+- **New section** — Budget dropdown (Any / $ / $$ / $$$) and dietary restriction chips (Halal, Vegetarian, Vegan, Gluten-free, Nut-free, Dairy-free, Pescatarian). Save button only enabled when changes are detected.
+- **Cuisine preferences removed** — Replaced by inline filter chips on the Discover page for more direct, in-context filtering.
+
+### Files added
+
+| File | What |
+|---|---|
+| `components/bites/discover-view.tsx` | Main Discover view with filter chips, search, pagination |
+| `components/bites/dining-card.tsx` | Compact dining spot card |
+| `components/bites/location-picker.tsx` | GPS / custom location with Google autocomplete |
+| `components/bites/spot-detail.tsx` | Bottom sheet with spot info + actions |
+| `components/bites/add-to-schedule.tsx` | Day/time picker to add spot as food activity |
+| `components/dining-preferences.tsx` | Budget + dietary preferences in Profile |
+| `lib/actions/bites.ts` | Server action: Google Places search, scoring, dedup |
+| `lib/bites-filters.ts` | Shared filter type definitions |
+| `app/(app)/trips/[id]/discover/page.tsx` | Discover route |
+| `app/(app)/trips/[id]/discover/error.tsx` | Error boundary |
+
+### Migration required
+
+```sql
+-- Run in Supabase SQL Editor before deploying
+-- supabase/migrations/20260905_dining_preferences.sql
+ALTER TABLE accounts
+  ADD COLUMN IF NOT EXISTS dining_budget text NOT NULL DEFAULT 'moderate',
+  ADD COLUMN IF NOT EXISTS dietary_restrictions text[] NOT NULL DEFAULT '{}',
+  ADD COLUMN IF NOT EXISTS cuisine_preferences text[] NOT NULL DEFAULT '{}';
+```
+
+---
+
 ## v0.2 — 2026-09-05 · Post-trip polish
 
 First feedback round after the Singapore trip (We Are Riise Singapore, 31 Aug – 2 Sep 2026). Fixes real-world pain points from 3 days of daily use with 2 travellers, 24 expenses, and a RM 1,300 budget.

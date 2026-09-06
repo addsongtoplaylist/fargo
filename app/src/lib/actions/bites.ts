@@ -1,7 +1,7 @@
 "use server";
 
 import { getOrCreateAccount } from "@/lib/account";
-import { FILTER_TYPES } from "@/lib/bites-filters";
+import { FILTER_TYPES, ALL_FOOD_TYPES } from "@/lib/bites-filters";
 
 // ──────────────────────────────────────────
 // Types
@@ -37,18 +37,6 @@ type SearchParams = {
   lng: number;
   filterType?: string; // filter key from FILTER_TYPES, default "all"
 };
-
-// Default food types for "all" filter
-const ALL_FOOD_TYPES = [
-  "restaurant",
-  "cafe",
-  "bakery",
-  "coffee_shop",
-  "fast_food_restaurant",
-  "meal_takeaway",
-  "bar",
-  "ice_cream_shop",
-];
 
 // ──────────────────────────────────────────
 // Google Places price level mapping
@@ -107,12 +95,6 @@ const TYPE_TO_CUISINE: Record<string, string> = {
   brunch_restaurant: "Brunch",
   barbecue_restaurant: "BBQ",
   restaurant: "Restaurant",
-};
-
-// Dietary keywords to check against Google types
-const DIETARY_TYPE_MATCHES: Record<string, string[]> = {
-  vegetarian: ["vegetarian_restaurant"],
-  vegan: ["vegan_restaurant"],
 };
 
 // ──────────────────────────────────────────
@@ -312,15 +294,7 @@ export async function searchDiningSpots(
         };
       })
       // Hard filter: budget
-      .filter((spot) => spot.priceLevel <= maxPrice)
-      // Hard filter: dietary — if user has vegetarian/vegan restrictions,
-      // we can only soft-filter since Google doesn't tag most places
-      .filter((spot) => {
-        // For dietary restrictions that have matching Google types,
-        // we don't hard-filter (too restrictive — most places aren't tagged).
-        // Instead we'll boost matching ones in scoring.
-        return true;
-      });
+      .filter((spot) => spot.priceLevel <= maxPrice);
 
     // Score each spot
     spots = spots.map((spot) => ({

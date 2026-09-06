@@ -1,6 +1,6 @@
 # Fargo — Roadmap
 
-> **v0.6 — 2026-09-05.** Phases 1–3 complete and deployed. Phase 4 partially done (invite flow). v0.1 launched Aug 30. v0.2 shipped Sep 5 — post-trip polish from Singapore trip (money logic, schedule UX, post-trip summary). Auth simplified to Google-only. People tab merged into Overview (5 → 4 tabs).
+> **v0.7 — 2026-09-06.** Phases 1–3 complete and deployed. Phase 4 partially done (invite flow). v0.1 launched Aug 30. v0.2 shipped Sep 5 — post-trip polish from Singapore trip. v0.3 shipped Sep 6 — Smart Meal Discovery (Discover tab with Bites, Google Places, filter chips). Auth simplified to Google-only. People tab merged into Overview (5 → 4 tabs, then 5 with Discover).
 
 **Sequencing principle:** the planner working alone *is* the product. Multi-user is the most expensive thing in MVP, so it comes after the single-planner trip works end to end — not because it's optional, but because everything it multiplies must be right first.
 
