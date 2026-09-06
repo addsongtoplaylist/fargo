@@ -303,7 +303,7 @@ export function DiscoverView() {
               onClick={handleShowMore}
               className="w-full mt-4 py-2.5 text-sm font-medium text-muted border border-border rounded-lg hover:border-ink/30 hover:text-ink transition-colors"
             >
-              Show 5 more
+              Show more
             </button>
           )}
 
