@@ -3,6 +3,7 @@ import { getOrCreateAccount } from "@/lib/account";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ProfileSettings } from "@/components/profile-settings";
 import { DiningPreferences } from "@/components/dining-preferences";
+import pkg from "../../../../package.json";
 
 export default async function ProfilePage() {
   const account = await getOrCreateAccount();
@@ -44,6 +45,10 @@ export default async function ProfilePage() {
       </p>
 
       <SignOutButton />
+
+      <p className="text-center text-[11px] text-muted/50 mt-8">
+        Fargo v{pkg.version}
+      </p>
     </Column>
   );
 }
