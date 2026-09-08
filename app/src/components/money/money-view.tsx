@@ -117,7 +117,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
               </p>
             )}
             <p className="text-[10px] text-muted/70">
-              Daily free = (total budget − fixed costs) ÷ {budget?.tripDays ?? "trip"} days
+              (Total budget − fixed costs) ÷ {budget?.tripDays ?? "trip"} days = Daily free budget
             </p>
           </div>
         ) : budget && budget.budgetTotal > 0 ? (
