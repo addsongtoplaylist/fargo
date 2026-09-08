@@ -22,9 +22,6 @@ export function BudgetStrip({ dailyFree, spentToday, localCurrency, fxRate }: Bu
         <p className="text-lg font-semibold text-accent money">
           {localCurrency} {dailyFreeLocal.toLocaleString()}
         </p>
-        <p className="text-[10px] text-accent/50 money">
-          ≈ RM {dailyFree.toLocaleString()}
-        </p>
       </div>
       <div className="text-right">
         <p className="text-[10px] font-medium text-muted uppercase tracking-wide">
@@ -36,9 +33,6 @@ export function BudgetStrip({ dailyFree, spentToday, localCurrency, fxRate }: Bu
           }`}
         >
           {localCurrency} {spentTodayLocal.toLocaleString()}
-        </p>
-        <p className="text-[10px] text-muted/60 money">
-          ≈ RM {spentToday.toLocaleString()}
         </p>
       </div>
     </div>

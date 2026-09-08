@@ -9,6 +9,8 @@ import { LogExpensePanel } from "./log-expense-panel";
 import type { Expense } from "@/lib/actions/expense";
 import { CATEGORY_EMOJI } from "@/lib/categories";
 
+const FIXED_CATEGORIES = ["flights", "accommodation", "activities"];
+
 type BudgetSummary = {
   travellerId: string;
   budgetTotal: number;
@@ -89,31 +91,41 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
         </div>
 
         {editingBudget ? (
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted">RM</span>
-            <input
-              type="number"
-              value={budgetInput}
-              onChange={(e) => setBudgetInput(e.target.value)}
-              className="flex-1 bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleBudgetSave();
-              }}
-            />
-            <button
-              onClick={handleBudgetSave}
-              className="px-3 py-1.5 bg-accent text-accent-on text-xs font-medium rounded-md"
-            >
-              Save
-            </button>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted">RM</span>
+              <input
+                type="number"
+                value={budgetInput}
+                onChange={(e) => setBudgetInput(e.target.value)}
+                className="flex-1 bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleBudgetSave();
+                }}
+              />
+              <button
+                onClick={handleBudgetSave}
+                className="px-3 py-1.5 bg-accent text-accent-on text-xs font-medium rounded-md"
+              >
+                Save
+              </button>
+            </div>
+            {budgetInput && !isNaN(parseInt(budgetInput)) && parseInt(budgetInput) > 0 && (
+              <p className="text-xs text-muted">
+                ≈ {trip.local_currency} {Math.round(parseInt(budgetInput) * fxRate).toLocaleString()} in {trip.destination}
+              </p>
+            )}
+            <p className="text-[10px] text-muted/70">
+              Daily free = (total budget − fixed costs) ÷ {budget?.tripDays ?? "trip"} days
+            </p>
           </div>
         ) : budget && budget.budgetTotal > 0 ? (
           <div>
             <div className="flex items-baseline justify-between">
               <div>
                 <p className="text-2xl font-semibold text-ink money">
-                  RM {budget.budgetTotal.toLocaleString()}
+                  {trip.local_currency} {Math.round(budget.budgetTotal * fxRate).toLocaleString()}
                 </p>
                 <p className="text-xs text-muted mt-0.5">Total budget</p>
               </div>
@@ -123,7 +135,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                     budget.remaining >= 0 ? "text-money-ok" : "text-money-over"
                   }`}
                 >
-                  RM {budget.remaining.toLocaleString()}
+                  {trip.local_currency} {Math.round(budget.remaining * fxRate).toLocaleString()}
                 </p>
                 <p className="text-xs text-muted mt-0.5">Remaining</p>
               </div>
@@ -155,27 +167,57 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
               </p>
             </div>
 
-            {/* Category breakdown */}
-            {Object.keys(budget.spendingByCategory).length > 0 && (
-              <div className="mt-3 pt-3 border-t border-border space-y-1">
-                {Object.entries(budget.spendingByCategory)
-                  .sort(([, a], [, b]) => b - a)
-                  .map(([cat, amount]) => (
-                    <div
-                      key={cat}
-                      className="flex items-center justify-between text-xs"
-                    >
-                      <span className="text-muted">
-                        {CATEGORY_EMOJI[cat] ?? "📦"}{" "}
-                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                      </span>
-                      <span className="text-ink money">
-                        {trip.local_currency} {Math.round(amount * fxRate).toLocaleString()}
-                      </span>
+            {/* Category breakdown — Fixed / Daily groups */}
+            {Object.keys(budget.spendingByCategory).length > 0 && (() => {
+              const entries = Object.entries(budget.spendingByCategory);
+              const fixed = entries
+                .filter(([cat]) => FIXED_CATEGORIES.includes(cat))
+                .sort(([, a], [, b]) => b - a);
+              const daily = entries
+                .filter(([cat]) => !FIXED_CATEGORIES.includes(cat))
+                .sort(([, a], [, b]) => b - a);
+
+              return (
+                <div className="mt-3 pt-3 border-t border-border">
+                  {fixed.length > 0 && (
+                    <div className="mb-2">
+                      <p className="text-[10px] font-medium text-muted/60 uppercase tracking-wide mb-1">Fixed</p>
+                      <div className="space-y-1">
+                        {fixed.map(([cat, amount]) => (
+                          <div key={cat} className="flex items-center justify-between text-xs">
+                            <span className="text-muted">
+                              {CATEGORY_EMOJI[cat] ?? "📦"}{" "}
+                              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                            </span>
+                            <span className="text-ink money">
+                              {trip.local_currency} {Math.round(amount * fxRate).toLocaleString()}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  ))}
-              </div>
-            )}
+                  )}
+                  {daily.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-medium text-muted/60 uppercase tracking-wide mb-1">Daily</p>
+                      <div className="space-y-1">
+                        {daily.map(([cat, amount]) => (
+                          <div key={cat} className="flex items-center justify-between text-xs">
+                            <span className="text-muted">
+                              {CATEGORY_EMOJI[cat] ?? "📦"}{" "}
+                              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                            </span>
+                            <span className="text-ink money">
+                              {trip.local_currency} {Math.round(amount * fxRate).toLocaleString()}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         ) : isPlanner ? (
           <button
@@ -215,47 +257,57 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
         </div>
       ) : (
         <div className="space-y-3">
-          {sortedDates.map((date) => (
-            <div key={date}>
-              <p className="text-xs font-medium text-muted mb-1.5">
-                {format(parseISO(date), "EEEE, d MMM")}
-              </p>
-              <div className="bg-card rounded-lg border border-border overflow-hidden">
-                {groupedByDate[date].map((expense, i) => (
-                  <button
-                    key={expense.id}
-                    onClick={() => handleEditExpense(expense)}
-                    className={`flex items-center gap-2 px-3 py-2.5 w-full text-left hover:bg-ground/50 transition-colors active:bg-ground ${
-                      i > 0 ? "border-t border-border" : ""
-                    }`}
-                  >
-                    <span className="text-sm shrink-0">
-                      {CATEGORY_EMOJI[expense.category] ?? "📦"}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1">
-                        <p className="text-sm text-ink truncate">
-                          {expense.title}
-                        </p>
-                        {expense.notes && (
-                          <StickyNote size={10} className="text-muted/60 shrink-0" />
-                        )}
+          {sortedDates.map((date) => {
+            const dayTotal = groupedByDate[date].reduce(
+              (sum, e) => sum + parseFloat(e.amount),
+              0
+            );
+            return (
+              <div key={date}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-xs font-medium text-muted">
+                    {format(parseISO(date), "EEEE, d MMM")}
+                  </p>
+                  <p className="text-xs font-medium text-muted money">
+                    {trip.local_currency} {dayTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </div>
+                <div className="bg-card rounded-lg border border-border overflow-hidden">
+                  {groupedByDate[date].map((expense, i) => (
+                    <button
+                      key={expense.id}
+                      onClick={() => handleEditExpense(expense)}
+                      className={`flex items-center gap-2 px-3 py-2.5 w-full text-left hover:bg-ground/50 transition-colors active:bg-ground ${
+                        i > 0 ? "border-t border-border" : ""
+                      }`}
+                    >
+                      <span className="text-sm shrink-0">
+                        {CATEGORY_EMOJI[expense.category] ?? "📦"}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1">
+                          <p className="text-sm text-ink truncate">
+                            {expense.title}
+                          </p>
+                          {expense.notes && (
+                            <StickyNote size={10} className="text-muted/60 shrink-0" />
+                          )}
+                        </div>
                       </div>
-                      {/* All expenses are shared — no label needed */}
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-medium text-ink money">
-                        {trip.local_currency} {parseFloat(expense.amount).toLocaleString()}
-                      </p>
-                      <p className="text-[10px] text-muted money">
-                        ≈ RM {parseFloat(expense.amount_myr).toFixed(2)}
-                      </p>
-                    </div>
-                  </button>
-                ))}
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-medium text-ink money">
+                          {trip.local_currency} {parseFloat(expense.amount).toLocaleString()}
+                        </p>
+                        <p className="text-[10px] text-muted money">
+                          ≈ RM {parseFloat(expense.amount_myr).toFixed(2)}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
