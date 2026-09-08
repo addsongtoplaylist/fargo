@@ -7,7 +7,7 @@ import { LocationSearch } from "./location-search";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useTrip } from "@/lib/trip-context";
-import { format, parseISO } from "date-fns";
+
 import type { Activity } from "@/lib/actions/activity";
 import { ACTIVITY_CATEGORIES as CATEGORIES } from "@/lib/categories";
 
@@ -114,7 +114,7 @@ export function AddActivityPanel({
     setSaving(true);
     try {
       await demoteActivity(editing.id, tripId);
-      toast("Moved back to ideas");
+      toast("Moved back to ideas", "success");
       onClose();
     } catch (err) {
       console.error(err);
@@ -161,15 +161,39 @@ export function AddActivityPanel({
             }}
           />
 
-          {/* Time */}
+          {/* Time — HH : MM dropdowns (30-min intervals) */}
           <div className="flex items-center gap-2">
             <label className="text-xs text-muted w-10">Time</label>
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
+            <select
+              value={time ? time.split(":")[0] : ""}
+              onChange={(e) => {
+                const hh = e.target.value;
+                if (!hh) { setTime(""); return; }
+                const mm = time ? time.split(":")[1] : "00";
+                setTime(`${hh}:${mm}`);
+              }}
               className="bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent transition-colors"
-            />
+            >
+              <option value="">HH</option>
+              {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0")).map((hh) => (
+                <option key={hh} value={hh}>{hh}</option>
+              ))}
+            </select>
+            <span className="text-sm text-muted">:</span>
+            <select
+              value={time ? time.split(":")[1] : ""}
+              onChange={(e) => {
+                const mm = e.target.value;
+                const hh = time ? time.split(":")[0] : "09";
+                setTime(`${hh}:${mm}`);
+              }}
+              disabled={!time}
+              className="bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent transition-colors disabled:opacity-50"
+            >
+              <option value="">MM</option>
+              <option value="00">00</option>
+              <option value="30">30</option>
+            </select>
             {time && (
               <button
                 onClick={() => setTime("")}
@@ -191,9 +215,6 @@ export function AddActivityPanel({
               onChange={(e) => setActivityDate(e.target.value)}
               className="bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent transition-colors"
             />
-            <span className="text-xs text-muted">
-              {format(parseISO(activityDate), "EEE, d MMM")}
-            </span>
           </div>
 
           {/* Location */}
@@ -230,17 +251,36 @@ export function AddActivityPanel({
         </div>
 
         {/* Footer — clears the 56px bottom nav + safe area */}
-        <div className="px-4 pt-3 pb-[calc(0.75rem+56px+env(safe-area-inset-bottom))] border-t border-border flex items-center gap-2">
+        <div className="px-4 pt-3 pb-[calc(0.75rem+56px+env(safe-area-inset-bottom))] border-t border-border space-y-3">
+          {/* Primary actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onClose}
+              className="flex-1 py-2 text-sm font-medium text-muted border border-border rounded-lg hover:border-ink/30 hover:text-ink transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={!title.trim() || saving}
+              className="flex-1 py-2 bg-accent text-accent-on text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
+            >
+              {saving ? "Saving…" : editing ? "Save" : "Add"}
+            </button>
+          </div>
+
+          {/* Secondary actions — only in edit mode */}
           {editing && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center gap-4 pt-1">
               <button
                 onClick={() => setShowDemoteConfirm(true)}
                 disabled={saving}
                 className="flex items-center gap-1 text-xs text-muted hover:text-ink transition-colors disabled:opacity-50"
               >
                 <ArrowDownToLine size={12} />
-                To ideas
+                Move to ideas
               </button>
+              <span className="text-border">·</span>
               <button
                 onClick={() => setShowDeleteConfirm(true)}
                 disabled={saving}
@@ -250,20 +290,6 @@ export function AddActivityPanel({
               </button>
             </div>
           )}
-          <div className="flex-1" />
-          <button
-            onClick={onClose}
-            className="px-3 py-1.5 text-sm text-muted hover:text-ink transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={!title.trim() || saving}
-            className="px-4 py-1.5 bg-accent text-accent-on text-sm font-medium rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50"
-          >
-            {saving ? "Saving…" : editing ? "Save" : "Add"}
-          </button>
         </div>
       </div>
 

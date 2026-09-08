@@ -433,9 +433,9 @@ export default async function OverviewPage({
                     <span className="text-[10px] font-medium text-muted uppercase tracking-wide">Stay</span>
                   </div>
                   <div className="space-y-1">
-                    {accommodations.map((a) => (
-                      <p key={a.id} className="text-sm font-medium text-ink">
-                        🏨 {a.place_name || a.title}
+                    {[...new Set(accommodations.map((a) => a.place_name || a.title))].map((name) => (
+                      <p key={name} className="text-sm font-medium text-ink">
+                        🏨 {name}
                       </p>
                     ))}
                   </div>

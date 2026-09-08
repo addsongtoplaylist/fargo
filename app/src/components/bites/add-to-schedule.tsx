@@ -119,15 +119,35 @@ export function AddToSchedule({
           </select>
         </div>
 
-        {/* Time picker */}
+        {/* Time picker — HH : MM dropdowns (30-min intervals) */}
         <div className="flex items-center justify-between py-2.5 border-b border-border">
           <span className="text-sm text-muted">Time</span>
-          <input
-            type="time"
-            value={selectedTime}
-            onChange={(e) => setSelectedTime(e.target.value)}
-            className="text-sm font-medium text-ink bg-ground border border-border rounded-md px-2 py-1 outline-none focus:border-accent transition-colors"
-          />
+          <div className="flex items-center gap-1">
+            <select
+              value={selectedTime.split(":")[0]}
+              onChange={(e) => {
+                const mm = selectedTime.split(":")[1] || "00";
+                setSelectedTime(`${e.target.value}:${mm}`);
+              }}
+              className="text-sm font-medium text-ink bg-ground border border-border rounded-md px-2 py-1 outline-none focus:border-accent transition-colors"
+            >
+              {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0")).map((hh) => (
+                <option key={hh} value={hh}>{hh}</option>
+              ))}
+            </select>
+            <span className="text-sm text-muted">:</span>
+            <select
+              value={selectedTime.split(":")[1] || "00"}
+              onChange={(e) => {
+                const hh = selectedTime.split(":")[0] || "12";
+                setSelectedTime(`${hh}:${e.target.value}`);
+              }}
+              className="text-sm font-medium text-ink bg-ground border border-border rounded-md px-2 py-1 outline-none focus:border-accent transition-colors"
+            >
+              <option value="00">00</option>
+              <option value="30">30</option>
+            </select>
+          </div>
         </div>
 
         {/* Category */}
