@@ -2,6 +2,37 @@
 
 ---
 
+## v0.3.1 — 2026-09-09 · Polish & Currency UX
+
+Five polish fixes plus a currency display overhaul from real-trip feedback on We Are Riize Singapore.
+
+### Schedule & UI polish
+
+- **Time selector** — Replaced `<input type="time">` with HH / MM dropdowns (30-min intervals) in both the activity edit panel and the Bites "Add to schedule" sheet.
+- **Toast color** — Demoting an activity to ideas now shows a green success toast instead of red.
+- **Button layout** — Activity edit footer: Cancel/Save as equal-width primary row, "Move to ideas · Delete" as centered secondary row below.
+- **Date dedup** — Removed redundant date text label next to the date picker in the activity edit panel.
+- **Stay dedup** — Overview trip summary deduplicates accommodation names (check-in + check-out no longer shows the hotel twice).
+
+### Money — destination currency display
+
+- **Budget card in destination currency** — Total budget and remaining now show in destination currency (e.g. SGD 403) instead of home currency (RM 1,300). All numbers on the card are in one currency.
+- **Budget edit preview** — Live destination currency equivalent shown while editing (e.g. "≈ SGD 403 in Singapore") with formula explainer: "(Total budget − fixed costs) ÷ 3 days = Daily free budget".
+- **Fixed / Daily category groups** — Category breakdown split into Fixed (flights, accommodation, activities) and Daily (food, transport, shopping) sections.
+- **Daily expense totals** — Each date group in the expense list shows the day's total (e.g. "Wednesday, 2 Sep — SGD 108.10").
+- **Budget strip simplified** — Schedule's daily budget strip shows destination currency only (removed ≈ RM secondary lines).
+- **Individual expenses** — Keep dual currency display (SGD + ≈ RM) for per-expense home currency reference.
+
+### Other
+
+- **Version on Profile** — "Fargo v0.3.1" shown at the bottom of the Profile page, sourced from `package.json`.
+
+### Shelved
+
+- **Schedule timesheet** — Google Calendar-style drag-to-time view was prototyped and discussed. Shelved: travel planning is too loosely structured for rigid time slots — most activities have no fixed time, and the UX adds complexity without clear benefit for the typical planning style.
+
+---
+
 ## v0.3 — 2026-09-06 · Smart Meal Discovery
 
 New **Discover** tab inside trips with the Bites dining discovery feature. Find nearby restaurants, cafes, and bars powered by Google Places API, filtered by type, scored by rating and proximity.
