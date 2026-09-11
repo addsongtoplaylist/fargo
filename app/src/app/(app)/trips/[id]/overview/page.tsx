@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Column } from "@/components/column";
 import { getActivities } from "@/lib/actions/activity";
-import { getTrip, getMyRole } from "@/lib/actions/trip";
+import { getTrip } from "@/lib/actions/trip";
 import { getOrCreateAccount } from "@/lib/account";
 import { OverviewPeople } from "@/components/people/overview-people";
 import { CATEGORY_EMOJI } from "@/lib/categories";
@@ -71,14 +71,19 @@ export default async function OverviewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [activities, trip, myRole, account] = await Promise.all([
+  const [activities, trip, account] = await Promise.all([
     getActivities(id),
     getTrip(id),
-    getMyRole(id),
     getOrCreateAccount(),
   ]);
 
   if (!trip) notFound();
+
+  // Derive role from trip.travellers — no separate query needed
+  // (getTrip already fetches travellers(*) and is deduped with layout via React cache)
+  const myRole = trip.travellers?.find(
+    (t: { account_id: string; role: string }) => t.account_id === account?.id
+  )?.role;
 
   const now = new Date();
   const startDate = parseISO(trip.start_date);

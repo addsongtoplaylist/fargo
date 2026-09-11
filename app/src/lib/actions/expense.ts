@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getOrCreateAccount } from "@/lib/account";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { createExpenseSchema, updateExpenseSchema, tripIdSchema, uuidSchema } from "@/lib/validations";
+import { getTrip } from "@/lib/actions/trip";
 
 export type Expense = {
   id: string;
@@ -230,51 +231,43 @@ export async function updateBudget(tripId: string, budgetTotal: number) {
 
 /**
  * Get the planner's budget and computed daily free budget.
+ *
+ * Reuses cached getTrip() for trip dates, traveller count, and the user's
+ * budget_total — eliminates 3 of the original 4 Supabase queries.
+ * Only the expenses query remains unique to this function.
+ *
  * Cached across requests (30s TTL); expense/budget mutations bust via revalidateTag.
  */
 export async function getBudgetSummary(tripId: string) {
   const account = await getOrCreateAccount();
   if (!account) return null;
 
+  // Reuse cached trip data — getTrip() is wrapped in React cache() +
+  // unstable_cache, so this is essentially free (no extra DB query)
+  const trip = await getTrip(tripId);
+  if (!trip) return null;
+
+  const travellers = trip.travellers ?? [];
+  const myTraveller = travellers.find(
+    (t: { account_id: string }) => t.account_id === account.id
+  );
+  if (!myTraveller) return null;
+
   const supabase = await createClient();
 
   return unstable_cache(
     async () => {
-      // Parallel fetch: traveller, trip, expenses, and traveller count
-      // Fixed costs are now derived from the expenses table, not activity costs.
-      const [
-        { data: traveller },
-        { data: trip },
-        { data: expenses },
-        { count: travellerCount },
-      ] = await Promise.all([
-        supabase
-          .from("travellers")
-          .select("id, budget_total")
-          .eq("trip_id", tripId)
-          .eq("account_id", account.id)
-          .single(),
-        supabase
-          .from("trips")
-          .select("start_date, end_date, fx_rate")
-          .eq("id", tripId)
-          .single(),
-        supabase
-          .from("expenses")
-          .select("amount_myr, date, category, is_shared")
-          .eq("trip_id", tripId),
-        supabase
-          .from("travellers")
-          .select("id", { count: "exact", head: true })
-          .eq("trip_id", tripId),
-      ]);
-
-      if (!traveller || !trip) return null;
+      // Only query: expenses. Trip dates, traveller count, and budget_total
+      // all come from the cached getTrip() result above.
+      const { data: expenses } = await supabase
+        .from("expenses")
+        .select("amount_myr, date, category, is_shared")
+        .eq("trip_id", tripId);
 
       const start = new Date(trip.start_date);
       const end = new Date(trip.end_date);
       const tripDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      const splitBy = travellerCount && travellerCount > 1 ? travellerCount : 1;
+      const splitBy = travellers.length > 1 ? travellers.length : 1;
 
       // Fixed expense categories — deducted from budget before calculating daily free
       const FIXED_CATEGORIES = ["flights", "accommodation", "activities"];
@@ -302,7 +295,7 @@ export async function getBudgetSummary(tripId: string) {
       totalSpent = Math.round(totalSpent * 100) / 100;
       fixedExpensesMyr = Math.round(fixedExpensesMyr * 100) / 100;
 
-      const budgetTotal = traveller.budget_total ?? 0;
+      const budgetTotal = myTraveller.budget_total ?? 0;
       const remaining = budgetTotal - totalSpent;
 
       // Daily free = (total budget - fixed expenses) / total days
@@ -311,7 +304,7 @@ export async function getBudgetSummary(tripId: string) {
       const dailyFree = tripDays > 0 ? (budgetTotal - fixedExpensesMyr) / tripDays : 0;
 
       return {
-        travellerId: traveller.id,
+        travellerId: myTraveller.id,
         budgetTotal,
         totalSpent,
         remaining: Math.round(remaining * 100) / 100,
