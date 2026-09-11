@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateAccount } from "@/lib/account";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { createActivitySchema, updateActivitySchema, tripIdSchema, uuidSchema } from "@/lib/validations";
 
 export type Activity = {
@@ -25,20 +25,29 @@ export type Activity = {
   updated_at: string;
 };
 
-/** Fetch all activities for a trip, ordered by date + sort_order */
+/**
+ * Fetch all activities for a trip, ordered by date + sort_order.
+ * Cached across requests (30s TTL); mutations bust via revalidateTag.
+ */
 export async function getActivities(tripId: string): Promise<Activity[]> {
   const account = await getOrCreateAccount();
   if (!account) return [];
 
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("activities")
-    .select("*")
-    .eq("trip_id", tripId)
-    .order("date", { ascending: true })
-    .order("sort_order", { ascending: true });
 
-  return (data as Activity[]) ?? [];
+  return unstable_cache(
+    async () => {
+      const { data } = await supabase
+        .from("activities")
+        .select("*")
+        .eq("trip_id", tripId)
+        .order("date", { ascending: true })
+        .order("sort_order", { ascending: true });
+      return (data as Activity[]) ?? [];
+    },
+    [`activities-${tripId}-user-${account.id}`],
+    { tags: [`activities-${tripId}`], revalidate: 30 }
+  )();
 }
 
 /** Create a new activity */
@@ -117,6 +126,7 @@ export async function createActivity(
     throw new Error("Failed to create activity");
   }
 
+  revalidateTag(`activities-${tripId}`, "max");
   revalidatePath(`/trips/${tripId}/schedule`);
 }
 
@@ -156,6 +166,7 @@ export async function updateActivity(
     throw new Error("Failed to update activity");
   }
 
+  revalidateTag(`activities-${tripId}`, "max");
   revalidatePath(`/trips/${tripId}/schedule`);
 }
 
@@ -179,6 +190,7 @@ export async function deleteActivity(activityId: string, tripId: string) {
     throw new Error("Failed to delete activity");
   }
 
+  revalidateTag(`activities-${tripId}`, "max");
   revalidatePath(`/trips/${tripId}/schedule`);
 }
 
@@ -244,6 +256,7 @@ export async function demoteActivity(activityId: string, tripId: string) {
     throw new Error("Failed to delete activity after demotion");
   }
 
+  revalidateTag(`activities-${tripId}`, "max");
   revalidatePath(`/trips/${tripId}/schedule`);
   revalidatePath(`/trips/${tripId}/prep`);
 }
@@ -272,5 +285,6 @@ export async function reorderActivities(
     throw new Error("Failed to reorder activities");
   }
 
+  revalidateTag(`activities-${tripId}`, "max");
   revalidatePath(`/trips/${tripId}/schedule`);
 }

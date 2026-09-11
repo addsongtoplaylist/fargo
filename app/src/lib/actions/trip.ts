@@ -1,9 +1,10 @@
 "use server";
 
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateAccount } from "@/lib/account";
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { updateTripSchema, tripIdSchema, uuidSchema } from "@/lib/validations";
 
 const TRIP_TYPE_MAP: Record<string, string> = {
@@ -140,19 +141,35 @@ export async function getMyTrips() {
   return { active, upcoming, past };
 }
 
-export async function getTrip(id: string) {
+/**
+ * Fetch a trip with its travellers.
+ *
+ * - React cache() deduplicates within a single server render (layout + page).
+ * - unstable_cache persists the result across requests (tab switches) with a
+ *   30-second TTL. The Supabase client is created *outside* the cached scope
+ *   so cookies() is never called inside the cache boundary.
+ * - Mutations call revalidateTag(`trip-${id}`) to bust the cache immediately.
+ */
+export const getTrip = cache(async (id: string) => {
   const account = await getOrCreateAccount();
   if (!account) return null;
 
+  // Create Supabase client outside the cache scope (reads cookies here)
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("trips")
-    .select("*, travellers(*)")
-    .eq("id", id)
-    .single();
 
-  return data;
-}
+  return unstable_cache(
+    async () => {
+      const { data } = await supabase
+        .from("trips")
+        .select("*, travellers(*)")
+        .eq("id", id)
+        .single();
+      return data;
+    },
+    [`trip-${id}-user-${account.id}`],
+    { tags: [`trip-${id}`], revalidate: 30 }
+  )();
+});
 
 /** Generate or return the share code for a trip */
 export async function getOrCreateShareCode(tripId: string) {
@@ -310,6 +327,7 @@ export async function removeTraveller(tripId: string, travellerId: string) {
     throw new Error("Failed to remove traveller");
   }
 
+  revalidateTag(`trip-${tripId}`, "max");
   revalidatePath(`/trips/${tripId}/people`);
 }
 
@@ -344,6 +362,7 @@ export async function leaveTrip(tripId: string): Promise<{ error?: string }> {
     return { error: "Failed to leave trip" };
   }
 
+  revalidateTag(`trip-${tripId}`, "max");
   revalidatePath("/trips");
   revalidatePath(`/trips/${tripId}`);
   return {};
@@ -427,6 +446,7 @@ export async function updateTrip(
     return { error: `Failed to update trip: ${error.message}` };
   }
 
+  revalidateTag(`trip-${tripId}`, "max");
   revalidatePath(`/trips/${tripId}`);
   return {};
 }
@@ -458,6 +478,7 @@ export async function deleteTrip(tripId: string): Promise<{ error?: string }> {
     return { error: `Failed to delete trip: ${error.message}` };
   }
 
+  revalidateTag(`trip-${tripId}`, "max");
   revalidatePath("/trips");
   return {};
 }

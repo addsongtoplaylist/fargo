@@ -5,13 +5,19 @@ import { createClient } from "@/lib/supabase/server";
  * Ensures an account row exists for the current auth user.
  * Wrapped in React cache() so duplicate calls within a single
  * server render are deduplicated (e.g. layout + page both call this).
+ *
+ * Uses getSession() instead of getUser() because the middleware already
+ * validates the session with getUser() on every request. Reading the
+ * session from the cookie avoids a redundant network round trip to
+ * Supabase auth (~150-300ms).
  */
 export const getOrCreateAccount = cache(async () => {
   const supabase = await createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
+  const user = session?.user ?? null;
   if (!user) return null;
 
   // Check if account already exists
