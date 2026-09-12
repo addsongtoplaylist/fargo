@@ -340,26 +340,18 @@ export async function leaveTrip(tripId: string): Promise<{ error?: string }> {
 
   const supabase = await createClient();
 
-  // Find the traveller row for this user
-  const { data: traveller } = await supabase
-    .from("travellers")
-    .select("id, role")
-    .eq("trip_id", tripId)
-    .eq("account_id", account.id)
-    .single();
-
-  if (!traveller) return { error: "You are not a member of this trip" };
-  if (traveller.role === "planner") return { error: "The planner cannot leave. Delete the trip instead." };
-
-  const { error } = await supabase
-    .from("travellers")
-    .delete()
-    .eq("id", traveller.id)
-    .eq("trip_id", tripId);
+  // Use RPC function (SECURITY DEFINER) to bypass RLS.
+  // The travellers RLS policies only let the planner delete rows,
+  // so members can't delete their own row via the regular client.
+  // The RPC validates that: the caller is a member, not the planner.
+  const { error } = await supabase.rpc("leave_trip", {
+    p_trip_id: tripId,
+    p_account_id: account.id,
+  });
 
   if (error) {
     console.error("Failed to leave trip:", error);
-    return { error: "Failed to leave trip" };
+    return { error: error.message || "Failed to leave trip" };
   }
 
   revalidateTag(`trip-${tripId}`, "max");
