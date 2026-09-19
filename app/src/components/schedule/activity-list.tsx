@@ -122,16 +122,22 @@ export function ActivityList({
     [dayActivities, selectedDate, trip.id]
   );
 
-  // "You are here" — next upcoming activity for active trips
+  // "You are here" — current activity for active trips.
+  // The activity whose time has passed but the next one hasn't started
+  // yet — it "owns" the gap until the next timed activity begins.
   const youAreHereId = useMemo(() => {
     if (trip.status !== "active" || selectedDate !== today) return null;
 
     const now = format(new Date(), "HH:mm");
-    const upcoming = dayActivities.find((a) => {
-      if (!a.time) return true;
-      return a.time >= now;
-    });
-    return upcoming?.id ?? null;
+    const timed = dayActivities.filter((a) => a.time);
+    // Find the last activity whose time <= now
+    let currentId: string | null = null;
+    for (const a of timed) {
+      if (a.time! <= now) currentId = a.id;
+    }
+    // If nothing has started yet, highlight the first timed activity
+    if (!currentId && timed.length > 0) currentId = timed[0].id;
+    return currentId;
   }, [trip.status, selectedDate, today, dayActivities]);
 
   function handleEdit(activity: Activity) {
