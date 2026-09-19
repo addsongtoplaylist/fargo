@@ -54,7 +54,7 @@ export function OverviewPeople({
       const url = `${window.location.origin}/invite/${code}`;
       setInviteUrl(url);
     } catch {
-      toast("Failed to generate invite link.");
+      toast("Failed to generate invite link.", "error");
     } finally {
       setLoadingInvite(false);
     }
@@ -84,7 +84,7 @@ export function OverviewPeople({
       await removeTraveller(tripId, travellerId);
       router.refresh();
     } catch {
-      toast("Failed to remove traveller.");
+      toast("Failed to remove traveller.", "error");
     } finally {
       setRemoving(false);
       setRemoveConfirmId(null);
@@ -103,7 +103,7 @@ export function OverviewPeople({
         router.push("/trips?noauto=1");
       }
     } catch {
-      toast("Failed to leave trip.");
+      toast("Failed to leave trip.", "error");
       setLeaving(false);
     }
     setLeaveConfirm(false);

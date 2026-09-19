@@ -43,7 +43,7 @@ export function PeopleList({
       setInviteUrl(url);
     } catch (err) {
       console.error(err);
-      toast("Failed to generate invite link. Please try again.");
+      toast("Failed to generate invite link. Please try again.", "error");
     } finally {
       setLoadingInvite(false);
     }
@@ -75,7 +75,7 @@ export function PeopleList({
       router.refresh();
     } catch (err) {
       console.error(err);
-      toast("Failed to remove traveller. Please try again.");
+      toast("Failed to remove traveller. Please try again.", "error");
     } finally {
       setRemoving(null);
       setRemoveConfirmId(null);

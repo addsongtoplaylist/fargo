@@ -71,7 +71,7 @@ export function LogExpensePanel({
 
     action.catch((err) => {
       console.error(err);
-      toast("Failed to save expense. Please try again.");
+      toast("Failed to save expense. Please try again.", "error");
     });
   }
 
@@ -83,7 +83,7 @@ export function LogExpensePanel({
       onClose();
     } catch (err) {
       console.error(err);
-      toast("Failed to delete expense. Please try again.");
+      toast("Failed to delete expense. Please try again.", "error");
       setSaving(false);
     }
   }

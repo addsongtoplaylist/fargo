@@ -100,7 +100,7 @@ export function AddActivityPanel({
       onClose();
     } catch (err) {
       console.error(err);
-      toast("Failed to save activity. Please try again.");
+      toast("Failed to save activity. Please try again.", "error");
       setSaving(false);
     }
   }
@@ -113,7 +113,7 @@ export function AddActivityPanel({
       onClose();
     } catch (err) {
       console.error(err);
-      toast("Failed to delete activity. Please try again.");
+      toast("Failed to delete activity. Please try again.", "error");
       setSaving(false);
     }
   }
@@ -127,7 +127,7 @@ export function AddActivityPanel({
       onClose();
     } catch (err) {
       console.error(err);
-      toast("Failed to demote activity. Please try again.");
+      toast("Failed to demote activity. Please try again.", "error");
       setSaving(false);
     }
   }
