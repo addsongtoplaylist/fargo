@@ -121,21 +121,29 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
             </p>
           </div>
         ) : budget && budget.budgetTotal > 0 ? (
+          (() => {
+            const budgetLocal = Math.round(budget.budgetTotal * fxRate);
+            const remainingLocal = Math.round(budget.remaining * fxRate);
+            // Use smaller font when either amount is 6+ digits (e.g. VND 1,500,000)
+            const isLargeAmount = Math.abs(budgetLocal) >= 100_000 || Math.abs(remainingLocal) >= 100_000;
+            const budgetFontSize = isLargeAmount ? "text-lg" : "text-2xl";
+            const remainingFontSize = isLargeAmount ? "text-base" : "text-lg";
+            return (
           <div>
             <div className="flex items-baseline justify-between">
               <div>
-                <p className="text-2xl font-semibold text-ink money">
-                  {trip.local_currency} {Math.round(budget.budgetTotal * fxRate).toLocaleString()}
+                <p className={`${budgetFontSize} font-semibold text-ink money`}>
+                  {trip.local_currency} {budgetLocal.toLocaleString()}
                 </p>
                 <p className="text-xs text-muted mt-0.5">Total budget</p>
               </div>
               <div className="text-right">
                 <p
-                  className={`text-lg font-semibold money ${
+                  className={`${remainingFontSize} font-semibold money ${
                     budget.remaining >= 0 ? "text-money-ok" : "text-money-over"
                   }`}
                 >
-                  {trip.local_currency} {Math.round(budget.remaining * fxRate).toLocaleString()}
+                  {trip.local_currency} {remainingLocal.toLocaleString()}
                 </p>
                 <p className="text-xs text-muted mt-0.5">Remaining</p>
               </div>
@@ -219,6 +227,8 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
               );
             })()}
           </div>
+            );
+          })()
         ) : isPlanner ? (
           <button
             onClick={() => {

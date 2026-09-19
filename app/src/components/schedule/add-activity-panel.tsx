@@ -31,7 +31,16 @@ export function AddActivityPanel({
   countries,
 }: AddActivityPanelProps) {
   const [title, setTitle] = useState(editing?.title ?? "");
-  const [time, setTime] = useState(editing?.time ?? "");
+  // New activities auto-fill with the next 15-min mark
+  const [time, setTime] = useState(() => {
+    if (editing) return editing.time ?? "";
+    const now = new Date();
+    const m = now.getMinutes();
+    const nextQuarter = Math.ceil(m / 15) * 15;
+    const h = now.getHours() + (nextQuarter >= 60 ? 1 : 0);
+    if (h >= 24) return "00:00";
+    return `${String(h).padStart(2, "0")}:${String(nextQuarter % 60).padStart(2, "0")}`;
+  });
   const [notes, setNotes] = useState(editing?.notes ?? "");
   const [category, setCategory] = useState(editing?.category ?? "misc");
   const [place, setPlace] = useState<{
@@ -161,7 +170,7 @@ export function AddActivityPanel({
             }}
           />
 
-          {/* Time — HH : MM dropdowns (30-min intervals) */}
+          {/* Time — HH : MM dropdowns (15-min intervals) */}
           <div className="flex items-center gap-2">
             <label className="text-xs text-muted w-10">Time</label>
             <select
@@ -192,7 +201,9 @@ export function AddActivityPanel({
             >
               <option value="">MM</option>
               <option value="00">00</option>
+              <option value="15">15</option>
               <option value="30">30</option>
+              <option value="45">45</option>
             </select>
             {time && (
               <button

@@ -12,7 +12,6 @@ import {
   differenceInDays,
   isAfter,
   isBefore,
-  isToday,
   isTomorrow,
 } from "date-fns";
 import { notFound } from "next/navigation";
@@ -92,61 +91,67 @@ export default async function OverviewPage({
   const tripStarted = !isBefore(now, startDate);
   const isActive = tripStarted && !tripEnded;
 
-  // Find upcoming activities: today first, then tomorrow, then day after
+  // Find today's plan: only timed activities, max 3 (Now + 2 upcoming).
+  // "Now" = the activity whose time has passed but the next one hasn't started.
+  // An activity "owns" the gap until the next timed activity begins.
   const todayStr = format(now, "yyyy-MM-dd");
-  let upcomingActivities: typeof activities = [];
+  const nowTime = format(now, "HH:mm");
+  let displayActivities: (typeof activities[number] & { tag: "now" | "upcoming" })[] = [];
   let upcomingLabel = "Today's plan";
-  let upcomingDate = todayStr;
 
   if (isActive) {
-    for (let offset = 0; offset <= 2; offset++) {
-      const dateStr = format(addDays(now, offset), "yyyy-MM-dd");
-      const dayActivities = activities
-        .filter((a) => a.date === dateStr)
-        .sort((a, b) => {
-          if (!a.time && !b.time) return a.sort_order - b.sort_order;
-          if (!a.time) return 1;
-          if (!b.time) return -1;
-          return a.time.localeCompare(b.time);
-        });
+    // Get timed activities for today, sorted by time
+    const todayTimed = activities
+      .filter((a) => a.date === todayStr && a.time)
+      .sort((a, b) => a.time!.localeCompare(b.time!));
 
-      if (dayActivities.length > 0) {
-        upcomingActivities = dayActivities;
-        upcomingDate = dateStr;
-
-        const dateObj = parseISO(dateStr);
-        if (isToday(dateObj)) {
-          upcomingLabel = "Today's plan";
-        } else if (isTomorrow(dateObj)) {
-          upcomingLabel = "Tomorrow's plan";
-        } else {
-          upcomingLabel = format(dateObj, "EEEE, d MMM");
+    if (todayTimed.length > 0) {
+      // Find the "Now" activity: last activity whose time <= now
+      let nowIdx = -1;
+      for (let i = todayTimed.length - 1; i >= 0; i--) {
+        if (todayTimed[i].time! <= nowTime) {
+          nowIdx = i;
+          break;
         }
-        break;
+      }
+
+      if (nowIdx >= 0) {
+        // We have a "Now" activity — show it + up to 2 upcoming
+        displayActivities = [
+          { ...todayTimed[nowIdx], tag: "now" as const },
+          ...todayTimed.slice(nowIdx + 1, nowIdx + 3).map((a) => ({ ...a, tag: "upcoming" as const })),
+        ];
+      } else {
+        // All activities are in the future — show first 3 as upcoming
+        displayActivities = todayTimed
+          .slice(0, 3)
+          .map((a) => ({ ...a, tag: "upcoming" as const }));
       }
     }
-  }
 
-  // Find next upcoming activity (with time >= now) — only for today
-  const nowTime = format(now, "HH:mm");
-  let nextIdx: number;
-  let nextLabel = "Next";
+    // If no timed activities today, try tomorrow then day after
+    if (displayActivities.length === 0) {
+      for (let offset = 1; offset <= 2; offset++) {
+        const dateStr = format(addDays(now, offset), "yyyy-MM-dd");
+        const dayTimed = activities
+          .filter((a) => a.date === dateStr && a.time)
+          .sort((a, b) => a.time!.localeCompare(b.time!));
 
-  if (upcomingDate === todayStr) {
-    // Find first activity whose time hasn't passed yet
-    const futureIdx = upcomingActivities.findIndex(
-      (a) => !a.time || a.time >= nowTime
-    );
-    if (futureIdx >= 0) {
-      nextIdx = futureIdx;
-    } else {
-      // All activities have passed — show the last one as "Latest"
-      nextIdx = upcomingActivities.length - 1;
-      nextLabel = "Latest";
+        if (dayTimed.length > 0) {
+          displayActivities = dayTimed
+            .slice(0, 3)
+            .map((a) => ({ ...a, tag: "upcoming" as const }));
+
+          const dateObj = parseISO(dateStr);
+          if (isTomorrow(dateObj)) {
+            upcomingLabel = "Tomorrow's plan";
+          } else {
+            upcomingLabel = format(dateObj, "EEEE, d MMM");
+          }
+          break;
+        }
+      }
     }
-  } else {
-    // Future day — highlight the first one
-    nextIdx = 0;
   }
 
   // Local time/weather
@@ -206,36 +211,32 @@ export default async function OverviewPage({
             </Link>
           </div>
 
-          {upcomingActivities.length === 0 ? (
+          {displayActivities.length === 0 ? (
             <p className="text-sm text-muted py-2">
-              No upcoming activities in the next few days.
+              No upcoming activities planned.
             </p>
           ) : (
             <div className="space-y-2">
-              {upcomingActivities.slice(0, 3).map((activity, i) => {
-                const isNext = i === nextIdx;
+              {displayActivities.map((activity) => {
+                const isNow = activity.tag === "now";
                 return (
                   <div
                     key={activity.id}
                     className={`flex items-start gap-3 rounded-md px-2.5 py-2 ${
-                      isNext
+                      isNow
                         ? "bg-accent/10 border border-accent/20"
                         : "bg-ground"
                     }`}
                   >
                     {/* Time */}
                     <div className="w-12 shrink-0 pt-0.5">
-                      {activity.time ? (
-                        <span
-                          className={`text-xs font-medium tabular-nums ${
-                            isNext ? "text-accent" : "text-muted"
-                          }`}
-                        >
-                          {activity.time}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted/50">—</span>
-                      )}
+                      <span
+                        className={`text-xs font-medium tabular-nums ${
+                          isNow ? "text-accent" : "text-muted"
+                        }`}
+                      >
+                        {activity.time}
+                      </span>
                     </div>
 
                     {/* Details */}
@@ -246,7 +247,7 @@ export default async function OverviewPage({
                         </span>
                         <span
                           className={`text-sm truncate ${
-                            isNext
+                            isNow
                               ? "font-semibold text-ink"
                               : "font-medium text-ink"
                           }`}
@@ -267,23 +268,17 @@ export default async function OverviewPage({
                       )}
                     </div>
 
-                    {/* "Next" label */}
-                    {isNext && (
-                      <span className="text-[10px] font-medium text-accent bg-accent/10 px-1.5 py-0.5 rounded shrink-0">
-                        {nextLabel}
-                      </span>
-                    )}
+                    {/* Tag */}
+                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${
+                      isNow
+                        ? "text-accent bg-accent/10"
+                        : "text-muted bg-ground"
+                    }`}>
+                      {isNow ? "Now" : "Next"}
+                    </span>
                   </div>
                 );
               })}
-              {upcomingActivities.length > 3 && (
-                <Link
-                  href={`/trips/${id}/schedule`}
-                  className="block text-center text-xs text-muted hover:text-accent py-1 transition-colors"
-                >
-                  +{upcomingActivities.length - 3} more
-                </Link>
-              )}
             </div>
           )}
         </div>

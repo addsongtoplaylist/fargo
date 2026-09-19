@@ -119,7 +119,7 @@ export function AddToSchedule({
           </select>
         </div>
 
-        {/* Time picker — HH : MM dropdowns (30-min intervals) */}
+        {/* Time picker — HH : MM dropdowns (15-min intervals) */}
         <div className="flex items-center justify-between py-2.5 border-b border-border">
           <span className="text-sm text-muted">Time</span>
           <div className="flex items-center gap-1">
@@ -145,7 +145,9 @@ export function AddToSchedule({
               className="text-sm font-medium text-ink bg-ground border border-border rounded-md px-2 py-1 outline-none focus:border-accent transition-colors"
             >
               <option value="00">00</option>
+              <option value="15">15</option>
               <option value="30">30</option>
+              <option value="45">45</option>
             </select>
           </div>
         </div>
