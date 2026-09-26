@@ -311,6 +311,47 @@ Test trip (Vietnam) has only you on it, and splits need several people. Add 3 te
 
 Money tab layout, own-budget setting for members (Phase 3) · settle up (Phase 4) · adding name-only travellers in the app (Phase 5).
 
+## 12. Phase 3 plan — Money tab + your own budget (draft for review)
+
+**Goal:** the Money tab takes its final shape (S1, S3) and every traveller can set their own budget (S7, D11).
+
+### The ordering problem
+
+D19 says *View expenses* shows only what **you** paid, and D22 puts everyone else's expenses behind **Settle up** — which is Phase 4. If Phase 3 switched the list to "yours only", there'd be a gap where you can't see what others paid.
+
+**Proposed:** Phase 3 builds the new layout but *View expenses* keeps showing **everyone's** expenses for now. Phase 4 adds the settle-up card and screen, and in the same release switches *View expenses* to "what you paid". Every release stays complete; nothing goes missing in between.
+
+### Money tab (S1) after Phase 3
+
+1. **My budget** card
+   - With a budget: "SGD 612 left of SGD 900 · daily SGD 85", progress bar, Edit.
+   - Without one (D20): "Spent SGD 288" + **Set a budget**.
+   - Every traveller sees their own — members too (today members only see "No budget set").
+2. **Breakdown** card — what you paid by category, in the existing Fixed / Daily groups. Shown **even without a budget** (today it only appears once a budget is set). Bottom row: **View expenses ›** with a count.
+3. **+ Log expense**.
+4. The expense list moves off the Money tab onto its own screen.
+
+(The settle-up card joins at the top in Phase 4.)
+
+### View expenses (S3)
+
+- Its own screen inside the trip, with a back arrow to Money.
+- Expenses grouped by date, newest first, with daily totals and "Ali paid · 3 people" (as today).
+- Tap → edit if allowed, otherwise the read-only view (D8, D35).
+- **+ Log expense** here too.
+- Phase 3: everyone's expenses. Phase 4: what you paid (D19).
+
+### Your own budget (S7, D11)
+
+- New `set_my_budget(trip_id, amount)` database function — you can only ever set **your own** budget. Needed because the database rules only let the planner edit traveller rows.
+- The budget card's Edit / Set a budget uses it for everyone, planner included.
+- Budget is still entered in local currency on screen and stored in MYR, as today.
+- The native app keeps using its current way (planner only) — nothing breaks.
+
+### Out of Phase 3
+
+Settle-up card and screen, balances, "what you paid" switch, recording We are Riize as settled → Phase 4 · name-only travellers → Phase 5.
+
 ---
 
 ## Sources
