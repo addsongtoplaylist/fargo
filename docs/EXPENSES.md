@@ -62,6 +62,7 @@ A 7-person trip showed the current model breaks down: one planner can't log ever
 | D34 | **Split values are always in local currency**, even when the total was typed in MYR. | 2026-09-27 |
 | D35 | **Read-only view** when you tap an expense you can't edit. | 2026-09-27 |
 | D36 | **3 test travellers (no accounts) on Test trip only**, kept through Phases 2–5 for testing. | 2026-09-27 |
+| D37 | **Phases 3 and 4 ship together as v0.4.2** — Money tab layout, own budget, settle up and the "what you paid" switch in one release, so others' expenses never go missing in between. | 2026-09-27 |
 
 ---
 
@@ -311,7 +312,7 @@ Test trip (Vietnam) has only you on it, and splits need several people. Add 3 te
 
 Money tab layout, own-budget setting for members (Phase 3) · settle up (Phase 4) · adding name-only travellers in the app (Phase 5).
 
-## 12. Phase 3 plan — Money tab + your own budget (draft for review)
+## 12. Phases 3 + 4 plan — Money tab, own budget, settle up (agreed 2026-09-27, ships as v0.4.2 — D37)
 
 **Goal:** the Money tab takes its final shape (S1, S3) and every traveller can set their own budget (S7, D11).
 
@@ -319,7 +320,7 @@ Money tab layout, own-budget setting for members (Phase 3) · settle up (Phase 4
 
 D19 says *View expenses* shows only what **you** paid, and D22 puts everyone else's expenses behind **Settle up** — which is Phase 4. If Phase 3 switched the list to "yours only", there'd be a gap where you can't see what others paid.
 
-**Proposed:** Phase 3 builds the new layout but *View expenses* keeps showing **everyone's** expenses for now. Phase 4 adds the settle-up card and screen, and in the same release switches *View expenses* to "what you paid". Every release stays complete; nothing goes missing in between.
+**Decided (D37):** Phases 3 and 4 ship together, so *View expenses* switches to "what you paid" in the same release that adds Settle up.
 
 ### Money tab (S1) after Phase 3
 
@@ -331,7 +332,7 @@ D19 says *View expenses* shows only what **you** paid, and D22 puts everyone els
 3. **+ Log expense**.
 4. The expense list moves off the Money tab onto its own screen.
 
-(The settle-up card joins at the top in Phase 4.)
+0. **Settle-up card** at the top (from Phase 4) — "You owe SGD 28" / "You're owed SGD 40" / "You're settled up · N payments still open" (D30) / "All settled ✓" (D21) → **Settle up ›**.
 
 ### View expenses (S3)
 
@@ -339,7 +340,7 @@ D19 says *View expenses* shows only what **you** paid, and D22 puts everyone els
 - Expenses grouped by date, newest first, with daily totals and "Ali paid · 3 people" (as today).
 - Tap → edit if allowed, otherwise the read-only view (D8, D35).
 - **+ Log expense** here too.
-- Phase 3: everyone's expenses. Phase 4: what you paid (D19).
+- Shows **what you paid**, settlements included (D19, D27).
 
 ### Your own budget (S7, D11)
 
@@ -348,9 +349,20 @@ D19 says *View expenses* shows only what **you** paid, and D22 puts everyone els
 - Budget is still entered in local currency on screen and stored in MYR, as today.
 - The native app keeps using its current way (planner only) — nothing breaks.
 
-### Out of Phase 3
+### Settle up (S4, from Phase 4)
 
-Settle-up card and screen, balances, "what you paid" switch, recording We are Riize as settled → Phase 4 · name-only travellers → Phase 5.
+- Balances and fewest payments are worked out in the app from the expenses already loaded (same rounding as the database).
+- *Your payments* first: "You pay Ali SGD 20" with **Mark as settled** (confirm), or "Jun pays you SGD 20". Tap for **why** (D22). *Everyone* collapsed (D24). *Settled* list with **Unmark** (D25).
+- New database functions `mark_settled` / `unmark_settled`: the person who owes, or the planner (D25). A settlement is saved as an expense of kind *settlement*: payer = who owed, one participant = who's owed.
+- Breakdown shows settlements as a *Settle-ups* line (D27).
+
+### We are Riize
+
+After deploy, one SQL run records its balances as settled on the trip's last day (preview query first).
+
+### Out of this release
+
+Name-only travellers in the app → Phase 5.
 
 ---
 
