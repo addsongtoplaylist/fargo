@@ -213,7 +213,7 @@ Each phase ships on its own, with SQL run before deploy. Versions: the whole fea
 
 ## 9. Status
 
-All proposals agreed (D26–D30). **Phase 1 shipped (v0.4.0, 2026-09-27).** Next: plan Phase 2 — log expense with split (S2).
+All proposals agreed (D26–D30). **Phase 1 shipped (v0.4.0) and Phase 2 shipped (v0.4.1), 2026-09-27.** Next: plan Phase 3 — Money tab (S1, S3) and setting your own budget.
 
 ## 10. Phase 1 — data + permissions ✅ shipped v0.4.0, 2026-09-27
 
@@ -266,7 +266,7 @@ Recorded as settled **at Phase 4**, not Phase 1: until the Money tab understands
 
 Settlement and budget functions (`mark_settled`, `set_my_budget`) ship with Phases 4 and 3. Name-only travellers with Phase 5. Native app changes are a separate decision.
 
-## 11. Phase 2 plan — log expense with split (agreed 2026-09-27)
+## 11. Phase 2 — log expense with split ✅ shipped v0.4.1, 2026-09-27
 
 **Goal:** anyone on the trip can log an expense, choose who paid and who it's for, and split it four ways (S2). First visible change.
 
