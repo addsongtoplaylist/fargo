@@ -2,6 +2,18 @@
 
 ---
 
+## v0.3.4 — 2026-09-26 · Security fixes
+
+Fixes from the security review.
+
+- **Locked-down database functions** — `get_my_trips`, `join_trip_by_invite`, `leave_trip` and `batch_reorder_activities` now identify the caller from their login instead of trusting a passed-in account ID, and can no longer be called signed-out. Reordering is planner-only.
+- **No joining without an invite** — removed the travellers policy that let any signed-in user add themselves to any trip.
+- **Share links show only what's meant to be shared** — shared trips are fetched by exact share code via `get_shared_trip`; invite code, account IDs, budgets and expenses are no longer exposed. The Money tab is removed from shared trips.
+- **Shared checklists fixed** — titles and ticks now display (wrong column names before).
+- **Sign-in redirect** — the auth callback only redirects to paths within Fargo.
+
+---
+
 ## v0.3.1 — 2026-09-09 · Polish & Currency UX
 
 Five polish fixes plus a currency display overhaul from real-trip feedback on We Are Riize Singapore.

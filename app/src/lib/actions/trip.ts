@@ -203,16 +203,54 @@ export async function getOrCreateShareCode(tripId: string) {
   return code;
 }
 
-/** Look up a trip by its share code (no auth required) */
-export async function getTripByShareCode(code: string) {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("trips")
-    .select("*, travellers(*)")
-    .eq("share_code", code)
-    .single();
+export type SharedTrip = {
+  trip: {
+    id: string;
+    name: string;
+    destination: string;
+    start_date: string;
+    end_date: string;
+    trip_type: string;
+    local_currency: string;
+    fx_rate: string;
+    travellers: { id: string; display_name: string; role: string }[];
+  };
+  activities: {
+    id: string;
+    date: string;
+    time: string | null;
+    title: string;
+    notes: string | null;
+    category: string;
+    cost: string | null;
+    place_name: string | null;
+    place_lat: string | null;
+    place_lng: string | null;
+    sort_order: number;
+  }[];
+  checklists: {
+    id: string;
+    title: string;
+    checklist_items: { id: string; text: string; checked: boolean }[];
+  }[];
+  ideas: {
+    id: string;
+    title: string;
+    link: string | null;
+    notes: string | null;
+    promoted: boolean;
+  }[];
+};
 
-  return data;
+/**
+ * Look up a shared trip by its exact share code (no auth required).
+ * Uses a SECURITY DEFINER RPC that returns only public-safe fields —
+ * no invite code, account IDs, budgets or expenses.
+ */
+export async function getSharedTrip(code: string): Promise<SharedTrip | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("get_shared_trip", { p_code: code });
+  return (data as SharedTrip | null) ?? null;
 }
 
 /** Generate or return the invite code for a trip (planner only) */
@@ -485,13 +523,9 @@ export async function cloneTrip(
   const supabase = await createClient();
 
   // Look up the source trip by share code
-  const { data: source } = await supabase
-    .from("trips")
-    .select("*")
-    .eq("share_code", shareCode)
-    .single();
-
-  if (!source) return { error: "Trip not found" };
+  const shared = await getSharedTrip(shareCode);
+  if (!shared) return { error: "Trip not found" };
+  const source = shared.trip;
 
   // Create the new trip
   const { data: newTrip, error: tripError } = await supabase
@@ -524,14 +558,9 @@ export async function cloneTrip(
   });
 
   // Clone activities
-  const { data: activities } = await supabase
-    .from("activities")
-    .select("*")
-    .eq("trip_id", source.id)
-    .order("date")
-    .order("sort_order");
+  const { activities } = shared;
 
-  if (activities && activities.length > 0) {
+  if (activities.length > 0) {
     const clonedActivities = activities.map((a) => ({
       trip_id: newTrip.id,
       date: a.date,
@@ -548,13 +577,9 @@ export async function cloneTrip(
   }
 
   // Clone ideas (unpromoted only)
-  const { data: ideas } = await supabase
-    .from("ideas")
-    .select("*")
-    .eq("trip_id", source.id)
-    .eq("promoted", false);
+  const ideas = shared.ideas.filter((i) => !i.promoted);
 
-  if (ideas && ideas.length > 0) {
+  if (ideas.length > 0) {
     const clonedIdeas = ideas.map((i) => ({
       trip_id: newTrip.id,
       title: i.title,

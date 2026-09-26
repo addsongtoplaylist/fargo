@@ -4,7 +4,13 @@ import { createServerClient } from "@supabase/ssr";
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/trips";
+  // Only allow same-site paths — "@evil.com" or "//evil.com" would
+  // otherwise redirect off-site after sign-in
+  const rawNext = searchParams.get("next") ?? "/trips";
+  const next =
+    rawNext.startsWith("/") && !rawNext.startsWith("//") && !rawNext.startsWith("/\\")
+      ? rawNext
+      : "/trips";
 
   // Build the redirect base URL (Vercel uses x-forwarded-host)
   const forwardedHost = request.headers.get("x-forwarded-host");
