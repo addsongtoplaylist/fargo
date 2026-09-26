@@ -80,8 +80,9 @@ export function OverviewPeople({
   async function handleRemove(travellerId: string) {
     setRemoving(true);
     try {
-      await removeTraveller(tripId, travellerId);
-      router.refresh();
+      const result = await removeTraveller(tripId, travellerId);
+      if (result.error) toast(result.error, "error");
+      else router.refresh();
     } catch {
       toast("Failed to remove traveller.", "error");
     } finally {

@@ -345,7 +345,10 @@ export async function joinTripByInviteCode(code: string): Promise<{ tripId?: str
 }
 
 /** Remove a traveller from a trip (planner only) */
-export async function removeTraveller(tripId: string, travellerId: string) {
+export async function removeTraveller(
+  tripId: string,
+  travellerId: string
+): Promise<{ error?: string }> {
   tripIdSchema.parse(tripId);
   uuidSchema.parse(travellerId);
 
@@ -373,11 +376,17 @@ export async function removeTraveller(tripId: string, travellerId: string) {
 
   if (error) {
     console.error("Failed to remove traveller:", error);
+    // 23503 = still referenced by expenses (D29). Returned, not thrown:
+    // production hides thrown server-action messages from the client
+    if (error.code === "23503") {
+      return { error: "This traveller is part of expenses on this trip, so they can't be removed." };
+    }
     throw new Error("Failed to remove traveller");
   }
 
   revalidateTag(`trip-${tripId}`, "max");
   revalidatePath(`/trips/${tripId}/people`);
+  return {};
 }
 
 /** Leave a trip (member only — planner cannot leave, they should delete) */

@@ -9,7 +9,8 @@ No visible change. Groundwork for group expenses (docs/EXPENSES.md).
 - **Database** — expense participants and shares, split types, who logged each expense, default shares per traveller. Every existing expense converted (shared → everyone on the trip, solo → payer). Removing a traveller no longer silently deletes the expenses they paid.
 - **Checked writes** — logging, editing and deleting expenses go through `save_expense` / `delete_expense`, which check trip membership and edit rights and save participants together.
 - **Compatibility** — expenses written the old way (native app) get participants filled in automatically.
-- *Requires `20260926_group_expenses_p1a.sql` before deploying.*
+- **Clear messages** — leaving or removing a traveller who's part of expenses is blocked with a plain explanation instead of an error.
+- *Requires `20260926_group_expenses_p1a.sql` before deploying, and `…_p1b.sql` right after.*
 
 ---
 

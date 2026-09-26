@@ -70,8 +70,9 @@ export function PeopleList({
     if (removing) return;
     setRemoving(travellerId);
     try {
-      await removeTraveller(tripId, travellerId);
-      router.refresh();
+      const result = await removeTraveller(tripId, travellerId);
+      if (result.error) toast(result.error, "error");
+      else router.refresh();
     } catch (err) {
       console.error(err);
       toast("Failed to remove traveller. Please try again.", "error");
