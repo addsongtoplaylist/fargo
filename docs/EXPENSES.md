@@ -214,7 +214,7 @@ Each phase ships on its own, with SQL run before deploy. Versions: the whole fea
 
 ## 9. Status
 
-All proposals agreed (D26–D30). **Phase 1 shipped (v0.4.0) and Phase 2 shipped (v0.4.1), 2026-09-27.** Next: plan Phase 3 — Money tab (S1, S3) and setting your own budget.
+All proposals agreed (D26–D30). **Shipped 2026-09-27:** Phase 1 (v0.4.0), Phase 2 (v0.4.1), Phases 3 + 4 (v0.4.2). We are Riize recorded as settled. **Next: Phase 5** — name-only travellers (S5, S6).
 
 ## 10. Phase 1 — data + permissions ✅ shipped v0.4.0, 2026-09-27
 
@@ -312,7 +312,7 @@ Test trip (Vietnam) has only you on it, and splits need several people. Add 3 te
 
 Money tab layout, own-budget setting for members (Phase 3) · settle up (Phase 4) · adding name-only travellers in the app (Phase 5).
 
-## 12. Phases 3 + 4 plan — Money tab, own budget, settle up (agreed 2026-09-27, ships as v0.4.2 — D37)
+## 12. Phases 3 + 4 — Money tab, own budget, settle up ✅ shipped v0.4.2, 2026-09-27 (D37)
 
 **Goal:** the Money tab takes its final shape (S1, S3) and every traveller can set their own budget (S7, D11).
 
@@ -358,7 +358,7 @@ D19 says *View expenses* shows only what **you** paid, and D22 puts everyone els
 
 ### We are Riize
 
-After deploy, one SQL run records its balances as settled on the trip's last day (preview query first).
+Done 2026-09-27: preview checked, one settlement recorded on the trip's last day; balances 0, trip shows "All settled ✓".
 
 ### Out of this release
 
