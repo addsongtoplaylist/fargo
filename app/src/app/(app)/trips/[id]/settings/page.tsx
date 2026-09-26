@@ -44,6 +44,12 @@ export default function TripSettingsPage() {
   const [inviteCopied, setInviteCopied] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
+  // Codes known up front so a tap can copy immediately — iOS only allows a
+  // clipboard write straight after a tap, not after a server round-trip
+  const [shareCode, setShareCode] = useState<string | null>(trip?.share_code ?? null);
+  const [inviteCode, setInviteCode] = useState<string | null>(trip?.invite_code ?? null);
+  // Link shown on screen when it was just created or couldn't be copied
+  const [shownLink, setShownLink] = useState<{ kind: "share" | "invite"; url: string } | null>(null);
 
   if (!trip) return null;
 
@@ -87,14 +93,38 @@ export default function TripSettingsPage() {
     }
   }
 
+  function linkUrl(kind: "share" | "invite", code: string) {
+    return `${window.location.origin}/${kind === "share" ? "s" : "invite"}/${code}`;
+  }
+
+  /** Must be called directly from a tap handler (no awaits before it). */
+  async function copyLink(kind: "share" | "invite", code: string) {
+    const url = linkUrl(kind, code);
+    const text = kind === "share" ? `Check out my trip on Fargo ✈️\n${url}` : url;
+    try {
+      await navigator.clipboard.writeText(text);
+      setShownLink(null);
+      if (kind === "share") {
+        setShareCopied(true);
+        setTimeout(() => setShareCopied(false), 2000);
+      } else {
+        setInviteCopied(true);
+        setTimeout(() => setInviteCopied(false), 2000);
+      }
+    } catch {
+      setShownLink({ kind, url });
+      toast("Couldn't copy automatically. Copy the link below.", "info");
+    }
+  }
+
   async function handleShareLink() {
+    if (shareCode) return copyLink("share", shareCode);
+    // First time: create the link, then show it with its own Copy button
     setShareLoading(true);
     try {
       const code = await getOrCreateShareCode(trip!.id);
-      const url = `${window.location.origin}/s/${code}`;
-      await copyToClipboard(`Check out my trip on Fargo ✈️\n${url}`);
-      setShareCopied(true);
-      setTimeout(() => setShareCopied(false), 2000);
+      setShareCode(code);
+      setShownLink({ kind: "share", url: linkUrl("share", code) });
     } catch {
       toast("Failed to generate share link", "error");
     } finally {
@@ -103,13 +133,12 @@ export default function TripSettingsPage() {
   }
 
   async function handleInviteLink() {
+    if (inviteCode) return copyLink("invite", inviteCode);
     setInviteLoading(true);
     try {
       const code = await getOrCreateInviteCode(trip!.id);
-      const url = `${window.location.origin}/invite/${code}`;
-      await copyToClipboard(url);
-      setInviteCopied(true);
-      setTimeout(() => setInviteCopied(false), 2000);
+      setInviteCode(code);
+      setShownLink({ kind: "invite", url: linkUrl("invite", code) });
     } catch {
       toast("Failed to generate invite link", "error");
     } finally {
@@ -245,6 +274,31 @@ export default function TripSettingsPage() {
                 </>
               )}
             </button>
+            {shownLink && (
+              <div className="bg-card border border-border rounded-lg p-2 space-y-1.5">
+                <p className="text-[11px] text-muted">
+                  {shownLink.kind === "share" ? "Share link" : "Invite link"} ready
+                </p>
+                <div className="flex items-center gap-2">
+                  <input
+                    id="shown-link"
+                    readOnly
+                    value={shownLink.url}
+                    onFocus={(e) => e.currentTarget.select()}
+                    className="flex-1 min-w-0 bg-ground border border-border rounded-md px-2 py-1.5 text-xs text-ink outline-none"
+                  />
+                  <button
+                    onClick={() => {
+                      const code = shownLink.kind === "share" ? shareCode : inviteCode;
+                      if (code) copyLink(shownLink.kind, code);
+                    }}
+                    className="shrink-0 px-3 py-1.5 bg-accent text-accent-on text-xs font-medium rounded-md hover:bg-accent-hover transition-colors"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            )}
             <p className="text-[11px] text-muted">
               Share link lets people view your trip. Invite link lets them join as a member.
             </p>
@@ -272,19 +326,4 @@ export default function TripSettingsPage() {
       />
     </div>
   );
-}
-
-async function copyToClipboard(text: string) {
-  try {
-    await navigator.clipboard.writeText(text);
-  } catch {
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.style.position = "fixed";
-    textarea.style.opacity = "0";
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand("copy");
-    document.body.removeChild(textarea);
-  }
 }

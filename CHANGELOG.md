@@ -2,6 +2,14 @@
 
 ---
 
+## v0.3.8 — 2026-09-26 · Share links on the home-screen app
+
+- **Copy share / invite link works in the home-screen app** — the link is ready before you tap, so it's copied straight away. iPhones only allow copying right after a tap; the old version asked the server first, so the copy silently failed while still saying "Link copied!".
+- **New links, or when copying isn't allowed** — the link is shown on screen with its own Copy button, and the message says so honestly.
+- Removed an unused share button component.
+
+---
+
 ## v0.3.7 — 2026-09-26 · Real weather & code tidy-up
 
 - **Real temperature on Overview** — planner sets a **Base city** in Trip settings; Overview shows its current temperature (Open-Meteo, cached 30 min). Hidden when no base city is set — the hardcoded 32°C placeholder is gone. *Requires `20260926_trip_base_city.sql`.*

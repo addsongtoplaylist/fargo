@@ -20,6 +20,8 @@ type TripInput = {
   fx_rate: string | number;
   status: string;
   planner_id: string;
+  share_code?: string | null;
+  invite_code?: string | null;
   travellers?: { id: string; display_name: string; role: string; account_id: string }[];
   /** Current user's role on this trip — "planner" or "member" */
   myRole?: string;
