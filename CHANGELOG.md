@@ -2,7 +2,7 @@
 
 ---
 
-## v0.4.0 — unreleased · Group expenses, Phase 1 (data)
+## v0.4.0 — 2026-09-27 · Group expenses, Phase 1 (data)
 
 No visible change. Groundwork for group expenses (docs/EXPENSES.md).
 
