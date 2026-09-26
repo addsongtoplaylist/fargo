@@ -207,9 +207,11 @@ Each phase ships on its own, with SQL run before deploy.
 
 ## 9. Status
 
-All proposals agreed (D26–D30). Next: sign-off, then plan Phase 1 (data + permissions) in detail.
+All proposals agreed (D26–D30). **Phase 1 shipped (v0.4.0, 2026-09-27).** Next: plan Phase 2 — log expense with split (S2).
 
-## 10. Phase 1 plan — data + permissions (draft for review)
+## 10. Phase 1 — data + permissions ✅ shipped v0.4.0, 2026-09-27
+
+> Part A, verify, v0.4.0 deploy, part B and the Test trip checks all done; verify re-run all true after testing.
 
 **Goal:** the database can store group expenses and every existing expense is converted — with **no visible change** in either app. Screens come in Phase 2+.
 
