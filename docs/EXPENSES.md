@@ -63,6 +63,10 @@ A 7-person trip showed the current model breaks down: one planner can't log ever
 | D35 | **Read-only view** when you tap an expense you can't edit. | 2026-09-27 |
 | D36 | **3 test travellers (no accounts) on Test trip only**, kept through Phases 2–5 for testing. | 2026-09-27 |
 | D37 | **Phases 3 and 4 ship together as v0.4.2** — Money tab layout, own budget, settle up and the "what you paid" switch in one release, so others' expenses never go missing in between. | 2026-09-27 |
+| D38 | **People stay in Overview → Travellers** — Phase 5 extends that card; nothing moves to Trip settings. | 2026-09-27 |
+| D39 | **Planner can rename** travellers without an account (account holders keep their Google name). | 2026-09-27 |
+| D40 | **Change owner replaces unlink (supersedes D23's unlink):** if you're linked to the wrong name, you tap **Change owner** and pick a name **without an owner**. The name you leave keeps its history and goes back to no owner; you keep access. Self-service only; the planner's own entry can't be switched. | 2026-09-27 |
+| D41 | **Claiming is tested manually** by the owner with a second person. | 2026-09-27 |
 
 ---
 
@@ -364,13 +368,13 @@ Done 2026-09-27: preview checked, one settlement recorded on the trip's last day
 
 Name-only travellers in the app → Phase 5.
 
-## 13. Phase 5 plan — travellers without an account (draft for review)
+## 13. Phase 5 plan — travellers without an account (in review)
 
 **Goal:** the planner can add people who aren't on Fargo (D17), set default shares (D3), and those people can later claim their name (D23). Last phase of group expenses → **v0.4.3**.
 
-### Where it lives (proposed: Overview → Travellers, not Trip settings)
+### Where it lives (D38)
 
-People already live in the **Travellers** card on Overview (avatars, tap for Leave / Remove, Invite button). Phase 5 extends that card instead of adding a second place in Trip settings (the spec's S5 said settings — this changes it).
+People already live in the **Travellers** card on Overview (avatars, tap for Leave / Remove, Invite button). Phase 5 extends that card; the spec's S5 said Trip settings — changed.
 
 ### What the planner can do
 
@@ -386,7 +390,7 @@ People already live in the **Travellers** card on Overview (avatars, tap for Lea
 
 - Opening an invite link on a trip that has no-account names shows: **"Are you one of these?"** — each name with what's attached ("paid 1 · in 2") — or **"I'm new here"**.
 - Picking a name links your Google account to it; all their expenses become yours.
-- **Wrong name?** The person who claimed it, or the planner, taps **Unlink** — the name goes back to no-account, nothing lost. If you unlink yourself you lose access to the trip (confirm first).
+- **Wrong name? Change owner (D40):** tap your own entry → **Change owner** → pick a name without an owner. The name you leave keeps its history and goes back to no owner; you keep access.
 - Someone already on the trip can't claim a second name.
 
 ### Database (one SQL file)
@@ -396,7 +400,8 @@ New functions, all checking the caller like the others:
 - `add_traveller(trip, name, shares)` — planner only; no account.
 - `update_traveller(traveller, name, shares)` — planner only; name only for no-account travellers.
 - `claim_traveller(invite_code, traveller)` — any signed-in person with the invite link, not already on the trip; the name must be unclaimed.
-- `unlink_traveller(traveller)` — the person themselves or the planner; never the planner's own row.
+- `change_owner(trip, to_traveller)` — the signed-in person moves their account to an unowned name on the same trip (D40); never the planner's own row.
+- `unlink_traveller(traveller)` — planner only, for D29 (member leaving who's part of expenses).
 - `get_trip_by_invite` — also returns unclaimed names with their counts, for the claim screen.
 - Remove stays as today, with the friendly "part of expenses" message.
 
