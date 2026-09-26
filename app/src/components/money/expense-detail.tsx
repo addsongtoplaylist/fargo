@@ -90,7 +90,9 @@ export function ExpenseDetail({
           {expense.notes && <p className="text-sm text-muted whitespace-pre-wrap">{expense.notes}</p>}
 
           <p className="text-[11px] text-muted text-center">
-            Only the person who logged this, or the planner, can change it.
+            {expense.kind === "settlement"
+              ? "A settle-up payment. Unmark it from Settle up if it didn't happen."
+              : "Only the person who logged this, or the planner, can change it."}
           </p>
         </div>
       </div>

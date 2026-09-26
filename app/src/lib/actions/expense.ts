@@ -148,26 +148,17 @@ export async function deleteExpense(expenseId: string, tripId: string) {
 }
 
 /** Update the planner's budget total */
+/** Set your own budget (MYR). Any traveller, own budget only (D11). */
 export async function updateBudget(tripId: string, budgetTotal: number) {
+  tripIdSchema.parse(tripId);
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 
   const supabase = await createClient();
-
-  // Find the planner's traveller record
-  const { data: traveller } = await supabase
-    .from("travellers")
-    .select("id")
-    .eq("trip_id", tripId)
-    .eq("account_id", account.id)
-    .single();
-
-  if (!traveller) throw new Error("Not a traveller on this trip");
-
-  const { error } = await supabase
-    .from("travellers")
-    .update({ budget_total: budgetTotal })
-    .eq("id", traveller.id);
+  const { error } = await supabase.rpc("set_my_budget", {
+    p_trip_id: tripId,
+    p_budget_myr: Math.round(budgetTotal),
+  });
 
   if (error) {
     console.error("Failed to update budget:", error);
@@ -215,7 +206,7 @@ export async function getBudgetSummary(tripId: string) {
       // settlements included. Your share of others' payments doesn't count.
       const { data: expenses } = await supabase
         .from("expenses")
-        .select("amount_myr, date, category")
+        .select("amount_myr, date, category, kind")
         .eq("trip_id", tripId)
         .eq("paid_by", myTraveller.id);
 
@@ -237,10 +228,12 @@ export async function getBudgetSummary(tripId: string) {
           const myr = parseFloat(e.amount_myr);
           totalSpent += myr;
           spendingByDate[e.date] = (spendingByDate[e.date] || 0) + myr;
-          spendingByCategory[e.category] = (spendingByCategory[e.category] || 0) + myr;
+          // Settlements you paid get their own "Settle-ups" line (D27)
+          const key = e.kind === "settlement" ? "settlement" : e.category;
+          spendingByCategory[key] = (spendingByCategory[key] || 0) + myr;
 
           // Fixed costs you paid (flights, stay, activities)
-          if (FIXED_CATEGORIES.includes(e.category)) {
+          if (e.kind !== "settlement" && FIXED_CATEGORIES.includes(e.category)) {
             fixedExpensesMyr += myr;
           }
         }
@@ -264,6 +257,7 @@ export async function getBudgetSummary(tripId: string) {
         dailyFree: Math.round(dailyFree * 100) / 100,
         fixedExpensesMyr,
         tripDays,
+        paidCount: expenses?.length ?? 0,
         spendingByDate,
         spendingByCategory,
       };
@@ -271,4 +265,59 @@ export async function getBudgetSummary(tripId: string) {
     [`budget-${tripId}-user-${account.id}`],
     { tags: [`expenses-${tripId}`, `trip-${tripId}`], revalidate: 30 }
   )();
+}
+
+/** Record a repayment (D12, D25): the person who owes, or the planner. */
+export async function markSettled(
+  tripId: string,
+  fromTravellerId: string,
+  toTravellerId: string,
+  amount: number,
+  date: string
+): Promise<{ error?: string }> {
+  tripIdSchema.parse(tripId);
+  uuidSchema.parse(fromTravellerId);
+  uuidSchema.parse(toTravellerId);
+
+  const account = await getOrCreateAccount();
+  if (!account) return { error: "Not signed in" };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mark_settled", {
+    p_trip_id: tripId,
+    p_from: fromTravellerId,
+    p_to: toTravellerId,
+    p_amount: Math.round(amount * 100) / 100,
+    p_date: date,
+  });
+
+  if (error) {
+    console.error("Failed to mark settled:", error);
+    return { error: error.message || "Failed to mark as settled" };
+  }
+
+  revalidateTag(`expenses-${tripId}`, "max");
+  revalidatePath(`/trips/${tripId}/money`);
+  return {};
+}
+
+/** Undo a settlement (D25): the person who owed, or the planner. */
+export async function unmarkSettled(tripId: string, expenseId: string): Promise<{ error?: string }> {
+  tripIdSchema.parse(tripId);
+  uuidSchema.parse(expenseId);
+
+  const account = await getOrCreateAccount();
+  if (!account) return { error: "Not signed in" };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("unmark_settled", { p_expense_id: expenseId });
+
+  if (error) {
+    console.error("Failed to unmark settled:", error);
+    return { error: error.message || "Failed to unmark" };
+  }
+
+  revalidateTag(`expenses-${tripId}`, "max");
+  revalidatePath(`/trips/${tripId}/money`);
+  return {};
 }

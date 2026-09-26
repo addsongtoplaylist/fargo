@@ -2,6 +2,18 @@
 
 ---
 
+## v0.4.2 — unreleased · Group expenses, Phases 3 + 4 (Money tab + settle up)
+
+- **Settle-up card** at the top of Money — "You owe…", "You're owed…", "You're settled up · N payments still open" or "All settled ✓".
+- **Settle up screen** — your payments first with **Mark as settled**; "Why?" shows what makes up your balance; everyone's payments and balances under *Everyone*; a *Settled* list with **Unmark**. Fewest payments, Kittysplit-style. The person who owes, or the planner, can mark or unmark.
+- **My budget** — every traveller sets their own (members too). No budget shows "Spent … · Set a budget".
+- **Breakdown** — what you paid by category, shown even without a budget, with a *Settle-ups* line; **View expenses ›** opens its own screen.
+- **View expenses** — what you paid, settlements included. Others' expenses are checked from Settle up.
+- Money stays highlighted on its sub-screens.
+- *Requires `20260927_group_expenses_p34.sql` before deploying.*
+
+---
+
 ## v0.4.1 — 2026-09-27 · Group expenses, Phase 2 (split an expense)
 
 - **Anyone on the trip can log an expense**, not just the planner.

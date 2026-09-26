@@ -28,4 +28,13 @@ export const CATEGORY_EMOJI: Record<string, string> = {
   activities: "🏛",
   shopping: "🛒",
   misc: "📦",
+  settlement: "🤝",
 };
+
+/** Label for a breakdown key — expense categories plus "settlement" (D27). */
+export function categoryLabel(key: string): string {
+  if (key === "settlement") return "Settle-ups";
+  if (key === "accommodation") return "Stay";
+  if (key === "misc") return "Other";
+  return key.charAt(0).toUpperCase() + key.slice(1);
+}

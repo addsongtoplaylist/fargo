@@ -21,7 +21,8 @@ export function TripTabs() {
       <div className="mx-auto max-w-[var(--max-width-column)] px-4 flex gap-1 overflow-x-auto scrollbar-none">
         {tabs.map(({ slug, label }) => {
           const href = `${basePath}/${slug}`;
-          const isActive = pathname === href;
+          // Sub-pages (e.g. Money → View expenses) keep their tab highlighted
+          const isActive = pathname === href || pathname.startsWith(`${href}/`);
 
           return (
             <Link
