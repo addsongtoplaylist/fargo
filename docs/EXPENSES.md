@@ -56,6 +56,12 @@ A 7-person trip showed the current model breaks down: one planner can't log ever
 | D28 | **Select all / Clear:** participants start unticked; the shortcut reads **Select all**, and switches to **Clear** only when everyone is ticked (e.g. 6 of 7 ticked still shows Select all). | 2026-09-26 |
 | D29 | **Leaving or removal with expenses is blocked**; the planner can convert the traveller to name-only instead, keeping history. | 2026-09-26 |
 | D30 | **In-between card state:** when you're square but others still owe — "You're settled up · N payments still open in the group". | 2026-09-26 |
+| D31 | **Budget switch ships in Phase 2** (not 3): spent = what you paid, as soon as other payers are possible. | 2026-09-27 |
+| D32 | **Split as a list:** one row per traveller — tick box, name on the left, value on the right (computed share for Equal; input + resulting amount for Shares/%; the amount itself for Amounts). **Paid by is a dropdown** above the list. | 2026-09-27 |
+| D33 | **% and Amounts pre-fill evenly** (leftover cents/percent in list order); Shares pre-fill from default shares. | 2026-09-27 |
+| D34 | **Split values are always in local currency**, even when the total was typed in MYR. | 2026-09-27 |
+| D35 | **Read-only view** when you tap an expense you can't edit. | 2026-09-27 |
+| D36 | **3 test travellers (no accounts) on Test trip only**, kept through Phases 2–5 for testing. | 2026-09-27 |
 
 ---
 
@@ -260,7 +266,7 @@ Recorded as settled **at Phase 4**, not Phase 1: until the Money tab understands
 
 Settlement and budget functions (`mark_settled`, `set_my_budget`) ship with Phases 4 and 3. Name-only travellers with Phase 5. Native app changes are a separate decision.
 
-## 11. Phase 2 plan — log expense with split (draft for review)
+## 11. Phase 2 plan — log expense with split (agreed 2026-09-27)
 
 **Goal:** anyone on the trip can log an expense, choose who paid and who it's for, and split it four ways (S2). First visible change.
 
@@ -276,20 +282,19 @@ Visible effect: on past trips the planner's spent rises to the full amounts paid
 |---|---|
 | Amount | Hero field, local ⇄ MYR toggle as today |
 | What for | As today |
-| **Paid by** | Traveller chips, one selected; defaults to you (proposed: chips, not a dropdown) |
+| **Paid by** | Dropdown of travellers; defaults to you (D32) |
 | Date · Category | As today |
-| **Split between** | Traveller chips, all unticked (D10); **Select all** → **Clear** only when everyone is ticked (D28) |
 | **Split as** | Equal · Shares · % · Amounts |
-| Per-person inputs | Hidden for Equal ("SGD 30.00 each"). Shares pre-filled from default shares; % and Amounts pre-filled evenly (proposed) so you adjust rather than type from scratch |
+| **Split between** (list, D32) | One row per traveller: tick box · name · value. All unticked (D10); "4 of 7" count with **Select all** → **Clear** only when everyone is ticked (D28). Equal shows each share; Shares/% show an input plus the resulting amount; Amounts shows the amount input. Shares pre-fill from default shares; % and Amounts pre-fill evenly (D33) |
 | Remaining line | "SGD 40 left to allocate" / "10% left" — **Log** stays disabled until it adds up |
 | Notes · Cancel / Log | As today; Delete link in edit mode if allowed |
 
-Split amounts are always in **local currency** (proposed); if you typed the total in MYR, the split works on its local equivalent.
+Split amounts are always in **local currency** (D34); if you typed the total in MYR, the split works on its local equivalent.
 
 ### Who sees what
 
 - **+ Log expense** shows for every traveller, not just the planner (D1).
-- Tapping an expense: **edit** if you logged it or you're the planner (D8); otherwise a **read-only view** of who paid and who it's split with (proposed).
+- Tapping an expense: **edit** if you logged it or you're the planner (D8); otherwise a **read-only view** of who paid and who it's split with (D35).
 - Expense rows gain "Ali paid · 4 people".
 
 ### Data
@@ -300,7 +305,7 @@ Split amounts are always in **local currency** (proposed); if you typed the tota
 
 ### Testing
 
-Test trip (Vietnam) has only you on it, and splits need several people. Proposed: add 3 test travellers **to Test trip only** via one SQL insert (no accounts — the database already allows it). They're removed after testing, or kept for Phases 3–5.
+Test trip (Vietnam) has only you on it, and splits need several people. Add 3 test travellers **to Test trip only** via one SQL insert (no accounts — the database already allows it), kept through Phases 2–5 (D36).
 
 ### Out of Phase 2
 

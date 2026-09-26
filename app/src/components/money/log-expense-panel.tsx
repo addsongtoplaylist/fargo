@@ -8,21 +8,41 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { format } from "date-fns";
 import type { Expense } from "@/lib/actions/expense";
 import { EXPENSE_CATEGORIES as CATEGORIES } from "@/lib/categories";
+import { computeShares, evenWeights, remaining, type SplitType } from "@/lib/split";
+
+export type SplitTraveller = {
+  id: string;
+  display_name: string;
+  default_shares?: number | null;
+};
 
 type LogExpensePanelProps = {
   tripId: string;
   localCurrency: string;
   fxRate: number;
-  travellerId: string;
+  myTravellerId: string;
+  /** Everyone on the trip, in join order */
+  travellers: SplitTraveller[];
   editing?: Expense | null;
   onClose: () => void;
 };
+
+const SPLIT_TYPES: { value: SplitType; label: string }[] = [
+  { value: "equal", label: "Equal" },
+  { value: "shares", label: "Shares" },
+  { value: "percent", label: "%" },
+  { value: "amount", label: "Amounts" },
+];
+
+const fmt = (n: number) =>
+  n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export function LogExpensePanel({
   tripId,
   localCurrency,
   fxRate,
-  travellerId,
+  myTravellerId,
+  travellers,
   editing,
   onClose,
 }: LogExpensePanelProps) {
@@ -34,6 +54,17 @@ export function LogExpensePanel({
   const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [inputCurrency, setInputCurrency] = useState<"local" | "myr">("local");
+  const [paidBy, setPaidBy] = useState(editing?.paid_by ?? myTravellerId);
+  const [splitType, setSplitType] = useState<SplitType>(editing?.split_type ?? "equal");
+  // Participants start unticked (D10); editing restores the saved split
+  const [included, setIncluded] = useState<Set<string>>(
+    () => new Set(editing?.expense_participants.map((p) => p.traveller_id) ?? [])
+  );
+  const [weights, setWeights] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      editing?.expense_participants.map((p) => [p.traveller_id, String(parseFloat(p.weight))]) ?? []
+    )
+  );
   const amountRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -42,22 +73,69 @@ export function LogExpensePanel({
   }, []);
 
   const numericAmount = parseFloat(amount) || 0;
-  // Convert based on which currency the user is typing in
   const localAmount = inputCurrency === "local" ? numericAmount : numericAmount * fxRate;
   const myrAmount = inputCurrency === "local" ? (fxRate > 0 ? numericAmount / fxRate : 0) : numericAmount;
+  // Splits always work on the local amount, to the cent (D34)
+  const splitTotal = Math.round(localAmount * 100) / 100;
+
+  const ticked = travellers.filter((t) => included.has(t.id));
+  const tickedWeights = ticked.map((t) => (splitType === "equal" ? 1 : parseFloat(weights[t.id]) || 0));
+  const shares = computeShares(splitTotal, splitType, tickedWeights);
+  const shareOf = (id: string) => shares[ticked.findIndex((t) => t.id === id)] ?? 0;
+  const left = remaining(splitTotal, splitType, tickedWeights);
+  const sharesTotal = splitType === "shares" ? tickedWeights.reduce((a, b) => a + b, 0) : 1;
+  const splitValid = ticked.length > 0 && left === 0 && sharesTotal > 0;
+  const allTicked = ticked.length === travellers.length;
+
+  /** Default weights for a new set of ticked people / split type (D33). */
+  function prefill(type: SplitType, ids: string[], total: number): Record<string, string> {
+    if (type === "shares") {
+      return Object.fromEntries(
+        ids.map((id) => {
+          const t = travellers.find((x) => x.id === id);
+          return [id, weights[id] ?? String(t?.default_shares ?? 1)];
+        })
+      );
+    }
+    if (type === "percent" || type === "amount") {
+      const even = evenWeights(ids.length, type === "percent" ? 100 : total);
+      return Object.fromEntries(ids.map((id, i) => [id, String(even[i])]));
+    }
+    return {};
+  }
+
+  function orderedIds(set: Set<string>) {
+    return travellers.filter((t) => set.has(t.id)).map((t) => t.id);
+  }
+
+  function setTicked(next: Set<string>) {
+    setIncluded(next);
+    setWeights((w) => ({ ...w, ...prefill(splitType, orderedIds(next), splitTotal) }));
+  }
+
+  function toggle(id: string) {
+    const next = new Set(included);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setTicked(next);
+  }
+
+  function changeSplitType(type: SplitType) {
+    setSplitType(type);
+    setWeights((w) => ({ ...w, ...prefill(type, orderedIds(included), splitTotal) }));
+  }
 
   function handleSave() {
-    if (!amount || !title.trim() || numericAmount <= 0) return;
+    if (!amount || !title.trim() || numericAmount <= 0 || !splitValid) return;
 
-    // Always send the local currency amount to the server
     const payload = {
       date,
       title: title.trim(),
       category,
-      amount: inputCurrency === "local" ? numericAmount : localAmount,
-      fxRate,
-      paidBy: travellerId,
-      isShared: true,
+      amount: splitTotal,
+      paidBy,
+      splitType,
+      participants: ticked.map((t, i) => ({ travellerId: t.id, weight: tickedWeights[i] })),
       notes: notes.trim() || undefined,
     };
 
@@ -87,6 +165,26 @@ export function LogExpensePanel({
       setSaving(false);
     }
   }
+
+  // Status line under the list
+  let status: { ok: boolean; text: string };
+  if (ticked.length === 0) status = { ok: false, text: "Tick who it's for" };
+  else if (splitType === "percent" && left !== 0)
+    status = { ok: false, text: left > 0 ? `${left}% left to allocate` : `${-left}% over` };
+  else if (splitType === "amount" && left !== 0)
+    status = {
+      ok: false,
+      text: left > 0 ? `${localCurrency} ${fmt(left)} left to allocate` : `${localCurrency} ${fmt(-left)} over`,
+    };
+  else if (sharesTotal <= 0) status = { ok: false, text: "Give someone at least 1 share" };
+  else
+    status = {
+      ok: true,
+      text:
+        splitType === "equal"
+          ? `${localCurrency} ${fmt(splitTotal)} split ${ticked.length} way${ticked.length === 1 ? "" : "s"}`
+          : `${localCurrency} ${fmt(splitTotal)} of ${fmt(splitTotal)}`,
+    };
 
   return (
     <>
@@ -147,6 +245,11 @@ export function LogExpensePanel({
               onBlur={() => {
                 const n = parseFloat(amount);
                 if (!isNaN(n) && n > 0) setAmount(n.toFixed(2));
+                // Amounts split follows the total when it changes
+                if (splitType === "amount") {
+                  const total = inputCurrency === "local" ? n : n * fxRate;
+                  setWeights((w) => ({ ...w, ...prefill("amount", orderedIds(included), Math.round(total * 100) / 100) }));
+                }
               }}
               className="w-full text-center text-4xl font-semibold text-ink bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             />
@@ -164,10 +267,36 @@ export function LogExpensePanel({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full bg-ground border border-border rounded-md px-3 py-2 text-sm text-ink placeholder:text-muted/50 outline-none focus:border-accent transition-colors"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && amount && title.trim()) handleSave();
-            }}
           />
+
+          {/* Paid by (D32) */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="expense-paid-by" className="text-xs text-muted w-14">Paid by</label>
+            <select
+              id="expense-paid-by"
+              value={paidBy}
+              onChange={(e) => setPaidBy(e.target.value)}
+              className="bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent transition-colors"
+            >
+              {travellers.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.id === myTravellerId ? `You (${t.display_name})` : t.display_name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Date */}
+          <div className="flex items-center gap-2">
+            <label htmlFor="expense-date" className="text-xs text-muted w-14">Date</label>
+            <input
+              id="expense-date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent transition-colors"
+            />
+          </div>
 
           {/* Category chips */}
           <div className="flex gap-1.5 flex-wrap">
@@ -189,15 +318,78 @@ export function LogExpensePanel({
             ))}
           </div>
 
-          {/* Date */}
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-muted w-10">Date</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent transition-colors"
-            />
+          {/* Split as */}
+          <div className="flex border border-border rounded-md overflow-hidden">
+            {SPLIT_TYPES.map((s) => (
+              <button
+                key={s.value}
+                onClick={() => changeSplitType(s.value)}
+                className={`flex-1 py-1.5 text-xs font-medium transition-colors ${
+                  splitType === s.value ? "bg-accent-soft text-accent" : "bg-card text-muted hover:text-ink"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Split between — list (D32) */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <p className="text-xs text-muted">
+                Split between · {ticked.length} of {travellers.length}
+              </p>
+              <button
+                onClick={() => setTicked(allTicked ? new Set() : new Set(travellers.map((t) => t.id)))}
+                className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+              >
+                {allTicked ? "Clear" : "Select all"}
+              </button>
+            </div>
+            <div className="border border-border rounded-md divide-y divide-border">
+              {travellers.map((t) => {
+                const on = included.has(t.id);
+                return (
+                  <div key={t.id} className="flex items-center gap-2 px-2.5 py-2">
+                    <input
+                      id={`split-${t.id}`}
+                      type="checkbox"
+                      checked={on}
+                      onChange={() => toggle(t.id)}
+                      className="w-4 h-4 accent-[var(--color-accent)] shrink-0"
+                    />
+                    <label
+                      htmlFor={`split-${t.id}`}
+                      className={`flex-1 min-w-0 truncate text-sm ${on ? "text-ink" : "text-muted"}`}
+                    >
+                      {t.id === myTravellerId ? "You" : t.display_name}
+                    </label>
+                    {on && splitType !== "equal" && (
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        aria-label={`${t.display_name} ${splitType === "shares" ? "shares" : splitType === "percent" ? "percent" : "amount"}`}
+                        value={weights[t.id] ?? ""}
+                        onChange={(e) => setWeights((w) => ({ ...w, [t.id]: e.target.value }))}
+                        className={`${splitType === "amount" ? "w-24" : "w-14"} bg-ground border border-border rounded-md px-2 py-1 text-sm text-ink text-right outline-none focus:border-accent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+                      />
+                    )}
+                    {splitType !== "amount" && (
+                      <span className={`w-20 text-right text-sm tabular-nums ${on ? "text-ink" : "text-muted"}`}>
+                        {on ? fmt(shareOf(t.id)) : "—"}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <p
+              className={`mt-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-center ${
+                status.ok ? "bg-money-ok-soft text-money-ok" : "bg-money-warn-soft text-money-warn"
+              }`}
+            >
+              {status.text}{status.ok ? " ✓" : ""}
+            </p>
           </div>
 
           {/* Notes */}
@@ -222,7 +414,7 @@ export function LogExpensePanel({
             </button>
             <button
               onClick={handleSave}
-              disabled={!amount || !title.trim() || numericAmount <= 0 || saving}
+              disabled={!amount || !title.trim() || numericAmount <= 0 || !splitValid || saving}
               className="flex-1 py-2 bg-accent text-accent-on text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
             >
               {editing ? "Save" : "Log"}

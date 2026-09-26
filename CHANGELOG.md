@@ -2,6 +2,18 @@
 
 ---
 
+## v0.5.0 — unreleased · Group expenses, Phase 2 (split an expense)
+
+- **Anyone on the trip can log an expense**, not just the planner.
+- **Paid by** — pick who paid from a dropdown (defaults to you).
+- **Split between** — a list of everyone on the trip: tick who it's for, and see or set each person's part. Starts unticked; Select all / Clear.
+- **Split as** — Equal, Shares (pre-filled from default shares), % or Amounts (pre-filled evenly). A status line shows what's left to allocate; Log waits until it adds up. Splits are always in local currency.
+- **Edit rights** — edit what you logged; the planner can edit anything. Others' expenses open read-only, showing who paid and who's in it.
+- **Expense rows** show "Ali paid · 4 people".
+- **Budget = cash out of your pocket** — "spent" now counts everything you paid, in full. Past trips: the planner's spent rises to the full amounts paid; members' spent drops to what they paid.
+
+---
+
 ## v0.4.0 — 2026-09-27 · Group expenses, Phase 1 (data)
 
 No visible change. Groundwork for group expenses (docs/EXPENSES.md).

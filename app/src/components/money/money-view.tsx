@@ -6,6 +6,7 @@ import { format, parseISO } from "date-fns";
 import { useTrip } from "@/lib/trip-context";
 import { updateBudget } from "@/lib/actions/expense";
 import { LogExpensePanel } from "./log-expense-panel";
+import { ExpenseDetail } from "./expense-detail";
 import { useToast } from "@/components/toast";
 import type { Expense } from "@/lib/actions/expense";
 import { CATEGORY_EMOJI } from "@/lib/categories";
@@ -35,6 +36,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const isPlanner = trip?.myRole === "planner";
   const [panelOpen, setPanelOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [viewingExpense, setViewingExpense] = useState<Expense | null>(null);
   const [editingBudget, setEditingBudget] = useState(false);
   const [budgetInput, setBudgetInput] = useState(
     budget?.budgetTotal?.toString() ?? ""
@@ -45,6 +47,15 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   if (!trip) return null;
 
   const fxRate = trip.fx_rate;
+  const myTravellerId = budget?.travellerId ?? null;
+  // Everyone on the trip, in join order (matches the database's list order)
+  const travellers = [...(trip.travellers ?? [])].sort(
+    (a, b) => (a.created_at ?? "").localeCompare(b.created_at ?? "") || a.id.localeCompare(b.id)
+  );
+  const nameOf = (id: string) =>
+    id === myTravellerId ? "You" : travellers.find((t) => t.id === id)?.display_name ?? "Someone";
+  // D8: edit what you logged; the planner can edit anything
+  const canEdit = (e: Expense) => isPlanner || (myTravellerId !== null && e.created_by === myTravellerId);
 
   async function handleBudgetSave() {
     const value = parseInt(budgetInput);
@@ -61,7 +72,11 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
     }
   }
 
-  function handleEditExpense(expense: Expense) {
+  function handleOpenExpense(expense: Expense) {
+    if (!canEdit(expense)) {
+      setViewingExpense(expense);
+      return;
+    }
     setEditingExpense(expense);
     setPanelOpen(true);
   }
@@ -262,7 +277,8 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
       {/* Expenses header */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-semibold text-ink">Expenses</h3>
-        {isPlanner && (
+        {/* Anyone on the trip can log (D1) */}
+        {myTravellerId && (
           <button
             onClick={handleAddExpense}
             className="flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-hover transition-colors"
@@ -297,7 +313,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                   {groupedByDate[date].map((expense, i) => (
                     <button
                       key={expense.id}
-                      onClick={() => handleEditExpense(expense)}
+                      onClick={() => handleOpenExpense(expense)}
                       className={`flex items-center gap-2 px-3 py-2.5 w-full text-left hover:bg-ground/50 transition-colors active:bg-ground ${
                         i > 0 ? "border-t border-border" : ""
                       }`}
@@ -314,6 +330,10 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                             <StickyNote size={10} className="text-muted/60 shrink-0" />
                           )}
                         </div>
+                        <p className="text-[11px] text-muted truncate">
+                          {nameOf(expense.paid_by)} paid · {expense.expense_participants.length}{" "}
+                          {expense.expense_participants.length === 1 ? "person" : "people"}
+                        </p>
                       </div>
                       <div className="text-right shrink-0">
                         <p className="text-sm font-medium text-ink money">
@@ -333,14 +353,26 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
       )}
 
       {/* Log/Edit expense panel */}
-      {panelOpen && budget && (
+      {panelOpen && myTravellerId && (
         <LogExpensePanel
           tripId={tripId}
           localCurrency={trip.local_currency}
           fxRate={fxRate}
-          travellerId={budget.travellerId}
+          myTravellerId={myTravellerId}
+          travellers={travellers}
           editing={editingExpense}
           onClose={handlePanelClose}
+        />
+      )}
+
+      {/* Read-only view of expenses you can't edit (D35) */}
+      {viewingExpense && myTravellerId && (
+        <ExpenseDetail
+          expense={viewingExpense}
+          travellers={travellers}
+          myTravellerId={myTravellerId}
+          localCurrency={trip.local_currency}
+          onClose={() => setViewingExpense(null)}
         />
       )}
     </div>

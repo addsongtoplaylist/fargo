@@ -31,9 +31,11 @@ export const createExpenseSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),
   category: z.string(),
   amount: z.number().positive("Amount must be positive"),
-  fxRate: z.number().positive("FX rate must be positive"),
   paidBy: z.string().uuid(),
-  isShared: z.boolean().optional(),
+  splitType: z.enum(["equal", "shares", "percent", "amount"]),
+  participants: z
+    .array(z.object({ travellerId: z.string().uuid(), weight: z.number().min(0) }))
+    .min(1, "Pick at least one person to split with"),
   notes: z.string().max(1000).optional(),
 });
 

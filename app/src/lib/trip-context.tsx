@@ -22,7 +22,14 @@ type TripInput = {
   planner_id: string;
   share_code?: string | null;
   invite_code?: string | null;
-  travellers?: { id: string; display_name: string; role: string; account_id: string }[];
+  travellers?: {
+    id: string;
+    display_name: string;
+    role: string;
+    account_id: string | null;
+    default_shares?: number | null;
+    created_at?: string;
+  }[];
   /** Current user's role on this trip — "planner" or "member" */
   myRole?: string;
 };

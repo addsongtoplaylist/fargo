@@ -16,10 +16,27 @@ export type Expense = {
   amount_myr: string;
   paid_by: string;
   is_shared: boolean;
+  kind: "expense" | "settlement";
+  split_type: SplitType;
+  created_by: string | null;
   activity_id: string | null;
   notes: string | null;
   created_at: string;
   updated_at: string;
+  expense_participants: { traveller_id: string; weight: string; share: string }[];
+};
+
+export type SplitType = "equal" | "shares" | "percent" | "amount";
+
+type ExpenseFields = {
+  date: string;
+  title: string;
+  category: string;
+  amount: number; // local currency
+  paidBy: string;
+  splitType: SplitType;
+  participants: { travellerId: string; weight: number }[];
+  notes?: string;
 };
 
 export async function getExpenses(tripId: string): Promise<Expense[]> {
@@ -32,7 +49,7 @@ export async function getExpenses(tripId: string): Promise<Expense[]> {
     async () => {
       const { data } = await supabase
         .from("expenses")
-        .select("*")
+        .select("*, expense_participants(traveller_id, weight, share)")
         .eq("trip_id", tripId)
         .order("date", { ascending: false })
         .order("created_at", { ascending: false });
@@ -43,32 +60,7 @@ export async function getExpenses(tripId: string): Promise<Expense[]> {
   )();
 }
 
-/**
- * Participants for today's behaviour: shared → everyone on the trip (in join
- * order), solo → the payer only. Group splits arrive in Phase 2.
- */
-async function defaultParticipants(tripId: string, paidBy: string, isShared: boolean) {
-  if (!isShared) return [{ traveller_id: paidBy, weight: 1 }];
-  const trip = await getTrip(tripId);
-  const travellers = [...((trip?.travellers ?? []) as { id: string; created_at: string }[])].sort(
-    (a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)
-  );
-  return travellers.map((t) => ({ traveller_id: t.id, weight: 1 }));
-}
-
-export async function createExpense(
-  tripId: string,
-  fields: {
-    date: string;
-    title: string;
-    category: string;
-    amount: number;
-    fxRate: number;
-    paidBy: string;
-    isShared?: boolean;
-    notes?: string;
-  }
-) {
+export async function createExpense(tripId: string, fields: ExpenseFields) {
   tripIdSchema.parse(tripId);
   const validated = createExpenseSchema.parse(fields);
 
@@ -87,8 +79,8 @@ export async function createExpense(
     p_category: validated.category,
     p_amount: validated.amount,
     p_paid_by: validated.paidBy,
-    p_split_type: "equal",
-    p_participants: await defaultParticipants(tripId, validated.paidBy, validated.isShared ?? false),
+    p_split_type: validated.splitType,
+    p_participants: validated.participants.map((p) => ({ traveller_id: p.travellerId, weight: p.weight })),
     p_notes: validated.notes || null,
   });
 
@@ -102,20 +94,7 @@ export async function createExpense(
   revalidatePath(`/trips/${tripId}/schedule`);
 }
 
-export async function updateExpense(
-  expenseId: string,
-  tripId: string,
-  fields: {
-    date: string;
-    title: string;
-    category: string;
-    amount: number;
-    fxRate: number;
-    paidBy: string;
-    isShared?: boolean;
-    notes?: string;
-  }
-) {
+export async function updateExpense(expenseId: string, tripId: string, fields: ExpenseFields) {
   uuidSchema.parse(expenseId);
   tripIdSchema.parse(tripId);
   const validated = updateExpenseSchema.parse(fields);
@@ -133,8 +112,8 @@ export async function updateExpense(
     p_category: validated.category,
     p_amount: validated.amount,
     p_paid_by: validated.paidBy,
-    p_split_type: "equal",
-    p_participants: await defaultParticipants(tripId, validated.paidBy, validated.isShared ?? false),
+    p_split_type: validated.splitType,
+    p_participants: validated.participants.map((p) => ({ traveller_id: p.travellerId, weight: p.weight })),
     p_notes: validated.notes || null,
   });
 
@@ -232,20 +211,22 @@ export async function getBudgetSummary(tripId: string) {
     async () => {
       // Only query: expenses. Trip dates, traveller count, and budget_total
       // all come from the cached getTrip() result above.
+      // Budget = cash out of your pocket (D7, D14): only what you paid,
+      // settlements included. Your share of others' payments doesn't count.
       const { data: expenses } = await supabase
         .from("expenses")
-        .select("amount_myr, date, category, is_shared")
-        .eq("trip_id", tripId);
+        .select("amount_myr, date, category")
+        .eq("trip_id", tripId)
+        .eq("paid_by", myTraveller.id);
 
       const start = new Date(trip.start_date);
       const end = new Date(trip.end_date);
       const tripDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-      const splitBy = travellers.length > 1 ? travellers.length : 1;
 
       // Fixed expense categories — deducted from budget before calculating daily free
       const FIXED_CATEGORIES = ["flights", "accommodation", "activities"];
 
-      // Compute spending totals — shared expenses split equally among travellers
+      // Spending totals — the full amount of everything you paid
       let totalSpent = 0;
       let fixedExpensesMyr = 0;
       const spendingByDate: Record<string, number> = {};
@@ -254,14 +235,13 @@ export async function getBudgetSummary(tripId: string) {
       if (expenses) {
         for (const e of expenses) {
           const myr = parseFloat(e.amount_myr);
-          const myShare = e.is_shared ? myr / splitBy : myr;
-          totalSpent += myShare;
-          spendingByDate[e.date] = (spendingByDate[e.date] || 0) + myShare;
-          spendingByCategory[e.category] = (spendingByCategory[e.category] || 0) + myShare;
+          totalSpent += myr;
+          spendingByDate[e.date] = (spendingByDate[e.date] || 0) + myr;
+          spendingByCategory[e.category] = (spendingByCategory[e.category] || 0) + myr;
 
-          // Track fixed expenses (your share)
+          // Fixed costs you paid (flights, stay, activities)
           if (FIXED_CATEGORIES.includes(e.category)) {
-            fixedExpensesMyr += myShare;
+            fixedExpensesMyr += myr;
           }
         }
       }
