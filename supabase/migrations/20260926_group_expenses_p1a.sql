@@ -264,6 +264,10 @@ BEGIN
     RAISE EXCEPTION 'Notes are too long';
   END IF;
   v_split := p_split_type::split_type;
+  v_count := coalesce(jsonb_array_length(p_participants), 0);
+  IF v_count = 0 THEN
+    RAISE EXCEPTION 'Pick at least one person to split with';
+  END IF;
 
   -- Payer and every participant must be on this trip
   IF NOT EXISTS (SELECT 1 FROM travellers WHERE id = p_paid_by AND trip_id = p_trip_id) THEN
@@ -279,8 +283,6 @@ BEGIN
 
   -- Our own participants below; stop the compatibility trigger adding defaults
   PERFORM set_config('fargo.via_rpc', 'on', true);
-
-  v_count := jsonb_array_length(p_participants);
 
   IF p_expense_id IS NULL THEN
     INSERT INTO expenses (trip_id, date, title, category, amount, amount_myr, paid_by,
