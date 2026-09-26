@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Plus, StickyNote } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useTrip } from "@/lib/trip-context";
 import { updateBudget } from "@/lib/actions/expense";
 import { LogExpensePanel } from "./log-expense-panel";
+import { useToast } from "@/components/toast";
 import type { Expense } from "@/lib/actions/expense";
 import { CATEGORY_EMOJI } from "@/lib/categories";
 
@@ -37,6 +38,8 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const [budgetInput, setBudgetInput] = useState(
     budget?.budgetTotal?.toString() ?? ""
   );
+  const savingBudgetRef = useRef(false);
+  const { toast } = useToast();
 
   if (!trip) return null;
 
@@ -44,9 +47,17 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
 
   async function handleBudgetSave() {
     const value = parseInt(budgetInput);
-    if (isNaN(value) || value < 0) return;
-    await updateBudget(tripId, value);
-    setEditingBudget(false);
+    if (isNaN(value) || value < 0 || savingBudgetRef.current) return;
+    savingBudgetRef.current = true;
+    try {
+      await updateBudget(tripId, value);
+      setEditingBudget(false);
+    } catch (err) {
+      console.error(err);
+      toast("Failed to save budget. Please try again.", "error");
+    } finally {
+      savingBudgetRef.current = false;
+    }
   }
 
   function handleEditExpense(expense: Expense) {

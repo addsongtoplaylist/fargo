@@ -2,6 +2,18 @@
 
 ---
 
+## v0.3.5 — 2026-09-26 · Reliability fixes
+
+Fixes from the code review.
+
+- **Schedule "today" from dates** — jumping to today, the today marker and "you are here" now use the trip dates instead of the stored status, which only updated when a trip was created or edited.
+- **Budget updates immediately** — saving the budget now refreshes the cached trip data (was stale for up to 30s).
+- **Checklist error handling** — failures show an error toast instead of silently doing nothing; double-taps no longer create duplicates; ticks update instantly.
+- **Budget save & reorder errors** — both now show an error toast; a failed reorder snaps back to the previous order.
+- **Schedule hooks fix** — fixed React hook-order issue in the Schedule list (13 lint errors).
+
+---
+
 ## v0.3.4 — 2026-09-26 · Security fixes
 
 Fixes from the security review.

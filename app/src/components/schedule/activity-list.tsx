@@ -20,6 +20,7 @@ import {
 } from "@dnd-kit/sortable";
 import { useTrip } from "@/lib/trip-context";
 import { reorderActivities } from "@/lib/actions/activity";
+import { useToast } from "@/components/toast";
 import { DayPicker } from "./day-picker";
 import { ActivityCard } from "./activity-card";
 import { AddActivityPanel } from "./add-activity-panel";
@@ -34,53 +35,62 @@ type ActivityListProps = {
   homeCountryCode?: string;
 };
 
-export function ActivityList({
+export function ActivityList(props: ActivityListProps) {
+  const trip = useTrip();
+  // Early return lives here so the inner component's hooks always run
+  if (!trip) return null;
+  return <ActivityListInner {...props} trip={trip} />;
+}
+
+function ActivityListInner({
   activities: initialActivities,
   dailyFree,
   spendingByDate,
   homeCountryCode,
-}: ActivityListProps) {
-  const trip = useTrip();
+  trip,
+}: ActivityListProps & { trip: NonNullable<ReturnType<typeof useTrip>> }) {
   const router = useRouter();
-  if (!trip) return null;
+  const { toast } = useToast();
 
   const isPlanner = trip.myRole === "planner";
   const today = format(new Date(), "yyyy-MM-dd");
 
+  // Derived from dates (device-local), not the stored trip.status, which
+  // is only computed when a trip is created or edited and can go stale
+  const isActiveTrip = today >= trip.start_date && today <= trip.end_date;
+
   // Default to today if within trip dates, otherwise trip start
-  const defaultDate =
-    trip.status === "active" && today >= trip.start_date && today <= trip.end_date
-      ? today
-      : trip.start_date;
+  const defaultDate = isActiveTrip ? today : trip.start_date;
 
   const [selectedDate, setSelectedDate] = useState(defaultDate);
   const [panelOpen, setPanelOpen] = useState(false);
   const [editing, setEditing] = useState<Activity | null>(null);
 
   // Reset to today when the page becomes visible (e.g. switching tabs, returning to app)
-  const tripStatus = trip.status;
   const tripStart = trip.start_date;
   const tripEnd = trip.end_date;
   useEffect(() => {
     function handleVisibility() {
       if (document.visibilityState === "visible") {
         const now = format(new Date(), "yyyy-MM-dd");
-        if (tripStatus === "active" && now >= tripStart && now <= tripEnd) {
+        if (now >= tripStart && now <= tripEnd) {
           setSelectedDate(now);
         }
       }
     }
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [tripStatus, tripStart, tripEnd]);
+  }, [tripStart, tripEnd]);
 
   // Local state for optimistic reorder
   const [activities, setActivities] = useState(initialActivities);
 
   // Sync when server data changes (e.g. after add/edit/delete)
-  useEffect(() => {
+  const [prevInitial, setPrevInitial] = useState(initialActivities);
+  if (initialActivities !== prevInitial) {
+    setPrevInitial(initialActivities);
     setActivities(initialActivities);
-  }, [initialActivities]);
+  }
 
   // Filter activities for the selected day
   const dayActivities = useMemo(
@@ -110,6 +120,7 @@ export function ActivityList({
 
       // Optimistic update
       const reordered = arrayMove(dayActivities, oldIndex, newIndex);
+      const before = activities;
       setActivities((prev) => {
         const otherDays = prev.filter((a) => a.date !== selectedDate);
         return [...otherDays, ...reordered];
@@ -117,16 +128,22 @@ export function ActivityList({
 
       // Persist to server
       const orderedIds = reordered.map((a) => a.id);
-      await reorderActivities(trip.id, orderedIds);
+      try {
+        await reorderActivities(trip.id, orderedIds);
+      } catch (err) {
+        console.error(err);
+        setActivities(before);
+        toast("Failed to reorder. Please try again.", "error");
+      }
     },
-    [dayActivities, selectedDate, trip.id]
+    [activities, dayActivities, selectedDate, trip.id, toast]
   );
 
   // "You are here" — current activity for active trips.
   // The activity whose time has passed but the next one hasn't started
   // yet — it "owns" the gap until the next timed activity begins.
   const youAreHereId = useMemo(() => {
-    if (trip.status !== "active" || selectedDate !== today) return null;
+    if (!isActiveTrip || selectedDate !== today) return null;
 
     const now = format(new Date(), "HH:mm");
     const timed = dayActivities.filter((a) => a.time);
@@ -138,7 +155,7 @@ export function ActivityList({
     // If nothing has started yet, highlight the first timed activity
     if (!currentId && timed.length > 0) currentId = timed[0].id;
     return currentId;
-  }, [trip.status, selectedDate, today, dayActivities]);
+  }, [isActiveTrip, selectedDate, today, dayActivities]);
 
   function handleEdit(activity: Activity) {
     setEditing(activity);
@@ -172,7 +189,7 @@ export function ActivityList({
         endDate={trip.end_date}
         selectedDate={selectedDate}
         onSelect={setSelectedDate}
-        tripStatus={trip.status}
+        isActiveTrip={isActiveTrip}
       />
 
       {/* Daily budget strip — shows when budget is set */}

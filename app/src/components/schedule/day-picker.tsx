@@ -9,7 +9,7 @@ type DayPickerProps = {
   endDate: string;
   selectedDate: string;
   onSelect: (date: string) => void;
-  tripStatus: string;
+  isActiveTrip: boolean;
 };
 
 export function DayPicker({
@@ -17,7 +17,7 @@ export function DayPicker({
   endDate,
   selectedDate,
   onSelect,
-  tripStatus,
+  isActiveTrip,
 }: DayPickerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const selectedRef = useRef<HTMLButtonElement>(null);
@@ -91,7 +91,7 @@ export function DayPicker({
         {days.map((day, index) => {
           const dateStr = format(day, "yyyy-MM-dd");
           const isSelected = dateStr === selectedDate;
-          const isCurrentDay = isToday(day) && tripStatus === "active";
+          const isCurrentDay = isToday(day) && isActiveTrip;
 
           return (
             <button

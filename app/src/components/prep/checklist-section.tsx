@@ -17,6 +17,7 @@ import {
   deleteChecklistItem,
 } from "@/lib/actions/checklist";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { useToast } from "@/components/toast";
 import type { Checklist } from "@/lib/actions/checklist";
 
 type ChecklistSectionProps = {
@@ -29,12 +30,22 @@ export function ChecklistSection({ checklists, tripId, isPlanner = true }: Check
   const [creatingList, setCreatingList] = useState(false);
   const [newListName, setNewListName] = useState("");
   const newListRef = useRef<HTMLInputElement>(null);
+  const creatingRef = useRef(false);
+  const { toast } = useToast();
 
   async function handleCreateList() {
-    if (!newListName.trim()) return;
-    await createChecklist(tripId, newListName.trim());
-    setNewListName("");
-    setCreatingList(false);
+    if (!newListName.trim() || creatingRef.current) return;
+    creatingRef.current = true;
+    try {
+      await createChecklist(tripId, newListName.trim());
+      setNewListName("");
+      setCreatingList(false);
+    } catch (err) {
+      console.error(err);
+      toast("Failed to create checklist. Please try again.", "error");
+    } finally {
+      creatingRef.current = false;
+    }
   }
 
   return (
@@ -124,34 +135,74 @@ function ChecklistCard({
   const [editItemText, setEditItemText] = useState("");
   const renameRef = useRef<HTMLInputElement>(null);
   const addItemRef = useRef<HTMLInputElement>(null);
+  const addingRef = useRef(false);
+  const { toast } = useToast();
+
+  // Optimistic tick state while a toggle is in flight
+  const [pendingDone, setPendingDone] = useState<Record<string, boolean>>({});
+  const isDone = (item: { id: string; done: boolean }) => pendingDone[item.id] ?? item.done;
 
   const items = checklist.checklist_items ?? [];
-  const doneCount = items.filter((i) => i.done).length;
+  const doneCount = items.filter(isDone).length;
+
+  /** Run a server action; toast on failure. Returns true on success. */
+  async function run(action: () => Promise<unknown>, failMsg: string) {
+    try {
+      await action();
+      return true;
+    } catch (err) {
+      console.error(err);
+      toast(failMsg, "error");
+      return false;
+    }
+  }
 
   async function handleRename() {
     if (!renameName.trim() || renameName.trim() === checklist.name) {
       setRenaming(false);
       return;
     }
-    await renameChecklist(checklist.id, tripId, renameName.trim());
+    const ok = await run(
+      () => renameChecklist(checklist.id, tripId, renameName.trim()),
+      "Failed to rename checklist. Please try again."
+    );
+    if (!ok) setRenameName(checklist.name);
     setRenaming(false);
     setMenuOpen(false);
   }
 
   async function handleDeleteList() {
-    await deleteChecklist(checklist.id, tripId);
+    await run(
+      () => deleteChecklist(checklist.id, tripId),
+      "Failed to delete checklist. Please try again."
+    );
   }
 
   async function handleAddItem() {
-    if (!newItemText.trim()) return;
-    await addChecklistItem(checklist.id, tripId, newItemText.trim());
+    if (!newItemText.trim() || addingRef.current) return;
+    addingRef.current = true;
+    const ok = await run(
+      () => addChecklistItem(checklist.id, tripId, newItemText.trim()),
+      "Failed to add item. Please try again."
+    );
+    addingRef.current = false;
+    if (!ok) return;
     setNewItemText("");
     // Keep focus on the input for rapid entry
     setTimeout(() => addItemRef.current?.focus(), 50);
   }
 
   async function handleToggle(itemId: string, currentDone: boolean) {
-    await toggleChecklistItem(itemId, tripId, !currentDone);
+    setPendingDone((p) => ({ ...p, [itemId]: !currentDone }));
+    await run(
+      () => toggleChecklistItem(itemId, tripId, !currentDone),
+      "Failed to update item. Please try again."
+    );
+    setPendingDone((p) => {
+      const next = { ...p };
+      delete next[itemId];
+      return next;
+    });
   }
 
   function startEditingItem(item: { id: string; text: string }) {
@@ -165,12 +216,18 @@ function ChecklistCard({
       setEditingItemId(null);
       return;
     }
-    await updateChecklistItem(itemId, tripId, editItemText.trim());
+    await run(
+      () => updateChecklistItem(itemId, tripId, editItemText.trim()),
+      "Failed to save item. Please try again."
+    );
     setEditingItemId(null);
   }
 
   async function handleDeleteItem(itemId: string) {
-    await deleteChecklistItem(itemId, tripId);
+    await run(
+      () => deleteChecklistItem(itemId, tripId),
+      "Failed to delete item. Please try again."
+    );
   }
 
   return (
@@ -261,17 +318,17 @@ function ChecklistCard({
           >
             {/* Checkbox */}
             <button
-              onClick={() => handleToggle(item.id, item.done)}
+              onClick={() => handleToggle(item.id, isDone(item))}
               className={`
                 w-[18px] h-[18px] rounded border-2 shrink-0 flex items-center justify-center transition-colors
                 ${
-                  item.done
+                  isDone(item)
                     ? "bg-accent border-accent text-accent-on"
                     : "border-border hover:border-accent"
                 }
               `}
             >
-              {item.done && <Check size={12} strokeWidth={3} />}
+              {isDone(item) && <Check size={12} strokeWidth={3} />}
             </button>
 
             {/* Text — tap to edit */}
@@ -291,7 +348,7 @@ function ChecklistCard({
             ) : (
               <span
                 className={`flex-1 text-sm cursor-text ${
-                  item.done ? "line-through text-muted" : "text-ink"
+                  isDone(item) ? "line-through text-muted" : "text-ink"
                 }`}
                 onClick={() => startEditingItem(item)}
               >

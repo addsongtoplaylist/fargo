@@ -224,6 +224,8 @@ export async function updateBudget(tripId: string, budgetTotal: number) {
     throw new Error("Failed to update budget");
   }
 
+  // budget_total is read from the cached getTrip() — bust it too
+  revalidateTag(`trip-${tripId}`, "max");
   revalidateTag(`expenses-${tripId}`, "max");
   revalidatePath(`/trips/${tripId}/money`);
   revalidatePath(`/trips/${tripId}/schedule`);
