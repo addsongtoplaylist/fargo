@@ -2,7 +2,7 @@
 
 ---
 
-## v0.4.2 — unreleased · Group expenses, Phases 3 + 4 (Money tab + settle up)
+## v0.4.2 — 2026-09-27 · Group expenses, Phases 3 + 4 (Money tab + settle up)
 
 - **Settle-up card** at the top of Money — "You owe…", "You're owed…", "You're settled up · N payments still open" or "All settled ✓".
 - **Settle up screen** — your payments first with **Mark as settled**; "Why?" shows what makes up your balance; everyone's payments and balances under *Everyone*; a *Settled* list with **Unmark**. Fewest payments, Kittysplit-style. The person who owes, or the planner, can mark or unmark.
