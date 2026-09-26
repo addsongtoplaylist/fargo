@@ -36,9 +36,7 @@ export default async function InvitePage({
   const account = await getOrCreateAccount();
   if (account) {
     // Check if already a member
-    const alreadyMember = trip.travellers?.some(
-      (t: { account_id: string }) => t.account_id === account.id
-    );
+    const alreadyMember = trip.travellers?.some((t) => t.account_id === account.id);
     return (
       <InvitePreview
         trip={trip}

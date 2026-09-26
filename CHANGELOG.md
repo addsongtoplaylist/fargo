@@ -2,6 +2,17 @@
 
 ---
 
+## v0.4.3 — unreleased · Group expenses, Phase 5 (travellers without an account)
+
+- **Add someone without an account** — the planner adds people like "Mum" from Overview → Travellers. They can pay and be split with right away; shown with a dashed avatar and a "No account" tag.
+- **Default shares and rename** — the planner sets each person's default shares (pre-fills Shares splits) and can rename people without an account.
+- **Pick your name when joining** — if a trip has names nobody has claimed, the invite link asks "Which one are you?" (with what's attached to each name) and you must pick one. Otherwise you join under your Google name as before.
+- **Change owner** — picked the wrong name? Tap yourself → Change owner → pick the right unclaimed name. The old name keeps its expenses and goes back to having no owner; you keep access.
+- **Turn into no account** — the planner can do this for a member who's leaving but is part of expenses; their history stays.
+- *Requires `20260927_group_expenses_p5.sql` before deploying.*
+
+---
+
 ## v0.4.2 — 2026-09-27 · Group expenses, Phases 3 + 4 (Money tab + settle up)
 
 - **Settle-up card** at the top of Money — "You owe…", "You're owed…", "You're settled up · N payments still open" or "All settled ✓".

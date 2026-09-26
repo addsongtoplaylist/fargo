@@ -299,6 +299,24 @@ export async function getOrCreateInviteCode(tripId: string) {
   return code;
 }
 
+export type InviteTraveller = {
+  id: string;
+  display_name: string;
+  account_id: string | null;
+  claimed: boolean;
+  paid_count: number;
+  in_count: number;
+};
+
+export type InviteTrip = {
+  id: string;
+  name: string;
+  destination: string;
+  start_date: string;
+  end_date: string;
+  travellers: InviteTraveller[];
+};
+
 /** Look up a trip by its invite code */
 export async function getTripByInviteCode(code: string) {
   const supabase = await createClient();
@@ -308,14 +326,7 @@ export async function getTripByInviteCode(code: string) {
     p_code: code,
   });
 
-  return data as {
-    id: string;
-    name: string;
-    destination: string;
-    start_date: string;
-    end_date: string;
-    travellers: { display_name: string; account_id: string }[];
-  } | null;
+  return data as InviteTrip | null;
 }
 
 /** Join a trip using an invite code */
@@ -623,4 +634,85 @@ function generateCode(): string {
     code += chars[Math.floor(Math.random() * chars.length)];
   }
   return code;
+}
+
+// ── Travellers without an account (Phase 5, D17 / D38–D42) ──────
+
+async function travellerRpc(
+  fn: string,
+  args: Record<string, unknown>,
+  tripId: string
+): Promise<{ error?: string }> {
+  const account = await getOrCreateAccount();
+  if (!account) return { error: "Not signed in" };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc(fn, args);
+  if (error) {
+    console.error(`${fn} failed:`, error);
+    return { error: error.message || "Something went wrong" };
+  }
+  revalidateTag(`trip-${tripId}`, "max");
+  revalidateTag(`expenses-${tripId}`, "max");
+  revalidatePath(`/trips/${tripId}`, "layout");
+  return {};
+}
+
+/** Planner adds someone without an account. */
+export async function addTraveller(tripId: string, name: string, shares = 1) {
+  tripIdSchema.parse(tripId);
+  return travellerRpc("add_traveller", { p_trip_id: tripId, p_name: name, p_shares: shares }, tripId);
+}
+
+/** Planner renames (no-account only) or sets default shares. */
+export async function updateTraveller(
+  tripId: string,
+  travellerId: string,
+  fields: { name?: string; shares?: number }
+) {
+  tripIdSchema.parse(tripId);
+  uuidSchema.parse(travellerId);
+  return travellerRpc(
+    "update_traveller",
+    { p_traveller_id: travellerId, p_name: fields.name ?? null, p_shares: fields.shares ?? null },
+    tripId
+  );
+}
+
+/** Move yourself to an unclaimed name on this trip (D40). */
+export async function changeOwner(tripId: string, toTravellerId: string) {
+  tripIdSchema.parse(tripId);
+  uuidSchema.parse(toTravellerId);
+  return travellerRpc("change_owner", { p_trip_id: tripId, p_to_traveller: toTravellerId }, tripId);
+}
+
+/** Planner turns a member into no-account — history stays (D29). */
+export async function unlinkTraveller(tripId: string, travellerId: string) {
+  tripIdSchema.parse(tripId);
+  uuidSchema.parse(travellerId);
+  return travellerRpc("unlink_traveller", { p_traveller_id: travellerId }, tripId);
+}
+
+/** Claim an unclaimed name from an invite link (D23, D42). */
+export async function claimTraveller(
+  code: string,
+  travellerId: string
+): Promise<{ tripId?: string; error?: string }> {
+  uuidSchema.parse(travellerId);
+  const account = await getOrCreateAccount();
+  if (!account) return { error: "Not signed in" };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("claim_traveller", {
+    p_code: code,
+    p_traveller_id: travellerId,
+  });
+  if (error) {
+    console.error("claim_traveller failed:", error);
+    return { error: "Couldn't join the trip. Please try again." };
+  }
+  const result = data as { tripId?: string; error?: string } | null;
+  if (result?.tripId) {
+    revalidateTag(`trip-${result.tripId}`, "max");
+    revalidatePath("/trips");
+  }
+  return result ?? { error: "Invalid invite link" };
 }

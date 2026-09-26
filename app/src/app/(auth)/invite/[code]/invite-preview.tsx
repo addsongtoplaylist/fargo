@@ -2,19 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { joinTripByInviteCode } from "@/lib/actions/trip";
+import { joinTripByInviteCode, claimTraveller, type InviteTrip } from "@/lib/actions/trip";
 import { MapPin, Calendar, Users, X, Loader2 } from "lucide-react";
 import { formatDate } from "@/lib/dates";
 
 type InvitePreviewProps = {
-  trip: {
-    id: string;
-    name: string;
-    destination: string;
-    start_date: string;
-    end_date: string;
-    travellers?: { display_name: string; account_id: string }[];
-  };
+  trip: InviteTrip;
   inviteCode: string;
   alreadyMember: boolean;
 };
@@ -23,11 +16,18 @@ export function InvitePreview({ trip, inviteCode, alreadyMember }: InvitePreview
   const router = useRouter();
   const [joining, setJoining] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Names nobody has claimed yet — if any, you must pick yours (D42)
+  const unclaimed = (trip.travellers ?? []).filter((t) => !t.claimed);
+  const mustPick = !alreadyMember && unclaimed.length > 0;
+  const [picked, setPicked] = useState<string | null>(null);
 
   async function handleJoin() {
+    if (mustPick && !picked) return;
     setJoining(true);
     setError(null);
-    const result = await joinTripByInviteCode(inviteCode);
+    const result = mustPick && picked
+      ? await claimTraveller(inviteCode, picked)
+      : await joinTripByInviteCode(inviteCode);
     if (result.tripId) {
       router.push(`/trips/${result.tripId}/overview`);
     } else {
@@ -103,6 +103,41 @@ export function InvitePreview({ trip, inviteCode, alreadyMember }: InvitePreview
             )}
           </div>
 
+          {mustPick && (
+            <div className="mb-4">
+              <p className="text-sm font-medium text-ink mb-2">Which one are you?</p>
+              <div className="border border-border rounded-md divide-y divide-border">
+                {unclaimed.map((t) => {
+                  const detail = [
+                    t.paid_count > 0 ? `paid ${t.paid_count}` : null,
+                    t.in_count > 0 ? `in ${t.in_count}` : null,
+                  ].filter(Boolean).join(" · ");
+                  return (
+                    <label
+                      key={t.id}
+                      htmlFor={`claim-${t.id}`}
+                      className={`flex items-center gap-2.5 px-3 py-2.5 cursor-pointer ${picked === t.id ? "bg-accent-soft" : ""}`}
+                    >
+                      <input
+                        id={`claim-${t.id}`}
+                        type="radio"
+                        name="claim"
+                        checked={picked === t.id}
+                        onChange={() => setPicked(t.id)}
+                        className="accent-[var(--color-accent)]"
+                      />
+                      <span className="flex-1 text-sm text-ink">{t.display_name}</span>
+                      {detail && <span className="text-[11px] text-muted">{detail}</span>}
+                    </label>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] text-muted mt-1.5">
+                Your name isn&apos;t here? Ask the planner to add it first.
+              </p>
+            </div>
+          )}
+
           {error && (
             <p className="text-xs text-money-over mb-3">{error}</p>
           )}
@@ -117,11 +152,15 @@ export function InvitePreview({ trip, inviteCode, alreadyMember }: InvitePreview
           ) : (
             <button
               onClick={handleJoin}
-              disabled={joining}
+              disabled={joining || (mustPick && !picked)}
               className="w-full h-12 flex items-center justify-center gap-2 bg-accent text-accent-on rounded-md text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60 disabled:pointer-events-none"
             >
               {joining && <Loader2 size={16} className="animate-spin" />}
-              {joining ? "Joining…" : "Join trip"}
+              {joining
+                ? "Joining…"
+                : mustPick && picked
+                  ? `Join as ${unclaimed.find((t) => t.id === picked)?.display_name}`
+                  : "Join trip"}
             </button>
           )}
         </div>

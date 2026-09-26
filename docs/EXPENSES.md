@@ -67,6 +67,7 @@ A 7-person trip showed the current model breaks down: one planner can't log ever
 | D39 | **Planner can rename** travellers without an account (account holders keep their Google name). | 2026-09-27 |
 | D40 | **Change owner replaces unlink (supersedes D23's unlink):** if you're linked to the wrong name, you tap **Change owner** and pick a name **without an owner**. The name you leave keeps its history and goes back to no owner; you keep access. Self-service only; the planner's own entry can't be switched. | 2026-09-27 |
 | D41 | **Claiming is tested manually** by the owner with a second person. | 2026-09-27 |
+| D42 | **Invite link = pick your name.** If the trip has names nobody has claimed, you must pick one of them (no "I'm new"). If it has none, you join under your Google name as today. Change owner likewise only moves you to an unclaimed name. | 2026-09-27 |
 
 ---
 
@@ -388,7 +389,7 @@ People already live in the **Travellers** card on Overview (avatars, tap for Lea
 
 ### Claiming a name (S6, D23)
 
-- Opening an invite link on a trip that has no-account names shows: **"Are you one of these?"** — each name with what's attached ("paid 1 · in 2") — or **"I'm new here"**.
+- Opening an invite link on a trip that has unclaimed names shows **"Which one are you?"** — each name with what's attached ("paid 1 · in 2"). You must pick one (D42). With no unclaimed names, you join under your Google name as today.
 - Picking a name links your Google account to it; all their expenses become yours.
 - **Wrong name? Change owner (D40):** tap your own entry → **Change owner** → pick a name without an owner. The name you leave keeps its history and goes back to no owner; you keep access.
 - Someone already on the trip can't claim a second name.
