@@ -48,6 +48,9 @@ A 7-person trip showed the current model breaks down: one planner can't log ever
 | D20 | **No budget set:** the budget card shows "Spent SGD 288 · Set a budget". | 2026-09-26 |
 | D21 | **All square:** the settle-up card stays and shows "All settled ✓". | 2026-09-26 |
 | D22 | **"Your expenses" = what you paid** (matches the breakdown). The **Settle up** screen shows what's behind each balance, so you can check a debt where you'd pay it. | 2026-09-26 |
+| D23 | **Claiming a name:** when joining by invite, the joiner can pick an unclaimed name-only traveller ("I'm Mum"). The claim screen shows what's attached to each name (e.g. "paid 1 · in 2"). A wrong claim can be **unlinked by the person who claimed it, or the planner** — the traveller goes back to name-only with history intact. | 2026-09-26 |
+| D24 | **Settle up is simple by default:** your own payments first ("You pay Ali SGD 20" + Mark as settled); tap a payment to see why; everyone's payments and balances sit in a collapsed *Everyone* section. | 2026-09-26 |
+| D25 | **Mark and unmark settled: the person who owes, or the planner** (who also covers name-only travellers). The receiver can't. Unmark is an explicit button in the *Settled* list. | 2026-09-26 |
 
 ---
 
@@ -113,8 +116,8 @@ Primary key `(expense_id, traveller_id)`.
 | See all expenses, shares and balances on the trip | Every traveller on the trip (needed to check debts) |
 | Log an expense | Any traveller with an account; `created_by` = themselves; payer can be anyone on the trip, including name-only |
 | Edit / delete an expense | Whoever logged it; the planner can edit any (D8) |
-| Mark as settled | The traveller who owes (D12). **For a name-only debtor, the planner marks on their behalf** (proposed) |
-| Undo a settlement (delete it) | Same as edit rules — whoever marked it, or the planner |
+| Mark as settled / Unmark | The traveller who owes, or the planner — including for name-only travellers (D25). Not the receiver |
+| Unlink a claimed name | The person who claimed it, or the planner (D23) |
 | Set a budget | Each traveller, own budget only (D11) — via a `set_my_budget` function, because row rules can't limit which columns a member edits |
 | Add / rename / remove name-only travellers, set default shares | Planner |
 
@@ -136,15 +139,15 @@ Implemented as RLS on `expenses` and `expense_participants` (checked against the
 
 **S3 · View expenses** — expenses **you paid**, including settlements (D19, D22), grouped by date, newest first. Tap to edit (if allowed).
 
-**S4 · Settle up**
-- *Fewest payments* — "You → Song SGD 28". Your own rows have **Mark as settled** → confirm dialog with the amount.
-- Tap a row to see **what's behind it** (D22): your paid expenses and your shares that make up your balance. Because payments are simplified, a row explains your overall balance, not a debt to one specific person.
-- *Balances* — everyone's +/− in local currency.
-- *Settled* — recent settlements, each with Undo (if allowed).
+**S4 · Settle up** (D24)
+- *Your payments* — only the ones involving you: "You pay Ali SGD 20" with **Mark as settled** (confirm dialog), or "Jun pays you SGD 20". Nothing to do → "You're settled up".
+- Tap a payment to see **why** (D22): your paid expenses and your shares. Because payments are simplified, this explains your overall balance, not a debt to one specific person.
+- *Everyone* (collapsed) — all payments and balances in the group.
+- *Settled* — settlements, each with **Unmark** for the person who owed and the planner (D25).
 
-**S5 · Trip settings → Travellers** (planner) — add a name-only traveller, set default shares, remove (blocked while they have expenses — see edge cases).
+**S5 · Trip settings → Travellers** (planner) — add a name-only traveller, set default shares, **unlink** a claimed name (D23), remove (blocked while they have expenses — see edge cases). A traveller who claimed a name can also unlink it from here.
 
-**S6 · Invite join → claim a name** (proposed) — if the trip has name-only travellers, the joiner picks "I'm Mum" or "I'm new". Claiming links their account to that traveller; all history stays.
+**S6 · Invite join → claim a name** (D23) — if the trip has name-only travellers, the joiner picks "I'm Mum" (shown with what's attached, e.g. "paid 1 · in 2") or "I'm new". Claiming links their account to that traveller; all history stays.
 
 **S7 · Set budget** — own budget only.
 
@@ -161,7 +164,7 @@ flowchart TD
   E --> F[Saved · balances update]
   F --> G[Settle-up card: you owe / owed / all settled]
   G --> H[Settle up: fewest payments]
-  H --> I[Debtor taps Mark as settled]
+  H --> I[Debtor or planner taps Mark as settled · can Unmark]
   I --> J[Settlement entry · counts in payer's budget]
   J --> K{Everyone at zero?}
   K -->|No| H
@@ -201,10 +204,9 @@ Each phase ships on its own, with SQL run before deploy.
 
 1. Rounding: leftover cents go to participants in list order.
 2. Settlements show as a *Settle-ups* line in your breakdown.
-3. The planner marks settled for name-only debtors.
-4. A "Select all" shortcut on participant chips (they still start unticked).
-5. Claiming a name-only traveller when joining by invite.
-6. Leaving / removal blocked while a traveller has expenses; planner can convert them to name-only instead.
+3. A "Select all" shortcut on participant chips (they still start unticked).
+4. Leaving / removal blocked while a traveller has expenses; planner can convert them to name-only instead.
+5. Money-tab card wording when you're square but others still owe: "You're settled up · 4 payments still open in the group".
 
 ---
 
