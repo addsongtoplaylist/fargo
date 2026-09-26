@@ -209,6 +209,47 @@ Each phase ships on its own, with SQL run before deploy.
 
 All proposals agreed (D26–D30). Next: sign-off, then plan Phase 1 (data + permissions) in detail.
 
+## 10. Phase 1 plan — data + permissions (draft for review)
+
+**Goal:** the database can store group expenses and every existing expense is converted — with **no visible change** in either app. Screens come in Phase 2+.
+
+**Constraint:** the native app (`fargo-app`) uses the same database and writes expenses directly (`paid_by`, `is_shared`). Phase 1 must keep it working unchanged.
+
+### What changes in the database
+
+1. **New types** — `expense_kind` (expense / settlement), `split_type` (equal / shares / percent / amount).
+2. **`expenses`** — add `kind` (default expense), `split_type` (default equal), `created_by` (→ travellers). Keep `is_shared` for now (the native app still uses it). Settlements use `category = misc` and are told apart by `kind` — no change to the category list shared with activities.
+3. **`expense_participants`** — new table (expense, traveller, weight, share).
+4. **`travellers.default_shares`** — integer, default 1.
+5. **Foreign keys** — `paid_by`, `created_by` and participant → traveller become `NO ACTION` instead of `CASCADE`, so removing a traveller can no longer silently delete expenses. (`NO ACTION`, not `RESTRICT`, so deleting a whole trip still works.)
+6. **Backfill (D15)** — every existing expense gets `created_by = paid_by` and participants: everyone on the trip if `is_shared`, else the payer only. Shares split with the rounding rule (D26).
+7. **Compatibility trigger** — when an expense is written the old way (no `created_by`, e.g. the native app), the database fills `created_by` and builds the participants from `is_shared` automatically. This keeps old-style writes correct until the native app adopts group expenses.
+8. **`save_expense` / `delete_expense` functions** — the new, only-sanctioned write path: check the caller is on the trip, edit rights (D8), payer and participants belong to the trip, weights add up (D3), compute shares (D26), and save expense + participants together.
+9. **Read access** — every traveller on the trip can read participants (same as expenses today).
+10. **Leaving / removal** — `leave_trip` and remove-traveller return a clear message when the traveller has expenses (D29), instead of a database error.
+
+Direct table writes by the planner stay allowed in Phase 1 (the native app needs them). They're removed only once both apps use the functions.
+
+### What changes in the PWA
+
+- `createExpense` / `updateExpense` / `deleteExpense` call the new functions, sending "everyone on the trip, equal" — exactly today's behaviour, so nothing looks different.
+- No UI changes. Budget maths unchanged until Phase 3.
+
+### Rollout order
+
+1. **Backup** — copy `expenses` to `expenses_backup_20260926` (one SQL statement).
+2. **SQL part A** (one transaction) — items 1–9. Additive; both apps keep working. The trigger covers any expense logged by either app during the gap.
+3. **Verify** (read-only queries, results pasted back) — every expense has participants; shares add up to each amount; counts match the backup.
+4. **Deploy PWA** (v0.4.0).
+5. **Test on Test Trip Singapore** — log, edit, delete an expense in the PWA **and** the native app; re-run the verify queries.
+6. **SQL part B** — item 10 (friendly leave/remove messages).
+
+**Undo:** until part B, dropping the new table/columns and restoring from the backup returns everything to today's state.
+
+### Out of Phase 1
+
+Settlement and budget functions (`mark_settled`, `set_my_budget`) ship with Phases 4 and 3. Name-only travellers with Phase 5. Native app changes are a separate decision.
+
 ---
 
 ## Sources

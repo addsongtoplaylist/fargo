@@ -48,6 +48,7 @@ npx next build     # production build
 
 ## Rules the code depends on
 
+- **Shared database:** the native app (`~/Desktop/fargo-app`, repo `addsongtoplaylist/fargo-app`) uses the same Supabase project. Before changing any table, policy or database function, grep `fargo-app/packages/core/src/api` for how it's used and keep it working (or plan its update).
 - **Data access:** Supabase JS client with the anon key + user session; **RLS is the security boundary**. No service-role key in the app. Drizzle schema (`app/src/db/schema.ts`) is reference only.
 - **Planner-only writes.** Only the trip's planner can create/edit/delete trip content; members are read-only. This is intentional — new write paths must check planner, not membership.
 - **SECURITY DEFINER functions** must identify the caller with `auth.uid()` (never trust an account-ID parameter), set `search_path = public`, and `REVOKE EXECUTE … FROM PUBLIC, anon` unless signed-out access is truly needed.
