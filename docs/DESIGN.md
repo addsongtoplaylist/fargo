@@ -1,5 +1,7 @@
 # Fargo — Design System
 
+> **v0.7 — 2026-09-26.** Design review: type scale, shadow rule and status colours updated to match the shipped app. Add activity is now the reference for forms and chips; empty states use a generic icon; Explore hidden from the bottom nav.
+>
 > **v0.6 — 2026-08-27.** Accent colour swapped to Electric Blue (#0085D9) — passes WCAG AA Large. Bright Cyan (#22B8E0) reserved for frog mascot assets only. Trip card tints lightened (Soft Sky). Sign-in page now shows frog mascot + wordmark logo. Favicon uses full mascot on cyan background.
 >
 > Built on the locked decisions in [PRODUCT.md](PRODUCT.md) and [EXPERIENCE.md](EXPERIENCE.md).
@@ -58,10 +60,20 @@ Soft Sky tints for upcoming trip cards (active trip always uses `accent` Electri
 | `trip-blue-2` | `#6ab8c9` | Upcoming trip card 2 — sky cyan |
 | `trip-green-1` | `#6dc4a8` | Upcoming trip card 3 — mint |
 
+### Status colours (non-money)
+
+For meaning that isn't money — errors, open/closed, ratings. Currently Tailwind defaults; kept separate from money tokens so the two never get confused.
+
+| Use | Tailwind class | Hex |
+|---|---|---|
+| Error message, "Closed", destructive hover | `text-red-500` | `#ef4444` |
+| "Open now" | `text-green-600` | `#16a34a` |
+| Star rating, planner crown, weather icon | `text-amber-500` | `#f59e0b` |
+
 ### Rules
 
-- **No drop shadows anywhere.** Depth is communicated through `ground` → `card` background shift and `border` lines.
-- **Money colours are semantic, not decorative.** Green/amber/rose appear only on money states — never on buttons, tabs, or decoration.
+- **Shadows only on floating layers.** Page content (cards, lists, headers) has no shadow — depth comes from the `ground` → `card` background shift and `border` lines. Things that float above the page — dropdowns, dialogs, toasts, a card being dragged, map controls — get a shadow (`shadow-lg`, or `shadow`/`shadow-sm` for small controls) so they read as lifted.
+- **Money colours are semantic, not decorative.** Green/amber/rose appear only on money states — never on buttons, tabs, or decoration. Non-money meaning uses the status colours above.
 - **Accent blue is never used for money.** Even when the budget is healthy, use `money-ok` green, not `accent` blue.
 - **Trip card rotation is Soft Sky tints.** Lighter than accent, clearly secondary. White text on all three. Never use warm colours (yellow, rose) for trip cards.
 - **Hybrid colour rule:** Electric Blue (#0085D9) for all app UI. Bright Cyan (#22B8E0) reserved for frog mascot assets only (favicon, app icon PNGs).
@@ -84,7 +96,7 @@ The Fargo frog is a playful character with a Bright Cyan body and navy legs. The
 **Placement:**
 - **Favicon & app icon** — full mascot on cyan background, multiple sizes (16px → 512px) for browser tabs, Android PWA, iOS home screen
 - **Onboarding / sign-in** — full mascot + wordmark logo stacked vertically — first brand impression
-- **Empty states** — frog appears when there's nothing to show — adds warmth to blank screens
+- **Empty states** — not currently used (generic icons instead — see Empty states); may return later
 - **Not in everyday UI** — no mascot in cards, headers, buttons, nav, or lists
 
 **Style:** flat, vector illustration. Bright Cyan (#22B8E0) body, navy (#1b2d50) legs. No animation in V1.
@@ -117,14 +129,19 @@ font-family: 'Sora', system-ui, -apple-system, sans-serif;
 
 ### Type scale
 
-| Token | Size | Weight | Line height | Usage |
+Mobile-dense scale, expressed as Tailwind classes. `text-sm` (14px) is the workhorse for body and card titles.
+
+| Role | Class | Size | Weight | Usage |
 |---|---|---|---|---|
-| `display` | 24px | 600 | 1.25 | Trip name on overview |
-| `heading` | 18px | 600 | 1.3 | Section headings, tab titles |
-| `subheading` | 15px | 600 | 1.35 | Card titles, day headers |
-| `body` | 15px | 400 | 1.5 | Body text, descriptions, notes |
-| `label` | 13px | 500 | 1.4 | Form labels, table headers, metadata |
-| `caption` | 11px | 500 | 1.4 | Timestamps, helper text |
+| Hero number | `text-[42px]` / `text-[28px]` | 42 / 28px | 500 | Day counter on active / upcoming trip cards |
+| Display | `text-2xl` | 24px | 600 | Trip name on overview, big money totals |
+| Heading | `text-lg` / `text-xl` | 18 / 20px | 600 | Page and section headings |
+| Card title | `text-sm` | 14px | 500–600 | Card titles, day headers, list items |
+| Body | `text-sm` | 14px | 400 | Descriptions, notes, form inputs |
+| Label | `text-xs` | 12px | 500 | Form labels, metadata, secondary lines |
+| Caption | `text-[11px]` / `text-[10px]` | 11 / 10px | 500 | Timestamps, helper text, chips, currency hints |
+
+**Floor: 10px.** Nothing smaller (only exception: initials inside 16px mini-avatars) — travellers read this on a phone, often outdoors. Keep 10px for short, non-essential text (chips, hints); anything a user must read to act uses 12px or more.
 
 ### Numerals
 
@@ -172,7 +189,7 @@ Base-4 scale. Use the smallest value that gives the element room to breathe.
 | `radius-lg` | 12px | Modals, bottom sheets |
 | `radius-full` | 9999px | Avatars, circular indicators |
 
-Corners are **gentle, not pill-shaped**. Buttons use `radius-md` (8px), not `radius-full`.
+Corners are **gentle, not pill-shaped** — except chips, which are pills (`radius-full`). Buttons use `radius-md` / `rounded-lg`, not `radius-full`.
 
 ---
 
@@ -204,7 +221,7 @@ Everything inside the column stacks vertically. No multi-column grids, no sideba
 
 ### Two navigation layers
 
-**1. App-level bottom nav** — three items: **My trips · Explore · Profile**
+**1. App-level bottom nav** — currently two items: **My trips · Profile** (Explore is hidden until it ships; it returns as the middle item)
 
 - Fixed at the bottom on phone; could sit as a top bar on desktop
 - Each item has an icon + label (Lucide: plane / compass / user)
@@ -245,12 +262,34 @@ Above the trip tabs: trip name, destination flag, back arrow (returns to My trip
 - Height: 44px minimum (touch target)
 - Full-width within the column on phone; auto-width on desktop
 
+### Forms (bottom-sheet panels)
+
+**Add activity is the reference layout** — every form panel follows it:
+
+- **Header:** title left (`text-sm` semibold), ✕ close button right (with `aria-label="Close"`)
+- **Hero field first:** the one thing the form is about, large and borderless — "What's the plan?" for activities, the amount for expenses
+- **Short fields:** label **beside** the field (`text-xs` muted, fixed `w-10`), input to its right
+- **Category chips** below the fields, then **Notes** as a 2-row textarea
+- **Footer:** `Cancel` (outlined) + primary action (filled `accent`) side by side, equal width. In edit mode, secondary actions (Delete, Move to ideas) sit centred below as small text links — Delete in `money-over`
+
 ### Input fields
 
-- Border: 1px solid `border`, `radius-md`
+- Background: `ground`, 1px `border`, `radius-md`
 - Focus: border becomes `accent`
-- Background: `card`
-- Height: 44px (same as buttons, consistent touch target)
+- Text: `text-sm`; placeholder `muted` at 50%
+
+### Chips
+
+One style everywhere (categories, filters, dietary options, Discover sections), taken from Add activity:
+
+- Shape: pill (`rounded-full`), `px-2.5 py-1.5`, `text-xs` weight 500
+- **Off:** `ground` background, `muted` text, 1px `border`; hover border `accent` at 40%
+- **On:** `accent` background, `accent-on` text
+- Disabled / "Soon": off style at 40% text opacity
+
+### Empty states
+
+Inside a tab: a **generic Lucide icon** in a 40px `accent-soft` circle (icon 18px, `accent`), with one line of `text-sm` muted guidance below — use the `EmptyState` component. Full-page empty states (My trips, Explore) use the same pattern scaled up (64px circle, heading + text + button). No mascot in empty states for now.
 
 ### Money rows
 

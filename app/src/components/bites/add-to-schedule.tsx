@@ -88,6 +88,7 @@ export function AddToSchedule({
         {/* Close */}
         <button
           onClick={onClose}
+          aria-label="Close"
           className="absolute top-3 right-4 text-muted hover:text-ink"
         >
           <X size={18} />

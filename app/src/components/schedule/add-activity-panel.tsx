@@ -149,6 +149,7 @@ export function AddActivityPanel({
           </h3>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="w-10 h-10 flex items-center justify-center -mr-2 text-muted hover:text-ink transition-colors"
           >
             <X size={18} />

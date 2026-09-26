@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Plus, Trash2, ExternalLink, ArrowRight, Clock, MapPin } from "lucide-react";
+import { Plus, Trash2, ExternalLink, ArrowRight, Clock, MapPin, Lightbulb } from "lucide-react";
 import { createIdea, updateIdea, deleteIdea, promoteIdea } from "@/lib/actions/idea";
 import { useTrip } from "@/lib/trip-context";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { eachDayOfInterval, parseISO, format } from "date-fns";
 import type { Idea } from "@/lib/actions/idea";
+import { EmptyState } from "@/components/empty-state";
 
 type IdeasSectionProps = {
   ideas: Idea[];
@@ -185,6 +186,7 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
                   </button>
                   {/* Delete */}
                   <button
+                    aria-label="Delete idea"
                     onClick={() => setDeleteId(idea.id)}
                     className="text-muted hover:text-money-over transition-colors p-0.5"
                   >
@@ -215,9 +217,7 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
         ))}
 
         {ideas.length === 0 && !adding && (
-          <p className="text-sm text-muted py-4 text-center">
-            No ideas yet. Add things you find along the way.
-          </p>
+          <EmptyState icon={Lightbulb} message="No ideas yet. Add things you find along the way." />
         )}
 
         {/* Inline add form */}

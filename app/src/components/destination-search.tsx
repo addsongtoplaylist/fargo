@@ -149,6 +149,7 @@ export function DestinationSearch({
         <button
           type="button"
           onClick={handleClear}
+          aria-label="Clear"
           className="text-muted hover:text-ink shrink-0"
         >
           <X size={14} />

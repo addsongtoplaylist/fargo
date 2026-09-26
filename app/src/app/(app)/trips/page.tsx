@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getMyTrips, getActiveTrip } from "@/lib/actions/trip";
 import { differenceInCalendarDays } from "date-fns";
 import { redirect } from "next/navigation";
+import { formatDateRange } from "@/lib/dates";
 
 export default async function TripsPage({
   searchParams,
@@ -197,11 +198,4 @@ function formatActiveAsCompact(trip: any, today: Date) {
     color: TRIP_COLORS[0],
     variant: "active" as const,
   };
-}
-
-function formatDateRange(start: string, end: string): string {
-  const s = new Date(start);
-  const e = new Date(end);
-  const opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
-  return `${s.toLocaleDateString("en-GB", opts)} – ${e.toLocaleDateString("en-GB", opts)} ${e.getFullYear()}`;
 }

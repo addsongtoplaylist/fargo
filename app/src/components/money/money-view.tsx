@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Plus, StickyNote } from "lucide-react";
+import { Plus, StickyNote, Receipt } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useTrip } from "@/lib/trip-context";
 import { updateBudget } from "@/lib/actions/expense";
@@ -9,6 +9,7 @@ import { LogExpensePanel } from "./log-expense-panel";
 import { useToast } from "@/components/toast";
 import type { Expense } from "@/lib/actions/expense";
 import { CATEGORY_EMOJI } from "@/lib/categories";
+import { EmptyState } from "@/components/empty-state";
 
 const FIXED_CATEGORIES = ["flights", "accommodation", "activities"];
 
@@ -93,12 +94,15 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
           <h3 className="text-xs font-medium text-muted uppercase tracking-wide">
             Budget
           </h3>
-          <button
-            onClick={() => setEditingBudget(!editingBudget)}
-            className="text-xs text-accent hover:text-accent-hover transition-colors"
-          >
-            {editingBudget ? "Cancel" : "Edit"}
-          </button>
+          {/* Hidden while no budget is set — "Set your budget" does the same job */}
+          {(editingBudget || (budget && budget.budgetTotal > 0)) && (
+            <button
+              onClick={() => setEditingBudget(!editingBudget)}
+              className="text-xs text-accent hover:text-accent-hover transition-colors"
+            >
+              {editingBudget ? "Cancel" : "Edit"}
+            </button>
+          )}
         </div>
 
         {editingBudget ? (
@@ -271,11 +275,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
 
       {/* Expense list grouped by date */}
       {expenses.length === 0 ? (
-        <div className="bg-card rounded-lg border border-border px-3 py-6">
-          <p className="text-sm text-muted text-center">
-            No expenses yet. Log your first one.
-          </p>
-        </div>
+        <EmptyState icon={Receipt} message="No expenses yet. Log your first one." />
       ) : (
         <div className="space-y-3">
           {sortedDates.map((date) => {

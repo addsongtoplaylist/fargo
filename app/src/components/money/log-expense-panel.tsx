@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, Trash2 } from "lucide-react";
+import { X } from "lucide-react";
 import { createExpense, updateExpense, deleteExpense } from "@/lib/actions/expense";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -105,13 +105,14 @@ export function LogExpensePanel({
           </h3>
           <button
             onClick={onClose}
+            aria-label="Close"
             className="w-10 h-10 flex items-center justify-center -mr-2 text-muted hover:text-ink transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
-        <div className="px-4 py-4 space-y-4">
+        <div className="px-4 py-3 space-y-3">
           {/* Amount — large centered with currency toggle */}
           <div className="text-center">
             <div className="inline-flex items-center gap-1 mb-1">
@@ -188,50 +189,57 @@ export function LogExpensePanel({
             ))}
           </div>
 
-          {/* Defaults section */}
-          <div className="pt-2 border-t border-border space-y-3">
-            <p className="text-xs text-muted">Defaults — tap to change</p>
-
-            {/* Date */}
-            <div>
-              <p className="text-xs text-muted mb-1">Date</p>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full bg-ground border border-border rounded-md px-2 py-1.5 text-xs text-ink outline-none focus:border-accent transition-colors"
-              />
-            </div>
-
-            {/* Notes */}
+          {/* Date */}
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-muted w-10">Date</label>
             <input
-              type="text"
-              placeholder="Notes (optional)"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-ground border border-border rounded-md px-3 py-2 text-xs text-ink placeholder:text-muted/50 outline-none focus:border-accent transition-colors"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent transition-colors"
             />
           </div>
+
+          {/* Notes */}
+          <textarea
+            placeholder="Notes (optional)"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            rows={2}
+            className="w-full bg-ground border border-border rounded-md px-3 py-2 text-sm text-ink placeholder:text-muted/50 outline-none focus:border-accent transition-colors resize-none"
+          />
         </div>
 
-        {/* Sticky footer — clears the bottom nav + safe area */}
-        <div className="px-4 pt-3 pb-[calc(0.75rem+56px+env(safe-area-inset-bottom))] border-t border-border space-y-2">
-          <button
-            onClick={handleSave}
-            disabled={!amount || !title.trim() || numericAmount <= 0}
-            className="w-full py-2.5 bg-accent text-accent-on text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
-          >
-            {editing ? "Save changes" : "Log expense"}
-          </button>
-
-          {editing && (
+        {/* Footer — clears the 56px bottom nav + safe area */}
+        <div className="px-4 pt-3 pb-[calc(0.75rem+56px+env(safe-area-inset-bottom))] border-t border-border space-y-3">
+          {/* Primary actions */}
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => setConfirmDelete(true)}
-              className="w-full py-2 flex items-center justify-center gap-1.5 text-xs font-medium text-money-over hover:bg-money-over/10 rounded-lg transition-colors"
+              onClick={onClose}
+              className="flex-1 py-2 text-sm font-medium text-muted border border-border rounded-lg hover:border-ink/30 hover:text-ink transition-colors"
             >
-              <Trash2 size={13} />
-              Delete expense
+              Cancel
             </button>
+            <button
+              onClick={handleSave}
+              disabled={!amount || !title.trim() || numericAmount <= 0 || saving}
+              className="flex-1 py-2 bg-accent text-accent-on text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
+            >
+              {editing ? "Save" : "Log"}
+            </button>
+          </div>
+
+          {/* Secondary action — only in edit mode */}
+          {editing && (
+            <div className="flex items-center justify-center pt-1">
+              <button
+                onClick={() => setConfirmDelete(true)}
+                disabled={saving}
+                className="text-xs text-money-over hover:text-money-over/80 transition-colors disabled:opacity-50"
+              >
+                Delete
+              </button>
+            </div>
           )}
         </div>
       </div>

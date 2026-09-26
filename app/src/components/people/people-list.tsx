@@ -128,6 +128,7 @@ export function PeopleList({
             {/* Remove button — only planner can remove members (not self) */}
             {isPlanner && t.role !== "planner" && (
               <button
+                aria-label="Remove traveller"
                 onClick={() => setRemoveConfirmId(t.id)}
                 disabled={removing === t.id}
                 className="w-10 h-10 flex items-center justify-center text-muted hover:text-money-over transition-colors shrink-0 disabled:opacity-50 -mr-2"

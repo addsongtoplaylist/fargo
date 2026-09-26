@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { joinTripByInviteCode } from "@/lib/actions/trip";
 import { MapPin, Calendar, Users, X, Loader2 } from "lucide-react";
+import { formatDate } from "@/lib/dates";
 
 type InvitePreviewProps = {
   trip: {
@@ -133,13 +134,4 @@ export function InvitePreview({ trip, inviteCode, alreadyMember }: InvitePreview
       </div>
     </div>
   );
-}
-
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }

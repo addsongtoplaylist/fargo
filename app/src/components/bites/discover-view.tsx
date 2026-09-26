@@ -188,12 +188,12 @@ export function DiscoverView() {
               key={cat.value}
               onClick={() => cat.enabled && handleCategoryChange(cat.value)}
               disabled={!cat.enabled}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full border transition-colors ${
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 isActive
-                  ? "border-accent bg-accent-soft text-accent font-medium"
+                  ? "bg-accent text-accent-on"
                   : cat.enabled
-                    ? "border-border text-muted hover:border-ink/30 hover:text-ink"
-                    : "border-border text-muted/40 cursor-not-allowed"
+                    ? "bg-ground text-muted border border-border hover:border-accent/40"
+                    : "bg-ground text-muted/40 border border-border cursor-not-allowed"
               }`}
             >
               <Icon size={13} />
@@ -270,10 +270,10 @@ export function DiscoverView() {
             <button
               key={f.key}
               onClick={() => handleFilterChange(f.key)}
-              className={`shrink-0 px-3 py-1 text-xs rounded-full border transition-colors ${
+              className={`shrink-0 px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 filterType === f.key
-                  ? "border-accent bg-accent text-white font-medium"
-                  : "border-border text-muted hover:border-ink/30 hover:text-ink"
+                  ? "bg-accent text-accent-on"
+                  : "bg-ground text-muted border border-border hover:border-accent/40"
               }`}
             >
               {f.label}

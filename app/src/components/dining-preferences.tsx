@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
 import { updateProfile } from "@/lib/actions/account";
 import { useToast } from "@/components/toast";
 import {
@@ -35,14 +34,14 @@ type DiningPreferencesProps = {
 const selectClass =
   "text-sm font-medium text-ink bg-ground border border-border rounded-md px-2 py-1 outline-none focus:border-accent transition-colors disabled:opacity-50";
 
+// Standard chip style (matches the category chips in Add activity)
 const chipBase =
-  "px-3 py-1.5 text-sm rounded-full border transition-colors disabled:opacity-50";
+  "px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors disabled:opacity-50";
 
 const chipOff =
-  `${chipBase} border-border text-muted hover:border-ink/30 hover:text-ink`;
+  `${chipBase} bg-ground text-muted border border-border hover:border-accent/40`;
 
-const chipOn =
-  `${chipBase} border-accent bg-accent-soft text-accent font-medium`;
+const chipOn = `${chipBase} bg-accent text-accent-on`;
 
 export function DiningPreferences({
   diningBudget: initialBudget,
@@ -53,36 +52,31 @@ export function DiningPreferences({
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
-  // Track whether anything changed from the initial/saved state
-  const [savedBudget, setSavedBudget] = useState(initialBudget);
-  const [savedDietary, setSavedDietary] = useState<string[]>(initialDietary);
-
-  const hasChanges =
-    budget !== savedBudget ||
-    JSON.stringify([...dietary].sort()) !==
-      JSON.stringify([...savedDietary].sort());
-
-  function toggleDietary(value: string) {
-    setDietary((prev) =>
-      prev.includes(value) ? prev.filter((d) => d !== value) : [...prev, value]
-    );
-  }
-
-  async function handleSave() {
+  // Saves instantly on every change (same as Home country); reverts on failure
+  async function save(nextBudget: string, nextDietary: string[]) {
+    const prevBudget = budget;
+    const prevDietary = dietary;
+    setBudget(nextBudget);
+    setDietary(nextDietary);
     setSaving(true);
     const result = await updateProfile({
-      dining_budget: budget,
-      dietary_restrictions: dietary,
-    } as Parameters<typeof updateProfile>[0]);
+      dining_budget: nextBudget,
+      dietary_restrictions: nextDietary,
+    });
     setSaving(false);
 
     if (result.error) {
+      setBudget(prevBudget);
+      setDietary(prevDietary);
       toast(result.error, "error");
-    } else {
-      toast("Dining preferences saved", "success");
-      setSavedBudget(budget);
-      setSavedDietary([...dietary]);
     }
+  }
+
+  function toggleDietary(value: string) {
+    save(
+      budget,
+      dietary.includes(value) ? dietary.filter((d) => d !== value) : [...dietary, value]
+    );
   }
 
   return (
@@ -92,7 +86,7 @@ export function DiningPreferences({
         <span className="text-sm text-muted">Budget</span>
         <select
           value={budget}
-          onChange={(e) => setBudget(e.target.value)}
+          onChange={(e) => save(e.target.value, dietary)}
           disabled={saving}
           className={selectClass}
         >
@@ -121,15 +115,6 @@ export function DiningPreferences({
         </div>
       </div>
 
-      {/* Save button */}
-      <button
-        onClick={handleSave}
-        disabled={saving || !hasChanges}
-        className="w-full py-2.5 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
-      >
-        {saving && <Loader2 size={14} className="animate-spin" />}
-        {saving ? "Saving…" : "Save preferences"}
-      </button>
     </div>
   );
 }

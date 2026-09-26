@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Plane, Compass, User } from "lucide-react";
+import { Plane, User } from "lucide-react";
 
 const navItems = [
   { href: "/trips?noauto=1", label: "My trips", icon: Plane },
-  { href: "/explore", label: "Explore", icon: Compass },
+  // Explore hidden until it ships — /explore still has its placeholder page
   { href: "/profile", label: "Profile", icon: User },
 ] as const;
 

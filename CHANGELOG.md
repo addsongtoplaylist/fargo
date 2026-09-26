@@ -2,6 +2,22 @@
 
 ---
 
+## v0.3.6 — 2026-09-26 · Design consistency
+
+Fixes from the design review.
+
+- **One form layout** — Log expense now follows Add activity: labels beside fields, notes textarea, Cancel + primary button footer, Delete as a text link in edit mode.
+- **One chip style** — Discover sections, Bites filters and dietary options now use the same chips as activity/expense categories.
+- **Dining preferences save instantly** — like Home country; no Save button. Reverts with an error toast on failure.
+- **Empty states** — Schedule, Money, Checklists and Ideas show a generic icon with guidance.
+- **Budget card** — "Edit" hidden until a budget is set ("Set your budget" does the same job).
+- **Dates** — one format everywhere ("17 Sep – 24 Dec 2026"), from a shared helper.
+- **Accessibility** — labels added to icon-only buttons (close, clear, delete, options, dismiss).
+- **Explore hidden** from the bottom nav until it ships.
+- **DESIGN.md v0.7** — type scale, shadows, status colours, forms, chips and empty states documented.
+
+---
+
 ## v0.3.5 — 2026-09-26 · Reliability fixes
 
 Fixes from the code review.

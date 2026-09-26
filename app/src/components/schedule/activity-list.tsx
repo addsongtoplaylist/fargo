@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, CalendarDays } from "lucide-react";
 import { format, parseISO, isToday } from "date-fns";
 import {
   DndContext,
@@ -27,6 +27,7 @@ import { AddActivityPanel } from "./add-activity-panel";
 import { BudgetStrip } from "./budget-strip";
 import { DayMap } from "./day-map";
 import type { Activity } from "@/lib/actions/activity";
+import { EmptyState } from "@/components/empty-state";
 
 type ActivityListProps = {
   activities: Activity[];
@@ -217,9 +218,10 @@ function ActivityListInner({
       {/* Activity cards with drag-and-drop */}
       <div className="px-4 space-y-2">
         {dayActivities.length === 0 ? (
-          <p className="text-sm text-muted py-6 text-center">
-            {isPlanner ? "No activities yet. Tap below to add one." : "No activities planned for this day."}
-          </p>
+          <EmptyState
+            icon={CalendarDays}
+            message={isPlanner ? "No activities yet. Tap below to add one." : "No activities planned for this day."}
+          />
         ) : isPlanner ? (
           <DndContext
             sensors={sensors}

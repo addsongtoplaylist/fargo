@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import {
-  MoreHorizontal,
-  Check,
-  Trash2,
-  Pencil,
-} from "lucide-react";
+import { MoreHorizontal, Check, Trash2, Pencil, ListChecks } from "lucide-react";
 import {
   createChecklist,
   renameChecklist,
@@ -19,6 +14,7 @@ import {
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useToast } from "@/components/toast";
 import type { Checklist } from "@/lib/actions/checklist";
+import { EmptyState } from "@/components/empty-state";
 
 type ChecklistSectionProps = {
   checklists: Checklist[];
@@ -106,9 +102,7 @@ export function ChecklistSection({ checklists, tripId, isPlanner = true }: Check
         ))}
 
         {checklists.length === 0 && !creatingList && (
-          <p className="text-sm text-muted py-4 text-center">
-            No checklists yet. Create one to start packing.
-          </p>
+          <EmptyState icon={ListChecks} message="No checklists yet. Create one to start packing." />
         )}
       </div>
     </div>
@@ -266,6 +260,7 @@ function ChecklistCard({
         {/* ••• menu — planner only */}
         {isPlanner && <div className="relative">
           <button
+            aria-label="List options"
             onClick={() => setMenuOpen(!menuOpen)}
             className="text-muted hover:text-ink transition-colors p-0.5"
           >
@@ -359,6 +354,7 @@ function ChecklistCard({
             {/* Delete — always visible on touch, hover-reveal on desktop */}
             {isPlanner && (
               <button
+                aria-label="Delete item"
                 onClick={() => handleDeleteItem(item.id)}
                 className="text-muted hover:text-money-over transition-colors p-0.5 sm:opacity-0 sm:group-hover:opacity-100"
               >

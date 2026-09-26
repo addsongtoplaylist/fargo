@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { MapPin, Calendar, Users } from "lucide-react";
+import { formatDate } from "@/lib/dates";
 
 type InviteLandingProps = {
   trip: {
@@ -89,14 +90,6 @@ export function InviteLanding({ trip, inviteCode }: InviteLandingProps) {
   );
 }
 
-function formatDate(dateStr: string) {
-  const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
 
 function GoogleIcon() {
   return (

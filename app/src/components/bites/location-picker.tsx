@@ -208,6 +208,7 @@ export function LocationPicker({
           <Loader2 size={14} className="text-muted animate-spin shrink-0" />
         )}
         <button
+          aria-label="Clear location"
           onClick={() => {
             setShowSearch(false);
             setSuggestions([]);

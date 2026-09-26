@@ -72,6 +72,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 <Icon size={16} className="shrink-0 mt-0.5" />
                 <span className="flex-1">{t.message}</span>
                 <button
+                  aria-label="Dismiss"
                   onClick={() => dismiss(t.id)}
                   className="shrink-0 opacity-60 hover:opacity-100 transition-opacity"
                 >

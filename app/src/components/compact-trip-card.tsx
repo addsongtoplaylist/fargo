@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { TravellerAvatars } from "./traveller-avatars";
+import { formatDateRange } from "@/lib/dates";
 
 type CompactTrip = {
   id: string;
@@ -52,11 +53,4 @@ export function CompactTripCard({ trip }: { trip: CompactTrip }) {
       </div>
     </Link>
   );
-}
-
-function formatDateRange(start: string, end: string): string {
-  const s = new Date(start);
-  const e = new Date(end);
-  const opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
-  return `${s.toLocaleDateString("en-GB", opts)} – ${e.toLocaleDateString("en-GB", opts)} ${e.getFullYear()}`;
 }
