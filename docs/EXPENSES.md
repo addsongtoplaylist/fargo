@@ -51,13 +51,18 @@ A 7-person trip showed the current model breaks down: one planner can't log ever
 | D23 | **Claiming a name:** when joining by invite, the joiner can pick an unclaimed name-only traveller ("I'm Mum"). The claim screen shows what's attached to each name (e.g. "paid 1 · in 2"). A wrong claim can be **unlinked by the person who claimed it, or the planner** — the traveller goes back to name-only with history intact. | 2026-09-26 |
 | D24 | **Settle up is simple by default:** your own payments first ("You pay Ali SGD 20" + Mark as settled); tap a payment to see why; everyone's payments and balances sit in a collapsed *Everyone* section. | 2026-09-26 |
 | D25 | **Mark and unmark settled: the person who owes, or the planner** (who also covers name-only travellers). The receiver can't. Unmark is an explicit button in the *Settled* list. | 2026-09-26 |
+| D26 | **Rounding:** shares round to 2 decimals; leftover cents go to participants in list order, so shares always add up exactly. | 2026-09-26 |
+| D27 | **Settlements in the breakdown:** shown as their own *Settle-ups* line in the payer's breakdown, and listed in their View expenses. | 2026-09-26 |
+| D28 | **Select all / Clear:** participants start unticked; the shortcut reads **Select all**, and switches to **Clear** only when everyone is ticked (e.g. 6 of 7 ticked still shows Select all). | 2026-09-26 |
+| D29 | **Leaving or removal with expenses is blocked**; the planner can convert the traveller to name-only instead, keeping history. | 2026-09-26 |
+| D30 | **In-between card state:** when you're square but others still owe — "You're settled up · N payments still open in the group". | 2026-09-26 |
 
 ---
 
 
 # Spec
 
-> **Draft for review — 2026-09-26.** Built from D1–D22. Items marked **(proposed)** are my calls, not yet agreed — confirm or change them while reviewing.
+> **Final draft — 2026-09-26.** Built from D1–D30. All proposals agreed; ready to plan Phase 1 once signed off.
 
 ## 1. Concepts
 
@@ -99,14 +104,14 @@ Primary key `(expense_id, traveller_id)`.
 
 **Shares from weights** — at save time, on the server:
 - *Equal*: amount ÷ participants. *Shares*: amount × weight ÷ total weights. *Percent*: must total 100. *Amount*: must total the expense amount exactly.
-- **Rounding** (proposed): round each share to 2 decimals, then hand the leftover cents one at a time to participants in list order, so shares always add up to the amount exactly.
+- **Rounding** (D26): round each share to 2 decimals, then hand the leftover cents one at a time to participants in list order, so shares always add up to the amount exactly.
 
 **Balance** (per traveller) = Σ `amount` of expenses they paid − Σ their `share`s. Settlements fit the same formula with no special case.
 
 **Fewest payments** (D12) — Kittysplit's "middle of the table": take the largest debtor and the largest creditor, pay the smaller of the two amounts, repeat. At most *travellers − 1* payments. Anyone may end up paying someone they never directly owed — that's expected.
 
 **Budget spent** (MYR) = Σ `amount_myr` of expenses **paid by you**, settlements included.
-- **Breakdown** shows the same set by category; settlements appear as their own *Settle-ups* line (proposed).
+- **Breakdown** shows the same set by category; settlements appear as their own *Settle-ups* line (D27).
 - **Daily free budget** stays *(budget − fixed costs) ÷ trip days*, using fixed categories you paid. Known effect of D7: whoever pays the hotel carries it as a fixed cost; the rest see their share only after they settle up.
 
 ## 4. Permissions
@@ -126,14 +131,14 @@ Implemented as RLS on `expenses` and `expense_participants` (checked against the
 ## 5. Screens
 
 **S1 · Money tab** (D18)
-1. *Settle-up card* — "You owe SGD 28" / "You're owed SGD 40" / "All settled ✓" (D21) → **Settle up ›**
+1. *Settle-up card* — "You owe SGD 28" / "You're owed SGD 40" / "You're settled up · N payments still open" (D30) / "All settled ✓" (D21) → **Settle up ›**
 2. *My budget* — "SGD 612 left of SGD 900 · daily SGD 85", or with no budget "Spent SGD 288 · Set a budget" (D20)
 3. *Breakdown* — your cash out by category → **View expenses ›**
 4. **+ Log expense**
 
 **S2 · Log / edit expense** (Add activity layout)
 - Amount (hero, local ⇄ MYR toggle as today) · What for · **Paid by** (defaults to you; pick anyone) · Date · Category chips
-- **Split between** — traveller chips, **all unticked** (D10); a "Select all" shortcut (proposed)
+- **Split between** — traveller chips, **all unticked** (D10); shortcut reads **Select all**, switching to **Clear** only when everyone is ticked (D28)
 - **Split as** — Equal · Shares · % · Amounts. For anything but Equal, each ticked person gets an input (Shares pre-filled from default shares); a live line shows what's left to allocate, and Log stays blocked until it adds up
 - Notes · Cancel / Log · edit mode: Delete (if allowed)
 
@@ -176,7 +181,7 @@ flowchart TD
 ## 6. Edge cases
 
 - **Editing after settling** — balances recompute; old settlements stay as they were. Debts can change or flip, as in Kittysplit.
-- **Leaving / removing a traveller with expenses** (proposed) — blocked while they are a payer or participant anywhere. The planner can instead convert them to **name-only** (unlink the account), so history is kept.
+- **Leaving / removing a traveller with expenses** (D29) — blocked while they are a payer or participant anywhere. The planner can instead convert them to **name-only** (unlink the account), so history is kept.
 - **Payer not a participant** — allowed (paying for others).
 - **No participants ticked** — can't save.
 - **Logged in MYR** — converted to local with the trip's fixed rate, and the MYR value is stored, as today.
@@ -200,13 +205,9 @@ Effect: the planner's "spent" on past trips rises to the full amounts they paid 
 
 Each phase ships on its own, with SQL run before deploy.
 
-## 9. Still to confirm (my proposals)
+## 9. Status
 
-1. Rounding: leftover cents go to participants in list order.
-2. Settlements show as a *Settle-ups* line in your breakdown.
-3. A "Select all" shortcut on participant chips (they still start unticked).
-4. Leaving / removal blocked while a traveller has expenses; planner can convert them to name-only instead.
-5. Money-tab card wording when you're square but others still owe: "You're settled up · 4 payments still open in the group".
+All proposals agreed (D26–D30). Next: sign-off, then plan Phase 1 (data + permissions) in detail.
 
 ---
 
