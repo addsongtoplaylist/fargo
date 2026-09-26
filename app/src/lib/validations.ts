@@ -51,6 +51,9 @@ export const updateTripSchema = z.object({
   destination_country_code: z.string().max(2).nullable().optional(),
   destination_lat: z.number().nullable().optional(),
   destination_lng: z.number().nullable().optional(),
+  base_city: z.string().max(300).nullable().optional(),
+  base_lat: z.number().nullable().optional(),
+  base_lng: z.number().nullable().optional(),
 });
 
 // ─── Helpers ────────────────────────────────────────────────

@@ -50,7 +50,7 @@ export async function getActivities(tripId: string): Promise<Activity[]> {
   )();
 }
 
-/** Create a new activity */
+/** Create a new activity. Returns the new activity's id. */
 export async function createActivity(
   tripId: string,
   fields: {
@@ -72,8 +72,8 @@ export async function createActivity(
 
   const supabase = await createClient();
 
-  // Determine sort_order: if this activity has a time, insert it in
-  // chronological position among the day's activities; otherwise append to end
+  // Place the activity chronologically among the day's activities if it
+  // has a time (before the first later-or-untimed one); otherwise append
   const { data: dayActivities } = await supabase
     .from("activities")
     .select("id, time, sort_order")
@@ -81,53 +81,50 @@ export async function createActivity(
     .eq("date", fields.date)
     .order("sort_order", { ascending: true });
 
-  let nextOrder = 0;
-  if (dayActivities && dayActivities.length > 0) {
-    if (fields.time) {
-      // Find the first activity whose time is after this one (or has no time)
-      const insertIdx = dayActivities.findIndex(
-        (a) => !a.time || a.time > fields.time!
-      );
-      if (insertIdx === -1) {
-        // Goes at the end — after all existing
-        nextOrder = dayActivities[dayActivities.length - 1].sort_order + 1;
-      } else {
-        // Insert before this activity — shift everything from insertIdx onward
-        nextOrder = dayActivities[insertIdx].sort_order;
-        const toShift = dayActivities.slice(insertIdx);
-        for (let i = 0; i < toShift.length; i++) {
-          await supabase
-            .from("activities")
-            .update({ sort_order: nextOrder + i + 1 })
-            .eq("id", toShift[i].id);
-        }
-      }
-    } else {
-      // No time — append to end
-      nextOrder = dayActivities[dayActivities.length - 1].sort_order + 1;
-    }
+  const existing = dayActivities ?? [];
+  let insertIdx = existing.length;
+  if (fields.time) {
+    const idx = existing.findIndex((a) => !a.time || a.time > fields.time!);
+    if (idx !== -1) insertIdx = idx;
   }
+  const lastOrder = existing.length > 0 ? existing[existing.length - 1].sort_order : -1;
 
-  const { error } = await supabase.from("activities").insert({
-    trip_id: tripId,
-    date: validated.date,
-    time: validated.time || null,
-    title: validated.title,
-    notes: validated.notes || null,
-    category: validated.category || "misc",
-    sort_order: nextOrder,
-    place_name: validated.place_name || null,
-    place_lat: validated.place_lat || null,
-    place_lng: validated.place_lng || null,
-  });
+  const { data: created, error } = await supabase
+    .from("activities")
+    .insert({
+      trip_id: tripId,
+      date: validated.date,
+      time: validated.time || null,
+      title: validated.title,
+      notes: validated.notes || null,
+      category: validated.category || "misc",
+      sort_order: lastOrder + 1,
+      place_name: validated.place_name || null,
+      place_lat: validated.place_lat || null,
+      place_lng: validated.place_lng || null,
+    })
+    .select("id")
+    .single();
 
   if (error) {
     console.error("Failed to create activity:", error);
     throw new Error("Failed to create activity");
   }
 
+  // Inserted mid-day: renumber the whole day in one atomic call
+  if (insertIdx < existing.length) {
+    const orderedIds = existing.map((a) => a.id);
+    orderedIds.splice(insertIdx, 0, created.id);
+    const { error: reorderError } = await supabase.rpc("batch_reorder_activities", {
+      p_trip_id: tripId,
+      p_ids: orderedIds,
+    });
+    if (reorderError) console.error("Failed to position new activity:", reorderError);
+  }
+
   revalidateTag(`activities-${tripId}`, "max");
   revalidatePath(`/trips/${tripId}/schedule`);
+  return created.id as string;
 }
 
 /** Update an existing activity */
@@ -227,7 +224,7 @@ export async function demoteActivity(activityId: string, tripId: string) {
   const nextOrder = existing && existing.length > 0 ? existing[0].sort_order + 1 : 0;
 
   // Create the idea with all the activity's data
-  const { error: insertErr } = await supabase.from("ideas").insert({
+  const { data: idea, error: insertErr } = await supabase.from("ideas").insert({
     trip_id: tripId,
     title: activity.title,
     notes: activity.notes || null,
@@ -237,7 +234,7 @@ export async function demoteActivity(activityId: string, tripId: string) {
     place_lat: activity.place_lat || null,
     place_lng: activity.place_lng || null,
     sort_order: nextOrder,
-  });
+  }).select("id").single();
 
   if (insertErr) {
     console.error("Failed to create idea from activity:", insertErr);
@@ -252,6 +249,8 @@ export async function demoteActivity(activityId: string, tripId: string) {
     .eq("trip_id", tripId);
 
   if (deleteErr) {
+    // Undo the idea so the item isn't duplicated in both lists
+    await supabase.from("ideas").delete().eq("id", idea.id);
     console.error("Failed to delete demoted activity:", deleteErr);
     throw new Error("Failed to delete activity after demotion");
   }

@@ -7,7 +7,7 @@ import {
   DINING_BUDGETS,
   DIETARY_OPTIONS,
   type DiningBudget,
-} from "@/db/schema";
+} from "@/lib/dining";
 
 const BUDGET_LABELS: Record<DiningBudget, string> = {
   any: "Any budget",

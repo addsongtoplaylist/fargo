@@ -10,6 +10,9 @@ type TripInput = {
   destination_country_code?: string | null;
   destination_lat?: number | null;
   destination_lng?: number | null;
+  base_city?: string | null;
+  base_lat?: number | null;
+  base_lng?: number | null;
   start_date: string;
   end_date: string;
   trip_type: string;

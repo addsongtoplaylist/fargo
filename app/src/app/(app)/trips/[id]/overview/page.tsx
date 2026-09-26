@@ -15,44 +15,9 @@ import {
   isTomorrow,
 } from "date-fns";
 import { notFound } from "next/navigation";
-import { MapPin, Clock, CloudSun, CalendarDays, Compass, Building2 } from "lucide-react";
-
-/** Map country code → IANA timezone (common destinations). */
-const COUNTRY_TIMEZONE: Record<string, string> = {
-  US: "America/New_York",
-  GB: "Europe/London",
-  JP: "Asia/Tokyo",
-  KR: "Asia/Seoul",
-  CN: "Asia/Shanghai",
-  TW: "Asia/Taipei",
-  HK: "Asia/Hong_Kong",
-  SG: "Asia/Singapore",
-  MY: "Asia/Kuala_Lumpur",
-  TH: "Asia/Bangkok",
-  VN: "Asia/Ho_Chi_Minh",
-  ID: "Asia/Jakarta",
-  PH: "Asia/Manila",
-  IN: "Asia/Kolkata",
-  AU: "Australia/Sydney",
-  NZ: "Pacific/Auckland",
-  CA: "America/Toronto",
-  DE: "Europe/Berlin",
-  FR: "Europe/Paris",
-  IT: "Europe/Rome",
-  ES: "Europe/Madrid",
-  NL: "Europe/Amsterdam",
-  CH: "Europe/Zurich",
-  AE: "Asia/Dubai",
-  TR: "Europe/Istanbul",
-  BR: "America/Sao_Paulo",
-  MX: "America/Mexico_City",
-  PT: "Europe/Lisbon",
-  AT: "Europe/Vienna",
-  BE: "Europe/Brussels",
-  IE: "Europe/Dublin",
-  FI: "Europe/Helsinki",
-  GR: "Europe/Athens",
-};
+import { MapPin, Clock, Thermometer, CalendarDays, Compass, Building2 } from "lucide-react";
+import { getCurrentTemperature } from "@/lib/weather";
+import { COUNTRY_TIMEZONE } from "@/lib/dates";
 
 const HOME_TIMEZONE = "Asia/Kuala_Lumpur";
 
@@ -160,6 +125,10 @@ export default async function OverviewPage({
   const localTime = localTz ? getLocalTime(localTz) : null;
   const homeTime = getLocalTime(HOME_TIMEZONE);
   const isSameTimezone = localTz === HOME_TIMEZONE;
+  const temperature =
+    !tripEnded && trip.base_lat != null && trip.base_lng != null
+      ? await getCurrentTemperature(trip.base_lat, trip.base_lng)
+      : null;
 
   return (
     <Column className="py-4 pb-8 space-y-4">
@@ -190,10 +159,13 @@ export default async function OverviewPage({
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-1.5">
-              <CloudSun size={16} className="text-amber-500" />
-              <span className="text-sm text-ink">32°C</span>
-            </div>
+            {temperature !== null && (
+              <div className="flex items-center gap-1.5">
+                <Thermometer size={14} className="text-muted" />
+                <span className="text-sm text-ink tabular-nums">{temperature}°C</span>
+                <span className="text-[10px] text-muted truncate max-w-[80px]">{trip.base_city}</span>
+              </div>
+            )}
           </div>
         </div>
       )}

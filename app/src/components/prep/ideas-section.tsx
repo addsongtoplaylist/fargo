@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Plus, Trash2, ExternalLink, ArrowRight, Clock, MapPin, Lightbulb } from "lucide-react";
+import { Trash2, ExternalLink, ArrowRight, Clock, MapPin, Lightbulb } from "lucide-react";
 import { createIdea, updateIdea, deleteIdea, promoteIdea } from "@/lib/actions/idea";
 import { useTrip } from "@/lib/trip-context";
 import { ConfirmDialog } from "@/components/confirm-dialog";

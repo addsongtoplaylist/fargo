@@ -134,7 +134,7 @@ export async function promoteIdea(
   if (!idea) throw new Error("Idea not found");
 
   // Create the activity from this idea, carrying over all saved data
-  await createActivity(tripId, {
+  const activityId = await createActivity(tripId, {
     date,
     title: idea.title ?? "Untitled",
     time: idea.time || undefined,
@@ -146,10 +146,17 @@ export async function promoteIdea(
   });
 
   // Mark the idea as promoted
-  await supabase
+  const { error } = await supabase
     .from("ideas")
     .update({ promoted: true, promoted_date: dayLabel })
     .eq("id", ideaId);
+
+  if (error) {
+    // Undo the activity so the item isn't duplicated in both lists
+    await supabase.from("activities").delete().eq("id", activityId);
+    console.error("Failed to mark idea as promoted:", error);
+    throw new Error("Failed to promote idea");
+  }
 
   revalidatePath(`/trips/${tripId}/prep`);
   revalidatePath(`/trips/${tripId}/schedule`);

@@ -17,7 +17,6 @@ type ActiveTrip = {
 
 export function HeroTripCard({
   trip,
-  variant,
 }: {
   trip: ActiveTrip;
   variant: "active";

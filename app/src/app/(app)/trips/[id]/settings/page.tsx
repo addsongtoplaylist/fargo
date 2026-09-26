@@ -7,7 +7,8 @@ import { updateTrip, deleteTrip, getOrCreateShareCode, getOrCreateInviteCode } f
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { DestinationSearch, type Destination } from "@/components/destination-search";
-import { Share2, Link as LinkIcon, Users, Check } from "lucide-react";
+import { LocationSearch } from "@/components/schedule/location-search";
+import { Share2, Users, Check } from "lucide-react";
 
 export default function TripSettingsPage() {
   const trip = useTrip();
@@ -24,6 +25,11 @@ export default function TripSettingsPage() {
           lat: trip.destination_lat ?? 0,
           lng: trip.destination_lng ?? 0,
         }
+      : null
+  );
+  const [baseCity, setBaseCity] = useState<{ name: string; lat: number; lng: number } | null>(
+    trip?.base_city && trip.base_lat != null && trip.base_lng != null
+      ? { name: trip.base_city, lat: trip.base_lat, lng: trip.base_lng }
       : null
   );
   const [startDate, setStartDate] = useState(trip?.start_date ?? "");
@@ -58,6 +64,9 @@ export default function TripSettingsPage() {
       destination_country_code: destination.countryCode || null,
       destination_lat: destination.lat || null,
       destination_lng: destination.lng || null,
+      base_city: baseCity?.name ?? null,
+      base_lat: baseCity?.lat ?? null,
+      base_lng: baseCity?.lng ?? null,
     });
     setSaving(false);
     if (result.error) {
@@ -130,6 +139,18 @@ export default function TripSettingsPage() {
             onChange={setDestination}
             placeholder="Search destination…"
           />
+        </div>
+
+        {/* Base city — used for the weather on Overview */}
+        <div>
+          <label className="text-xs font-medium text-muted block mb-1">Base city</label>
+          <LocationSearch
+            value={baseCity}
+            onChange={setBaseCity}
+            countries={destination?.countryCode ? [destination.countryCode] : undefined}
+            proximity={destination?.lat && destination?.lng ? { lat: destination.lat, lng: destination.lng } : undefined}
+          />
+          <p className="text-[11px] text-muted mt-1">Where you&apos;re staying — shows the temperature on Overview.</p>
         </div>
 
         {/* Dates */}

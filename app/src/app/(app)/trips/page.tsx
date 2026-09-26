@@ -4,7 +4,7 @@ import { CompactTripCard } from "@/components/compact-trip-card";
 import { EmptyTrips } from "@/components/empty-trips";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { getMyTrips, getActiveTrip } from "@/lib/actions/trip";
+import { getMyTrips, getActiveTrip, type MyTrip } from "@/lib/actions/trip";
 import { differenceInCalendarDays } from "date-fns";
 import { redirect } from "next/navigation";
 import { formatDateRange } from "@/lib/dates";
@@ -71,7 +71,7 @@ export default async function TripsPage({
               <h2 className="text-sm font-medium text-muted mb-2">
                 Past trips
               </h2>
-              {past.map((trip: any) => (
+              {past.map((trip) => (
                 <Link
                   key={trip.id}
                   href={`/trips/${trip.id}/overview`}
@@ -86,7 +86,7 @@ export default async function TripsPage({
                     {trip.travellers && trip.travellers.length > 0 && (
                       <div className="flex items-center gap-1">
                         <div className="flex -space-x-1">
-                          {trip.travellers.slice(0, 4).map((t: any, i: number) => (
+                          {trip.travellers.slice(0, 4).map((t, i) => (
                             <div
                               key={i}
                               className="w-4 h-4 rounded-full bg-accent/20 border border-card flex items-center justify-center text-[8px] font-medium text-accent"
@@ -119,10 +119,6 @@ const TRIP_COLORS = [
   "bg-trip-green-1", // Upcoming 3: Mint #6DC4A8
 ];
 
-function getTripColor(index: number) {
-  return TRIP_COLORS[index % TRIP_COLORS.length];
-}
-
 const TRIP_TYPE_LABELS: Record<string, string> = {
   free_and_easy: "Free & easy",
   city_break: "City break",
@@ -132,7 +128,7 @@ const TRIP_TYPE_LABELS: Record<string, string> = {
   business: "Business",
 };
 
-function formatActiveTrip(trip: any, today: Date) {
+function formatActiveTrip(trip: MyTrip, today: Date) {
   const start = new Date(trip.start_date);
   const end = new Date(trip.end_date);
   const currentDay = differenceInCalendarDays(today, start) + 1;
@@ -147,7 +143,7 @@ function formatActiveTrip(trip: any, today: Date) {
     tripType: TRIP_TYPE_LABELS[trip.trip_type] || trip.trip_type,
     currentDay,
     totalDays,
-    travellers: (trip.travellers || []).map((t: any) => ({
+    travellers: (trip.travellers || []).map((t) => ({
       name: t.display_name,
       avatar: null,
     })),
@@ -155,11 +151,9 @@ function formatActiveTrip(trip: any, today: Date) {
   };
 }
 
-function formatUpcomingTrip(trip: any, today: Date) {
+function formatUpcomingTrip(trip: MyTrip, today: Date) {
   const start = new Date(trip.start_date);
-  const end = new Date(trip.end_date);
   const daysUntil = differenceInCalendarDays(start, today);
-  const totalDays = differenceInCalendarDays(end, start) + 1;
 
   return {
     id: trip.id,
@@ -169,7 +163,7 @@ function formatUpcomingTrip(trip: any, today: Date) {
     endDate: trip.end_date,
     tripType: TRIP_TYPE_LABELS[trip.trip_type] || trip.trip_type,
     daysUntil,
-    travellers: (trip.travellers || []).map((t: any) => ({
+    travellers: (trip.travellers || []).map((t) => ({
       name: t.display_name,
       avatar: null,
     })),
@@ -177,11 +171,9 @@ function formatUpcomingTrip(trip: any, today: Date) {
   };
 }
 
-function formatActiveAsCompact(trip: any, today: Date) {
+function formatActiveAsCompact(trip: MyTrip, today: Date) {
   const start = new Date(trip.start_date);
-  const end = new Date(trip.end_date);
   const currentDay = differenceInCalendarDays(today, start) + 1;
-  const totalDays = differenceInCalendarDays(end, start) + 1;
 
   return {
     id: trip.id,
@@ -191,7 +183,7 @@ function formatActiveAsCompact(trip: any, today: Date) {
     endDate: trip.end_date,
     tripType: TRIP_TYPE_LABELS[trip.trip_type] || trip.trip_type,
     daysUntil: currentDay,
-    travellers: (trip.travellers || []).map((t: any) => ({
+    travellers: (trip.travellers || []).map((t) => ({
       name: t.display_name,
       avatar: null,
     })),

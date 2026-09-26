@@ -5,7 +5,6 @@ import { format, parseISO, differenceInDays } from "date-fns";
 import {
   MapPin,
   Calendar,
-  ChevronDown,
   Check,
   Lightbulb,
 } from "lucide-react";

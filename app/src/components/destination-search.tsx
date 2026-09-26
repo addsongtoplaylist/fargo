@@ -25,6 +25,7 @@ type MapboxFeature = {
   center: [number, number]; // [lng, lat]
   context?: { id: string; text: string; short_code?: string }[];
   place_type: string[];
+  properties?: { short_code?: string };
 };
 
 export function DestinationSearch({
@@ -96,7 +97,7 @@ export function DestinationSearch({
     const country = isCountry ? feature.text : countryCtx?.text ?? "";
     // Mapbox short_code for countries is lowercase ISO 3166-1 alpha-2 (e.g. "vn")
     const countryCode = isCountry
-      ? (feature as any).properties?.short_code?.toUpperCase() ?? ""
+      ? feature.properties?.short_code?.toUpperCase() ?? ""
       : countryCtx?.short_code?.toUpperCase() ?? "";
 
     // Build a clean display name: "City, Country" or "Region, Country"

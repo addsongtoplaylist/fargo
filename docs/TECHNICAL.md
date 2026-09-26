@@ -71,14 +71,14 @@ Drizzle was the original plan but direct Postgres connections failed (IPv6), so 
 | Table | Key columns |
 |---|---|
 | `accounts` | `auth_id` (→ auth.users), email, name, avatar, `home_country_code`, dining prefs (`dining_budget`, `dietary_restrictions`, `cuisine_preferences`) |
-| `trips` | name, destination (+ `destination_country`, `_country_code`, `_lat`, `_lng`), dates, `trip_type`, `local_currency`, `fx_rate`, `status`, `planner_id`, `share_code`, `invite_code` |
+| `trips` | name, destination (+ `destination_country`, `_country_code`, `_lat`, `_lng`), `base_city` (+ `base_lat`, `base_lng`, for weather), dates, `trip_type`, `local_currency`, `fx_rate`, `status`, `planner_id`, `share_code`, `invite_code` |
 | `travellers` | `trip_id`, `account_id`, `display_name`, `role` (planner / member), `budget_total` (MYR) |
 | `activities` | `trip_id`, date, time, title, notes, category, cost, place (name/lat/lng), `sort_order`, `idea_id` |
 | `ideas` | `trip_id`, title, link, notes, time, category, place, `promoted`, `promoted_date`, `sort_order` |
 | `checklists` / `checklist_items` | name / text, `done`, `assigned_to`, `sort_order` |
 | `expenses` | `trip_id`, date, title, category, `amount` (local), `amount_myr`, `paid_by`, `is_shared` |
 
-`trips.status` is set on create/edit only and can go stale — the UI derives "active" from the dates instead.
+`trips.status` is set on create/edit only and can go stale — the UI derives "active" from the dates instead. Server code gets "today" from `todayForCountry()` (user's home timezone), never UTC.
 
 ### Access model (RLS)
 
@@ -139,7 +139,7 @@ Home currency is MYR throughout (`amount_myr`, `budget_total`); the trip's singl
 | Google Places API (New) | Activity/idea place search (autocomplete + details); Bites nearby search + photos | Client (`location-search`, `location-picker`) and server (`actions/bites.ts`). Key is `NEXT_PUBLIC_…` — **must be restricted by HTTP referrer and quota** in Google Cloud Console |
 | Mapbox Geocoding | Destination (country) search on create/edit trip | Client (`destination-search`) |
 | Mapbox GL JS | Day map on Schedule | Client (`day-map`) |
-| Weather | **Not connected** — Overview shows a hardcoded placeholder | — |
+| Open-Meteo | Current temperature at the trip's base city (free, no key, cached 30 min) | Server (`lib/weather.ts`, Overview) |
 
 ---
 

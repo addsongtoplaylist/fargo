@@ -24,7 +24,6 @@ type PeopleListProps = {
 export function PeopleList({
   tripId,
   travellers,
-  plannerId,
   isPlanner,
 }: PeopleListProps) {
   const router = useRouter();
@@ -191,7 +190,7 @@ export function PeopleList({
       {/* Info for members */}
       {!isPlanner && (
         <p className="text-xs text-muted text-center py-2">
-          You're a member of this trip. Only the planner can invite or remove travellers.
+          You&apos;re a member of this trip. Only the planner can invite or remove travellers.
         </p>
       )}
 

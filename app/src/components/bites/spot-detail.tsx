@@ -89,6 +89,7 @@ export function SpotDetail({
         {/* Photo */}
         {spot.photoUri && (
           <div className="mt-3 rounded-lg overflow-hidden bg-ground h-40">
+            {/* eslint-disable-next-line @next/next/no-img-element -- Google Places photo; next/image would add optimisation cost */}
             <img
               src={spot.photoUri}
               alt={spot.name}

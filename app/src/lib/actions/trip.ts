@@ -6,6 +6,7 @@ import { getOrCreateAccount } from "@/lib/account";
 import { redirect } from "next/navigation";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { updateTripSchema, tripIdSchema, uuidSchema } from "@/lib/validations";
+import { todayForCountry } from "@/lib/dates";
 
 const TRIP_TYPE_MAP: Record<string, string> = {
   "Free & easy": "free_and_easy",
@@ -39,7 +40,7 @@ export async function createTrip(formData: FormData): Promise<{ error?: string }
   }
 
   // Compute initial status from dates
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayForCountry(account.home_country_code);
   let status: "planning" | "active" | "completed" = "planning";
   if (startDate <= today && endDate >= today) status = "active";
   else if (endDate < today) status = "completed";
@@ -95,7 +96,7 @@ export async function getActiveTrip(): Promise<string | null> {
   if (!account) return null;
 
   const supabase = await createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayForCountry(account.home_country_code);
 
   // Single query: join travellers → trips, filter for active dates
   const { data } = await supabase
@@ -110,33 +111,43 @@ export async function getActiveTrip(): Promise<string | null> {
   return data?.trip_id ?? null;
 }
 
-export async function getMyTrips() {
+/** Shape returned by the get_my_trips RPC */
+export type MyTrip = {
+  id: string;
+  name: string;
+  destination: string;
+  start_date: string;
+  end_date: string;
+  trip_type: string;
+  local_currency: string;
+  fx_rate: number;
+  status: string;
+  planner_id: string;
+  share_code: string | null;
+  invite_code: string | null;
+  travellers: {
+    id: string;
+    display_name: string;
+    role: string;
+    account_id: string | null;
+    budget_total: number | null;
+  }[];
+};
+
+export async function getMyTrips(): Promise<{ active: MyTrip[]; upcoming: MyTrip[]; past: MyTrip[] }> {
   const account = await getOrCreateAccount();
   if (!account) return { active: [], upcoming: [], past: [] };
 
   const supabase = await createClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = todayForCountry(account.home_country_code);
 
   // Single RPC call replaces the 2-query waterfall
-  const { data: trips } = await supabase.rpc("get_my_trips", {
-    p_account_id: account.id,
-  });
+  const { data } = await supabase.rpc("get_my_trips");
+  const trips = (Array.isArray(data) ? data : []) as MyTrip[];
 
-  if (!trips || !Array.isArray(trips) || trips.length === 0) {
-    return { active: [], upcoming: [], past: [] };
-  }
-
-  const active = trips.filter(
-    (t: { start_date: string; end_date: string }) =>
-      t.start_date <= today && t.end_date >= today
-  );
-  const upcoming = trips.filter(
-    (t: { start_date: string }) => t.start_date > today
-  );
-  const past = trips.filter(
-    (t: { end_date: string; start_date: string }) =>
-      t.end_date < today
-  );
+  const active = trips.filter((t) => t.start_date <= today && t.end_date >= today);
+  const upcoming = trips.filter((t) => t.start_date > today);
+  const past = trips.filter((t) => t.end_date < today);
 
   return { active, upcoming, past };
 }
@@ -428,6 +439,9 @@ export async function updateTrip(
     destination_country_code?: string | null;
     destination_lat?: number | null;
     destination_lng?: number | null;
+    base_city?: string | null;
+    base_lat?: number | null;
+    base_lng?: number | null;
   }
 ): Promise<{ error?: string }> {
   try {
@@ -456,7 +470,7 @@ export async function updateTrip(
   // Recompute status if dates changed
   const updateData: Record<string, unknown> = { ...data };
   if (data.start_date || data.end_date) {
-    const today = new Date().toISOString().split("T")[0];
+    const today = todayForCountry(account.home_country_code);
     const startDate = data.start_date ?? "";
     const endDate = data.end_date ?? "";
     if (startDate && endDate) {

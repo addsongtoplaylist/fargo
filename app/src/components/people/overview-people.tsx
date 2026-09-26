@@ -25,7 +25,6 @@ type OverviewPeopleProps = {
 export function OverviewPeople({
   tripId,
   travellers,
-  plannerId,
   isPlanner,
   myAccountId,
 }: OverviewPeopleProps) {

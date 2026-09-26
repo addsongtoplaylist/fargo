@@ -10,7 +10,6 @@ import {
   eachDayOfInterval,
   parseISO,
   format,
-  differenceInCalendarDays,
 } from "date-fns";
 
 type AddToScheduleProps = {
@@ -24,7 +23,6 @@ type AddToScheduleProps = {
 export function AddToSchedule({
   spot,
   tripId,
-  localCurrency,
   onClose,
   onDone,
 }: AddToScheduleProps) {

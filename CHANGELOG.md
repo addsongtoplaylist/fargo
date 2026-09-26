@@ -2,6 +2,16 @@
 
 ---
 
+## v0.3.7 — 2026-09-26 · Real weather & code tidy-up
+
+- **Real temperature on Overview** — planner sets a **Base city** in Trip settings; Overview shows its current temperature (Open-Meteo, cached 30 min). Hidden when no base city is set — the hardcoded 32°C placeholder is gone. *Requires `20260926_trip_base_city.sql`.*
+- **Faster timed-activity insert** — adding an activity mid-day renumbers the day in one atomic call instead of one call per activity.
+- **Server "today" in home timezone** — trip status and the active-trip landing no longer use UTC (was a day behind for Malaysia before 8am).
+- **Promote / demote can't half-finish** — if the second step fails, the first is undone, so items aren't duplicated between Ideas and Schedule.
+- **Lint clean** — 0 errors, 0 warnings: typed trip list, unused code removed, dining constants moved out of the DB schema file, sign-in images use `next/image`.
+
+---
+
 ## v0.3.6 — 2026-09-26 · Design consistency
 
 Fixes from the design review.

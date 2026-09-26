@@ -18,6 +18,7 @@ export function DiningCard({ spot, onTap }: DiningCardProps) {
         {/* Photo thumbnail */}
         <div className="w-16 h-16 rounded-md bg-ground shrink-0 overflow-hidden">
           {spot.photoUri ? (
+            // eslint-disable-next-line @next/next/no-img-element -- Google Places photo; next/image would add optimisation cost
             <img
               src={spot.photoUri}
               alt={spot.name}

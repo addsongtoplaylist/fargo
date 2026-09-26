@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Share2, Check, Link } from "lucide-react";
+import { Share2, Check } from "lucide-react";
 import { getOrCreateShareCode } from "@/lib/actions/trip";
 
 export function ShareButton({ tripId }: { tripId: string }) {

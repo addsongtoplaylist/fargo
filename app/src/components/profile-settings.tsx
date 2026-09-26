@@ -18,7 +18,6 @@ export function ProfileSettings({
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
 
-  const currentCountry = COUNTRIES.find((c) => c.code === countryCode);
 
   async function handleSave(code: string) {
     setCountryCode(code);

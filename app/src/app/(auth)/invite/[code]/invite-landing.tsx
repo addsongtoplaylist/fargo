@@ -30,16 +30,13 @@ export function InviteLanding({ trip, inviteCode }: InviteLandingProps) {
     });
   }
 
-  const plannerName =
-    trip.travellers?.find((t) => true)?.display_name ?? "Someone";
-
   return (
     <div className="min-h-full flex flex-col items-center justify-center px-4 bg-ground">
       <div className="w-full max-w-[360px]">
         {/* Brand */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-semibold text-ink mb-1">Fargo</h1>
-          <p className="text-sm text-muted">You've been invited to a trip</p>
+          <p className="text-sm text-muted">You&apos;ve been invited to a trip</p>
         </div>
 
         {/* Trip card */}
@@ -83,7 +80,7 @@ export function InviteLanding({ trip, inviteCode }: InviteLandingProps) {
         </div>
 
         <p className="text-center text-xs text-muted">
-          You'll be added as a member and can view the trip plan.
+          You&apos;ll be added as a member and can view the trip plan.
         </p>
       </div>
     </div>

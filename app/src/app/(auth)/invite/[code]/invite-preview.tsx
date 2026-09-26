@@ -51,7 +51,7 @@ export function InvitePreview({ trip, inviteCode, alreadyMember }: InvitePreview
         {/* Brand */}
         <div className="text-center mb-6">
           <h1 className="text-3xl font-semibold text-ink mb-1">Fargo</h1>
-          <p className="text-sm text-muted">You've been invited to a trip</p>
+          <p className="text-sm text-muted">You&apos;ve been invited to a trip</p>
         </div>
 
         {/* Trip card */}
@@ -112,7 +112,7 @@ export function InvitePreview({ trip, inviteCode, alreadyMember }: InvitePreview
               onClick={handleGoToTrip}
               className="w-full h-12 flex items-center justify-center gap-2 bg-accent text-accent-on rounded-md text-sm font-medium hover:bg-accent-hover transition-colors"
             >
-              You're already a member — view trip
+              You&apos;re already a member — view trip
             </button>
           ) : (
             <button

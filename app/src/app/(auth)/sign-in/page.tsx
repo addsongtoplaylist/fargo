@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import Image from "next/image";
 
 const ERROR_MESSAGES: Record<string, string> = {
   no_code: "Sign-in was cancelled. Please try again.",
@@ -36,14 +37,14 @@ function SignInContent() {
       <div className="w-full max-w-[360px]">
         {/* Brand */}
         <div className="flex flex-col items-center mb-8">
-          <img
+          <Image
             src="/mascot.png"
             alt="Fargo mascot"
             width={100}
             height={114}
             className="mb-2"
           />
-          <img
+          <Image
             src="/logo.png"
             alt="Fargo"
             width={90}
