@@ -42,6 +42,23 @@ Fixes from the security review.
 
 ---
 
+## v0.3.3 — 2026-09-19 · Time picker & Today's plan
+
+- **15-min time intervals** — time picker uses 00/15/30/45; new activities auto-fill the next 15-min mark.
+- **Compact budget** — smaller font when amounts are 6+ digits (e.g. VND).
+- **Today's plan redesign** — up to 3 timed activities: the current "Now" one plus the next two; untimed and past ones hidden; falls through to tomorrow.
+- *Follow-ups (unversioned):* "you are here" highlights the current activity rather than the next; toasts default to success with a new info type, all error toasts tagged.
+
+---
+
+## v0.3.2 — 2026-09-12 · Faster tabs & leave trip
+
+- **Performance** — functions pinned to Singapore (`sin1`); session read from cookie instead of an extra auth call; 30s cross-request caching for trip, activities, expenses and budget, busted on every change.
+- **Splash screens** — iOS splash regenerated with the Fargo mascot.
+- **Leave trip** — members can leave a trip (via the `leave_trip` function).
+
+---
+
 ## v0.3.1 — 2026-09-09 · Polish & Currency UX
 
 Five polish fixes plus a currency display overhaul from real-trip feedback on We Are Riize Singapore.

@@ -4,6 +4,35 @@
 
 ---
 
+**2026-09-26 — v0.3 → v0.3.6: Discover, polish, and a full review**
+
+Three weeks of releases since v0.2, ending with a structured review (security → code → design → docs).
+
+**What shipped:**
+
+- **v0.3 (Sep 6) — Discover tab:** Bites dining discovery via Google Places, filter chips, dining preferences on Profile. Trip tabs now 5.
+- **v0.3.1–0.3.3 (Sep 9–19):** destination-currency money display, app version on Profile, tab-switching performance (Singapore region, session read from cookie, 30s data caching), leave trip for members, 15-min time picker, Today's plan redesign.
+- **v0.3.4 — Security:** database functions no longer trust a passed-in account ID and are closed to signed-out visitors; removed a policy that let any signed-in user join any trip; shared trips served by exact code only, without invite code or expenses; sign-in redirect restricted to Fargo.
+- **v0.3.5 — Reliability:** Schedule "today" derived from dates; budget edits show immediately; checklist/budget/reorder errors surface as toasts.
+- **v0.3.6 — Design consistency:** Add activity is the reference for forms and chips; generic-icon empty states; Explore hidden; DESIGN.md v0.7.
+- **Docs:** TECHNICAL.md rewritten to match the build; root `CLAUDE.md` (v2) replaces `docs/CLAUDE.md` (v1, sunset); all migrations moved to `supabase/migrations/`.
+
+**Open from the review:** restrict the Google Places key (referrer + quota); code items — faster timed-activity insert, server "today" in UTC, promote/demote not atomic, lint tidy-up; Overview weather is a hardcoded placeholder.
+
+| Doc | Version | Last updated |
+|---|---|---|
+| `PRODUCT.md` | v0.7 (+ built-vs-planned note) | 2026-09-26 |
+| `EXPERIENCE.md` | v0.7 (+ built-vs-planned note) | 2026-09-26 |
+| `DESIGN.md` | v0.7 | 2026-09-26 |
+| `TECHNICAL.md` | v0.3 | 2026-09-26 |
+| `ROADMAP.md` | v0.8 | 2026-09-26 |
+| `CLAUDE.md` (root) | v2 | 2026-09-26 |
+| `CHANGELOG.md` | v0.3.6 | 2026-09-26 |
+
+**Next:** open review items above; Phase 5 (proposals) or native app, owner's call.
+
+---
+
 **2026-09-05 — v0.2 released: post-trip polish**
 
 First feedback round after the Singapore trip (We Are Riise Singapore, 31 Aug – 2 Sep 2026). 10 findings addressed across Money tab and Schedule/Overview.
@@ -14,7 +43,7 @@ First feedback round after the Singapore trip (We Are Riise Singapore, 31 Aug �
 - **Schedule & Overview (4 fixes):** demote activity back to ideas (with full data round-trip), schedule defaults to today for active trips, "Latest" badge when all activities passed, post-trip summary dashboard (duration, destination, attractions, hotel)
 - **UI polish:** ConfirmDialog destructive/non-destructive variants, ideas section shows time + location for demoted items
 
-**DB migration required:** `docs/migrations/sch1-ideas-extra-columns.sql` (adds time, category, place columns to ideas table) — already run on production.
+**DB migration required:** `docs/migrations/sch1-ideas-extra-columns.sql` (now `supabase/migrations/20260905_ideas_extra_columns.sql`) (adds time, category, place columns to ideas table) — already run on production.
 
 **Files changed:** 13 files, +352 / −111 lines.
 

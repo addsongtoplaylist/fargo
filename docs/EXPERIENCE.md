@@ -1,5 +1,7 @@
 # Fargo — Experience
 
+> **Built vs planned (2026-09-26).** This doc is the original product vision. Built as of v0.3.6: schedule, ideas, checklists, money (single budget, expenses), share + invite links, Discover (Bites). **Not built / changed:** Bookings (fixed costs come from expense categories instead), proposals & approvals (members are read-only), solo/shared splits (all expenses shared), Explore (hidden), activity-level cost budgets. Place search uses Google Places, not Mapbox. Trip tabs are Overview · Schedule · Money · Prep · Discover. See [TECHNICAL.md](TECHNICAL.md) and [ROADMAP.md](ROADMAP.md) for current state.
+>
 > **v0.7 — 2026-08-26.** People tab merged into Overview (5 → 4 tabs). Auth simplified to Google-only (magic link removed). Overview redesigned: stat cards replaced with local time/weather card, upcoming plan with 2-day lookahead, people section with invite button. Invite flow built.
 >
 > The Vietnam walkthrough below is **illustrative** — a worked example to keep the flow concrete. There is no real trip behind it.

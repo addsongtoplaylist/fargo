@@ -1,5 +1,7 @@
 # Fargo — Product
 
+> **Built vs planned (2026-09-26).** This doc is the original product vision. Built as of v0.3.6: schedule, ideas, checklists, money (single budget, expenses), share + invite links, Discover (Bites). **Not built / changed:** Bookings (fixed costs come from expense categories instead), proposals & approvals (members are read-only), solo/shared splits (all expenses shared), Explore (hidden), activity-level cost budgets. Place search uses Google Places, not Mapbox. Trip tabs are Overview · Schedule · Money · Prep · Discover. See [TECHNICAL.md](TECHNICAL.md) and [ROADMAP.md](ROADMAP.md) for current state.
+>
 > **v0.7 — 2026-08-26.** Auth simplified to Google-only (magic link removed). People tab merged into Overview (5 → 4 tabs). Invite flow built via SECURITY DEFINER RPCs. Launch deadline set: Aug 30, 2026.
 >
 > **On the examples:** Vietnam, the September dates, VND, MYR amounts and the named travellers are **illustrative throughout these docs** — chosen to keep the writing concrete. There is no real trip and no deadline. The product decisions are real; the trip isn't.

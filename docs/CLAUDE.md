@@ -1,3 +1,5 @@
+> **⚠️ Sunset (v1) — 2026-09-26.** This workflow is no longer used. See the root [`CLAUDE.md`](../CLAUDE.md) (v2) instead. Kept for history.
+
 I want you to adopt the following development workflow for this project.
 
 # DEVELOPMENT WORKFLOW

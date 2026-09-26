@@ -1,5 +1,7 @@
 # Fargo — Roadmap
 
+> **v0.8 — 2026-09-26.** Releases v0.3.1–v0.3.6: polish, performance, then a full security / code / design / docs review. RLS audit done. Explore hidden from the bottom nav. Trip tabs: Overview · Schedule · Money · Prep · Discover.
+>
 > **v0.7 — 2026-09-06.** Phases 1–3 complete and deployed. Phase 4 partially done (invite flow). v0.1 launched Aug 30. v0.2 shipped Sep 5 — post-trip polish from Singapore trip. v0.3 shipped Sep 6 — Smart Meal Discovery (Discover tab with Bites, Google Places, filter chips). Auth simplified to Google-only. People tab merged into Overview (5 → 4 tabs, then 5 with Discover).
 
 **Sequencing principle:** the planner working alone *is* the product. Multi-user is the most expensive thing in MVP, so it comes after the single-planner trip works end to end — not because it's optional, but because everything it multiplies must be right first.
@@ -14,7 +16,7 @@ Project scaffold (Next.js + Supabase + Tailwind), auth (Google sign-in), the app
 - Next.js 16 project with App Router, Tailwind v4 with `@theme inline` design tokens
 - Supabase project with SQL-managed schema for Account + Trip + Traveller
 - Auth: Google OAuth only (magic link removed — unnecessary complexity for v0.1)
-- App layout: bottom nav (My trips · Explore · Profile), centred column (480px)
+- App layout: bottom nav (My trips · Explore · Profile — Explore hidden since v0.3.6), centred column (480px)
 - My trips page: hero trip cards (active + upcoming variants), past trips, "+ New trip"
 - Create trip form: name, destination (Mapbox search), dates, trip type, local currency, frozen rate
 - Trip interior: header + 4-tab bar (Overview · Schedule · Money · Prep) — People merged into Overview
@@ -38,9 +40,9 @@ Budget setup (single total), expense logging (phone-first form with optimistic U
 
 ## Phase 4 — Real travellers 🟡
 
-Invite flow is built (via SECURITY DEFINER RPCs that bypass RLS safely). **Remaining:** traveller's read-first view restrictions, full RLS policy audit, account binding/upgrade path for name-only travellers.
+Invite flow is built (via SECURITY DEFINER RPCs). Members are read-only — only the planner edits. **Full RLS audit done 2026-09-26** (v0.3.4): functions derive the caller from `auth.uid()`, no public table access, shared trips via `get_shared_trip`. **Remaining:** account binding/upgrade path for name-only travellers.
 
-**Partially done** — invite + join works end-to-end.
+**Mostly done** — invite, join, leave and read-only members work end-to-end.
 
 ## Phase 5 — Proposals and approvals
 
@@ -50,7 +52,7 @@ Proposal model covering both schedule and expenses, the planner's approval queue
 
 ## Phase 6 — Polish + explore
 
-Empty states with illustration placeholders, explore page (2-column grid, search, trip-type filters), final phone layout pass at 375px.
+Empty states (generic-icon version shipped v0.3.6; illustrations still later), explore page (2-column grid, search, trip-type filters), final phone layout pass at 375px.
 
 **Done when:** the trip is finished, readable, every empty state has a placeholder, and explore is browsable.
 
@@ -118,6 +120,12 @@ Phases 1–3 are complete. The remaining days (Aug 26–29) are hardening, UAT, 
 | 2026-08-25 | **Invite flow via SECURITY DEFINER RPCs** — `get_trip_by_invite` and `join_trip_by_invite` bypass RLS safely for unauthenticated invite preview + join |
 | 2026-08-26 | **Destination search** — structured display names from Mapbox context, country code extraction for timezone/currency mapping |
 | 2026-08-26 | **Launch deadline set** — Aug 30, 2026. PWA on Vercel as beta, native iOS planned for maturity |
+| 2026-09-06 | **Discover tab** (5th trip tab) — Bites dining discovery via Google Places; Shop & Attractions planned |
+| 2026-09-26 | **Members are read-only; only the planner edits.** Confirmed as intentional (replaces the proposals model for now) |
+| 2026-09-26 | **Security model:** RLS is the boundary; SECURITY DEFINER functions use `auth.uid()` and are closed to signed-out users unless needed; shared trips hide invite code and expenses |
+| 2026-09-26 | **Design:** Add activity is the reference for forms and chips; generic-icon empty states (no mascot for now); shadows allowed on floating layers only |
+| 2026-09-26 | **Explore hidden** from the bottom nav until it ships |
+| 2026-09-26 | **Root `CLAUDE.md` (v2)** replaces `docs/CLAUDE.md` workflow (v1, sunset) |
 
 ### Open
 
