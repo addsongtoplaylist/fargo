@@ -35,7 +35,8 @@ npx next build     # production build
 
 ## Testing rules
 
-- **Never mutate real trips** (e.g. "We are Riize", "Xin Cao"). Use **Test Trip Singapore** / **Test trip** or a new test trip; clean up afterwards. Read-only views of real trips are fine.
+- **Never mutate real trips** (e.g. "We are Riize", "Xin Cao"). Test only on **"Test trip" (Vietnam)**; clean up afterwards. Read-only views of real trips are fine.
+- **Databases:** production Supabase `ejduelwzdsompgemmxeh` (PWA + native production build); **staging** `lpiadmuojfbktajvcfzy` (native staging build). Try risky SQL on staging first.
 - The PWA and the planned native app share one Supabase instance — test writes hit production data.
 - Claude can't sign in (Google OAuth): ask the owner to sign in in the browser pane, then browse.
 

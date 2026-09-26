@@ -242,9 +242,17 @@ Direct table writes by the planner stay allowed in Phase 1 (the native app needs
 3. **Verify** (read-only queries, results pasted back) — every expense has participants; shares add up to each amount; counts match the backup.
 4. **Deploy PWA** (v0.4.0).
 5. **Test on Test Trip Singapore** — log, edit, delete an expense in the PWA **and** the native app; re-run the verify queries.
-6. **SQL part B** — item 10 (friendly leave/remove messages).
+6. **SQL part B** — item 10 (friendly leave/remove messages). **Same day as part A:** once old shared expenses include everyone, *any* member of such a trip is blocked from leaving (D29) — part B turns the raw database error into a clear message.
+
+**Files:** `supabase/migrations/20260926_group_expenses_p1a.sql` (part A) · `…_p1a_verify.sql` (checks) · `…_p1a_undo.sql` (undo).
+
+**Staging:** the staging database (`lpiadmuojfbktajvcfzy`) no longer resolves — paused or deleted — so Phase 1 uses the backup approach on production.
 
 **Undo:** until part B, dropping the new table/columns and restoring from the backup returns everything to today's state.
+
+### We are Riize (settled in real life)
+
+Recorded as settled **at Phase 4**, not Phase 1: until the Money tab understands settlements (Phase 3–4), a settlement row would show up as an ordinary expense and inflate everyone's spent.
 
 ### Out of Phase 1
 

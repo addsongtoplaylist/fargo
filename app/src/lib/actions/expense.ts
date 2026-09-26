@@ -43,6 +43,19 @@ export async function getExpenses(tripId: string): Promise<Expense[]> {
   )();
 }
 
+/**
+ * Participants for today's behaviour: shared → everyone on the trip (in join
+ * order), solo → the payer only. Group splits arrive in Phase 2.
+ */
+async function defaultParticipants(tripId: string, paidBy: string, isShared: boolean) {
+  if (!isShared) return [{ traveller_id: paidBy, weight: 1 }];
+  const trip = await getTrip(tripId);
+  const travellers = [...((trip?.travellers ?? []) as { id: string; created_at: string }[])].sort(
+    (a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)
+  );
+  return travellers.map((t) => ({ traveller_id: t.id, weight: 1 }));
+}
+
 export async function createExpense(
   tripId: string,
   fields: {
@@ -63,18 +76,20 @@ export async function createExpense(
   if (!account) throw new Error("Not signed in");
 
   const supabase = await createClient();
-  const amountMyr = validated.amount / validated.fxRate;
 
-  const { error } = await supabase.from("expenses").insert({
-    trip_id: tripId,
-    date: validated.date,
-    title: validated.title,
-    category: validated.category,
-    amount: validated.amount,
-    amount_myr: Math.round(amountMyr * 100) / 100,
-    paid_by: validated.paidBy,
-    is_shared: validated.isShared ?? false,
-    notes: validated.notes || null,
+  // save_expense checks trip membership and edit rights, and saves the
+  // expense with its participants in one go (MYR is derived from the trip rate)
+  const { error } = await supabase.rpc("save_expense", {
+    p_trip_id: tripId,
+    p_expense_id: null,
+    p_date: validated.date,
+    p_title: validated.title,
+    p_category: validated.category,
+    p_amount: validated.amount,
+    p_paid_by: validated.paidBy,
+    p_split_type: "equal",
+    p_participants: await defaultParticipants(tripId, validated.paidBy, validated.isShared ?? false),
+    p_notes: validated.notes || null,
   });
 
   if (error) {
@@ -109,22 +124,19 @@ export async function updateExpense(
   if (!account) throw new Error("Not signed in");
 
   const supabase = await createClient();
-  const amountMyr = validated.amount / validated.fxRate;
 
-  const { error } = await supabase
-    .from("expenses")
-    .update({
-      date: validated.date,
-      title: validated.title,
-      category: validated.category,
-      amount: validated.amount,
-      amount_myr: Math.round(amountMyr * 100) / 100,
-      paid_by: validated.paidBy,
-      is_shared: validated.isShared ?? false,
-      notes: validated.notes || null,
-    })
-    .eq("id", expenseId)
-    .eq("trip_id", tripId);
+  const { error } = await supabase.rpc("save_expense", {
+    p_trip_id: tripId,
+    p_expense_id: expenseId,
+    p_date: validated.date,
+    p_title: validated.title,
+    p_category: validated.category,
+    p_amount: validated.amount,
+    p_paid_by: validated.paidBy,
+    p_split_type: "equal",
+    p_participants: await defaultParticipants(tripId, validated.paidBy, validated.isShared ?? false),
+    p_notes: validated.notes || null,
+  });
 
   if (error) {
     console.error("Failed to update expense:", error);
@@ -144,11 +156,7 @@ export async function deleteExpense(expenseId: string, tripId: string) {
   if (!account) throw new Error("Not signed in");
 
   const supabase = await createClient();
-  const { error } = await supabase
-    .from("expenses")
-    .delete()
-    .eq("id", expenseId)
-    .eq("trip_id", tripId);
+  const { error } = await supabase.rpc("delete_expense", { p_expense_id: expenseId });
 
   if (error) {
     console.error("Failed to delete expense:", error);
