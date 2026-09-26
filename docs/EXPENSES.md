@@ -260,6 +260,52 @@ Recorded as settled **at Phase 4**, not Phase 1: until the Money tab understands
 
 Settlement and budget functions (`mark_settled`, `set_my_budget`) ship with Phases 4 and 3. Name-only travellers with Phase 5. Native app changes are a separate decision.
 
+## 11. Phase 2 plan — log expense with split (draft for review)
+
+**Goal:** anyone on the trip can log an expense, choose who paid and who it's for, and split it four ways (S2). First visible change.
+
+### Why the budget switch moves into Phase 2
+
+Today's budget maths assumes every shared expense is split evenly among everyone and paid by the planner. The moment Phase 2 allows other payers and partial splits, those numbers go wrong. So Phase 2 also switches budget to **cash out of your pocket** (D7): *spent* = everything **you paid**. The Money tab *layout* (settle-up card, View expenses screen) stays in Phase 3.
+
+Visible effect: on past trips the planner's spent rises to the full amounts paid; members' spent drops to what they paid.
+
+### Log / edit expense form (S2, Add activity layout)
+
+| Field | Behaviour |
+|---|---|
+| Amount | Hero field, local ⇄ MYR toggle as today |
+| What for | As today |
+| **Paid by** | Traveller chips, one selected; defaults to you (proposed: chips, not a dropdown) |
+| Date · Category | As today |
+| **Split between** | Traveller chips, all unticked (D10); **Select all** → **Clear** only when everyone is ticked (D28) |
+| **Split as** | Equal · Shares · % · Amounts |
+| Per-person inputs | Hidden for Equal ("SGD 30.00 each"). Shares pre-filled from default shares; % and Amounts pre-filled evenly (proposed) so you adjust rather than type from scratch |
+| Remaining line | "SGD 40 left to allocate" / "10% left" — **Log** stays disabled until it adds up |
+| Notes · Cancel / Log | As today; Delete link in edit mode if allowed |
+
+Split amounts are always in **local currency** (proposed); if you typed the total in MYR, the split works on its local equivalent.
+
+### Who sees what
+
+- **+ Log expense** shows for every traveller, not just the planner (D1).
+- Tapping an expense: **edit** if you logged it or you're the planner (D8); otherwise a **read-only view** of who paid and who it's split with (proposed).
+- Expense rows gain "Ali paid · 4 people".
+
+### Data
+
+- Expenses load with their participants (one query).
+- Editing an old expense opens as Equal with everyone ticked — how it was converted.
+- People who join the trip later aren't added to past expenses (same as Kittysplit).
+
+### Testing
+
+Test trip (Vietnam) has only you on it, and splits need several people. Proposed: add 3 test travellers **to Test trip only** via one SQL insert (no accounts — the database already allows it). They're removed after testing, or kept for Phases 3–5.
+
+### Out of Phase 2
+
+Money tab layout, own-budget setting for members (Phase 3) · settle up (Phase 4) · adding name-only travellers in the app (Phase 5).
+
 ---
 
 ## Sources
