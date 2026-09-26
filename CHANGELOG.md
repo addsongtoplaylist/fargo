@@ -2,7 +2,7 @@
 
 ---
 
-## v0.5.0 — unreleased · Group expenses, Phase 2 (split an expense)
+## v0.4.1 — unreleased · Group expenses, Phase 2 (split an expense)
 
 - **Anyone on the trip can log an expense**, not just the planner.
 - **Paid by** — pick who paid from a dropdown (defaults to you).

@@ -209,7 +209,7 @@ Effect: the planner's "spent" on past trips rises to the full amounts they paid 
 5. **Name-only travellers** — S5 and S6.
 6. **Test on a 7-person test trip** — name-only travellers, all four split types, settling up, undo.
 
-Each phase ships on its own, with SQL run before deploy.
+Each phase ships on its own, with SQL run before deploy. Versions: the whole feature is **v0.4.x** — Phase 1 = v0.4.0, Phase 2 = v0.4.1, Phase 3 = v0.4.2, and so on.
 
 ## 9. Status
 
