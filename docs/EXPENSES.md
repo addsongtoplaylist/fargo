@@ -364,6 +364,47 @@ Done 2026-09-27: preview checked, one settlement recorded on the trip's last day
 
 Name-only travellers in the app → Phase 5.
 
+## 13. Phase 5 plan — travellers without an account (draft for review)
+
+**Goal:** the planner can add people who aren't on Fargo (D17), set default shares (D3), and those people can later claim their name (D23). Last phase of group expenses → **v0.4.3**.
+
+### Where it lives (proposed: Overview → Travellers, not Trip settings)
+
+People already live in the **Travellers** card on Overview (avatars, tap for Leave / Remove, Invite button). Phase 5 extends that card instead of adding a second place in Trip settings (the spec's S5 said settings — this changes it).
+
+### What the planner can do
+
+| Action | How |
+|---|---|
+| **Add without an account** | "+ Add someone without an account" under the avatars → type a name → they appear with a small "no account" tag |
+| **Default shares** | Tap a person → shares stepper (− 1 +), e.g. Mei = 2. Pre-fills the Shares split (D3) |
+| **Rename** a name-only traveller | Tap → edit name (accounts keep their Google name) |
+| **Remove** | Only if they're in no expenses (D29). Otherwise the panel explains why |
+| **Turn into no-account** | For a signed-in member who wants to leave but is in expenses: planner unlinks their account — history stays, they lose access (D29) |
+
+### Claiming a name (S6, D23)
+
+- Opening an invite link on a trip that has no-account names shows: **"Are you one of these?"** — each name with what's attached ("paid 1 · in 2") — or **"I'm new here"**.
+- Picking a name links your Google account to it; all their expenses become yours.
+- **Wrong name?** The person who claimed it, or the planner, taps **Unlink** — the name goes back to no-account, nothing lost. If you unlink yourself you lose access to the trip (confirm first).
+- Someone already on the trip can't claim a second name.
+
+### Database (one SQL file)
+
+New functions, all checking the caller like the others:
+
+- `add_traveller(trip, name, shares)` — planner only; no account.
+- `update_traveller(traveller, name, shares)` — planner only; name only for no-account travellers.
+- `claim_traveller(invite_code, traveller)` — any signed-in person with the invite link, not already on the trip; the name must be unclaimed.
+- `unlink_traveller(traveller)` — the person themselves or the planner; never the planner's own row.
+- `get_trip_by_invite` — also returns unclaimed names with their counts, for the claim screen.
+- Remove stays as today, with the friendly "part of expenses" message.
+
+### Testing
+
+- Adding, renaming, shares, remove and unlink: Test trip (you're the planner; Ali / Mei / Raj (test) are already no-account).
+- **Claiming needs a second Google account** — open Test trip's invite link signed in as that account and claim e.g. "Raj (test)". Without one, claiming can only be checked up to the "Are you one of these?" screen.
+
 ---
 
 ## Sources
