@@ -1,5 +1,7 @@
 # Fargo — Technical
 
+> **v0.4 — 2026-09-27.** Group expenses added (tables, functions, access, maths) — full design in [EXPENSES.md](EXPENSES.md).
+>
 > **v0.3 — 2026-09-26.** Rewritten to describe what is actually built (v0.3.6). v0.2 described the original plan; the main divergences are listed under [Changed from the original plan](#changed-from-the-original-plan).
 >
 > Built on [PRODUCT.md](PRODUCT.md), [EXPERIENCE.md](EXPERIENCE.md) and [DESIGN.md](DESIGN.md).
@@ -72,17 +74,18 @@ Drizzle was the original plan but direct Postgres connections failed (IPv6), so 
 |---|---|
 | `accounts` | `auth_id` (→ auth.users), email, name, avatar, `home_country_code`, dining prefs (`dining_budget`, `dietary_restrictions`, `cuisine_preferences`) |
 | `trips` | name, destination (+ `destination_country`, `_country_code`, `_lat`, `_lng`), `base_city` (+ `base_lat`, `base_lng`, for weather), dates, `trip_type`, `local_currency`, `fx_rate`, `status`, `planner_id`, `share_code`, `invite_code` |
-| `travellers` | `trip_id`, `account_id`, `display_name`, `role` (planner / member), `budget_total` (MYR) |
+| `travellers` | `trip_id`, `account_id` (null = no account yet), `display_name`, `role` (planner / member), `budget_total` (MYR), `default_shares` |
 | `activities` | `trip_id`, date, time, title, notes, category, cost, place (name/lat/lng), `sort_order`, `idea_id` |
 | `ideas` | `trip_id`, title, link, notes, time, category, place, `promoted`, `promoted_date`, `sort_order` |
 | `checklists` / `checklist_items` | name / text, `done`, `assigned_to`, `sort_order` |
-| `expenses` | `trip_id`, date, title, category, `amount` (local), `amount_myr`, `paid_by`, `is_shared` |
+| `expenses` | `trip_id`, date, title, category, `amount` (local), `amount_myr`, `paid_by`, `created_by`, `kind` (expense / settlement), `split_type` (equal / shares / percent / amount); `is_shared` kept for the native app |
+| `expense_participants` | `expense_id`, `traveller_id`, `weight` (as entered), `share` (local, computed; shares always add up to the amount) |
 
 `trips.status` is set on create/edit only and can go stale — the UI derives "active" from the dates instead. Server code gets "today" from `todayForCountry()` (user's home timezone), never UTC.
 
 ### Access model (RLS)
 
-- **Planner-only writes.** Only the trip's planner can create, edit or delete trip content. Members (joined by invite) can read everything on the trip. Intentional.
+- **Planner-only writes, except money.** Only the planner edits the plan. Money is open to every traveller through database functions: log (anyone), edit/delete (whoever logged it, or the planner), settle/unmark (whoever owes, or the planner), own budget (each traveller). Direct table writes to `expense_participants` are closed.
 - Accounts: users see and edit only their own row.
 - Travellers: a user may insert themselves only into a trip they plan (used by create/clone trip). Joining someone else's trip goes through `join_trip_by_invite`.
 - No public table access. Shared trips are served only by `get_shared_trip`.
@@ -102,6 +105,8 @@ All derive the caller from `auth.uid()` and set `search_path = public`.
 
 Legacy signatures still accept a `p_account_id` argument, which is ignored.
 
+**Group expenses** (EXPENSES.md): `save_expense`, `delete_expense`, `mark_settled`, `unmark_settled`, `set_my_budget` (signed in); `add_traveller`, `update_traveller`, `unlink_traveller` (planner); `claim_traveller`, `change_owner` (self). `join_trip_by_invite` refuses a plain join while the trip has unclaimed names. A compatibility trigger fills participants for expenses written the old way (native app). Internal helpers (`fx_*`) aren't callable from the app.
+
 ### Migrations
 
 `supabase/migrations/*.sql`, applied manually in the Supabase SQL Editor. When app code and SQL depend on each other, the release notes spell out the order (e.g. add a new function → deploy → drop the old policy). The original create-table SQL lives in `app/drizzle/`.
@@ -117,16 +122,18 @@ Legacy signatures still accept a `p_account_id` argument, which is ignored.
 
 ---
 
-## Budget calculation
+## Budget and balances
 
-Computed in `getBudgetSummary`, never stored:
+Budget (`getBudgetSummary`, never stored) is **cash out of your pocket** (D7):
 
 ```
-your share of each expense   = shared ? amount_myr ÷ travellers : amount_myr
-fixed costs                  = your share of flights + accommodation + activities categories
-daily free budget            = (budget_total − fixed costs) ÷ trip days     (static — doesn't move with daily spend)
-remaining                    = budget_total − total spent
+spent              = Σ amount_myr of everything you paid (settlements you paid included)
+fixed costs        = flights + accommodation + activities you paid
+daily free budget  = (budget_total − fixed costs) ÷ trip days     (static)
+remaining          = budget_total − spent
 ```
+
+Balances (`lib/balances.ts`, local currency): *what you paid − your shares*; fewest payments = largest debtor pays largest creditor, repeat. Share maths (`lib/split.ts`) mirrors the database: cents, leftover cents in list order.
 
 Home currency is MYR throughout (`amount_myr`, `budget_total`); the trip's single frozen `fx_rate` converts local ↔ MYR.
 

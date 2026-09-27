@@ -24,7 +24,7 @@ Kittysplit-style group expenses, planned in `docs/EXPENSES.md` (D1–D43) and sh
 | `TECHNICAL.md` | v0.3 (group expenses not yet described) | 2026-09-26 |
 | `CHANGELOG.md` | v0.4.4 | 2026-09-27 |
 
-**Next:** update TECHNICAL.md for group expenses; weather for multi-city trips (Stay-based); owner's other trip-logging ideas (Explore, blog/video → schedule).
+**Next:** weather for multi-city trips (Stay-based); owner's other trip-logging ideas (Explore, blog/video → schedule).
 
 ---
 
