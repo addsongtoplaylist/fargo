@@ -2,7 +2,7 @@
 
 ---
 
-## v0.4.3 — unreleased · Group expenses, Phase 5 (travellers without an account)
+## v0.4.3 — 2026-09-27 · Group expenses, Phase 5 (travellers without an account)
 
 - **Add someone without an account** — the planner adds people like "Mum" from Overview → Travellers. They can pay and be split with right away; shown with a dashed avatar and a "No account" tag.
 - **Default shares and rename** — the planner sets each person's default shares (pre-fills Shares splits) and can rename people without an account.
