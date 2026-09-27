@@ -10,7 +10,7 @@ import { useToast } from "@/components/toast";
 import type { Expense } from "@/lib/actions/expense";
 import { CATEGORY_EMOJI, categoryLabel } from "@/lib/categories";
 import { computeBalances, fewestPayments } from "@/lib/balances";
-import { tripTravellers, formatLocal } from "./money-utils";
+import { tripTravellers, formatLocal, myrHint } from "./money-utils";
 
 const FIXED_CATEGORIES = ["flights", "accommodation", "activities"];
 
@@ -80,13 +80,13 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
     if (myBalance < 0) {
       settle = {
         title: `You owe ${cur} ${formatLocal(-myBalance)}`,
-        sub: `To ${names(payments.filter((p) => p.from === myTravellerId).map((p) => p.to))}`,
+        sub: `${myrHint(myBalance, fxRate)} · To ${names(payments.filter((p) => p.from === myTravellerId).map((p) => p.to))}`,
         done: false,
       };
     } else if (myBalance > 0) {
       settle = {
         title: `You're owed ${cur} ${formatLocal(myBalance)}`,
-        sub: `From ${names(payments.filter((p) => p.to === myTravellerId).map((p) => p.from))}`,
+        sub: `${myrHint(myBalance, fxRate)} · From ${names(payments.filter((p) => p.to === myTravellerId).map((p) => p.from))}`,
         done: false,
       };
     } else if (payments.length > 0) {

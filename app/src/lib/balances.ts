@@ -55,19 +55,3 @@ export function fewestPayments(balances: Map<string, number>, travellerIds: stri
   }
   return out;
 }
-
-/** What makes up one traveller's balance: what they paid (+) and their shares (−). */
-export function balanceLines(expenses: BalanceExpense[], travellerId: string) {
-  const lines: { id: string; label: string; date: string; amount: number }[] = [];
-  for (const e of expenses) {
-    const settle = e.kind === "settlement";
-    if (e.paid_by === travellerId) {
-      lines.push({ id: `${e.id}-paid`, label: settle ? "You paid back" : `You paid · ${e.title}`, date: e.date, amount: cents(e.amount) / 100 });
-    }
-    const mine = e.expense_participants.find((p) => p.traveller_id === travellerId);
-    if (mine) {
-      lines.push({ id: `${e.id}-share`, label: settle ? "Paid back to you" : `Your share · ${e.title}`, date: e.date, amount: -cents(mine.share) / 100 });
-    }
-  }
-  return lines.sort((a, b) => a.date.localeCompare(b.date));
-}

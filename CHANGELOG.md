@@ -2,6 +2,15 @@
 
 ---
 
+## v0.4.5 — 2026-09-27 · Group expenses complete
+
+- **RM conversion on settle-up amounts** — the settle-up card, payments, balances and settled entries show "≈ RM …" under the local amount.
+- **"Why?" removed** from Settle up — simpler screen.
+- **New trip** — destination hint now says "e.g. Vietnam" (the search is country-only; "Hanoi, Vietnam" was misleading).
+- **Group expenses complete** — all five phases shipped, UAT passed (24 + 2 fixed bugs + 9 member cases with a second person).
+
+---
+
 ## v0.4.4 — 2026-09-27 · UAT fixes
 
 - **Switching split type resets values** (UAT-07) — going from Amounts or % back to Shares now resets to default shares instead of carrying the old numbers over.

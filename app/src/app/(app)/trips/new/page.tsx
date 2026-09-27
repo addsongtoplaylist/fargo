@@ -138,7 +138,7 @@ export default function NewTripPage() {
           <DestinationSearch
             value={destination}
             onChange={handleDestinationChange}
-            placeholder="e.g. Hanoi, Vietnam"
+            placeholder="e.g. Vietnam"
           />
           {/* Hidden input for form validation — destination is required */}
           <input type="hidden" name="destination" value={destination?.name ?? ""} required />

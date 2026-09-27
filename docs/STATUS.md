@@ -4,7 +4,7 @@
 
 ---
 
-**2026-09-27 — Group expenses built and in UAT (v0.4.0 → v0.4.4)**
+**2026-09-27 — Group expenses complete (v0.4.0 → v0.4.5)**
 
 Kittysplit-style group expenses, planned in `docs/EXPENSES.md` (D1–D43) and shipped in five phases over one day.
 
@@ -15,13 +15,14 @@ Kittysplit-style group expenses, planned in `docs/EXPENSES.md` (D1–D43) and sh
 - **v0.4.2 · Money tab + settle up** — settle-up card, Settle up screen (fewest payments, why, everyone, settled with unmark), own budget for every traveller, Breakdown + View expenses (what you paid). We are Riize recorded as settled.
 - **v0.4.3 · Travellers without an account** — planner adds people, sets default shares, renames; invite link asks "Which one are you?" when names are unclaimed; Change owner; turn a member into no account.
 - **v0.4.4** — UAT fixes (split-type reset, logged-for-others expenses) and "Quick add traveller" label.
-- **UAT** (https://claude.ai/artifact/KW5sU8dMd784BuRGNRJ35a): 24 pass, 2 bugs fixed; member cases M-01–M-09 pending with a second person.
+- **UAT** (https://claude.ai/artifact/KW5sU8dMd784BuRGNRJ35a): 24 pass, 2 bugs fixed; member cases M-01–M-09 passed with a second person.
+- **v0.4.5** — RM conversion on settle-up amounts, "Why?" removed, new-trip destination hint fixed.
 
 **Also this session:** v0.3.8 share-link fix for the home-screen app; staging database found unreachable (production + backups used); native app parked (PWA focus).
 
 | Doc | Version | Last updated |
 |---|---|---|
-| `EXPENSES.md` | in UAT (D1–D44) | 2026-09-27 |
+| `EXPENSES.md` | complete (D1–D46) | 2026-09-27 |
 | `TECHNICAL.md` | v0.3 (group expenses not yet described) | 2026-09-26 |
 | `CHANGELOG.md` | v0.4.4 | 2026-09-27 |
 

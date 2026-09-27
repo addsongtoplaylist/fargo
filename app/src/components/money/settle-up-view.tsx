@@ -10,15 +10,15 @@ import { markSettled, unmarkSettled } from "@/lib/actions/expense";
 import type { Expense } from "@/lib/actions/expense";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { computeBalances, fewestPayments, balanceLines, type Payment } from "@/lib/balances";
-import { tripTravellers, formatLocal } from "./money-utils";
+import { computeBalances, fewestPayments, type Payment } from "@/lib/balances";
+import { tripTravellers, formatLocal, myrHint } from "./money-utils";
 
 type Pending =
   | { type: "mark"; payment: Payment }
   | { type: "unmark"; expense: Expense }
   | null;
 
-/** Settle up (S4): your payments first, why on tap, everyone collapsed (D24). */
+/** Settle up (S4): your payments first, everyone collapsed (D24). */
 export function SettleUpView({
   expenses,
   tripId,
@@ -31,7 +31,6 @@ export function SettleUpView({
   const trip = useTrip();
   const router = useRouter();
   const { toast } = useToast();
-  const [showWhy, setShowWhy] = useState(false);
   const [showEveryone, setShowEveryone] = useState(false);
   const [pending, setPending] = useState<Pending>(null);
   const [busy, setBusy] = useState(false);
@@ -48,8 +47,6 @@ export function SettleUpView({
   const balances = computeBalances(expenses, ids);
   const payments = fewestPayments(balances, ids);
   const mine = payments.filter((p) => p.from === myTravellerId || p.to === myTravellerId);
-  const myBalance = myTravellerId ? balances.get(myTravellerId) ?? 0 : 0;
-  const whyLines = myTravellerId ? balanceLines(expenses, myTravellerId) : [];
   const settlements = expenses
     .filter((e) => e.kind === "settlement")
     .filter(
@@ -86,8 +83,11 @@ export function SettleUpView({
         <span className="text-sm text-ink">
           {p.from === myTravellerId ? `You pay ${nameOf(p.to)}` : p.to === myTravellerId ? `${nameOf(p.from)} pays you` : `${nameOf(p.from)} pays ${nameOf(p.to)}`}
         </span>
-        <span className="text-sm font-semibold text-ink money">
-          {cur} {formatLocal(p.amount)}
+        <span className="text-right shrink-0">
+          <span className="block text-sm font-semibold text-ink money">
+            {cur} {formatLocal(p.amount)}
+          </span>
+          <span className="block text-[10px] text-muted money">{myrHint(p.amount, trip.fx_rate)}</span>
         </span>
       </div>
       {canMark(p) ? (
@@ -121,40 +121,6 @@ export function SettleUpView({
           ) : (
             mine.map((p, i) => payRow(p, `mine-${i}`))
           )}
-          {whyLines.length > 0 && (
-            <div className="px-3 py-2">
-              <button
-                onClick={() => setShowWhy(!showWhy)}
-                className="flex items-center gap-1 text-xs font-medium text-accent"
-              >
-                {showWhy ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
-                Why?
-              </button>
-              {showWhy && (
-                <div className="mt-2 space-y-1">
-                  {whyLines.map((l) => (
-                    <div key={l.id} className="flex items-center justify-between text-xs gap-2">
-                      <span className="text-muted truncate">{l.label}</span>
-                      <span className={`money shrink-0 ${l.amount >= 0 ? "text-money-ok" : "text-money-over"}`}>
-                        {l.amount >= 0 ? "+" : "−"}
-                        {formatLocal(Math.abs(l.amount))}
-                      </span>
-                    </div>
-                  ))}
-                  <div className="flex items-center justify-between text-xs pt-1 border-t border-border font-medium">
-                    <span className="text-ink">Your balance</span>
-                    <span className="text-ink money">
-                      {myBalance >= 0 ? "+" : "−"}
-                      {formatLocal(Math.abs(myBalance))}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-muted pt-1">
-                    Payments are simplified, so this explains your overall balance rather than a debt to one person.
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
         </div>
       </div>
 
@@ -186,6 +152,7 @@ export function SettleUpView({
                     <span className={`money ${b > 0 ? "text-money-ok" : b < 0 ? "text-money-over" : "text-muted"}`}>
                       {b > 0 ? "+" : b < 0 ? "−" : ""}
                       {cur} {formatLocal(Math.abs(b))}
+                      <span className="text-[10px] text-muted ml-1">{myrHint(b, trip.fx_rate)}</span>
                     </span>
                   </div>
                 );
@@ -211,7 +178,7 @@ export function SettleUpView({
                       {nameOf(e.paid_by)} paid {to ? (to === myTravellerId ? "you" : nameOf(to)) : ""}
                     </p>
                     <p className="text-[11px] text-muted">
-                      {cur} {formatLocal(parseFloat(e.amount))} · {format(parseISO(e.date), "d MMM")}
+                      {cur} {formatLocal(parseFloat(e.amount))} ({myrHint(parseFloat(e.amount), trip.fx_rate)}) · {format(parseISO(e.date), "d MMM")}
                     </p>
                   </div>
                   {canUnmark(e) && (

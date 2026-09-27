@@ -21,3 +21,9 @@ export function formatLocal(n: number): string {
     maximumFractionDigits: 2,
   });
 }
+
+/** "≈ RM 1.67" — home-currency hint under a local amount (trip rate). */
+export function myrHint(local: number, fxRate: number): string {
+  const myr = fxRate > 0 ? Math.abs(local) / fxRate : 0;
+  return `≈ RM ${myr.toFixed(2)}`;
+}
