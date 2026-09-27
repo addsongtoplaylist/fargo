@@ -2,6 +2,14 @@
 
 ---
 
+## v0.4.6 — 2026-09-27 · Weather follows your Stay
+
+- **Overview temperature follows where you're staying** — during the trip it uses the latest 🏨 Stay checked in on or before today (a Stay lasts until the next one), so multi-city trips switch cities on the right day ("today" is the destination's date). Before the first Stay, or when a Stay has no place set, it falls back to the base city. Before the trip starts: base city, else the first Stay.
+- **Cleaner weather** — the city label next to the temperature is gone.
+- **Trip settings** — Base city hint explains it's the weather fallback.
+
+---
+
 ## v0.4.5 — 2026-09-27 · Group expenses complete
 
 - **RM conversion on settle-up amounts** — the settle-up card, payments, balances and settled entries show "≈ RM …" under the local amount.

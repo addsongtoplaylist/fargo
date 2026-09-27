@@ -16,8 +16,8 @@ import {
 } from "date-fns";
 import { notFound } from "next/navigation";
 import { MapPin, Clock, Thermometer, CalendarDays, Compass, Building2 } from "lucide-react";
-import { getCurrentTemperature } from "@/lib/weather";
-import { COUNTRY_TIMEZONE } from "@/lib/dates";
+import { getCurrentTemperature, weatherLocation } from "@/lib/weather";
+import { COUNTRY_TIMEZONE, todayForCountry } from "@/lib/dates";
 
 const HOME_TIMEZONE = "Asia/Kuala_Lumpur";
 
@@ -125,10 +125,16 @@ export default async function OverviewPage({
   const localTime = localTz ? getLocalTime(localTz) : null;
   const homeTime = getLocalTime(HOME_TIMEZONE);
   const isSameTimezone = localTz === HOME_TIMEZONE;
-  const temperature =
-    !tripEnded && trip.base_lat != null && trip.base_lng != null
-      ? await getCurrentTemperature(trip.base_lat, trip.base_lng)
-      : null;
+  // Weather follows the current Stay, falling back to the base city
+  const weatherAt = tripEnded
+    ? null
+    : weatherLocation(
+        activities,
+        { lat: trip.base_lat, lng: trip.base_lng },
+        todayForCountry(countryCode),
+        tripStarted
+      );
+  const temperature = weatherAt ? await getCurrentTemperature(weatherAt.lat, weatherAt.lng) : null;
 
   return (
     <Column className="py-4 pb-8 space-y-4">
@@ -163,7 +169,6 @@ export default async function OverviewPage({
               <div className="flex items-center gap-1.5">
                 <Thermometer size={14} className="text-muted" />
                 <span className="text-sm text-ink tabular-nums">{temperature}°C</span>
-                <span className="text-[10px] text-muted truncate max-w-[80px]">{trip.base_city}</span>
               </div>
             )}
           </div>

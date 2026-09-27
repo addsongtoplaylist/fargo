@@ -170,7 +170,7 @@ export default function TripSettingsPage() {
           />
         </div>
 
-        {/* Base city — used for the weather on Overview */}
+        {/* Base city — weather fallback when no Stay applies */}
         <div>
           <label className="text-xs font-medium text-muted block mb-1">Base city</label>
           <LocationSearch
@@ -179,7 +179,7 @@ export default function TripSettingsPage() {
             countries={destination?.countryCode ? [destination.countryCode] : undefined}
             proximity={destination?.lat && destination?.lng ? { lat: destination.lat, lng: destination.lng } : undefined}
           />
-          <p className="text-[11px] text-muted mt-1">Where you&apos;re staying — shows the temperature on Overview.</p>
+          <p className="text-[11px] text-muted mt-1">Used for the weather on Overview before your first Stay, or when a Stay has no place set.</p>
         </div>
 
         {/* Dates */}

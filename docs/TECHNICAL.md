@@ -146,7 +146,7 @@ Home currency is MYR throughout (`amount_myr`, `budget_total`); the trip's singl
 | Google Places API (New) | Activity/idea place search (autocomplete + details); Bites nearby search + photos | Client (`location-search`, `location-picker`) and server (`actions/bites.ts`). Key is `NEXT_PUBLIC_…` — **must be restricted by HTTP referrer and quota** in Google Cloud Console |
 | Mapbox Geocoding | Destination (country) search on create/edit trip | Client (`destination-search`) |
 | Mapbox GL JS | Day map on Schedule | Client (`day-map`) |
-| Open-Meteo | Current temperature at the trip's base city (free, no key, cached 30 min) | Server (`lib/weather.ts`, Overview) |
+| Open-Meteo | Current temperature where you're staying — the current Stay, else the trip's base city (`weatherLocation`; free, no key, cached 30 min) | Server (`lib/weather.ts`, Overview) |
 
 ---
 
