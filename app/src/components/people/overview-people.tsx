@@ -214,7 +214,7 @@ export function OverviewPeople({
         })}
       </div>
 
-      {/* Add someone without an account (planner, D17) */}
+      {/* Quick add traveller — no account needed (planner, D17) */}
       {isPlanner && (
         adding ? (
           <div className="mt-3 flex items-center gap-2">
@@ -248,7 +248,7 @@ export function OverviewPeople({
             className="mt-3 w-full flex items-center justify-center gap-1 py-2 text-xs font-medium text-accent border border-dashed border-accent/40 rounded-lg hover:bg-accent-soft transition-colors"
           >
             <Plus size={13} />
-            Add someone without an account
+            Quick add traveller
           </button>
         )
       )}

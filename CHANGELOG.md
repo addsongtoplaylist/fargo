@@ -2,6 +2,13 @@
 
 ---
 
+## v0.4.4 — 2026-09-27 · Group expenses complete
+
+- **"Quick add traveller"** — the planner's button for adding someone without an account is renamed (was "Add someone without an account").
+- **Group expenses is complete** — Phases 1–5 shipped (v0.4.0–v0.4.3) and tested, including claiming a name and change owner with a second person.
+
+---
+
 ## v0.4.3 — 2026-09-27 · Group expenses, Phase 5 (travellers without an account)
 
 - **Add someone without an account** — the planner adds people like "Mum" from Overview → Travellers. They can pay and be split with right away; shown with a dashed avatar and a "No account" tag.

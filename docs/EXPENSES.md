@@ -1,6 +1,6 @@
 # Fargo — Group Expenses (planning)
 
-> **Working doc — 2026-09-26. Planning only, nothing built.** Decisions D1–D22 agreed; the spec below is a draft for review. Nothing gets built until it is signed off.
+> **✅ Complete — 2026-09-27.** All five phases shipped (v0.4.0–v0.4.4) and tested. Decisions D1–D43; the spec below describes what was built. Planning started 2026-09-26.
 
 ---
 
@@ -68,6 +68,7 @@ A 7-person trip showed the current model breaks down: one planner can't log ever
 | D40 | **Change owner replaces unlink (supersedes D23's unlink):** if you're linked to the wrong name, you tap **Change owner** and pick a name **without an owner**. The name you leave keeps its history and goes back to no owner; you keep access. Self-service only; the planner's own entry can't be switched. | 2026-09-27 |
 | D41 | **Claiming is tested manually** by the owner with a second person. | 2026-09-27 |
 | D42 | **Invite link = pick your name.** If the trip has names nobody has claimed, you must pick one of them (no "I'm new"). If it has none, you join under your Google name as today. Change owner likewise only moves you to an unclaimed name. | 2026-09-27 |
+| D43 | **"Quick add traveller"** is the button label for adding someone without an account (v0.4.4). | 2026-09-27 |
 
 ---
 
@@ -206,7 +207,7 @@ For every existing expense: `kind = expense`, `split_type = equal`, `created_by 
 
 Effect: the planner's "spent" on past trips rises to the full amounts they paid (D7).
 
-## 8. Build phases (proposed)
+## 8. Build phases (as shipped: 1 → v0.4.0, 2 → v0.4.1, 3+4 → v0.4.2, 5 → v0.4.3)
 
 1. **Data + permissions** — tables, columns, RLS, functions (save expense, mark settled, set my budget), migration of old expenses.
 2. **Log expense with split** — S2.
@@ -219,7 +220,7 @@ Each phase ships on its own, with SQL run before deploy. Versions: the whole fea
 
 ## 9. Status
 
-All proposals agreed (D26–D30). **Shipped 2026-09-27:** Phase 1 (v0.4.0), Phase 2 (v0.4.1), Phases 3 + 4 (v0.4.2). We are Riize recorded as settled. **Next: Phase 5** — name-only travellers (S5, S6).
+All proposals agreed (D26–D30). **Complete 2026-09-27:** Phase 1 (v0.4.0), Phase 2 (v0.4.1), Phases 3 + 4 (v0.4.2), Phase 5 (v0.4.3), rename (v0.4.4). We are Riize recorded as settled. Claiming and change owner tested with a second person.
 
 ## 10. Phase 1 — data + permissions ✅ shipped v0.4.0, 2026-09-27
 
@@ -369,7 +370,7 @@ Done 2026-09-27: preview checked, one settlement recorded on the trip's last day
 
 Name-only travellers in the app → Phase 5.
 
-## 13. Phase 5 plan — travellers without an account (in review)
+## 13. Phase 5 — travellers without an account ✅ shipped v0.4.3, 2026-09-27
 
 **Goal:** the planner can add people who aren't on Fargo (D17), set default shares (D3), and those people can later claim their name (D23). Last phase of group expenses → **v0.4.3**.
 
@@ -381,7 +382,7 @@ People already live in the **Travellers** card on Overview (avatars, tap for Lea
 
 | Action | How |
 |---|---|
-| **Add without an account** | "+ Add someone without an account" under the avatars → type a name → they appear with a small "no account" tag |
+| **Quick add traveller** (D43) | "+ Quick add traveller" under the avatars → type a name → they appear with a small "no account" tag |
 | **Default shares** | Tap a person → shares stepper (− 1 +), e.g. Mei = 2. Pre-fills the Shares split (D3) |
 | **Rename** a name-only traveller | Tap → edit name (accounts keep their Google name) |
 | **Remove** | Only if they're in no expenses (D29). Otherwise the panel explains why |

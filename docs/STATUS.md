@@ -4,6 +4,30 @@
 
 ---
 
+**2026-09-27 — Group expenses complete (v0.4.0 → v0.4.4)**
+
+Kittysplit-style group expenses, planned in `docs/EXPENSES.md` (D1–D43) and shipped in five phases over one day.
+
+**What shipped:**
+
+- **v0.4.0 · Data** — participants and shares per expense, split types, who logged each expense; all old expenses converted; checked save/delete functions; removing a traveller no longer deletes their expenses.
+- **v0.4.1 · Split an expense** — anyone on the trip can log; Paid by dropdown; split list with Equal / Shares / % / Amounts; read-only view for others' expenses; budget = cash out of your pocket.
+- **v0.4.2 · Money tab + settle up** — settle-up card, Settle up screen (fewest payments, why, everyone, settled with unmark), own budget for every traveller, Breakdown + View expenses (what you paid). We are Riize recorded as settled.
+- **v0.4.3 · Travellers without an account** — planner adds people, sets default shares, renames; invite link asks "Which one are you?" when names are unclaimed; Change owner; turn a member into no account.
+- **v0.4.4** — "Quick add traveller" label.
+
+**Also this session:** v0.3.8 share-link fix for the home-screen app; staging database found unreachable (production + backups used); native app parked (PWA focus).
+
+| Doc | Version | Last updated |
+|---|---|---|
+| `EXPENSES.md` | complete (D1–D43) | 2026-09-27 |
+| `TECHNICAL.md` | v0.3 (group expenses not yet described) | 2026-09-26 |
+| `CHANGELOG.md` | v0.4.4 | 2026-09-27 |
+
+**Next:** update TECHNICAL.md for group expenses; weather for multi-city trips (Stay-based); owner's other trip-logging ideas (Explore, blog/video → schedule).
+
+---
+
 **2026-09-26 — v0.3 → v0.3.6: Discover, polish, and a full review**
 
 Three weeks of releases since v0.2, ending with a structured review (security → code → design → docs).
