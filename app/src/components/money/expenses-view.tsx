@@ -12,7 +12,10 @@ import { CATEGORY_EMOJI } from "@/lib/categories";
 import { EmptyState } from "@/components/empty-state";
 import { tripTravellers } from "./money-utils";
 
-/** View expenses (S3): what you paid, settlements included (D19, D27). */
+/**
+ * View expenses (S3): what you paid (settlements included) plus expenses you
+ * logged for someone else, so you can still edit them (D19, D27, D44).
+ */
 export function ExpensesView({
   expenses,
   tripId,
@@ -35,7 +38,9 @@ export function ExpensesView({
   const nameOf = (id: string) =>
     id === myTravellerId ? "You" : travellers.find((t) => t.id === id)?.display_name ?? "Someone";
 
-  const mine = expenses.filter((e) => e.paid_by === myTravellerId);
+  const mine = expenses.filter(
+    (e) => e.paid_by === myTravellerId || (e.kind === "expense" && e.created_by === myTravellerId)
+  );
 
   function open(e: Expense) {
     // Settlements are changed from Settle up; others' expenses are read-only (D8, D35)
@@ -61,7 +66,7 @@ export function ExpensesView({
           className="flex items-center gap-1.5 text-sm font-semibold text-ink"
         >
           <ArrowLeft size={16} className="text-muted" />
-          What you paid
+          Your expenses
         </Link>
         {myTravellerId && (
           <button
@@ -78,10 +83,13 @@ export function ExpensesView({
       </div>
 
       {mine.length === 0 ? (
-        <EmptyState icon={Receipt} message="Nothing you've paid yet. What others paid shows under Settle up." />
+        <EmptyState icon={Receipt} message="Nothing you've paid or logged yet. What others paid shows under Settle up." />
       ) : (
         dates.map((date) => {
-          const dayTotal = byDate[date].reduce((sum, e) => sum + parseFloat(e.amount), 0);
+          // Day total counts only what you paid, matching your breakdown
+          const dayTotal = byDate[date]
+            .filter((e) => e.paid_by === myTravellerId)
+            .reduce((sum, e) => sum + parseFloat(e.amount), 0);
           return (
             <div key={date}>
               <div className="flex items-center justify-between mb-1.5">
@@ -114,7 +122,7 @@ export function ExpensesView({
                         <p className="text-[11px] text-muted truncate">
                           {settle
                             ? "Settlement"
-                            : `${e.expense_participants.length} ${e.expense_participants.length === 1 ? "person" : "people"}`}
+                            : `${e.paid_by !== myTravellerId ? `Logged for ${nameOf(e.paid_by)} · ` : ""}${e.expense_participants.length} ${e.expense_participants.length === 1 ? "person" : "people"}`}
                         </p>
                       </div>
                       <div className="text-right shrink-0">

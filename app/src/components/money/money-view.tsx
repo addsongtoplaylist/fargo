@@ -109,6 +109,10 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   ].filter((g) => g.items.length > 0);
 
   const hasBudget = !!budget && budget.budgetTotal > 0;
+  // Rows on the View expenses screen: what you paid + what you logged (D44)
+  const viewCount = expenses.filter(
+    (e) => e.paid_by === myTravellerId || (e.kind === "expense" && e.created_by === myTravellerId)
+  ).length;
   const spentLocal = Math.round((budget?.totalSpent ?? 0) * fxRate);
 
   return (
@@ -281,7 +285,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
           <span className="flex items-center">
             View expenses <ChevronRight size={14} />
           </span>
-          <span className="text-muted font-normal">{budget?.paidCount ?? 0}</span>
+          <span className="text-muted font-normal">{viewCount}</span>
         </Link>
       </div>
 

@@ -2,10 +2,11 @@
 
 ---
 
-## v0.4.4 — 2026-09-27 · Group expenses complete
+## v0.4.4 — 2026-09-27 · UAT fixes
 
-- **"Quick add traveller"** — the planner's button for adding someone without an account is renamed (was "Add someone without an account").
-- **Group expenses is complete** — Phases 1–5 shipped (v0.4.0–v0.4.3) and tested, including claiming a name and change owner with a second person.
+- **Switching split type resets values** (UAT-07) — going from Amounts or % back to Shares now resets to default shares instead of carrying the old numbers over.
+- **Expenses you logged for someone else** (UAT-23, D44) — View expenses ("Your expenses") also lists expenses you logged but someone else paid, marked "Logged for Ali", so you can still edit or delete them. Breakdown, budget and day totals stay "what you paid".
+- **"Quick add traveller"** — the planner's button for adding someone without an account is renamed.
 
 ---
 

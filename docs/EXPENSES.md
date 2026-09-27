@@ -1,6 +1,6 @@
 # Fargo — Group Expenses (planning)
 
-> **✅ Complete — 2026-09-27.** All five phases shipped (v0.4.0–v0.4.4) and tested. Decisions D1–D43; the spec below describes what was built. Planning started 2026-09-26.
+> **Built — in UAT, 2026-09-27.** All five phases shipped (v0.4.0–v0.4.3); UAT fixes in v0.4.4. Decisions D1–D44. Complete once the member test cases (M-01–M-09) pass. UAT: https://claude.ai/artifact/KW5sU8dMd784BuRGNRJ35a
 
 ---
 
@@ -69,6 +69,7 @@ A 7-person trip showed the current model breaks down: one planner can't log ever
 | D41 | **Claiming is tested manually** by the owner with a second person. | 2026-09-27 |
 | D42 | **Invite link = pick your name.** If the trip has names nobody has claimed, you must pick one of them (no "I'm new"). If it has none, you join under your Google name as today. Change owner likewise only moves you to an unclaimed name. | 2026-09-27 |
 | D43 | **"Quick add traveller"** is the button label for adding someone without an account (v0.4.4). | 2026-09-27 |
+| D44 | **View expenses also lists expenses you logged for someone else** ("Logged for Ali"), so the logger can still edit them. Breakdown, budget and day totals stay "what you paid". Found in UAT (UAT-23). | 2026-09-27 |
 
 ---
 
@@ -220,7 +221,7 @@ Each phase ships on its own, with SQL run before deploy. Versions: the whole fea
 
 ## 9. Status
 
-All proposals agreed (D26–D30). **Complete 2026-09-27:** Phase 1 (v0.4.0), Phase 2 (v0.4.1), Phases 3 + 4 (v0.4.2), Phase 5 (v0.4.3), rename (v0.4.4). We are Riize recorded as settled. Claiming and change owner tested with a second person.
+All proposals agreed (D26–D30). **Shipped 2026-09-27:** Phase 1 (v0.4.0), Phase 2 (v0.4.1), Phases 3 + 4 (v0.4.2), Phase 5 (v0.4.3), UAT fixes (v0.4.4). We are Riize recorded as settled. Claiming and change owner tested with a second person. **Remaining:** member test cases M-01–M-09.
 
 ## 10. Phase 1 — data + permissions ✅ shipped v0.4.0, 2026-09-27
 

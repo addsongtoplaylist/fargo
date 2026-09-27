@@ -87,13 +87,18 @@ export function LogExpensePanel({
   const splitValid = ticked.length > 0 && left === 0 && sharesTotal > 0;
   const allTicked = ticked.length === travellers.length;
 
-  /** Default weights for a new set of ticked people / split type (D33). */
-  function prefill(type: SplitType, ids: string[], total: number): Record<string, string> {
+  /**
+   * Default weights for a new set of ticked people / split type (D33).
+   * keepShares: when only the ticks change, keep shares already entered;
+   * when the split type changes, always reset to defaults (UAT-07).
+   */
+  function prefill(type: SplitType, ids: string[], total: number, keepShares = false): Record<string, string> {
     if (type === "shares") {
       return Object.fromEntries(
         ids.map((id) => {
           const t = travellers.find((x) => x.id === id);
-          return [id, weights[id] ?? String(t?.default_shares ?? 1)];
+          const fallback = String(t?.default_shares ?? 1);
+          return [id, keepShares ? weights[id] ?? fallback : fallback];
         })
       );
     }
@@ -110,7 +115,7 @@ export function LogExpensePanel({
 
   function setTicked(next: Set<string>) {
     setIncluded(next);
-    setWeights((w) => ({ ...w, ...prefill(splitType, orderedIds(next), splitTotal) }));
+    setWeights((w) => ({ ...w, ...prefill(splitType, orderedIds(next), splitTotal, true) }));
   }
 
   function toggle(id: string) {
