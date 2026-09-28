@@ -1,16 +1,20 @@
 # Fargo — Design System
 
-> **v0.7 — 2026-09-26.** Design review: type scale, shadow rule and status colours updated to match the shipped app. Add activity is now the reference for forms and chips; empty states use a generic icon; Explore hidden from the bottom nav.
+> **v0.8 — 2026-09-28.** UI redesign. Trip sections move to a floating bottom bar; planner-uploaded cover photos (colour + country code when there's none); cooler ink, darker accent, rounder cards; category icons replace emoji; one main thing per screen; floating **+** for the main add action. Every screen is drawn on the [redesign canvas](https://claude.ai/artifact/Sjur61seR63um25VMXhAhs); the per-screen feature checklist is [REDESIGN.md](REDESIGN.md).
 >
-> **v0.6 — 2026-08-27.** Accent colour swapped to Electric Blue (#0085D9) — passes WCAG AA Large. Bright Cyan (#22B8E0) reserved for frog mascot assets only. Trip card tints lightened (Soft Sky). Sign-in page now shows frog mascot + wordmark logo. Favicon uses full mascot on cyan background.
+> **v0.7 — 2026-09-26.** Design review: type scale, shadow rule and status colours matched to the app. Add activity became the form reference; generic-icon empty states.
 >
-> Built on the locked decisions in [PRODUCT.md](PRODUCT.md) and [EXPERIENCE.md](EXPERIENCE.md).
+> **v0.6 — 2026-08-27.** Electric Blue accent; Bright Cyan reserved for mascot assets; sign-in shows mascot + wordmark.
 
 ---
 
-## Inspiration
+## Principles
 
-Headspace's visual language: warm, shadowless, confident use of colour and whitespace. Depth comes from background shifts and borders, never drop shadows. The app should feel like a well-typeset document, not a dashboard.
+1. **One main thing per screen.** Each screen leads with one clear element (a trip card, today's plan, the budget number); everything else steps down in size and weight.
+2. **Show only what the current tap needs.** Panels open in place for one job at a time — never two text boxes for different jobs side by side. Keep *add* and *manage* apart (e.g. Travellers: **Invite** vs **tap a person**).
+3. **Photos carry the emotion, the rest stays calm.** Destination photos on trip cards and the Overview header; white cards on a cool grey ground everywhere else. No photos inside lists (Schedule, Prep).
+4. **Quiet by default.** No explanatory notes on screens, no decorative chips (trip type and trip length are gone from cards). Numbers and titles do the talking.
+5. **Same features, new look.** The redesign never removes a feature without the owner's OK — see [REDESIGN.md](REDESIGN.md).
 
 ---
 
@@ -20,460 +24,262 @@ Headspace's visual language: warm, shadowless, confident use of colour and white
 
 | Token | Hex | Usage |
 |---|---|---|
-| `ground` | `#eff2fa` | Page background — soft cool grey, never pure white |
-| `card` | `#ffffff` | Card / elevated surface background |
-| `ink` | `#2d2a27` | Primary text — warm near-black |
-| `muted` | `#6b6560` | Secondary text, timestamps, labels |
-| `border` | `#e2dad3` | Dividers, card edges, input borders |
-| `accent` | `#0085d9` | Primary action, active tab, links — Electric Blue |
-| `accent-hover` | `#0070b8` | Accent on hover/press — slightly darker |
-| `accent-on` | `#ffffff` | Text on accent backgrounds |
-| `accent-soft` | `#e0effa` | Accent tint for backgrounds (selected states, chips) |
+| `ground` | `#F3F5F9` | Page background |
+| `card` | `#FFFFFF` | Cards, sheets, bottom bar |
+| `ink` | `#172033` | Primary text — cool navy (replaces warm `#2d2a27`) |
+| `muted` | `#5B6475` | Secondary text, labels, inactive icons (5.9:1 on white) |
+| `faint` | `#8A93A3` | Non-essential only: drag handles, delete ×, version line — never text a user must read |
+| `border` | `#E4E8EF` | Dividers, field borders |
+| `accent` | `#0071BC` | Primary actions, active tab, links — darker than v0.7 (`#0085D9`) so small blue text passes AA |
+| `accent-hover` | `#005A96` | Pressed / hover |
+| `accent-on` | `#FFFFFF` | Text on accent |
+| `accent-soft` | `#E3F0FA` | Selected states, active tab pill, secondary buttons, "Now" row |
 
-### Money states
-
-These are **independent of accent** — they carry meaning and must never be confused with the teal.
-
-| Token | Hex | Usage |
-|---|---|---|
-| `money-ok` | `#1a7a42` | On track — budget healthy |
-| `money-ok-soft` | `#e6f4ec` | On-track background tint |
-| `money-warn` | `#b8860b` | Warning — approaching limit or over-allocated |
-| `money-warn-soft` | `#fef6e0` | Warning background tint |
-| `money-over` | `#c44a4a` | Over budget — exceeded |
-| `money-over-soft` | `#fce8e8` | Over-budget background tint |
-
-### Secondary palette
+### Money states (unchanged meaning)
 
 | Token | Hex | Usage |
 |---|---|---|
-| `navy` | `#1b2d50` | Secondary accent for depth, headings (optional) — from mascot legs |
-| `navy-soft` | `#e8edf4` | Navy tinted background |
+| `money-ok` / `-soft` | `#1A7A42` / `#E6F4EC` | Owed to you, under budget, "covered" split line, settled ticks |
+| `money-warn` / `-soft` | `#B8860B` / `#FEF6E0` | Split not fully allocated |
+| `money-over` / `-soft` | `#C44A4A` / `#FCE8E8` | Over budget, destructive actions |
 
-### Trip card rotation
+### Category colours
 
-Soft Sky tints for upcoming trip cards (active trip always uses `accent` Electric Blue):
+Each category has a soft circle and an icon colour. Used for category icons, breakdown bars and map pins.
 
-| Token | Hex | Usage |
-|---|---|---|
-| `trip-blue-1` | `#5baed6` | Upcoming trip card 1 — soft blue |
-| `trip-blue-2` | `#6ab8c9` | Upcoming trip card 2 — sky cyan |
-| `trip-green-1` | `#6dc4a8` | Upcoming trip card 3 — mint |
-
-### Status colours (non-money)
-
-For meaning that isn't money — errors, open/closed, ratings. Currently Tailwind defaults; kept separate from money tokens so the two never get confused.
-
-| Use | Tailwind class | Hex |
-|---|---|---|
-| Error message, "Closed", destructive hover | `text-red-500` | `#ef4444` |
-| "Open now" | `text-green-600` | `#16a34a` |
-| Star rating, planner crown, weather icon | `text-amber-500` | `#f59e0b` |
+| Category | Soft bg | Icon | Lucide icon |
+|---|---|---|---|
+| Stay | `#EEE8FB` | `#6446C2` | `BedDouble` |
+| Food | `#FDEEE3` | `#A9531A` | `Utensils` |
+| Transport | `#E2F4F2` | `#1F7068` | `Car` |
+| Activities | `#E3F0FA` | `#0071BC` | `Landmark` |
+| Shopping | `#FBE7EF` | `#A8365F` | `ShoppingBag` |
+| Flights | `#E4EEFB` | `#2D5DA8` | `Plane` |
+| Other | `#EEF0F4` | `#4A5264` | `Package` |
+| Settle-ups | `#E6F4EC` | `#1A7A42` | `ArrowRightLeft` |
 
 ### Rules
 
-- **Shadows only on floating layers.** Page content (cards, lists, headers) has no shadow — depth comes from the `ground` → `card` background shift and `border` lines. Things that float above the page — dropdowns, dialogs, toasts, a card being dragged, map controls — get a shadow (`shadow-lg`, or `shadow`/`shadow-sm` for small controls) so they read as lifted.
-- **Money colours are semantic, not decorative.** Green/amber/rose appear only on money states — never on buttons, tabs, or decoration. Non-money meaning uses the status colours above.
-- **Accent blue is never used for money.** Even when the budget is healthy, use `money-ok` green, not `accent` blue.
-- **Trip card rotation is Soft Sky tints.** Lighter than accent, clearly secondary. White text on all three. Never use warm colours (yellow, rose) for trip cards.
-- **Hybrid colour rule:** Electric Blue (#0085D9) for all app UI. Bright Cyan (#22B8E0) reserved for frog mascot assets only (favicon, app icon PNGs).
+- **Money colours are semantic.** Green/amber/red only for money meaning or destructive actions — never decoration.
+- **Accent is never used for money health.** Healthy budget bars use accent (progress), not green; green means "owed to you / covered / settled".
+- **Contrast:** body and label text ≥ 4.5:1. `faint` is for icons and non-essential text only.
+- **Hybrid brand rule (unchanged):** accent blue for UI; Bright Cyan `#22B8E0` only in mascot/logo assets.
+- **Retired:** `trip-blue-1/2`, `trip-green-1` (trip cards now use photos), `navy` tokens.
 
 ---
 
 ## Branding
 
-### Logo
+Unchanged from v0.7: logo `app/public/logo.png`, mascot `app/public/mascot.png`, favicons/app icons from `branding/Mascot-blue-bg.png`. Mascot appears on **Sign in** only (and app icon/splash) — not in everyday UI or empty states.
 
-The Fargo logotype is set in Bright Cyan (#22B8E0). Available in:
-- Full word mark: `branding/Logo-white-bg.png` (white background), `branding/Logo-blue-bg.png` (cyan background)
-- Cropped transparent version: `app/public/logo.png` — used on sign-in page
-- Usage: sign-in page, marketing, brand guidelines
+---
 
-### Mascot
+## Cover photos
 
-The Fargo frog is a playful character with a Bright Cyan body and navy legs. The character is used to give the app personality without cluttering everyday UI.
+- **Source: the planner's own photo.** No stock photos — Explore will show many people's trips, and shared stock images would make them look alike.
+- **Upload (planner only):** optional **Add cover photo** on New trip; **Change / Remove cover photo** in Trip settings. Resized on the phone (~1600px wide) before upload; stored in Supabase Storage. Visible to the trip's travellers, the shared trip page, and Explore later.
+- **Where it shows:** My trips cards (thumbnail beside the text — 104px current / 92px upcoming / 52px past), Overview header (300px, full-bleed), invite card (130px).
+- **Overview header text sits on a bottom-up dark gradient** (`rgba(12,18,32,0.82)` → transparent over the bottom ~190px). Nowhere else puts text on a photo.
 
-**Placement:**
-- **Favicon & app icon** — full mascot on cyan background, multiple sizes (16px → 512px) for browser tabs, Android PWA, iOS home screen
-- **Onboarding / sign-in** — full mascot + wordmark logo stacked vertically — first brand impression
-- **Empty states** — not currently used (generic icons instead — see Empty states); may return later
-- **Not in everyday UI** — no mascot in cards, headers, buttons, nav, or lists
+### No photo (interim — option A)
 
-**Style:** flat, vector illustration. Bright Cyan (#22B8E0) body, navy (#1b2d50) legs. No animation in V1.
+- Each trip gets **one of 8 soft colours**, fixed per trip (picked from the trip ID, never changes), so a grid of photo-less trips still looks varied.
+- **Thumbnail:** the colour + the **2-letter country code** in the deeper shade (e.g. "JP", "VN").
+- **Overview header:** shorter (190px), same colour, trip name in `ink` (no gradient), the country code huge and faint in the corner.
 
-**Assets:**
-- `app/public/mascot.png` — cropped, transparent background (for sign-in page)
-- `branding/Mascot-white-bg.png` — full size, white background
-- `branding/Mascot-blue-bg.png` — full size, cyan background (source for all favicons/icons)
+| Soft | Deep | | Soft | Deep |
+|---|---|---|---|---|
+| `#DCEBFA` | `#0B5C94` | | `#FBE4EC` | `#8E2D51` |
+| `#DDF3EA` | `#1A6A4B` | | `#F6EEDC` | `#7A5A12` |
+| `#FDE8D8` | `#8F4414` | | `#DDF1F3` | `#1B6159` |
+| `#ECE6FB` | `#553AA8` | | `#E6EAF1` | `#3B4556` |
 
-### Favicon & app icon
-
-Full mascot on cyan background, resized to each target size:
-- 16×16, 32×32, 48×48, 64×64, 128×128 — favicon (browser tabs, pinned tabs)
-- 180×180 — `apple-touch-icon.png` (iOS home screen)
-- 192×192, 512×512 — PWA manifest icons (Android home screen, splash)
-
-Location: `app/public/favicon-*.png`, `app/public/icon-*.png`, `app/public/apple-touch-icon.png`
+**Later:** once Fargo has an **identity guideline with an illustration library**, the no-photo cover switches to **template illustrations** (the same slot, so it's a swap, not a redesign).
 
 ---
 
 ## Typography
 
-### Font
+**Sora** (unchanged), `font-family: 'Sora', system-ui, -apple-system, sans-serif`. All numbers use `tabular-nums`.
 
-**Sora** — Google Fonts, free. Slightly square proportions give it a recognisable, modern feel. Strong numerals with tabular figure support for money column alignment.
-
-```
-font-family: 'Sora', system-ui, -apple-system, sans-serif;
-```
-
-### Type scale
-
-Mobile-dense scale, expressed as Tailwind classes. `text-sm` (14px) is the workhorse for body and card titles.
-
-| Role | Class | Size | Weight | Usage |
-|---|---|---|---|---|
-| Hero number | `text-[42px]` / `text-[28px]` | 42 / 28px | 500 | Day counter on active / upcoming trip cards |
-| Display | `text-2xl` | 24px | 600 | Trip name on overview, big money totals |
-| Heading | `text-lg` / `text-xl` | 18 / 20px | 600 | Page and section headings |
-| Card title | `text-sm` | 14px | 500–600 | Card titles, day headers, list items |
-| Body | `text-sm` | 14px | 400 | Descriptions, notes, form inputs |
-| Label | `text-xs` | 12px | 500 | Form labels, metadata, secondary lines |
-| Caption | `text-[11px]` / `text-[10px]` | 11 / 10px | 500 | Timestamps, helper text, chips, currency hints |
-
-**Floor: 10px.** Nothing smaller (only exception: initials inside 16px mini-avatars) — travellers read this on a phone, often outdoors. Keep 10px for short, non-essential text (chips, hints); anything a user must read to act uses 12px or more.
-
-### Numerals
-
-```css
-.money {
-  font-variant-numeric: tabular-nums;
-  font-weight: 500;
-  text-align: right;
-}
-```
-
-All money figures use **tabular numerals** so columns align. Weight 500 (medium) gives them enough presence without competing with headings.
-
-### Currency rendering
-
-The app must handle: **RM** (MYR), **₫** (VND), **¥** (CNY/JPY), **฿** (THB), **₱** (PHP), **$** (USD/SGD), **€**, **£**.
-
-Sora covers Latin and common currency symbols. For currencies using symbols outside Sora's glyph set, the `system-ui` fallback handles them — test ₫ and ₱ specifically during development.
-
----
-
-## Spacing
-
-Base-4 scale. Use the smallest value that gives the element room to breathe.
-
-| Token | Value | Typical use |
+| Role | Size / weight | Usage |
 |---|---|---|
-| `space-1` | 4px | Inline gaps, icon-to-text |
-| `space-2` | 8px | Tight padding (tags, pills, dense rows) |
-| `space-3` | 12px | Card internal padding, list item gaps |
-| `space-4` | 16px | Standard padding, section gaps |
-| `space-6` | 24px | Between content blocks |
-| `space-8` | 32px | Between major sections |
-| `space-12` | 48px | Page-level vertical rhythm |
-| `space-16` | 64px | Top/bottom page margins |
+| Screen title | 30 / 700, −0.5 tracking | My trips, Profile, Explore |
+| Photo title | 28 / 700 | Trip name on the Overview header |
+| Section header | 22 / 700 | Screen title under a back button (Schedule, Money…) |
+| Hero number | 26–32 / 700 | One per screen — budget spent, sheet amount (40) |
+| Card title | 16 / 600 | Card headings, trip names, day heading |
+| Row title | 14–15 / 600 | Activity, expense, traveller rows |
+| Body | 14 / 400–500 | Fields, text |
+| Label / meta | 12–13 / 400–500 | Places, dates, "≈ RM", captions — `muted` |
+| Eyebrow | 11 / 600, 0.6 tracking, caps | FIXED / DAILY / SPLIT AS / DANGER ZONE |
+| Tab label | 10 / 500 (600 active) | Bottom bar only |
+
+**Floor: 10px**, only for bottom-bar labels and the "LEFT"-style micro badges. Anything a user must read to act is ≥ 12px.
+
+**Currency:** local amount first ("VND 1,828,800"), RM hint underneath in `muted` 11–12px.
 
 ---
 
-## Border radius
+## Spacing & shape
+
+Base-4 spacing (unchanged). Screen side padding **16px**; card padding **16–18px**; gap between cards **12px**.
 
 | Token | Value | Usage |
 |---|---|---|
-| `radius-sm` | 4px | Tags, chips, small inputs |
-| `radius-md` | 8px | Cards, buttons, input fields |
-| `radius-lg` | 12px | Modals, bottom sheets |
-| `radius-full` | 9999px | Avatars, circular indicators |
+| `radius-sm` | 8px | Small badges |
+| `radius-md` | 12px | Fields, thumbnails in rows, segmented controls |
+| `radius-lg` | 18px | Cards |
+| `radius-xl` | 24–26px | Sheets (top corners), bottom bar, photo cards |
+| `radius-full` | 9999px | Buttons, chips, avatars, FAB |
 
-Corners are **gentle, not pill-shaped** — except chips, which are pills (`radius-full`). Buttons use `radius-md` / `rounded-lg`, not `radius-full`.
+**Buttons and chips are pills.** Cards are rounded rectangles, never pills.
+
+### Shadows
+
+Floating layers only (unchanged rule): bottom bar, FAB, sheets, dialogs, toasts, dragged row. Page cards have **no border and no shadow** — the white-on-`ground` shift is enough.
 
 ---
 
 ## Layout
 
-### The centred column
-
-```
-max-width: 480px
-margin: 0 auto
-padding: 0 space-4 (16px)
-```
-
-**Same layout on desktop and phone.** The column is the document — it doesn't stretch on wide screens. On a phone it fills the viewport minus padding. On desktop it sits centred with `ground` extending to the edges.
-
-480px was chosen because:
-- Comfortable reading width for body text at 15px
-- Fits money tables without horizontal scroll
-- Maps are readable at this width
-- Matches the "trip reads as a document" principle
-
-### Content stacking
-
-Everything inside the column stacks vertically. No multi-column grids, no sidebars, no floating panels. Cards are full-width within the column.
+- **Centred column** 480px max (unchanged); screens are designed at 390px.
+- **Safe areas:** content clears the iPhone notch/home bar (`env(safe-area-inset-*)`).
+- **Bottom clearance:** every scrolling screen ends with ~130px of space so the last item clears the bottom bar and FAB.
+- **Sticky elements:** only the Schedule **date strip** sticks; headers scroll away.
 
 ---
 
 ## Navigation
 
-### Two navigation layers
+### Bottom bar (floating)
 
-**1. App-level bottom nav** — currently two items: **My trips · Profile** (Explore is hidden until it ships; it returns as the middle item)
+- Floating rounded bar: 14px from the sides, 22px from the bottom, 66px tall, `radius 24`, white at 96%, 1px `border`, shadow.
+- Items: icon (21px) + label (10px). **Active item:** `accent` text/icon inside an `accent-soft` **rounded rectangle** (radius 14, padding 0 10px, 48px tall).
+- **Home (outside a trip):** My trips (`Map` icon) · Explore (`Compass`) · Profile (`User`).
+- **Inside a trip:** Overview (`LayoutDashboard`) · Schedule (`CalendarDays`) · Money (`Wallet`) · Prep (`ListChecks`) · Discover (`Compass`). Sub-pages (Your expenses, Settle up) keep their section active.
+- **Swipe left/right** on content still switches trip sections (ignored on the date strip and chip rows).
+- Hidden while the keyboard is open.
 
-- Fixed at the bottom on phone; could sit as a top bar on desktop
-- Each item has an icon + label (Lucide: plane / compass / user)
-- Active item uses `accent` colour + weight 500; inactive uses `muted`
-- **Always visible**, even inside a trip — this is how the user escapes back to app-level
-- Explore tab is hidden or shows an empty state until publishing ships
+### Headers
 
-**2. Trip-level tab bar** — four tabs inside a trip: **Overview · Schedule · Money · Prep**
+- **Overview:** photo header with round back (→ My trips) and, for the planner, settings gear; members see **Leave trip** instead.
+- **Other trip sections:** round back button + trip name caption + section title (22/700). No gear.
+- **Home screens:** big screen title (30/700), no back.
 
-- Sits below the trip header, above the content — **not** at the bottom (bottom is reserved for app-level nav)
-- Active tab uses `accent` colour; inactive tabs use `muted`
-- No icons in V1 — text labels only, keeping it simple
-- **Swipe to switch tabs** — on mobile, swiping left/right on the content area switches between tabs. The tab bar highlight follows the swipe. This is the primary navigation gesture inside a trip
-- **People tab removed** (Aug 25) — traveller avatars and invite button now live in Overview, reducing visual clutter and keeping people visible on the landing tab
-- Planner sees **Trip settings** accessible from the trip header — not as a tab
+### Floating + button (FAB)
 
-### Trip header
-
-Above the trip tabs: trip name, destination flag, back arrow (returns to My trips), settings gear icon. This header is persistent within a trip — you always know which trip you're in.
+- 56px accent circle, white plus, shadow; bottom-right, 20px from the edge, sitting just above the bottom bar.
+- One per screen, for that screen's main add: **New trip** (My trips), **Add activity** (Schedule, planner only), **Log expense** (Money, Your expenses — anyone with an account).
+- Hidden when the user can't add (e.g. members on Schedule).
 
 ---
 
-## Components (patterns, not code)
+## Components
 
 ### Cards
-
-- Background: `card` (#ffffff)
-- Border: 1px solid `border`
-- Radius: `radius-md` (8px)
-- Padding: `space-3` (12px)
-- No shadow. Ever.
+White, `radius-lg` (18), padding 16–18, no border, no shadow. Card title row: title left, one text link right (e.g. "Schedule", "All expenses · 12", "Settle up ›").
 
 ### Buttons
-
-- **Primary:** `accent` background, `accent-on` text, `radius-md`
-- **Secondary:** transparent background, `accent` text, 1px `accent` border
-- **Destructive:** `money-over` background, white text — used only for delete/remove actions
-- Height: 44px minimum (touch target)
-- Full-width within the column on phone; auto-width on desktop
-
-### Forms (bottom-sheet panels)
-
-**Add activity is the reference layout** — every form panel follows it:
-
-- **Header:** title left (`text-sm` semibold), ✕ close button right (with `aria-label="Close"`)
-- **Hero field first:** the one thing the form is about, large and borderless — "What's the plan?" for activities, the amount for expenses
-- **Short fields:** label **beside** the field (`text-xs` muted, fixed `w-10`), input to its right
-- **Category chips** below the fields, then **Notes** as a 2-row textarea
-- **Footer:** `Cancel` (outlined) + primary action (filled `accent`) side by side, equal width. In edit mode, secondary actions (Delete, Move to ideas) sit centred below as small text links — Delete in `money-over`
-
-### Input fields
-
-- Background: `ground`, 1px `border`, `radius-md`
-- Focus: border becomes `accent`
-- Text: `text-sm`; placeholder `muted` at 50%
+Pills, 44px tall (50px for full-width screen actions).
+- **Primary:** `accent` fill, white text.
+- **Secondary (soft):** `accent-soft` fill, `accent` text — "Set a budget", "Mark as settled", "Schedule".
+- **Quiet:** white, 1px `border`, `ink` text — Cancel, Show more, Sign out.
+- **Destructive:** text-only `money-over` in panels ("Remove", "Delete"); red-filled only inside the confirm dialog; outlined red in Trip settings' Danger zone.
 
 ### Chips
+One style everywhere (categories, filters, dietary, trip type, Discover sections). Pill, 34px tall, 13px/500, optional 14px icon.
+- **Off:** white, 1px `border`, `ink` text (category icon in its colour).
+- **On:** `accent-soft` fill, 1px `accent` border, `accent` text.
+- **Disabled / "Soon":** off style at 55% opacity.
 
-One style everywhere (categories, filters, dietary options, Discover sections), taken from Add activity:
+### Segmented control
+Grey track (`ground` or `#E6EAF1`), white raised thumb for the selected option — "Split as" (Equal · Shares · % · Amounts), shared trip Schedule / Prep.
 
-- Shape: pill (`rounded-full`), `px-2.5 py-1.5`, `text-xs` weight 500
-- **Off:** `ground` background, `muted` text, 1px `border`; hover border `accent` at 40%
-- **On:** `accent` background, `accent-on` text
-- Disabled / "Soon": off style at 40% text opacity
+### Fields
+`ground` fill, 1px `border`, radius 12, 44px tall. Short fields use a **label beside the field** (13px `muted`, 64px wide). Focus: `accent` border.
+
+### Category icon
+Soft circle in the category's colours (32–36px in rows, 44px in details) with the Lucide icon at ~50% size. **Replaces all category emoji.**
+
+### Avatars
+Initial in a circle. Stacks overlap by −7px with a 2px white ring.
+- **Has an account:** `accent-soft` fill, `accent` initial.
+- **Name only (Quick add / never joined):** white with a dashed `faint` border, `muted` initial.
+- **Selected:** accent fill, white initial, 2px ring gap + accent ring.
+- **Planner:** small amber crown under the name.
+
+### Sheets (bottom)
+Dimmed backdrop (`ink` at 42%), white sheet with 26px top corners, grab handle, title (18/700) left, round × right. Content scrolls inside; actions at the bottom: **Cancel (quiet) + primary** side by side. Edit-only actions (Move to ideas, Delete) sit below as small text buttons. Used for Add/Edit activity, Log expense, Expense detail, Spot detail, Add to schedule, Split shares.
+
+**Add activity stays the form reference** (field order: title → Time → Date → Place → category chips → Notes). Log expense keeps its current order (amount → What for → Paid by → Date → category → Split as → Split between → status line → Notes).
+
+### Confirm dialog
+Centred white card (radius 22) over the dim backdrop: title (18/700), one sentence in `muted`, Cancel + confirm (red when destructive). "Working…" while saving.
+
+### Toasts
+Dark `ink` pill-card near the top: coloured round status icon (green ✓ / red × / blue info), text, dismiss ×.
 
 ### Empty states
+64px `accent-soft` circle with a 28px Lucide icon, optional title (17/600), one line of `muted` text, optional button. Full-screen pages centre it vertically. **Icons, never emoji** (the old 🗺️ / 😵 pages move to `Map` / `X` icons).
 
-Inside a tab: a **generic Lucide icon** in a 40px `accent-soft` circle (icon 18px, `accent`), with one line of `text-sm` muted guidance below — use the `EmptyState` component. Full-page empty states (My trips, Explore) use the same pattern scaled up (64px circle, heading + text + button). No mascot in empty states for now.
+### Loading
+Skeleton blocks in `#E6EAF1` matching the real layout (header, date strip, cards, rows).
 
-### Money rows
+---
 
-A money row is a horizontal line showing a label and an amount:
+## Screen patterns
 
-```
-[Category label]                    [RM 1,240.00]
-```
+### My trips
+Plain list: the **current trip** first (104px photo, blue outline, "Day 11 of 14" filled chip), then upcoming (92px photo, "In 76 days" soft chip), then **Past trips** as compact rows inside one card (52px photo, name, place · dates, chevron). Avatars on current/upcoming cards. No trip type, no trip length, no month headings.
 
-- Label: `body` weight 400, left-aligned
-- Amount: `body` weight 500, `tabular-nums`, right-aligned
-- Colour: `ink` by default; `money-ok` / `money-warn` / `money-over` when showing variance
-- Background tint: the soft variant of the money colour, applied to the row when over-budget or warning
+### Overview
+Photo header → **time & temperature** card (local + home time; temperature only, no place label) → **Today** card (up to 3 timed items; time, category icon, title, place; "NOW" tag) → **Travellers** card. Three versions:
+- **During the trip:** as above. When today is done the card becomes **Tomorrow's plan** (or the next day with plans).
+- **Before the trip:** header says "In 76 days"; card shows "12 activities planned" + first 3 (with dates) + "+9 more".
+- **After the trip:** **Trip summary** — Duration, Destination, Activities list, Stay. No time/weather.
 
-### Hero trip card (My trips page)
+**Travellers card:** avatars + small **Invite** button.
+- Tap **Invite** → panel with **Quick add traveller** (name + Add) and **Share this link** (link + Copy).
+- Tap **a person** → panel with **Name · badge · Remove** and **Name [field] Save** (rename, name-only travellers). Remove only works for people with no expenses.
+- Members: tap themselves → Leave trip / Change owner; note "Only the planner can invite or remove travellers."
 
-Full-width within the column. Solid colour background (accent teal, amber, purple — varies per trip). Two variants based on trip state:
+### Schedule
+Back header → **sticky date strip** (‹ · five day cells with weekday / date / "Day N", selected = accent fill, today dot · ›) → **daily budget card** for the selected day ("Spent on Sat 27 · VND 450,000 of 1,230,000", thin bar, "VND 780,000 left for today"; red when over; hidden with no budget) → **map preview** (pins in category colours, current stop haloed, "Map" button; hidden when no places) → **day card**: "Today · Saturday, 27 Sep", then the timeline.
 
-**Active trip (hero treatment):** the loudest element on the page.
+**Timeline row:** time column (42px, `muted`; blank when untimed) · category icon on a thin vertical line · **bold title** + one `muted` place line · drag handle (planner). Current activity: `accent-soft` row, accent time, "NOW". No notes, no cost, no photos on rows.
 
-- **"Active now" indicator** — pulsing dot + label at top of card
-- **Trip type chip** — `rgba(255,255,255,0.2)` background, `radius-sm`, `caption` size
-- **Destination + flag** — `heading` size, weight 600, white
-- **Dates + duration** — `caption` size, white at 80% opacity
-- **Day counter as hero number** — `42px`, weight 500, white, tabular-nums — "Day 5" not "5 days to go"
-- **"day of N" label** — `body` size, white at 80% opacity
-- **Traveller avatars** — row of circles (26px), overlapping with -6px margin
-- **"Open →" button** — right-aligned, `rgba(255,255,255,0.2)` background
+### Money
+Back header → **My budget** (spent as the hero number, "spent of 6,000,000", **daily free** on the right, progress bar, "left · days to go") → **Group split** ("You get back / You pay back / All square", amount + ≈ RM, **Settle up ›**, and a **Split shares · Edit** row for the planner) → **What you paid** (grouped **FIXED / DAILY / SETTLE-UPS**, category icon + amount + thin bar, "All expenses · N"). Log expense is the FAB.
 
-**Upcoming trip (compact hero):** sits below the active card, smaller.
+### Settle up
+"Your payments" first (avatar, "Ali pays you", amount + ≈ RM, Mark as settled / "Waiting for X to mark it settled") → **Everyone** (collapsed: payments + each balance) → **Settled** (green tick, Unmark).
 
-- Same solid colour background, `radius-lg`, padding `space-3` (14px)
-- **Layout:** two-column — left holds chip + destination + dates, right holds countdown number + label
-- **Countdown number** — `28px` (smaller than active card), weight 500, tabular-nums
-- **Traveller avatars** — smaller (22px), below the content row
-- No "Open" button — tapping the card opens the trip
-
-Common to both:
-- Radius: `radius-lg` (12px)
-- No border, no shadow
-
-### Explore trip card (2-column grid on Explore page)
-
-Half-width within the column (2-column grid, 8px gap). Solid colour background. Contains:
-
-- **Trip type chip** — top-left, same treatment as hero card
-- **Destination + flag** — `subheading` size, white
-- **Duration + total spend** — `caption`, white at 85% opacity
-- **Owner name + avatar** — `caption`, white at 80% opacity, small avatar circle (12px)
-- Height: ~150px fixed
-- Overlay: linear gradient from bottom (black at 60% opacity) to transparent at 55% — ensures text readability
-- Radius: `radius-md` (8px)
-
-### Daily budget strip (Schedule tab, active trip)
-
-Full-width, `accent-soft` background (#e6f5f0), `radius-md`, padding `space-3`. Sits **below the day picker**, not above it — pick the day first, then see the budget for that day. Contains:
-
-- **Left:** "Daily free budget" label (`caption`, `accent` dark shade) + amount (`heading` size, `accent`)
-- **Right:** "Spent today" label (`caption`, muted) + amount (`subheading`, `accent`)
-
-### Activity cards on Schedule
-
-Each activity card shows a **drag handle** (⠿ grip dots, `border` colour) on its left edge to signal reorderability. Drag-to-reorder uses `@dnd-kit` — the handle is the touch target, not the whole card (tapping the card body opens it for editing).
-
-An **"+ Add activity"** button (dashed border, `accent` text) sits at the bottom of each day's activity list.
-
-### "You are here" activity marker
-
-When a trip is active, the next upcoming activity (based on current time) gets a **3px left border in `accent`** on its card. No other activities are modified — no strikethrough, no greying, no "done" state. The schedule is a living plan, not a checklist.
-
-### Prep interactions (Bookings, Checklists, Ideas)
-
-Each section has a **"+ Add" / "+ New list" button** in the section header (right-aligned, `accent` text, no border).
-
-**Checklists:**
-- Each list card shows a **progress counter** ("2 of 4") in `caption` size next to the list name
-- A **"+ Add item…" inline input** (dashed bottom border, placeholder text) sits at the bottom of each list
-- Tapping the checkbox toggles done; tapping the text opens inline edit
-- **Swipe left on an item** reveals a red "Delete" strip
-- The list header has a **••• menu** (three-dot icon, `muted` colour) that opens: Rename list, Delete list
-- Deleting a list requires confirmation ("Delete 'Packing' and all its items?")
-
-**Bookings:** tapping a booking card opens it for editing. Swipe left to delete (with confirmation for bookings that have linked expenses).
-
-**Ideas:** each idea row has a **"→ Schedule" promote button** (`accent` text, right-aligned). Promoted ideas show struck through with "→ Promoted to Day N" in `accent`. Swipe left to delete.
-
-### Log expense form (phone-first layout)
-
-Designed for one-handed phone use. Three essential fields are front-loaded at the top:
-
-1. **Amount** — large centred number (`36px`, weight 600), currency label above, MYR conversion below
-2. **What for** — single text input, no label (placeholder "What for?")
-3. **Category** — chip row, single-select (🍜 Food / 🚕 Transport / 🏛 Activities / 🛒 Shopping / 📦 Other)
-
-Below a "Defaults — tap to change" divider, **smart defaults** are shown pre-filled:
-- **Paid by** (defaults to you) + **Solo/Shared toggle** — side by side
-- **Date** (defaults to today) + **Notes** (optional) — side by side
-
-The **"Log expense" submit button** is **sticky at the bottom** of the screen — always visible, never requires scrolling. Padding: `space-2` top, `space-3` bottom, with a `border` top line separating it from the scroll area.
-
-### Post-trip summary (Overview tab, completed trip)
-
-When a trip's status is "completed", the **Overview tab transforms** to show the post-trip summary. No separate screen — same tab, different content:
-
-- **Dates card** shows "Completed" badge (muted background) instead of "Active now"
-- **Illustration placeholder** — suitcase with stickers, journey complete
-- **Summary hero card** — `accent` background, centred layout: total spent (large), budget vs actual comparison, three-column stat row (daily avg / budget per day / trip days)
-- **Category breakdown** — colour bar + rows with category emoji and actual amounts
-- **Per traveller** — avatar + name + total cost, coloured by budget status (green = under, red = over)
-
-### Shared trip cards (recently viewed in Profile)
-
-Same as standard trip cards but with:
-- **Owner name + avatar** — small avatar circle (11px) + name in `caption`, below dates
-- No "Shared" badge — the owner name itself communicates that this is someone else's trip
-
-### Status indicators
-
-- **Pending approval:** small dot in `money-warn` amber
-- **Budget healthy:** no indicator (absence of colour = fine)
-- **Over budget:** `money-over` text colour + `money-over-soft` row background
-- **Unallocated budget:** shown as a readable state ("RM150 unallocated"), not an error
+### Tier 2 & 3 screens
+Keep today's layouts; apply the components above (Prep, Discover, Spot detail, Add to schedule, Your expenses, Expense detail, Sign in, Invite, Shared trip, New trip, Trip settings, Profile, error/offline pages). Details per screen are on the canvas and in [REDESIGN.md](REDESIGN.md).
 
 ---
 
 ## Motion
 
-- **Transitions:** 200ms ease-out for colour, background, border changes
-- **Trip tab transitions:** horizontal swipe gesture on mobile; the content slides and the tab indicator follows. On desktop, tabs switch instantly (click, no animation)
-- **Loading states:** skeleton screens using `border` colour on `ground` background — pulsing at a calm pace
-- **No decorative animation.** Every motion serves a state change.
+- 200ms ease-out for colour/background changes; sheets slide up; dialogs fade + scale slightly.
+- Swipe between trip sections; no page-transition animation otherwise.
+- Skeletons pulse calmly. No decorative animation.
 
 ---
 
 ## Iconography
 
-- **No custom icon set in V1.** Use a standard icon library (Lucide or similar) — outlined style, 20px default size, `ink` colour, `muted` when inactive.
-- Icons are supplementary — every icon-only button must have an accessible label.
+Lucide, outlined, stroke ~1.8–2. 20–21px in navigation, 14–18px inline. Every icon-only button has an `aria-label`. **No emoji in the UI.**
 
 ---
 
-## Illustrations
+## Illustrations & dark mode
 
-**Not in V1 build — positions are reserved, placeholders used during development.** The illustration set is commissioned or generated as a batch once the product is stable.
-
-### Style
-
-Flat, warm, hand-drawn-feel vector illustrations (à la BlaBlaCar / Headspace). Consistent with the cream + teal palette — no photographic images, no 3D renders. One cohesive style across all placements.
-
-### Rules
-
-- Small and contained — sit within a card or section header, not full-bleed backgrounds
-- Never block content or require scrolling past — they enhance empty states, they don't fill them
-- Max height: 120px on phone, 160px on desktop — decorative, not dominant
-- Transparent background — they sit on `ground` or `card` naturally
-
-### Placement map
-
-| Position | Trigger | Mood / subject |
-|---|---|---|
-| My trips — empty state | New user, no trips | Open suitcase, world map, "where to?" |
-| Explore — empty / pre-launch | No published trips yet | Binoculars, compass, "trips coming soon" |
-| Explore — search no results | Search returns nothing | Empty map, "try another destination" |
-| Trip overview — new trip | Trip just created, nothing added | Boarding pass, countdown energy |
-| Schedule — empty day | A day with no activities | Sunrise, blank canvas |
-| Ideas — empty backlog | No ideas yet | Lightbulb, travel magazine collage |
-| Post-trip summary — header | Top of budget vs actual page | Suitcase with stickers, journey complete |
-| Shared view — header | Top of read-only shared trip | Postcard, "check out my trip" |
-| Sign-in / landing | Unauthenticated landing page | Brand hero: people planning a trip together |
-| Profile — no recently viewed | No shared trips opened | Telescope, "explore trips from friends" |
+Unchanged: no illustration set yet (empty states use icons), no dark mode in this version.
 
 ---
 
-## Dark mode
+## Retired in v0.8
 
-**Not in V1.** The warm cream palette is the identity. Dark mode is a future consideration once the light palette is proven. When it arrives, `ground` becomes a warm dark grey (not pure black), and the token system makes it a palette swap.
-
----
-
-## Design checklist before development
-
-- [ ] Wireframes reviewed and approved (flat artboards, all screens)
-- [ ] Sora font tested for currency symbols (₫, ₱, ฿, ¥)
-- [ ] Money row alignment verified with real data (5-digit MYR, 7-digit VND)
-- [ ] Touch targets validated (44px minimum on all interactive elements)
-- [ ] Empty states designed for every screen
-- [ ] Ground-to-card contrast passes WCAG AA for text
+Top tab bar · solid-colour hero/compact trip cards and their colour rotation · trip type chip on cards · category emoji · dashed "Add activity / Log expense" buttons (→ FAB) · hero day-counter numbers on trip cards · "Turn into no account" (removed) · invite link in Trip settings (→ Overview) · Profile "Recently viewed" (hidden until built) · the unused People page (to delete).

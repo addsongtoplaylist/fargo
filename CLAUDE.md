@@ -57,4 +57,4 @@ npx next build     # production build
 - **Shared trips** (`/s/[code]`) are read only through `get_shared_trip(code)` — no invite code, account IDs, budgets or expenses.
 - **Caching:** `getTrip`, `getActivities`, `getExpenses`, `getBudgetSummary` use `unstable_cache` (30s). Every mutation must `revalidateTag` the tags it affects (`trip-…`, `activities-…`, `expenses-…`).
 - **"Today"** in client components uses the device's local date; trip "active" state is derived from dates, not the stored `status` column.
-- **Design:** follow `docs/DESIGN.md` — Add activity is the reference for forms and chips; generic-icon empty states (`EmptyState`); shadows only on floating layers.
+- **Design:** follow `docs/DESIGN.md` (v0.8 redesign) — floating bottom bar for trip sections, floating + for the main add, category icons (no emoji), shadows only on floating layers; Add activity is the form reference. During the redesign, every screen is checked against `docs/REDESIGN.md` — no feature is removed without the owner's OK.
