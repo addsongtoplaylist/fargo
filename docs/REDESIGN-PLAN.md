@@ -262,7 +262,7 @@ Still for the owner: member view on the second account; real phone look.
 
 **Test on Test trip only:** add (timed + untimed, with and without a place), edit, change day, move to ideas, delete, reorder; day with/without budget and places; member view read-only (no +, no handles, rows not tappable); clean up afterwards.
 
-## 17. P5 log (2026-09-28) — built, awaiting owner test
+## 17. P5 log (2026-09-28) — owner tested ✅
 
 Decisions: empty day reads "No activities yet. Tap + to add one." ✅ · map keeps Show/Hide, no full-screen map ✅ · budget line "left for today" on today, "left" on other days ✅ · time stays HH : MM dropdowns (15-min) ✅.
 
@@ -278,3 +278,37 @@ Decisions: empty day reads "No activities yet. Tap + to add one." ✅ · map kee
 - Read-only check on We are Riize: budget card over-budget state, 5-place map, long timeline under the sticky strip.
 - Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px browser check ✅.
 - **Owner to check on a phone:** drag with a finger (hold the ⋮⋮ handle), sticky strip while scrolling, keyboard with the sheet open, member view (no +, no handles, rows not tappable).
+
+## 18. P6 plan — Money (not started)
+
+**Goal:** Money, Your expenses, Settle up, Log/Edit expense and Expense detail in the new design. Same numbers, same database functions (`save_expense`, `delete_expense`, `mark_settled`, `unmark_settled`, `set_my_budget`), no change to `lib/balances` / `lib/split` / `lib/actions`. Rows: M1–M10, U1–U7, E1–E13, X1–X6, O13 (shares stepper moves here).
+
+**Split into two pushes (lower risk, each tested on the preview):**
+
+**P6a — Money page + Split shares**
+1. Order: **My budget → Group split → What you paid**; Log expense becomes the floating + (anyone with an account).
+2. **My budget:** spent is the big number, "spent of VND 6,000,000", daily free on the right, bar, "VND x left · N days to go" (red when over). Edit budget (RM, ≈ local, explainer) and "Set a budget" unchanged in behaviour.
+3. **Group split** (2+ travellers and ≥1 expense, as today): "You get back" / "You pay back" / "All square", amount + ≈ RM, to/from names, **Settle up ›**; keep "You're settled up · N payments still open in the group".
+4. **Split shares · Edit** row (planner) → sheet listing every traveller with − n + (same `updateTraveller` call as today). The stepper leaves the Overview person panel.
+5. **What you paid:** FIXED / DAILY / SETTLE-UPS, category icon + amount + thin bar, "All expenses · N"; empty "Nothing paid yet."
+6. Loading skeleton.
+
+**P6b — sub-screens + sheets**
+7. **Log / Edit expense** on the shared Sheet, same field order and rules (amount with currency switch, What for, Paid by, Date, category chips with icons, Split as segmented, Split between with Select all / Clear, per-person fields, status line, Notes; Delete when editing).
+8. **Expense detail** (read-only sheet for other people's expenses).
+9. **Your expenses:** day groups with totals, rows with category icon, "Logged for X", people count, amount + ≈ RM; settlements get an icon instead of 🤝; + button.
+10. **Settle up:** Your payments → Everyone (collapsed) → Settled; Mark as settled / Waiting for X / Unmark with the same confirms.
+
+**Test on Test trip only (re-run the money UAT):** equal / shares / % / amounts splits; logged for someone else; edit + delete; settle + unmark; budget set / edit / over; member view; then remove all test expenses and settlements.
+
+## 19. P6a log (2026-09-28) — built, awaiting owner test
+
+Decisions: two pushes (P6a / P6b) ✅ · Split shares saves on each tap ✅ · "N days to go" (during: days left incl. today; before: "N days trip"; after: hidden) ✅ · budget test on Test trip, restored to none ✅.
+
+- ✅ Order My budget → Group split → What you paid; Log expense is the floating + (the Log expense sheet itself is restyled in P6b).
+- ✅ My budget: spent as the hero (red when over), "spent of …", daily free right, bar, "x left / x over · N days to go". Edit (RM + ≈ local + explainer) and Set a budget unchanged.
+- ✅ Group split: You get back / You pay back (amount + ≈ RM + names) · You're settled up (N open) · All square; Settle up ›. **Split shares · Edit** (planner, 2+ travellers — shown even before the first expense) → sheet with − n + per traveller (same `updateTraveller`). Shares stepper removed from the Overview person panel.
+- ✅ What you paid: FIXED / DAILY / SETTLE-UPS with category icon, amount and a thin bar (share of what you paid); "All expenses · N"; "Nothing paid yet."
+- ✅ Loading skeleton.
+- Tested on Test trip: Raj shares 1→2→1; budget RM 1,000 (over, red) → RM 5,000 (left, green) → 0 (back to "Set a budget", as before). Read-only: We are Riize (past trip: no days-to-go, All square, fixed + daily groups).
+- Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Crown, UserPlus, LogOut, Link as LinkIcon, Check, Loader2, Minus, Plus, Repeat, Trash2 } from "lucide-react";
+import { Crown, UserPlus, LogOut, Link as LinkIcon, Check, Loader2, Repeat, Trash2 } from "lucide-react";
 import {
   getOrCreateInviteCode,
   removeTraveller,
@@ -36,7 +36,8 @@ type OverviewPeopleProps = {
 /**
  * Travellers card (redesign P4). Two panels, never both open:
  * - Invite (planner): Quick add traveller + Share this link
- * - Tap a person: name · badge · Remove, rename (name-only), shares (until P6),
+ * - Tap a person: name · badge · Remove, rename (name-only) — shares live in
+ *   Money → Split shares (P6),
  *   and for yourself (member): Leave trip / Change owner.
  * Actions and rules are unchanged from before the redesign.
  */
@@ -307,36 +308,6 @@ export function OverviewPeople({ tripId, travellers, isPlanner, myAccountId }: O
               >
                 Save
               </Button>
-            </FieldRow>
-          )}
-
-          {/* Planner: default shares (D3) — moves to Money → Split shares in P6 */}
-          {isPlanner && (
-            <FieldRow label="Shares">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    const cur = selectedTraveller.default_shares ?? 1;
-                    if (cur > 1) run(() => updateTraveller(tripId, selectedTraveller.id, { shares: cur - 1 }));
-                  }}
-                  disabled={busy || (selectedTraveller.default_shares ?? 1) <= 1}
-                  aria-label="Fewer shares"
-                  className="w-[34px] h-[34px] rounded-full border border-line bg-surface flex items-center justify-center text-fg disabled:opacity-40"
-                >
-                  <Minus size={16} strokeWidth={2} aria-hidden />
-                </button>
-                <span className="w-4 text-center text-base font-semibold tabular-nums">{selectedTraveller.default_shares ?? 1}</span>
-                <button
-                  type="button"
-                  onClick={() => run(() => updateTraveller(tripId, selectedTraveller.id, { shares: (selectedTraveller.default_shares ?? 1) + 1 }))}
-                  disabled={busy}
-                  aria-label="More shares"
-                  className="w-[34px] h-[34px] rounded-full border border-line bg-surface flex items-center justify-center text-fg disabled:opacity-40"
-                >
-                  <Plus size={16} strokeWidth={2} aria-hidden />
-                </button>
-              </div>
             </FieldRow>
           )}
 
