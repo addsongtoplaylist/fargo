@@ -131,6 +131,7 @@ Phases 1–3 are complete. The remaining days (Aug 26–29) are hardening, UAT, 
 | 2026-09-27 | **UI redesign before Explore** — HTML mockups first. My trips: Mozi-style cards (photo beside text). Overview: Qantas-style (photo header with bottom dark gradient, clean cards). Schedule: Tripsy-style timeline, one line per activity. Money: keep flows, fix hierarchy. Trip sections move to the bottom bar. Photos from Unsplash |
 | 2026-09-27 | **Travel stats** grouped with the Explore milestone |
 | 2026-09-28 | **Redesign design locked** — DESIGN.md v0.8 + canvas; feature checklist + build plan (v0.5.0–v0.5.6) in REDESIGN.md. Removed: "Turn into no account", trip type/length on cards, invite link in settings, claim counts on invite, Recently viewed (hidden). Personal checklists after the redesign |
+| 2026-09-28 | **After the redesign (enhancements):** (1) personal checklists; (2) **Discover price filter** — multi-select price chips using all 4 Google levels ($–$$$$), "Fine dining" becomes a real upscale filter, places with no price info handled separately (needs a DB change to store several levels) |
 | 2026-09-28 | **Cover photos are user-uploaded** (planner), no stock photos. No photo → colour + country code for now; switch to template illustrations once an identity guideline + illustration library exist |
 
 ### Open

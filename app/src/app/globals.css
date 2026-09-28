@@ -54,6 +54,45 @@
 
   /* Layout */
   --max-width-column: 480px;
+
+  /* ── Redesign v0.8 tokens (DESIGN.md). Added beside the old ones so
+     screens switch one phase at a time; old tokens are removed in P9. ── */
+  --color-page: #f3f5f9;
+  --color-surface: #ffffff;
+  --color-fg: #172033;
+  --color-fg-muted: #5b6475;
+  --color-fg-faint: #8a93a3;
+  --color-line: #e4e8ef;
+  --color-brand: #0071bc;
+  --color-brand-hover: #005a96;
+  --color-brand-on: #ffffff;
+  --color-brand-soft: #e3f0fa;
+  --color-skeleton: #e6eaf1;
+
+  /* Category colours: soft background + icon */
+  --color-cat-stay: #6446c2;
+  --color-cat-stay-soft: #eee8fb;
+  --color-cat-food: #a9531a;
+  --color-cat-food-soft: #fdeee3;
+  --color-cat-transport: #1f7068;
+  --color-cat-transport-soft: #e2f4f2;
+  --color-cat-activities: #0071bc;
+  --color-cat-activities-soft: #e3f0fa;
+  --color-cat-shopping: #a8365f;
+  --color-cat-shopping-soft: #fbe7ef;
+  --color-cat-flights: #2d5da8;
+  --color-cat-flights-soft: #e4eefb;
+  --color-cat-misc: #4a5264;
+  --color-cat-misc-soft: #eef0f4;
+
+  --radius-field: 12px;
+  --radius-card: 18px;
+  --radius-bar: 24px;
+  --radius-sheet: 26px;
+
+  --shadow-float: 0 10px 28px rgba(23, 32, 51, 0.14);
+  --shadow-fab: 0 8px 20px rgba(0, 113, 188, 0.35);
+  --shadow-dialog: 0 16px 40px rgba(23, 32, 51, 0.25);
 }
 
 body {

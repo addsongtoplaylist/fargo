@@ -88,3 +88,22 @@ Effort: **S** ≈ one short session · **M** ≈ one session · **L** ≈ two se
 
 - **P0–P9 (UI only):** the `redesign` branch's **Vercel preview is the UAT server**. It uses the production database — same rule as always: write only to **Test trip (Vietnam)**; real trips read-only. Safe because these phases change no data structures.
 - **P10 and future database work** (photo storage, personal checklists, Explore): set up a **new staging Supabase project** first (the old one, `lpiadmuojfbktajvcfzy`, is gone), so new SQL is tried there before production.
+
+## 8. P0 log (2026-09-28)
+
+- ✅ Branch `redesign` pushed; preview **https://fargo-git-redesign-songs-projects-50dc68e0.vercel.app** — Google sign-in works (Supabase redirect URL added by owner).
+- ✅ Baseline ("before") captured in the browser pane at 375px on Test trip: My trips, Overview, Schedule, Money, Your expenses, Settle up, Prep, Discover, Trip settings, Profile, New trip. (Captured in-session, not saved as files.)
+- **Baseline vs canvas — follow today's wording/controls in the build:**
+  - Discover's first category is **"Bites"** (not "Dining"); start state reads **"Find your next meal"**.
+  - Profile: **Budget is a dropdown** (canvas drew chips) — keep a dropdown unless the owner prefers chips; Home country shows a **flag** in the dropdown; Sign out is a red outlined button.
+  - New trip: the rate field is labelled **"1 MYR ="**, beside Local currency.
+  - Trip settings: Base city field has an inline **"Place"** label.
+- **To check during P5:** on the baseline, Schedule showed "Today" but the date strip displayed Days 1–5 (today is Day 12) — confirm whether the strip fails to scroll to today on a real phone (possible existing bug; not caused by the redesign).
+
+## 9. P1 log (2026-09-28)
+
+- ✅ New tokens **beside** the old ones in `globals.css` (`page`, `surface`, `fg`, `fg-muted`, `fg-faint`, `line`, `brand*`, `cat-*`, `rounded-card/field/bar/sheet`, `shadow-float/fab/dialog`). No existing screen uses them yet → no visual change to the app.
+- ✅ Building blocks in `components/ui/`: Card/CardHeader/Eyebrow, Button/TextButton, Chip, Segmented, fields (FieldRow/FieldStack), CategoryIcon (+ `lib/category-style.ts`), Avatar/AvatarStack, Sheet, Confirm, ToastCard, Empty, Bone, Fab, TabBar.
+- ✅ Preview-only page **`/dev/ui`** (404 in production; delete in P9).
+- 🐛 **Found + fixed:** the offline service worker also ran in local dev and served **stale CSS/JS** (cache-first, dev file names don't change). Now it never runs in dev and removes old registrations. Production unchanged. Likely the real cause of the earlier "stale Money tab highlight" glitch.
+- Gates: type-check ✅ lint ✅ production build ✅ (dev stopped) · logic-file guard ✅ (no changes to `lib/actions`, `split`, `balances`, `supabase/`) · browser check at 375px ✅ (colours, type, buttons, chips, segmented, fields, icons, avatars, sheet over bar/FAB, confirm on top, toasts, empty, skeleton).

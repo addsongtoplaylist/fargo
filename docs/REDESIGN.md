@@ -275,7 +275,7 @@ Same approach as Tier 2: **keep today's layouts, apply the new design system.** 
 |---|---|---|
 | PR1 | Avatar initial, name, email | |
 | PR2 | Home country, Home currency | |
-| PR3 | Dining preferences: Budget (options), Dietary restrictions (chips) — "Used by Discover…" | |
+| PR3 | Dining preferences: Budget (dropdown today), Dietary restrictions (chips) — "Used by Discover…" | 🔄 Budget becomes **single-select chips** (owner, 2026-09-28) — still one saved value, no DB change |
 | PR4 | **Recently viewed** — placeholder text only, never built | 🔄 Hidden until built (T3) |
 | PR5 | Sign out | |
 | PR6 | "Fargo v0.4.6" | |
