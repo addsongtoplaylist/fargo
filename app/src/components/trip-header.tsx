@@ -1,18 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, Settings, LogOut } from "lucide-react";
 import { useTrip } from "@/lib/trip-context";
 import { leaveTrip } from "@/lib/actions/trip";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
+const TITLES: Record<string, string> = {
+  overview: "Overview",
+  schedule: "Schedule",
+  money: "Money",
+  prep: "Prep",
+  discover: "Discover",
+  settings: "Trip settings",
+};
+
+const ROUND =
+  "w-10 h-10 rounded-full bg-surface border border-line flex items-center justify-center text-fg shrink-0 hover:border-fg-faint transition-colors";
+
+/**
+ * Trip header (DESIGN.md v0.8): round back (→ My trips), trip name caption,
+ * section title. Planner gear / member Leave only on Overview (N7).
+ * Overview gets its photo header in P4.
+ */
 export function TripHeader() {
   const router = useRouter();
+  const pathname = usePathname();
+  const params = useParams<{ id: string }>();
   const trip = useTrip();
-  const isPlanner = trip?.myRole === "planner";
-  const isMember = trip?.myRole && trip.myRole !== "planner";
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
+
+  const section = pathname.split(`/trips/${params.id}/`)[1]?.split("/")[0] ?? "overview";
+  const onOverview = section === "overview";
+  const isPlanner = trip?.myRole === "planner";
+  const isMember = !!trip?.myRole && trip.myRole !== "planner";
 
   async function handleLeave() {
     if (!trip?.id) return;
@@ -26,42 +48,26 @@ export function TripHeader() {
 
   return (
     <>
-      <header className="bg-card border-b border-border">
-        <div className="mx-auto max-w-[var(--max-width-column)] px-4 flex items-center h-12 gap-3">
-          <button
-            onClick={() => router.push("/trips?noauto=1")}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-ink transition-colors -ml-2"
-            aria-label="Back to My trips"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-sm font-semibold truncate leading-tight">
-              {trip?.name || "Trip"}
-            </h1>
-            <p className="text-[11px] text-muted truncate leading-tight">
-              {trip?.destination}
-            </p>
-          </div>
-          {isPlanner && (
-            <button
-              onClick={() => router.push(`/trips/${trip?.id}/settings`)}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-ink transition-colors -mr-2"
-              aria-label="Trip settings"
-            >
-              <Settings size={18} />
-            </button>
-          )}
-          {isMember && (
-            <button
-              onClick={() => setShowLeaveDialog(true)}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-red-500 transition-colors -mr-2"
-              aria-label="Leave trip"
-            >
-              <LogOut size={18} />
-            </button>
-          )}
+      <header className="mx-auto w-full max-w-[var(--max-width-column)] px-4 pt-4 pb-3 flex items-center gap-3">
+        <button type="button" onClick={() => router.push("/trips?noauto=1")} className={ROUND} aria-label="Back to My trips">
+          <ArrowLeft size={19} strokeWidth={1.9} aria-hidden />
+        </button>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-medium text-fg-muted truncate">{trip?.name || "Trip"}</p>
+          <h1 className="text-[22px] font-bold text-fg leading-tight tracking-[-0.2px] truncate">
+            {TITLES[section] ?? "Trip"}
+          </h1>
         </div>
+        {onOverview && isPlanner && (
+          <button type="button" onClick={() => router.push(`/trips/${trip?.id}/settings`)} className={ROUND} aria-label="Trip settings">
+            <Settings size={18} strokeWidth={1.9} aria-hidden />
+          </button>
+        )}
+        {onOverview && isMember && (
+          <button type="button" onClick={() => setShowLeaveDialog(true)} className={ROUND} aria-label="Leave trip">
+            <LogOut size={18} strokeWidth={1.9} aria-hidden />
+          </button>
+        )}
       </header>
 
       <ConfirmDialog

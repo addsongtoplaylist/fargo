@@ -74,7 +74,7 @@ export function AddToSchedule({
     tripDays.find((d) => d.date === selectedDay)?.label ?? selectedDay;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+    <div className="fixed inset-0 z-[60] flex items-end justify-center">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
 

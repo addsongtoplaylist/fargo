@@ -107,3 +107,56 @@ Effort: **S** ≈ one short session · **M** ≈ one session · **L** ≈ two se
 - ✅ Preview-only page **`/dev/ui`** (404 in production; delete in P9).
 - 🐛 **Found + fixed:** the offline service worker also ran in local dev and served **stale CSS/JS** (cache-first, dev file names don't change). Now it never runs in dev and removes old registrations. Production unchanged. Likely the real cause of the earlier "stale Money tab highlight" glitch.
 - Gates: type-check ✅ lint ✅ production build ✅ (dev stopped) · logic-file guard ✅ (no changes to `lib/actions`, `split`, `balances`, `supabase/`) · browser check at 375px ✅ (colours, type, buttons, chips, segmented, fields, icons, avatars, sheet over bar/FAB, confirm on top, toasts, empty, skeleton).
+
+## 10. P2 plan — Navigation shell (not started)
+
+**Goal:** replace how you move around, without changing any screen's content. After P2 every screen still shows today's cards and forms, inside the new frame.
+
+### In scope
+
+| # | Change | Files | Risk |
+|---|---|---|---|
+| 2.1 | **Home bar** (My trips `Map` · Explore `Compass` · Profile `User`) replaces today's bottom nav on My trips, Explore, Profile | `(app)/layout.tsx`, `bottom-nav.tsx` → uses `ui/tab-bar` | Medium |
+| 2.2 | **Trip bar** (Overview · Schedule · Money · Prep · Discover) on every trip section + Money sub-pages (Your expenses, Settle up keep **Money** active) | `trips/[id]/layout.tsx` | **High** |
+| 2.3 | **Remove the top tab row** | `trip-tabs.tsx` (deleted) | Medium |
+| 2.4 | **New trip header**: round back (→ My trips) · trip name caption · section title; planner gear / member Leave on the right (Overview gets the photo header in P4) | `trip-header.tsx` | Medium |
+| 2.5 | **Swipe between sections** kept; still ignored on the date strip and chip rows | `swipe-tabs.tsx` (unchanged logic) | Low |
+| 2.6 | **Bottom space** so the last item clears the floating bar (~130px + phone safe area) | layouts | Low |
+| 2.7 | **Layering fix:** Spot detail + Add to schedule move above the bar (z-50 → z-60); re-check the 3 sheets' bottom padding | `bites/spot-detail.tsx`, `bites/add-to-schedule.tsx`, 3 sheets | Medium |
+| 2.8 | **Bar hides while typing** (keyboard open) so it never sits on the keyboard | `ui/tab-bar.tsx` | Medium |
+| 2.9 | **New look for toasts + confirm dialogs** everywhere (same behaviour) | `toast.tsx`, `confirm-dialog.tsx` → `ui/*` | Low |
+| 2.10 | Loading skeleton for trip pages matches the new frame | `trips/[id]/layout.tsx` | Low |
+| 2.11 | **Delete the unused People page** + its component | `trips/[id]/people/`, `people/people-list.tsx`, one `revalidatePath` line | Low |
+| 2.12 | Page background → new `page` grey (`#F3F5F9`, barely different) | `layout.tsx` body | Low |
+
+### Out of scope (later phases)
+Screen content (cards, lists, forms), the + button, Overview photo header, sticky date strip, category icons in lists, photos.
+
+### Decisions for the owner
+1. **Home bar only on My trips, Explore, Profile** — hidden on New trip (it has its own back). OK?
+2. **Trip bar hidden on Trip settings** (a full-screen form with back + Save). OK?
+3. **Explore tab visible now**, opening today's "Explore is on its way" page until Explore ships. OK?
+4. **Back arrow always goes to My trips** from any section (as today). OK?
+5. **Phone status-bar colour** (Home Screen app): today accent blue `#0085D9`; switch to the page grey so the top blends in? (Recommended.)
+
+### Tests (preview, before push approval)
+- **Every route** reaches and highlights correctly: 5 sections, Your expenses, Settle up, Settings; My trips, Explore, Profile, New trip.
+- **Every sheet/pop-up** opens fully above the bar with its buttons reachable: Add/Edit activity, Log/Edit expense, Expense detail, Spot detail, Add to schedule, confirm dialogs, checklist ••• menu, toasts.
+- **Typing** in a sheet / Trip settings / Profile: bar hidden, nothing covered.
+- **Swipe** left/right through all 5 sections; swiping the date strip scrolls days instead.
+- **Member view** (second account): Leave trip in header; read-only screens.
+- **Devices:** iPhone Home Screen app (notch + home bar), iPhone Safari, Android Chrome, desktop browser.
+- **Shared trip page and sign-in/invite** unaffected (no bars).
+
+### Rollback
+One commit on the branch → revert it; production untouched.
+
+## 11. P2 log (2026-09-28) — built, awaiting owner test
+
+Decisions: home bar only on My trips / Explore / Profile ✅ · trip bar hidden on Trip settings ✅ · Explore tab visible (placeholder) ✅ · back arrow → My trips (kept the ← arrow; a house or map icon would clash with the bar's My trips) ✅ · status-bar colour → page grey ✅.
+
+Built: home bar + trip bar (`ui/tab-bar`, `bottom-nav.tsx`, new `trip-bar.tsx`), top tab row deleted, new trip header (round back, trip caption, section title; gear/Leave on Overview only), bottom space for the floating bar, Spot detail + Add to schedule raised above the bar (z-60), bar hides while typing, toasts + confirm dialogs in the new look (same props), new trip-page skeleton, People page deleted, page background + status bar → grey. The unused `revalidatePath(.../people)` line in `lib/actions/trip.ts` is left as is (harmless; guard keeps actions untouched).
+
+My checks (375px + desktop): home bar on My trips/Explore/Profile, none on New trip ✅ · trip bar on all sections, **Money stays active on Settle up** ✅ · none on Trip settings ✅ · Log expense sheet fully above the bar, Cancel/Log reachable ✅ · confirm dialog on top; cancelled (nothing marked) ✅ · bar hides while typing (real tap) and returns ✅ · swipe Overview → Schedule ✅ · shared page `/s/…` has no bars ✅ · desktop bar centred ✅ · guard ✅ tsc ✅ lint ✅ build ✅.
+
+Still for the owner on the preview: iPhone Home Screen app (notch + home bar), iPhone Safari, member view (Leave trip), Spot detail / Add to schedule (need a Discover search), the checklist ••• menu. Android not available — covered by emulation only.
