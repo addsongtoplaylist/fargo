@@ -1,22 +1,27 @@
 import { Column } from "@/components/column";
-import { Skeleton } from "@/components/skeleton";
+import { Bone } from "@/components/ui/bone";
 
+/** Matches the redesigned Overview: cover header, time card, plan card, travellers. */
 export default function OverviewLoading() {
   return (
-    <Column className="py-4 pb-8 space-y-4">
-      {/* Share button */}
-      <Skeleton className="w-full h-10 rounded-lg" />
-
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-card rounded-lg border border-border p-3">
-            <Skeleton className="h-2.5 w-16 mb-2" />
-            <Skeleton className="h-6 w-24" />
-            <Skeleton className="h-3 w-20 mt-1" />
-          </div>
-        ))}
+    <>
+      <div className="mx-auto w-full max-w-[var(--max-width-column)] px-4 pt-4">
+        <Bone className="h-[190px] rounded-[22px]" />
       </div>
-    </Column>
+      <Column className="pt-4 space-y-3">
+        <Bone className="h-[70px] rounded-card" />
+        <div className="bg-surface rounded-card p-4 space-y-4">
+          <Bone className="h-4 w-32" />
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <Bone className="h-3 w-10" />
+              <Bone className="h-8 w-8 rounded-full" />
+              <Bone className="h-3 flex-1" />
+            </div>
+          ))}
+        </div>
+        <Bone className="h-[120px] rounded-card" />
+      </Column>
+    </>
   );
 }

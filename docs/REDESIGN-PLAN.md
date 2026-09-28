@@ -197,3 +197,49 @@ Built: new `trip-card.tsx` (TripCard + PastTripRow), `trip-cover.tsx` (8 colours
 🐛 Found + fixed during the check: the country list includes **retired codes** (VD = old "North Vietnam") so Vietnam first showed "VD". Retired codes are now skipped; added aliases (Türkiye/Turkey, Hong Kong, Myanmar/Burma, USA, UK…).
 
 My checks (375px): Test trip = VN, current card with "Day 12 of 99" + outline → Overview ✅ · Test 123 (2nd active) "Day 4 of 6" → Schedule ✅ · past trips SG / VN rows → Overview ✅ · + → New trip ✅ · opening `/trips` still jumps into the active trip's Schedule ✅ · unknown country → map icon, KR in its own colour, empty "Where to?" screen (on `/dev/ui`) ✅ · guard ✅ tsc ✅ lint ✅ build ✅.
+
+## 14. P4 plan — Overview (not started)
+
+**Goal:** Overview looks like the canvas in all its versions. Same data, same rules, same actions. Rows: O1–O16.
+
+| # | Change | Keeps (unchanged logic) |
+|---|---|---|
+| 4.1 | **Cover header** (no photo until P10 → trip colour + big faint country code, like the "No-photo covers" board): round back (→ My trips) and **gear (planner) / Leave (member)** on it; destination in caps, trip name, and "dates · **Day X of Y** / **In N days** / **Trip ended**". The generic header is hidden on Overview. | Leave-trip confirm + rules |
+| 4.2 | **Time & temperature card**: local time + "home" time (home hidden when same timezone), temperature "Right now" | Shown only before/during the trip with a known country; weather follows the Stay |
+| 4.3 | **Today card** (during the trip): time · category icon · title · place; **"Now"** tag only (no "Next"); "Schedule" link | Same pick: Now + next 2 timed; falls back to **Tomorrow's plan** / next day with plans; "No upcoming activities planned." |
+| 4.4 | **Before the trip**: "N activities planned" + first 3 (date · place) + "+N more", or "No activities yet · Start planning" | Same sorting |
+| 4.5 | **After the trip**: Trip summary — Duration, Destination, Activities list, Stay list (new card style, icons not emoji) | Same data |
+| 4.6 | **Travellers card**: avatars (crown, dashed = no account, selected ring) + small **Invite** button. Tap **Invite** → panel: **Quick add** (name + Add) and **Share this link** (+ Copy). Tap **a person** → panel: **Name · badge · Remove** and **Name [ ] Save** (no-account only). Only one panel open at a time. | Same actions: add, rename, remove (blocked with expenses), invite link, leave, change owner; planner-only rules |
+| 4.7 | Members: tap yourself → **Leave trip** and **Change owner**; note "Only the planner can invite or remove travellers." | Same |
+| 4.8 | **"Turn into no account" removed** from the screen (decided). The database function stays, unused. | — |
+| 4.9 | Loading skeleton matches the new Overview | — |
+
+**Files:** `overview/page.tsx` (render only), new `overview-header.tsx`, `trip-header.tsx` (skip on Overview), `people/overview-people.tsx` (layout + panels; same actions and conditions), `overview/loading.tsx`. Guard: no `lib/` changes. **Risk: Medium** — the Travellers card has many role/self/no-account conditions; each is kept 1:1 and tested.
+
+**Decisions for the owner**
+1. **Shares stepper stays in the tap-a-person panel until P6** moves it to Money → Split shares, so the feature is never missing on the preview. OK?
+2. Card titles keep today's wording **"Today's plan" / "Tomorrow's plan"** (canvas said "Today"). OK?
+3. **Test data on Test trip:** add 3 activities for today (one earlier, two later) to see the Today card, quick-add a test name then remove it, rename it once — then delete all of it. OK?
+4. **"Before the trip" view:** none of your trips is upcoming. May I create a throwaway trip dated next month ("P4 test – upcoming") and delete it after? Otherwise you check it on your next real upcoming trip.
+
+**Tests:** Test trip (during) with the 3 test activities → Now + next; "after" view on **We are Riize** (read-only); "before" view (decision 4); Invite panel (link + copy, quick add + remove); tap-a-person (rename a name-only traveller, remove blocked for someone in expenses → message); member view on your second account (Leave in header, tap self → Leave/Change owner, planner-only note); 375px + desktop.
+
+## 15. P4 log (2026-09-28) — built, awaiting owner test
+
+Decisions: shares stepper kept in the tap-a-person panel until P6 ✅ · titles "Today's plan" / "Tomorrow's plan" ✅ · test data on Test trip ✅ · throwaway upcoming trip ✅.
+
+Built: `overview-header.tsx` (cover header: trip colour + faint country code, back, gear / Leave with the same confirm), `trip-header.tsx` slimmed (skips Overview), `overview/page.tsx` render (all "now/next", tomorrow fallback, timezone and weather logic copied verbatim), `people/overview-people.tsx` (Invite panel vs tap-a-person panel; same actions and conditions; "Turn into no account" removed), `overview/loading.tsx`. `tintFor` exported from `trip-cover.tsx`.
+
+My checks (375px, local → production DB, Test trip only):
+- **During:** cover header VN "Day 12 of 99" + gear; time "Local · home 22:38" + 26°C; Today's plan = 12:00 NOW + 2 test activities (23:00, 23:30) with icons ✅
+- **Invite panel:** link generated + Copy; Quick add "P4 test person" → toast, count 6, dashed avatar; bar hid while typing ✅
+- **Tap a person:** invite panel closes; "NO ACCOUNT · Remove"; Name + Save (disabled until changed); rename → "Renamed" ✅; shares stepper present ✅
+- **Remove rule:** Mei (in expenses) → server message "This traveller is part of expenses on this trip, so they can't be removed." — Mei kept ✅; test person removed → back to 5 ✅
+- **After:** We are Riize (read-only) — "Trip ended", Duration / Destination / Activities / Stay ✅
+- **Before:** throwaway "P4 test – upcoming" (Japan) — JP cover, "In 22 days", "No activities yet · Start planning", then "1 activity planned" list ✅ → **trip deleted** ✅
+- **Cleanup:** both test activities deleted; trip list back to the original four ✅
+- guard ✅ tsc ✅ lint ✅ build ✅
+
+**Found (existing, not from P4) → fix in P5:** Schedule's drag-and-drop gives each row a screen-reader label ID that differs between server and browser (hydration warning in dev). Harmless to users; fix = give the drag area a fixed `id`.
+
+Still for the owner: member view on the second account; real phone look.

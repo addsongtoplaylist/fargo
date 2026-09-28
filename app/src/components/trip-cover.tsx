@@ -13,8 +13,8 @@ const TINTS = [
   "bg-[#e6eaf1] text-[#3b4556]",
 ];
 
-/** Stable per trip: the same trip always gets the same colour. */
-function tintFor(tripId: string) {
+/** Stable per trip: the same trip always gets the same colour ("bg-… text-…"). */
+export function tintFor(tripId: string) {
   let h = 0;
   for (let i = 0; i < tripId.length; i++) h = (h * 31 + tripId.charCodeAt(i)) >>> 0;
   return TINTS[h % TINTS.length];

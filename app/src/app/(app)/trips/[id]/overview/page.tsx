@@ -4,18 +4,20 @@ import { getActivities } from "@/lib/actions/activity";
 import { getTrip } from "@/lib/actions/trip";
 import { getOrCreateAccount } from "@/lib/account";
 import { OverviewPeople } from "@/components/people/overview-people";
-import { CATEGORY_EMOJI } from "@/lib/categories";
+import { OverviewHeader } from "@/components/overview-header";
+import { CategoryIcon } from "@/components/ui/category-icon";
 import {
   format,
   parseISO,
   addDays,
   differenceInDays,
+  differenceInCalendarDays,
   isAfter,
   isBefore,
   isTomorrow,
 } from "date-fns";
 import { notFound } from "next/navigation";
-import { MapPin, Clock, Thermometer, CalendarDays, Compass, Building2 } from "lucide-react";
+import { Clock, Thermometer, CalendarDays, Compass, Landmark, BedDouble } from "lucide-react";
 import { getCurrentTemperature, weatherLocation } from "@/lib/weather";
 import { COUNTRY_TIMEZONE, todayForCountry } from "@/lib/dates";
 
@@ -136,301 +138,210 @@ export default async function OverviewPage({
       );
   const temperature = weatherAt ? await getCurrentTemperature(weatherAt.lat, weatherAt.lng) : null;
 
+  // Header subline: dates · Day X of Y / In N days / Trip ended
+  const dateRange = `${format(startDate, "d MMM")} – ${format(endDate, "d MMM yyyy")}`;
+  const tripDays = differenceInDays(endDate, startDate) + 1;
+  const state = tripEnded
+    ? "Trip ended"
+    : isActive
+      ? `Day ${differenceInCalendarDays(now, startDate) + 1} of ${tripDays}`
+      : (() => {
+          const n = differenceInCalendarDays(startDate, now);
+          return n === 1 ? "In 1 day" : `In ${n} days`;
+        })();
+
+  const role = myRole === "planner" ? "planner" : myRole ? "member" : undefined;
+  const scheduleLink = (text: string) => (
+    <Link href={`/trips/${id}/schedule`} className="text-[13px] font-medium text-brand hover:text-brand-hover">
+      {text}
+    </Link>
+  );
+
   return (
-    <Column className="py-4 pb-8 space-y-4">
-      {/* Local time & weather — active + upcoming trips with destination set */}
-      {!tripEnded && localTime && (
-        <div className="bg-card rounded-lg border border-border p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <MapPin size={13} className="text-accent shrink-0" />
-            <span className="text-sm font-medium text-ink">
-              {trip.destination}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <Clock size={12} className="text-muted" />
-                <span className="text-sm tabular-nums text-ink font-medium">
-                  {localTime}
-                </span>
-                <span className="text-[10px] text-muted">local</span>
+    <>
+      <OverviewHeader tripId={trip.id} name={trip.name} destination={trip.destination} subline={`${dateRange} · ${state}`} role={role} />
+
+      <Column className="pt-4 space-y-3">
+        {/* Local time & temperature — before/during the trip, when the country is known */}
+        {!tripEnded && localTime && (
+          <div className="bg-surface rounded-card px-4 py-3.5 flex items-center">
+            <div className="flex-1 flex items-center gap-2.5">
+              <Clock size={20} strokeWidth={1.8} className="text-fg-muted" aria-hidden />
+              <div>
+                <p className="text-lg font-semibold tabular-nums text-fg">{localTime}</p>
+                <p className="text-[11px] text-fg-muted">{isSameTimezone ? "Local" : `Local · home ${homeTime}`}</p>
               </div>
-              {!isSameTimezone && (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm tabular-nums text-muted">
-                    {homeTime}
-                  </span>
-                  <span className="text-[10px] text-muted">home</span>
-                </div>
-              )}
             </div>
             {temperature !== null && (
-              <div className="flex items-center gap-1.5">
-                <Thermometer size={14} className="text-muted" />
-                <span className="text-sm text-ink tabular-nums">{temperature}°C</span>
+              <>
+                <div className="w-px h-9 bg-line mx-3.5" aria-hidden />
+                <div className="flex-1 flex items-center gap-2.5">
+                  <Thermometer size={20} strokeWidth={1.8} className="text-fg-muted" aria-hidden />
+                  <div>
+                    <p className="text-lg font-semibold tabular-nums text-fg">{temperature}°C</p>
+                    <p className="text-[11px] text-fg-muted">Right now</p>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* During the trip — Today's / Tomorrow's plan */}
+        {isActive && (
+          <div className="bg-surface rounded-card px-4 pt-3.5 pb-1.5">
+            <div className="flex items-baseline justify-between mb-1">
+              <h2 className="text-base font-semibold text-fg">{upcomingLabel}</h2>
+              {scheduleLink("Schedule")}
+            </div>
+            {displayActivities.length === 0 ? (
+              <p className="text-sm text-fg-muted py-3">No upcoming activities planned.</p>
+            ) : (
+              <div className="divide-y divide-line">
+                {displayActivities.map((activity) => {
+                  const isNow = activity.tag === "now";
+                  return (
+                    <div key={activity.id} className="flex items-center gap-3 py-2.5">
+                      <span className={`w-11 shrink-0 text-[13px] tabular-nums ${isNow ? "font-semibold text-brand" : "font-medium text-fg-muted"}`}>
+                        {activity.time}
+                      </span>
+                      <CategoryIcon category={activity.category} size={32} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-fg truncate">{activity.title}</p>
+                        {activity.place_name && <p className="text-xs text-fg-muted truncate mt-px">{activity.place_name}</p>}
+                      </div>
+                      {isNow && (
+                        <span className="text-[10px] font-bold text-brand bg-brand-soft px-2 py-0.5 rounded-full shrink-0">NOW</span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Upcoming plan — active trips */}
-      {isActive && (
-        <div className="bg-card rounded-lg border border-border p-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-ink">{upcomingLabel}</p>
-            <Link
-              href={`/trips/${id}/schedule`}
-              className="text-xs text-accent font-medium hover:text-accent-hover transition-colors"
-            >
-              View schedule →
-            </Link>
-          </div>
-
-          {displayActivities.length === 0 ? (
-            <p className="text-sm text-muted py-2">
-              No upcoming activities planned.
-            </p>
-          ) : (
-            <div className="space-y-2">
-              {displayActivities.map((activity) => {
-                const isNow = activity.tag === "now";
-                return (
-                  <div
-                    key={activity.id}
-                    className={`flex items-start gap-3 rounded-md px-2.5 py-2 ${
-                      isNow
-                        ? "bg-accent/10 border border-accent/20"
-                        : "bg-ground"
-                    }`}
-                  >
-                    {/* Time */}
-                    <div className="w-12 shrink-0 pt-0.5">
-                      <span
-                        className={`text-xs font-medium tabular-nums ${
-                          isNow ? "text-accent" : "text-muted"
-                        }`}
-                      >
-                        {activity.time}
-                      </span>
-                    </div>
-
-                    {/* Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs">
-                          {CATEGORY_EMOJI[activity.category] ?? "📦"}
-                        </span>
-                        <span
-                          className={`text-sm truncate ${
-                            isNow
-                              ? "font-semibold text-ink"
-                              : "font-medium text-ink"
-                          }`}
-                        >
-                          {activity.title}
-                        </span>
-                      </div>
-                      {activity.place_name && (
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <MapPin
-                            size={10}
-                            className="text-muted/60 shrink-0"
-                          />
-                          <span className="text-[11px] text-muted truncate">
-                            {activity.place_name}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Tag */}
-                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${
-                      isNow
-                        ? "text-accent bg-accent/10"
-                        : "text-muted bg-ground"
-                    }`}>
-                      {isNow ? "Now" : "Next"}
-                    </span>
-                  </div>
-                );
-              })}
+        {/* Before the trip — first 3 soonest activities */}
+        {!isActive && !tripEnded && (
+          <div className="bg-surface rounded-card px-4 pt-3.5 pb-1.5">
+            <div className="flex items-baseline justify-between mb-1">
+              <h2 className="text-base font-semibold text-fg">
+                {activities.length > 0
+                  ? `${activities.length} ${activities.length === 1 ? "activity" : "activities"} planned`
+                  : "No activities yet"}
+              </h2>
+              {scheduleLink(activities.length > 0 ? "View schedule" : "Start planning")}
             </div>
-          )}
-        </div>
-      )}
 
-      {/* Upcoming trips (not started yet) — show first 3 soonest activities */}
-      {!isActive && !tripEnded && (
-        <div className="bg-card rounded-lg border border-border p-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold text-ink">
-              {activities.length > 0
-                ? `${activities.length} ${activities.length === 1 ? "activity" : "activities"} planned`
-                : "No activities yet"}
-            </p>
-            <Link
-              href={`/trips/${id}/schedule`}
-              className="text-xs text-accent font-medium hover:text-accent-hover transition-colors"
-            >
-              {activities.length > 0 ? "View schedule →" : "Start planning →"}
-            </Link>
-          </div>
-
-          {activities.length > 0 && (() => {
-            const sorted = [...activities].sort((a, b) => {
-              const dateCmp = a.date.localeCompare(b.date);
-              if (dateCmp !== 0) return dateCmp;
-              if (!a.time && !b.time) return a.sort_order - b.sort_order;
-              if (!a.time) return 1;
-              if (!b.time) return -1;
-              return a.time.localeCompare(b.time);
-            });
-            const first3 = sorted.slice(0, 3);
-            return (
-              <div className="space-y-2">
-                {first3.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="flex items-start gap-3 rounded-md px-2.5 py-2 bg-ground"
-                  >
-                    <div className="w-12 shrink-0 pt-0.5">
-                      {activity.time ? (
-                        <span className="text-xs font-medium tabular-nums text-muted">
-                          {activity.time}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted/50">—</span>
-                      )}
+            {activities.length > 0 &&
+              (() => {
+                const sorted = [...activities].sort((a, b) => {
+                  const dateCmp = a.date.localeCompare(b.date);
+                  if (dateCmp !== 0) return dateCmp;
+                  if (!a.time && !b.time) return a.sort_order - b.sort_order;
+                  if (!a.time) return 1;
+                  if (!b.time) return -1;
+                  return a.time.localeCompare(b.time);
+                });
+                return (
+                  <>
+                    <div className="divide-y divide-line">
+                      {sorted.slice(0, 3).map((activity) => (
+                        <div key={activity.id} className="flex items-center gap-3 py-2.5">
+                          <span className="w-11 shrink-0 text-[13px] font-medium tabular-nums text-fg-muted">{activity.time ?? ""}</span>
+                          <CategoryIcon category={activity.category} size={32} />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-fg truncate">{activity.title}</p>
+                            <p className="text-xs text-fg-muted truncate mt-px">
+                              {format(parseISO(activity.date), "d MMM")}
+                              {activity.place_name && <> · {activity.place_name}</>}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-xs">
-                          {CATEGORY_EMOJI[activity.category] ?? "📦"}
-                        </span>
-                        <span className="text-sm font-medium text-ink truncate">
-                          {activity.title}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-muted">
-                        {format(parseISO(activity.date), "d MMM")}
-                        {activity.place_name && (
-                          <> · {activity.place_name}</>
-                        )}
-                      </p>
+                    {activities.length > 3 && (
+                      <Link href={`/trips/${id}/schedule`} className="block text-center text-[13px] text-fg-muted hover:text-brand py-2">
+                        +{activities.length - 3} more
+                      </Link>
+                    )}
+                  </>
+                );
+              })()}
+          </div>
+        )}
+
+        {/* After the trip — summary */}
+        {tripEnded &&
+          (() => {
+            const accommodations = activities.filter((a) => a.category === "accommodation");
+            // Attractions visited — only "activities" category
+            const attractions = activities
+              .filter((a) => a.category === "activities")
+              .map((a) => a.title)
+              .filter((t, i, arr) => arr.indexOf(t) === i); // unique
+            const eyebrow = "text-[11px] font-semibold tracking-[0.6px] uppercase text-fg-muted";
+
+            return (
+              <div className="space-y-3">
+                <div className="flex items-baseline justify-between px-1">
+                  <h2 className="text-base font-semibold text-fg">Trip summary</h2>
+                  {scheduleLink("View schedule")}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-surface rounded-card px-4 py-3.5">
+                    <p className={`flex items-center gap-1.5 ${eyebrow}`}>
+                      <CalendarDays size={14} className="text-brand" aria-hidden /> Duration
+                    </p>
+                    <p className="text-lg font-bold text-fg mt-2">{tripDays} days</p>
+                    <p className="text-xs text-fg-muted mt-0.5">{dateRange}</p>
+                  </div>
+                  <div className="bg-surface rounded-card px-4 py-3.5">
+                    <p className={`flex items-center gap-1.5 ${eyebrow}`}>
+                      <Compass size={14} className="text-brand" aria-hidden /> Destination
+                    </p>
+                    <p className="text-lg font-bold text-fg mt-2">{trip.destination}</p>
+                  </div>
+                </div>
+                {attractions.length > 0 && (
+                  <div className="bg-surface rounded-card px-4 py-3.5">
+                    <p className={`flex items-center gap-1.5 ${eyebrow}`}>
+                      <Landmark size={14} className="text-brand" aria-hidden /> Activities
+                    </p>
+                    <ol className="mt-2.5 pl-5 list-decimal text-sm text-fg space-y-1">
+                      {attractions.map((name) => (
+                        <li key={name}>{name}</li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+                {accommodations.length > 0 && (
+                  <div className="bg-surface rounded-card px-4 py-3.5">
+                    <p className={`flex items-center gap-1.5 ${eyebrow}`}>
+                      <BedDouble size={14} className="text-brand" aria-hidden /> Stay
+                    </p>
+                    <div className="mt-2.5 space-y-1">
+                      {[...new Set(accommodations.map((a) => a.place_name || a.title))].map((name) => (
+                        <p key={name} className="text-sm font-medium text-fg">
+                          {name}
+                        </p>
+                      ))}
                     </div>
                   </div>
-                ))}
-                {activities.length > 3 && (
-                  <Link
-                    href={`/trips/${id}/schedule`}
-                    className="block text-center text-xs text-muted hover:text-accent py-1 transition-colors"
-                  >
-                    +{activities.length - 3} more
-                  </Link>
                 )}
               </div>
             );
           })()}
-        </div>
-      )}
 
-      {/* Post-trip summary — ended trips (dashboard layout) */}
-      {tripEnded && (() => {
-        const tripDays = differenceInDays(endDate, startDate) + 1;
-        const accommodations = activities.filter(
-          (a) => a.category === "accommodation"
-        );
-        const dateRange = `${format(startDate, "d MMM")} – ${format(endDate, "d MMM yyyy")}`;
-
-        // Attractions visited — only "activities" category
-        const attractions = activities
-          .filter((a) => a.category === "activities")
-          .map((a) => a.title)
-          .filter((t, i, arr) => arr.indexOf(t) === i); // unique
-
-        return (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-semibold text-ink">Trip summary</p>
-              <Link
-                href={`/trips/${id}/schedule`}
-                className="text-xs text-accent font-medium hover:text-accent-hover transition-colors"
-              >
-                View schedule →
-              </Link>
-            </div>
-
-            {/* Dashboard grid */}
-            <div className="grid grid-cols-2 gap-3">
-              {/* Duration */}
-              <div className="bg-card rounded-lg border border-border p-4">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <CalendarDays size={13} className="text-accent" />
-                  <span className="text-[10px] font-medium text-muted uppercase tracking-wide">Duration</span>
-                </div>
-                <p className="text-lg font-semibold text-ink">{tripDays} days</p>
-                <p className="text-[11px] text-muted mt-0.5">{dateRange}</p>
-              </div>
-
-              {/* Destination */}
-              <div className="bg-card rounded-lg border border-border p-4">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <MapPin size={13} className="text-accent" />
-                  <span className="text-[10px] font-medium text-muted uppercase tracking-wide">Destination</span>
-                </div>
-                <p className="text-lg font-semibold text-ink">{trip.destination}</p>
-              </div>
-
-              {/* Activities — attractions visited */}
-              {attractions.length > 0 && (
-                <div className="bg-card rounded-lg border border-border p-4" style={{ gridColumn: "1 / -1" }}>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Compass size={13} className="text-accent" />
-                    <span className="text-[10px] font-medium text-muted uppercase tracking-wide">
-                      Activities
-                    </span>
-                  </div>
-                  <ol className="space-y-1" style={{ listStyleType: "decimal", listStylePosition: "inside" }}>
-                    {attractions.map((name) => (
-                      <li key={name} className="text-sm text-ink">
-                        {name}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
-
-              {/* Hotel — full width, only if accommodations exist */}
-              {accommodations.length > 0 && (
-                <div className="bg-card rounded-lg border border-border p-4" style={{ gridColumn: "1 / -1" }}>
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <Building2 size={13} className="text-accent" />
-                    <span className="text-[10px] font-medium text-muted uppercase tracking-wide">Stay</span>
-                  </div>
-                  <div className="space-y-1">
-                    {[...new Set(accommodations.map((a) => a.place_name || a.title))].map((name) => (
-                      <p key={name} className="text-sm font-medium text-ink">
-                        🏨 {name}
-                      </p>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* People section */}
-      <OverviewPeople
-        tripId={trip.id}
-        travellers={trip.travellers ?? []}
-        plannerId={trip.planner_id}
-        isPlanner={myRole === "planner"}
-        myAccountId={account?.id ?? ""}
-      />
-    </Column>
+        {/* People section */}
+        <OverviewPeople
+          tripId={trip.id}
+          travellers={trip.travellers ?? []}
+          plannerId={trip.planner_id}
+          isPlanner={myRole === "planner"}
+          myAccountId={account?.id ?? ""}
+        />
+      </Column>
+    </>
   );
 }
