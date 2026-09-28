@@ -1,9 +1,7 @@
 import { Column } from "@/components/column";
-import { HeroTripCard } from "@/components/hero-trip-card";
-import { CompactTripCard } from "@/components/compact-trip-card";
 import { EmptyTrips } from "@/components/empty-trips";
-import { Plus } from "lucide-react";
-import Link from "next/link";
+import { TripCard, PastTripRow } from "@/components/trip-card";
+import { Fab } from "@/components/ui/fab";
 import { getMyTrips, getActiveTrip, type MyTrip } from "@/lib/actions/trip";
 import { differenceInCalendarDays } from "date-fns";
 import { redirect } from "next/navigation";
@@ -29,165 +27,82 @@ export default async function TripsPage({
   const hasTrips = active.length > 0 || upcoming.length > 0 || past.length > 0;
 
   return (
-    <Column className="py-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold">My trips</h1>
-        <Link
-          href="/trips/new"
-          className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-accent hover:text-accent-hover transition-colors"
-        >
-          <Plus size={18} />
-          New trip
-        </Link>
-      </div>
+    <Column className="pt-14">
+      <h1 className="text-[30px] font-bold tracking-[-0.5px] text-fg mb-5">My trips</h1>
 
       {!hasTrips ? (
         <EmptyTrips />
       ) : (
         <div className="flex flex-col gap-3">
-          {active.length > 0 && (
-            <HeroTripCard
-              trip={formatActiveTrip(active[0], today)}
-              variant="active"
-            />
-          )}
-
-          {active.slice(1).map((trip) => (
-            <CompactTripCard
+          {/* First active trip opens Overview; any other active trip opens Schedule (as before) */}
+          {active.map((trip, i) => (
+            <TripCard
               key={trip.id}
-              trip={formatActiveAsCompact(trip, today)}
+              id={trip.id}
+              href={`/trips/${trip.id}/${i === 0 ? "overview" : "schedule"}`}
+              name={trip.name}
+              destination={trip.destination}
+              dates={formatDateRange(trip.start_date, trip.end_date)}
+              chip={dayOfTrip(trip, today)}
+              travellers={names(trip)}
+              current={i === 0}
             />
           ))}
 
           {upcoming.map((trip) => (
-            <CompactTripCard
+            <TripCard
               key={trip.id}
-              trip={formatUpcomingTrip(trip, today)}
+              id={trip.id}
+              href={`/trips/${trip.id}/overview`}
+              name={trip.name}
+              destination={trip.destination}
+              dates={formatDateRange(trip.start_date, trip.end_date)}
+              chip={countdown(trip, today)}
+              travellers={names(trip)}
             />
           ))}
 
           {past.length > 0 && (
-            <div className="mt-4">
-              <h2 className="text-sm font-medium text-muted mb-2">
-                Past trips
-              </h2>
-              {past.map((trip) => (
-                <Link
-                  key={trip.id}
-                  href={`/trips/${trip.id}/overview`}
-                  className="block bg-card rounded-md border border-border p-3 mb-2"
-                >
-                  <h3 className="text-sm font-semibold text-ink">{trip.name}</h3>
-                  <p className="text-xs text-muted">{trip.destination}</p>
-                  <div className="flex items-center gap-3 mt-1.5">
-                    <span className="text-[11px] text-muted">
-                      {formatDateRange(trip.start_date, trip.end_date)}
-                    </span>
-                    {trip.travellers && trip.travellers.length > 0 && (
-                      <div className="flex items-center gap-1">
-                        <div className="flex -space-x-1">
-                          {trip.travellers.slice(0, 4).map((t, i) => (
-                            <div
-                              key={i}
-                              className="w-4 h-4 rounded-full bg-accent/20 border border-card flex items-center justify-center text-[8px] font-medium text-accent"
-                            >
-                              {t.display_name?.charAt(0).toUpperCase()}
-                            </div>
-                          ))}
-                        </div>
-                        <span className="text-[11px] text-muted">
-                          {trip.travellers.length}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <section className="mt-3">
+              <h2 className="text-base font-semibold text-fg px-1 mb-3">Past trips</h2>
+              <div className="bg-surface rounded-card p-1 divide-y divide-line">
+                {past.map((trip) => (
+                  <PastTripRow
+                    key={trip.id}
+                    id={trip.id}
+                    href={`/trips/${trip.id}/overview`}
+                    name={trip.name}
+                    destination={trip.destination}
+                    dates={formatDateRange(trip.start_date, trip.end_date)}
+                  />
+                ))}
+              </div>
+            </section>
           )}
         </div>
       )}
+
+      {/* Empty screen already has a New trip button */}
+      {hasTrips && <Fab label="New trip" href="/trips/new" />}
     </Column>
   );
 }
 
-// Trip colour rotation — Soft Sky tints
-const TRIP_COLORS = [
-  "bg-accent", // Active: Electric Blue #0085D9
-  "bg-trip-blue-1", // Upcoming 1: Soft blue #5BAED6
-  "bg-trip-blue-2", // Upcoming 2: Sky cyan #6AB8C9
-  "bg-trip-green-1", // Upcoming 3: Mint #6DC4A8
-];
+function names(trip: MyTrip) {
+  return (trip.travellers || []).map((t) => t.display_name);
+}
 
-const TRIP_TYPE_LABELS: Record<string, string> = {
-  free_and_easy: "Free & easy",
-  city_break: "City break",
-  road_trip: "Road trip",
-  beach_and_resort: "Beach & resort",
-  adventure: "Adventure",
-  business: "Business",
-};
-
-function formatActiveTrip(trip: MyTrip, today: Date) {
+/** "Day X of Y" — same maths as before the redesign. */
+function dayOfTrip(trip: MyTrip, today: Date) {
   const start = new Date(trip.start_date);
   const end = new Date(trip.end_date);
   const currentDay = differenceInCalendarDays(today, start) + 1;
   const totalDays = differenceInCalendarDays(end, start) + 1;
-
-  return {
-    id: trip.id,
-    name: trip.name,
-    destination: trip.destination,
-    startDate: trip.start_date,
-    endDate: trip.end_date,
-    tripType: TRIP_TYPE_LABELS[trip.trip_type] || trip.trip_type,
-    currentDay,
-    totalDays,
-    travellers: (trip.travellers || []).map((t) => ({
-      name: t.display_name,
-      avatar: null,
-    })),
-    color: TRIP_COLORS[0],
-  };
+  return `Day ${currentDay} of ${totalDays}`;
 }
 
-function formatUpcomingTrip(trip: MyTrip, today: Date) {
-  const start = new Date(trip.start_date);
-  const daysUntil = differenceInCalendarDays(start, today);
-
-  return {
-    id: trip.id,
-    name: trip.name,
-    destination: trip.destination,
-    startDate: trip.start_date,
-    endDate: trip.end_date,
-    tripType: TRIP_TYPE_LABELS[trip.trip_type] || trip.trip_type,
-    daysUntil,
-    travellers: (trip.travellers || []).map((t) => ({
-      name: t.display_name,
-      avatar: null,
-    })),
-    color: TRIP_COLORS[1],
-  };
-}
-
-function formatActiveAsCompact(trip: MyTrip, today: Date) {
-  const start = new Date(trip.start_date);
-  const currentDay = differenceInCalendarDays(today, start) + 1;
-
-  return {
-    id: trip.id,
-    name: trip.name,
-    destination: trip.destination,
-    startDate: trip.start_date,
-    endDate: trip.end_date,
-    tripType: TRIP_TYPE_LABELS[trip.trip_type] || trip.trip_type,
-    daysUntil: currentDay,
-    travellers: (trip.travellers || []).map((t) => ({
-      name: t.display_name,
-      avatar: null,
-    })),
-    color: TRIP_COLORS[0],
-    variant: "active" as const,
-  };
+/** "In N days" — same maths as the old "N days to go". */
+function countdown(trip: MyTrip, today: Date) {
+  const daysUntil = differenceInCalendarDays(new Date(trip.start_date), today);
+  return daysUntil === 1 ? "In 1 day" : `In ${daysUntil} days`;
 }

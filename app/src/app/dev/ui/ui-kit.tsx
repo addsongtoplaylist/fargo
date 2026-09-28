@@ -29,6 +29,8 @@ import { Bone } from "@/components/ui/bone";
 import { Fab } from "@/components/ui/fab";
 import { TabBar } from "@/components/ui/tab-bar";
 import { CATEGORY_STYLE, categoryStyle } from "@/lib/category-style";
+import { TripCard } from "@/components/trip-card";
+import { EmptyTrips } from "@/components/empty-trips";
 
 const COLOURS = [
   ["page", "bg-page"],
@@ -202,6 +204,13 @@ export function UiKit() {
             message="Create your first trip to start planning your itinerary and tracking your budget."
             action={<Button>New trip</Button>}
           />
+        </Card>
+
+        <CardHeader title="My trips (P3)" />
+        <TripCard id="demo-1" href="#" name="Unknown place" destination="Atlantis" dates="1 – 3 Jan 2027" chip="In 95 days" travellers={["Song"]} />
+        <TripCard id="demo-2" href="#" name="Seoul winter" destination="South Korea" dates="12 – 19 Dec 2026" chip="In 76 days" travellers={["Song", "Chloe"]} />
+        <Card>
+          <EmptyTrips />
         </Card>
 
         <Card className="space-y-3">

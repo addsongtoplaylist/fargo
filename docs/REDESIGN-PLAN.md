@@ -160,3 +160,40 @@ Built: home bar + trip bar (`ui/tab-bar`, `bottom-nav.tsx`, new `trip-bar.tsx`),
 My checks (375px + desktop): home bar on My trips/Explore/Profile, none on New trip ✅ · trip bar on all sections, **Money stays active on Settle up** ✅ · none on Trip settings ✅ · Log expense sheet fully above the bar, Cancel/Log reachable ✅ · confirm dialog on top; cancelled (nothing marked) ✅ · bar hides while typing (real tap) and returns ✅ · swipe Overview → Schedule ✅ · shared page `/s/…` has no bars ✅ · desktop bar centred ✅ · guard ✅ tsc ✅ lint ✅ build ✅.
 
 Still for the owner on the preview: iPhone Home Screen app (notch + home bar), iPhone Safari, member view (Leave trip), Spot detail / Add to schedule (need a Discover search), the checklist ••• menu. Android not available — covered by emulation only.
+
+## 12. P3 plan — My trips (not started)
+
+**Goal:** My trips looks like the canvas (Mozi-style cards). Same data, same links, same auto-jump into an active trip. Rows: H1–H11.
+
+| # | Change | Keeps |
+|---|---|---|
+| 3.1 | Header = "My trips" title only; **New trip → floating +** | — |
+| 3.2 | **Current trip card** (first active): 104px cover, name, "destination · dates", filled **"Day X of Y"** chip, traveller avatars, blue outline | Links to **Overview** (as today) |
+| 3.3 | Other active trips (rare): same card | Links to **Schedule** (as today) |
+| 3.4 | **Upcoming cards**: 92px cover, soft **"In N days"** chip ("In 1 day"), avatars | Links to Overview |
+| 3.5 | **Past trips**: heading + compact rows in one card — 52px cover, name, destination · dates, › | Links to Overview; order unchanged |
+| 3.6 | **Empty state**: map icon, "Where to?", same text, **New trip** button | — |
+| 3.7 | **No-photo covers** (all trips until P10): one of 8 soft colours fixed per trip (from its ID) + **2-letter country code**; unknown country → map icon | — |
+| 3.8 | Removed per decisions: trip type chip, trip length, month headings, "See all", past-trip traveller count | — |
+| 3.9 | Unchanged behaviour: auto-jump into an active trip's Schedule on open (`/trips` without `?noauto`), date format ("17 Sep – 24 Dec 2026"), sorting | ✅ |
+
+**Country code without a database change:** destinations are country names (the destination search is country-only), so the app turns the name into a code with the browser's built-in country list (e.g. "Vietnam" → VN). Older text like "Hanoi, Vietnam" uses the last part. No match → map icon. In **P10** (which already changes `get_my_trips` for the cover photo) the function will also return the stored country code, and this lookup can retire.
+
+**Files:** `trips/page.tsx` (render only — data + day maths untouched), new `trip-card.tsx`, `trip-cover.tsx`, `lib/country-code.ts`; `empty-trips.tsx` restyled; delete `hero-trip-card.tsx`, `compact-trip-card.tsx`, `traveller-avatars.tsx` (only used here). **Risk: Low.** No data or logic changes.
+
+**Decisions for the owner**
+1. **Past trips: no traveller avatars** (canvas) — OK, or keep small avatars?
+2. **Floating + hidden on the empty screen** (it already has a big New trip button) — OK?
+3. **Country code from the destination name now** (no SQL), stored code in P10 — OK?
+
+**Tests:** your real trip list (read-only): current card + Day X of Y, Test 123 (second active) → Schedule, past trips → Overview; + → New trip; opening `/trips` still jumps into the active trip; empty state (checked in the browser by simulating no trips — no data changed); covers show VN / MY / SG in different colours; 375px + desktop.
+
+## 13. P3 log (2026-09-28) — built, awaiting owner test
+
+Decisions: no avatars on past trips ✅ · floating + hidden on the empty screen ✅ · country code from the destination name (no SQL), stored code in P10 ✅.
+
+Built: new `trip-card.tsx` (TripCard + PastTripRow), `trip-cover.tsx` (8 colours fixed per trip + country code / map icon), `lib/country-code.ts`, restyled `empty-trips.tsx`, `trips/page.tsx` render (data, auto-jump and day maths unchanged). Deleted `hero-trip-card`, `compact-trip-card`, `traveller-avatars`.
+
+🐛 Found + fixed during the check: the country list includes **retired codes** (VD = old "North Vietnam") so Vietnam first showed "VD". Retired codes are now skipped; added aliases (Türkiye/Turkey, Hong Kong, Myanmar/Burma, USA, UK…).
+
+My checks (375px): Test trip = VN, current card with "Day 12 of 99" + outline → Overview ✅ · Test 123 (2nd active) "Day 4 of 6" → Schedule ✅ · past trips SG / VN rows → Overview ✅ · + → New trip ✅ · opening `/trips` still jumps into the active trip's Schedule ✅ · unknown country → map icon, KR in its own colour, empty "Where to?" screen (on `/dev/ui`) ✅ · guard ✅ tsc ✅ lint ✅ build ✅.
