@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { MapPin, X, Loader2 } from "lucide-react";
+import { fieldClass } from "@/components/ui/field";
 
 type Place = {
   name: string;
@@ -170,20 +171,20 @@ export function LocationSearch({
   // If a location is selected, show it as a pill
   if (value) {
     return (
-      <div className="flex items-center gap-2">
-        <label className="text-xs text-muted w-10">Place</label>
-        <div className="flex-1 flex items-center gap-1.5 bg-ground border border-border rounded-md px-2 py-1.5">
-          <MapPin size={12} className="text-accent shrink-0" />
-          <span className="text-sm text-ink truncate flex-1">
+      <div className="flex items-center gap-2.5">
+        <label className="text-[13px] text-fg-muted w-16 shrink-0">Place</label>
+        <div className="flex-1 min-w-0 flex items-center gap-2 bg-page border border-line rounded-field px-3 h-11">
+          <MapPin size={14} className="text-brand shrink-0" />
+          <span className="text-sm text-fg truncate flex-1">
             {value.name}
           </span>
           <button
             type="button"
             onClick={handleClear}
             aria-label="Clear"
-            className="text-muted hover:text-ink shrink-0"
+            className="w-8 h-8 -mr-2 flex items-center justify-center text-fg-faint hover:text-fg shrink-0"
           >
-            <X size={14} />
+            <X size={15} />
           </button>
         </div>
       </div>
@@ -192,21 +193,21 @@ export function LocationSearch({
 
   return (
     <div ref={containerRef} className="relative">
-      <div className="flex items-center gap-2">
-        <label className="text-xs text-muted w-10">Place</label>
-        <div className="flex-1 relative">
+      <div className="flex items-center gap-2.5">
+        <label className="text-[13px] text-fg-muted w-16 shrink-0">Place</label>
+        <div className="flex-1 min-w-0 relative">
           <input
             type="text"
             placeholder="Search location…"
             value={query}
             onChange={(e) => handleInput(e.target.value)}
             onFocus={() => suggestions.length > 0 && setOpen(true)}
-            className="w-full bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink placeholder:text-muted/50 outline-none focus:border-accent transition-colors pr-7"
+            className={`${fieldClass} pr-8`}
           />
           {loading && (
             <Loader2
               size={14}
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted animate-spin"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-fg-muted animate-spin"
             />
           )}
         </div>
@@ -214,7 +215,7 @@ export function LocationSearch({
 
       {/* Dropdown */}
       {open && suggestions.length > 0 && (
-        <div className="absolute left-[calc(40px+0.5rem)] right-0 top-full mt-1 bg-card border border-border rounded-md shadow-lg z-50 overflow-hidden">
+        <div className="absolute left-[calc(64px+0.625rem)] right-0 top-full mt-1 bg-surface border border-line rounded-field shadow-float z-50 overflow-hidden">
           {suggestions.map((suggestion, i) => {
             const pred = suggestion.placePrediction;
             if (!pred) return null;
@@ -225,16 +226,16 @@ export function LocationSearch({
                 key={pred.placeId || i}
                 type="button"
                 onClick={() => handleSelect(suggestion)}
-                className="w-full text-left px-3 py-2 text-sm text-ink hover:bg-accent-soft transition-colors flex items-start gap-2 border-b border-border last:border-b-0"
+                className="w-full text-left px-3 py-2.5 text-sm text-fg hover:bg-brand-soft transition-colors flex items-start gap-2 border-b border-line last:border-b-0"
               >
                 <MapPin
                   size={13}
-                  className="text-muted shrink-0 mt-0.5"
+                  className="text-fg-muted shrink-0 mt-0.5"
                 />
                 <div className="min-w-0">
                   <span className="block truncate">{main}</span>
                   {secondary && (
-                    <span className="block text-xs text-muted truncate">{secondary}</span>
+                    <span className="block text-xs text-fg-muted truncate">{secondary}</span>
                   )}
                 </div>
               </button>

@@ -16,7 +16,7 @@ export default async function SchedulePage({
   ]);
 
   return (
-    <div className="mx-auto w-full max-w-[var(--max-width-column)] py-2 pb-8">
+    <div className="pb-4">
       <ActivityList
         activities={activities}
         dailyFree={budget?.dailyFree ?? 0}

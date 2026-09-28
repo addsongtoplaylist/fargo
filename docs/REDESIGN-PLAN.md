@@ -243,3 +243,38 @@ My checks (375px, local → production DB, Test trip only):
 **Found (existing, not from P4) → fix in P5:** Schedule's drag-and-drop gives each row a screen-reader label ID that differs between server and browser (hydration warning in dev). Harmless to users; fix = give the drag area a fixed `id`.
 
 Still for the owner: member view on the second account; real phone look.
+
+## 16. P5 plan — Schedule + Add/Edit activity
+
+**Goal:** Schedule looks like the canvas; Add/Edit activity becomes the form reference on the new Sheet. Same data, same server actions (`createActivity`, `updateActivity`, `deleteActivity`, `demoteActivity`, `reorderActivities`), same behaviours. Rows: S1–S15 + the Add activity form.
+
+**Build order (one piece at a time, check each at 375px before the next):**
+1. **Date strip** — restyled cells (weekday / date / "Day N", selected = blue fill, today = dot), ‹ › arrows kept; **sticky** at the top while the page scrolls; fix scroll-to-today on open (measure relative to the strip, not the page).
+2. **Daily budget card** — "Spent on Sat 27 · VND 450,000 of 1,230,000", thin bar, "VND 780,000 left" (red when over); hidden with no budget. Same numbers as today.
+3. **Map card** — rounded card, pins in category colours with their number, current stop haloed; Show/Hide toggle and pin popups kept; hidden with no places.
+4. **Day card + timeline** — "Today · Saturday, 27 Sep"; rows: time · category icon on a thin line · bold title + place · drag handle (planner). NOW row blue-soft. **Notes and cost removed from rows** (S7, S8 — notes stay in the edit sheet). Empty day uses the new empty state.
+5. **Drag** — same library, same handle-only drag, same touch delay; fixed `id` on the drag area (fixes the hydration warning).
+6. **Floating +** (planner only) replaces the dashed "Add activity" button.
+7. **Add/Edit sheet** on the shared Sheet: title → Time (HH : MM, 15-min) → Date → Place → category chips with icons → Notes; Cancel + Add/Save; edit adds Move to ideas · Delete (same confirms).
+8. **Loading skeleton** matching the new layout.
+
+**Risks + checks:** drag on a real phone (R5); sticky strip vs swipe between sections; map resize inside the rounded card (R7); place search dropdown inside the sheet; keyboard on iPhone with the sheet open.
+
+**Test on Test trip only:** add (timed + untimed, with and without a place), edit, change day, move to ideas, delete, reorder; day with/without budget and places; member view read-only (no +, no handles, rows not tappable); clean up afterwards.
+
+## 17. P5 log (2026-09-28) — built, awaiting owner test
+
+Decisions: empty day reads "No activities yet. Tap + to add one." ✅ · map keeps Show/Hide, no full-screen map ✅ · budget line "left for today" on today, "left" on other days ✅ · time stays HH : MM dropdowns (15-min) ✅.
+
+- ✅ Sticky date strip (restyled cells, today dot, ‹ ›); scroll-to-today now measured from the strip itself. The "Days 1–5" seen at baseline was the strip waiting for the page's scripts to load (slow in local dev) — it centres on today once they run.
+- ✅ Daily budget card (spent · of daily free · bar · left / over in red); same numbers.
+- ✅ Map card: pins in category colours with their order number, today's current stop haloed; popups + Show/Hide kept.
+- ✅ Day card + timeline (time · icon on a line · title + place · handle); NOW row; notes and cost off the rows (S7, S8).
+- ✅ Drag reorder (same handle/sensors) — reordered on Test trip, order kept after reload. **Hydration warning fixed** (fixed `id` on the drag area).
+- ✅ Floating + (planner only) replaces the dashed button.
+- ✅ Add/Edit activity on the shared Sheet: title → Time → Date → Place → chips with icons → Notes; Move to ideas + Delete with confirms.
+- ✅ Loading skeleton matches.
+- Tested on Test trip, then cleaned up: added "P5 test – museum" (timed, place) + "P5 test – untimed"; reordered; moved museum to the next day; deleted it; moved untimed to ideas; deleted the idea in Prep. Nothing left behind.
+- Read-only check on We are Riize: budget card over-budget state, 5-place map, long timeline under the sticky strip.
+- Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px browser check ✅.
+- **Owner to check on a phone:** drag with a finger (hold the ⋮⋮ handle), sticky strip while scrolling, keyboard with the sheet open, member view (no +, no handles, rows not tappable).

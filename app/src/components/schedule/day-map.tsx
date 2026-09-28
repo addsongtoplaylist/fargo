@@ -1,15 +1,35 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { MapPin } from "lucide-react";
 import type { Activity } from "@/lib/actions/activity";
-import { CATEGORY_EMOJI } from "@/lib/categories";
+
+/**
+ * Stored category → v0.8 category colour (DESIGN.md → Category colours;
+ * same hex as the `cat-*` tokens — pins are plain DOM, not Tailwind).
+ */
+const PIN_COLOUR: Record<string, string> = {
+  accommodation: "#6446c2",
+  food: "#a9531a",
+  transport: "#1f7068",
+  activities: "#0071bc",
+  shopping: "#a8365f",
+  flights: "#2d5da8",
+  misc: "#4a5264",
+};
 
 type DayMapProps = {
   activities: Activity[];
+  /** The "now" activity on today's list — its pin is haloed */
+  currentId?: string | null;
 };
 
-export function DayMap({ activities }: DayMapProps) {
+/**
+ * Day map card (DESIGN.md v0.8): pins in category colours with their order
+ * number, current stop haloed, tap a pin for title/time/place, Show/Hide.
+ * Hidden when the day has no places.
+ */
+export function DayMap({ activities, currentId = null }: DayMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [expanded, setExpanded] = useState(true);
@@ -70,61 +90,48 @@ export function DayMap({ activities }: DayMapProps) {
         locatedActivities.forEach((activity, index) => {
           const lat = parseFloat(activity.place_lat!);
           const lng = parseFloat(activity.place_lng!);
-          const emoji = CATEGORY_EMOJI[activity.category] ?? "📌";
+          const colour = PIN_COLOUR[activity.category] ?? PIN_COLOUR.misc;
+          const isCurrent = activity.id === currentId;
 
-          // Create a custom marker element
+          // Custom marker: category-coloured pin with its order number;
+          // the current stop gets a soft brand halo
           const el = document.createElement("div");
           el.className = "day-map-marker";
-          el.innerHTML = `
-            <div style="
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              width: 32px;
-              height: 32px;
-              background: white;
-              border: 2px solid #0085d9;
-              border-radius: 50%;
-              box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-              font-size: 14px;
-              cursor: pointer;
-              position: relative;
-            ">
-              <span>${emoji}</span>
-              <span style="
-                position: absolute;
-                top: -6px;
-                right: -6px;
-                background: #0085d9;
-                color: white;
-                font-size: 9px;
-                font-weight: 700;
-                width: 16px;
-                height: 16px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-              ">${index + 1}</span>
-            </div>
-          `;
+          el.style.cssText = [
+            "display:flex",
+            "align-items:center",
+            "justify-content:center",
+            "width:28px",
+            "height:28px",
+            `background:${colour}`,
+            "color:#fff",
+            "border:2px solid #fff",
+            "border-radius:50%",
+            "font-size:12px",
+            "font-weight:700",
+            "cursor:pointer",
+            isCurrent
+              ? "box-shadow:0 0 0 5px rgba(0,113,188,0.28),0 2px 6px rgba(23,32,51,0.25)"
+              : "box-shadow:0 2px 6px rgba(23,32,51,0.25)",
+          ].join(";");
+          el.textContent = String(index + 1);
 
           // Build popup with safe text (no raw HTML injection)
           const popupEl = document.createElement("div");
           const titleEl = document.createElement("div");
-          titleEl.style.cssText = "font-size:13px;font-weight:500;color:#1a1a1a;padding:2px 0;";
+          titleEl.style.cssText = "font-size:13px;font-weight:600;color:#172033;padding:2px 0;";
           titleEl.textContent = activity.title;
           popupEl.appendChild(titleEl);
 
           if (activity.time) {
             const timeEl = document.createElement("div");
-            timeEl.style.cssText = "font-size:11px;color:#888;margin-top:2px;";
+            timeEl.style.cssText = "font-size:12px;color:#5b6475;margin-top:2px;";
             timeEl.textContent = activity.time;
             popupEl.appendChild(timeEl);
           }
           if (activity.place_name) {
             const placeEl = document.createElement("div");
-            placeEl.style.cssText = "font-size:11px;color:#888;margin-top:2px;";
+            placeEl.style.cssText = "font-size:12px;color:#5b6475;margin-top:2px;";
             placeEl.textContent = activity.place_name;
             popupEl.appendChild(placeEl);
           }
@@ -165,35 +172,36 @@ export function DayMap({ activities }: DayMapProps) {
       setMapReady(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expanded, mapKey]);
+  }, [expanded, mapKey, currentId]);
 
   // Don't render if no activities have locations
   if (locatedActivities.length === 0) return null;
 
-  return (
-    <div className="bg-card rounded-lg border border-border overflow-hidden">
-      {/* Toggle header */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-muted hover:text-ink transition-colors"
-      >
-        <span>
-          📍 {locatedActivities.length} location
-          {locatedActivities.length !== 1 ? "s" : ""} pinned
-        </span>
-        {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-      </button>
+  const count = locatedActivities.length;
 
-      {/* Map */}
+  return (
+    <div className="bg-surface rounded-card overflow-hidden">
+      <div className="flex items-center justify-between px-4 h-12">
+        <p className="flex items-center gap-1.5 text-[13px] font-medium text-fg-muted">
+          <MapPin size={15} strokeWidth={2} className="text-brand" aria-hidden />
+          {count} place{count !== 1 ? "s" : ""} on the map
+        </p>
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          aria-expanded={expanded}
+          className="text-[13px] font-semibold text-brand hover:text-brand-hover py-2"
+        >
+          {expanded ? "Hide" : "Show"}
+        </button>
+      </div>
+
       {expanded && (
-        <div className="relative">
-          <div
-            ref={mapContainerRef}
-            className="w-full h-[180px]"
-          />
+        <div className="relative px-2 pb-2">
+          <div ref={mapContainerRef} className="w-full h-[180px] rounded-[12px] overflow-hidden" />
           {!mapReady && (
-            <div className="absolute inset-0 flex items-center justify-center bg-ground">
-              <div className="w-5 h-5 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+            <div className="absolute inset-x-2 top-0 bottom-2 rounded-[12px] flex items-center justify-center bg-skeleton">
+              <div className="w-5 h-5 border-2 border-brand/30 border-t-brand rounded-full animate-spin" />
             </div>
           )}
         </div>
