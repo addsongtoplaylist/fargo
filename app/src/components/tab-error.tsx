@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import { RotateCw, CloudOff } from "lucide-react";
+import { Empty } from "@/components/ui/empty";
+import { Button } from "@/components/ui/button";
 
+/** A trip section failed to load (redesign P8b): card with icon + retry. */
 export function TabError({
   error,
   reset,
@@ -14,14 +18,18 @@ export function TabError({
   }, [error]);
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <p className="text-sm text-muted mb-3">Something went wrong loading this tab.</p>
-      <button
-        onClick={reset}
-        className="px-4 py-2 bg-accent text-accent-on text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors"
-      >
-        Tap to retry
-      </button>
+    <div className="mx-auto max-w-[var(--max-width-column)] px-4 pt-2">
+      <div className="bg-surface rounded-card">
+        <Empty
+          icon={CloudOff}
+          message="Something went wrong loading this section."
+          action={
+            <Button variant="soft" size="sm" icon={RotateCw} onClick={reset}>
+              Tap to retry
+            </Button>
+          }
+        />
+      </div>
     </div>
   );
 }

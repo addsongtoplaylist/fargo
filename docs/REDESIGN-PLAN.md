@@ -410,3 +410,12 @@ Decisions: split P8a / P8b ✅ · Trip settings keeps only the share link (invit
 - 🐛 Fixed during testing: logo on Invite / Sign in never loaded (lazy image) → loads straight away; "Local currency" label wrapped → wider label column.
 - Tested: Profile budget Any → $$ Moderate (kept after reload) → back to Any; New trip throwaway "P8 test – throwaway" (Japan, 20–25 Nov, JPY auto, rate 34) → created → Overview → invite link viewed as member ("View trip") → invalid link page → trip deleted in Trip settings. My trips back to the 4 trips.
 - Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.
+
+## 27. P8b log (2026-09-29) — built, awaiting owner test
+
+- ✅ **Trip settings:** fields in one card (FieldStack), Save; **Share** card — copy share link only, with "To add people to the trip, use Invite on Overview" (**invite link removed**, owner); Danger zone = outlined red Delete trip (same confirm).
+- ✅ **Shared trip** (`/s/[code]`): cover header (colour + code, destination, name, dates · days · travellers), Save as my trip / Sign in to save, sticky Schedule / Prep segmented; day cards with time · category icon · title (no notes, no cost — Schedule rules); Prep checklists with round ticks + "N of M", ideas with "In schedule"; icon empty states.
+- ✅ **System pages:** Page not found (MapPinOff), App error (CircleAlert, Try again / Back to My trips), section error (card, CloudOff, Tap to retry), Explore placeholder (card), **offline page** restyled + service-worker cache `fargo-v3` → `fargo-v4` so phones pick it up. No emoji left on these.
+- ✅ **Auto-jump fix** — the only `lib/actions` change in the redesign so far (guard flags it on purpose): `getActiveTrip` now returns the active trip that **started most recently** instead of whichever the database returned first. Read-only lookup; no data change. Checked: `/trips` lands on Test 123 (25 Sep) over Test trip (17 Sep), twice.
+- Tested: Trip settings view + copy share link (Test trip); shared link while signed in (Schedule + Prep); 404; Explore. Sign in screen seen signed out ✅. **Owner to check:** shared link signed out (private window), offline page (airplane mode on the installed app).
+- Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard: only `lib/actions/trip.ts` (auto-jump, intended) · 375px check ✅.

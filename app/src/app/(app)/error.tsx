@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
+import { CircleAlert } from "lucide-react";
 import { Column } from "@/components/column";
+import { Empty } from "@/components/ui/empty";
+import { Button, buttonClasses } from "@/components/ui/button";
 
 export default function AppError({
   error,
@@ -15,31 +19,21 @@ export default function AppError({
   }, [error]);
 
   return (
-    <Column className="py-12">
-      <div className="text-center">
-        <p className="text-4xl mb-4">😵</p>
-        <h1 className="text-xl font-semibold text-ink mb-2">
-          Something went wrong
-        </h1>
-        <p className="text-sm text-muted mb-6 max-w-xs mx-auto">
-          An unexpected error occurred. This might be a temporary issue — try
-          again or go back to your trips.
-        </p>
-        <div className="flex flex-col gap-2 items-center">
-          <button
-            onClick={reset}
-            className="px-4 py-2.5 bg-accent text-accent-on text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors"
-          >
-            Try again
-          </button>
-          <a
-            href="/trips"
-            className="text-sm text-muted hover:text-accent transition-colors"
-          >
-            Back to My Trips
-          </a>
-        </div>
-      </div>
+    <Column className="min-h-[80dvh] flex flex-col justify-center">
+      <Empty
+        size="page"
+        icon={CircleAlert}
+        title="Something went wrong"
+        message="An unexpected error occurred. This might be a temporary issue — try again or go back to your trips."
+        action={
+          <div className="flex flex-col items-center gap-2">
+            <Button onClick={reset}>Try again</Button>
+            <Link href="/trips?noauto=1" className={buttonClasses("quiet", "md")}>
+              Back to My trips
+            </Link>
+          </div>
+        }
+      />
     </Column>
   );
 }
