@@ -7,8 +7,13 @@ import {
   UtensilsCrossed,
   ShoppingBag,
   Landmark,
-  Search,
+  Compass,
+  AlertCircle,
+  SearchX,
 } from "lucide-react";
+import { Chip } from "@/components/ui/chip";
+import { Button } from "@/components/ui/button";
+import { Empty } from "@/components/ui/empty";
 import { useTrip, useIsPlanner } from "@/lib/trip-context";
 import { searchDiningSpots, type DiningSpot } from "@/lib/actions/bites";
 import { FILTER_TYPES } from "@/lib/bites-filters";
@@ -164,14 +169,13 @@ export function DiscoverView() {
     setLastCoords(null);
   }
 
-  // Non-planner view
+  // Non-planner view (B1)
   if (!isPlanner) {
     return (
-      <div className="px-4 py-12 text-center">
-        <Search size={36} className="mx-auto text-muted mb-3" />
-        <p className="text-sm text-muted">
-          Only the trip planner can use Discover.
-        </p>
+      <div className="px-4 pt-2">
+        <div className="bg-surface rounded-card">
+          <Empty icon={Compass} message="Only the trip planner can use Discover." />
+        </div>
       </div>
     );
   }
@@ -179,31 +183,19 @@ export function DiscoverView() {
   return (
     <div className="px-4">
       {/* Category selector */}
-      <div className="flex gap-2 mb-3" data-swipe-ignore>
-        {CATEGORIES.map((cat) => {
-          const Icon = cat.icon;
-          const isActive = category === cat.value;
-          return (
-            <button
-              key={cat.value}
-              onClick={() => cat.enabled && handleCategoryChange(cat.value)}
-              disabled={!cat.enabled}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                isActive
-                  ? "bg-accent text-accent-on"
-                  : cat.enabled
-                    ? "bg-ground text-muted border border-border hover:border-accent/40"
-                    : "bg-ground text-muted/40 border border-border cursor-not-allowed"
-              }`}
-            >
-              <Icon size={13} />
-              {cat.label}
-              {!cat.enabled && (
-                <span className="text-[10px] text-muted/40">Soon</span>
-              )}
-            </button>
-          );
-        })}
+      <div className="flex gap-2 mb-3 overflow-x-auto scrollbar-none" data-swipe-ignore>
+        {CATEGORIES.map((cat) => (
+          <Chip
+            key={cat.value}
+            selected={category === cat.value}
+            icon={cat.icon}
+            disabled={!cat.enabled}
+            onClick={() => cat.enabled && handleCategoryChange(cat.value)}
+            trailing={!cat.enabled ? <span className="text-[11px] text-fg-muted">Soon</span> : undefined}
+          >
+            {cat.label}
+          </Chip>
+        ))}
       </div>
 
       {/* Location toggle */}
@@ -216,68 +208,54 @@ export function DiscoverView() {
         countryCode={trip?.destination_country_code}
       />
 
-      {/* Search / empty state */}
-      {!searched && !loading && (
-        <div className="text-center py-10">
-          <currentCategory.icon size={36} className="mx-auto text-muted mb-3" />
-          <p className="text-sm font-medium text-ink mb-1">
-            {currentCategory.emptyTitle}
-          </p>
-          <p className="text-xs text-muted mb-4">
-            {currentCategory.emptyDescription}
-          </p>
-          <button
-            onClick={handleSearch}
-            disabled={locationMode === "custom" && !customLocation}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent/90 transition-colors disabled:opacity-50"
-          >
-            <Navigation size={14} />
-            Search nearby
-          </button>
+      {/* Start state */}
+      {!searched && !loading && !error && (
+        <div className="bg-surface rounded-card">
+          <Empty
+            icon={currentCategory.icon}
+            title={currentCategory.emptyTitle}
+            message={currentCategory.emptyDescription}
+            action={
+              <Button
+                icon={Navigation}
+                onClick={handleSearch}
+                disabled={locationMode === "custom" && !customLocation}
+              >
+                Search nearby
+              </Button>
+            }
+          />
         </div>
       )}
 
       {/* Loading state */}
       {loading && (
-        <div className="text-center py-10">
-          <Loader2 size={24} className="mx-auto text-accent animate-spin mb-3" />
-          <p className="text-xs text-muted">
-            Finding the best spots near you…
-          </p>
+        <div className="bg-surface rounded-card py-10 text-center">
+          <Loader2 size={26} className="mx-auto text-brand animate-spin mb-3" aria-hidden />
+          <p className="text-sm text-fg-muted">Finding the best spots near you…</p>
         </div>
       )}
 
       {/* Error */}
-      {error && (
-        <div className="text-center py-6">
-          <p className="text-sm text-red-500 mb-3">{error}</p>
-          <button
-            onClick={handleSearch}
-            className="text-sm text-accent hover:underline"
-          >
+      {error && !loading && (
+        <div className="bg-surface rounded-card py-8 px-4 text-center">
+          <div className="w-12 h-12 rounded-full bg-money-over-soft text-money-over flex items-center justify-center mx-auto mb-3">
+            <AlertCircle size={22} strokeWidth={1.9} aria-hidden />
+          </div>
+          <p className="text-sm text-fg mb-3 max-w-[280px] mx-auto">{error}</p>
+          <Button variant="soft" size="sm" onClick={handleSearch}>
             Try again
-          </button>
+          </Button>
         </div>
       )}
 
       {/* Filter chips — shown after any search */}
       {searched && !loading && (
-        <div
-          className="flex gap-2 overflow-x-auto pb-2 mb-3 -mx-1 px-1 no-scrollbar"
-          data-swipe-ignore
-        >
+        <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1 mb-3 -mx-4 px-4" data-swipe-ignore>
           {FILTER_TYPES.map((f) => (
-            <button
-              key={f.key}
-              onClick={() => handleFilterChange(f.key)}
-              className={`shrink-0 px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                filterType === f.key
-                  ? "bg-accent text-accent-on"
-                  : "bg-ground text-muted border border-border hover:border-accent/40"
-              }`}
-            >
+            <Chip key={f.key} selected={filterType === f.key} onClick={() => handleFilterChange(f.key)}>
               {f.label}
-            </button>
+            </Chip>
           ))}
         </div>
       )}
@@ -285,50 +263,41 @@ export function DiscoverView() {
       {/* Results */}
       {searched && !loading && spots.length > 0 && (
         <>
-          <p className="text-xs text-muted mb-3">
+          <p className="text-[13px] text-fg-muted mb-2 px-1">
             {allSpots.length} spot{allSpots.length !== 1 ? "s" : ""} found
           </p>
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {spots.map((spot) => (
-              <DiningCard
-                key={spot.id}
-                spot={spot}
-                onTap={() => setSelectedSpot(spot)}
-              />
+              <DiningCard key={spot.id} spot={spot} onTap={() => setSelectedSpot(spot)} />
             ))}
           </div>
 
           {hasMore && (
-            <button
-              onClick={handleShowMore}
-              className="w-full mt-4 py-2.5 text-sm font-medium text-muted border border-border rounded-lg hover:border-ink/30 hover:text-ink transition-colors"
-            >
+            <Button variant="quiet" full className="mt-4" onClick={handleShowMore}>
               Show more
-            </button>
+            </Button>
           )}
 
           {!hasMore && spots.length > 0 && (
-            <p className="text-center text-xs text-muted mt-4 mb-2">
-              That&apos;s all we found nearby
-            </p>
+            <p className="text-center text-[13px] text-fg-muted mt-4 mb-2">That&apos;s all we found nearby</p>
           )}
         </>
       )}
 
       {/* No results */}
       {searched && !loading && !error && spots.length === 0 && (
-        <div className="text-center py-6">
-          <p className="text-sm text-muted mb-3">
-            No {filterType !== "all" ? FILTER_TYPES.find((f) => f.key === filterType)?.label?.toLowerCase() + " " : ""}spots found nearby.
-          </p>
-          {filterType !== "all" && (
-            <button
-              onClick={() => handleFilterChange("all")}
-              className="text-sm text-accent hover:underline"
-            >
-              Show all types
-            </button>
-          )}
+        <div className="bg-surface rounded-card">
+          <Empty
+            icon={SearchX}
+            message={`No ${filterType !== "all" ? FILTER_TYPES.find((f) => f.key === filterType)?.label?.toLowerCase() + " " : ""}spots found nearby.`}
+            action={
+              filterType !== "all" ? (
+                <Button variant="soft" size="sm" onClick={() => handleFilterChange("all")}>
+                  Show all types
+                </Button>
+              ) : undefined
+            }
+          />
         </div>
       )}
 

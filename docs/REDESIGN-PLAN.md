@@ -362,3 +362,15 @@ Decisions: no floating + on Prep (header links "+ New list" / "+ Add") ✅ · ad
 - Tested on Test trip, then removed: list "P7 test list" → 3 items → tick Passport → rename item → remove Sunscreen → rename list "P7 packing" → deleted; idea "P7 test – night market" with link + notes → scheduled to Day 14 → checked on Schedule (Wed 30 Sep) → deleted the activity → deleted the idea. Left the owner's own "test" activity (29 Sep 23:00) untouched.
 - Long trips: "Pick a day" stays as chips (owner, 2026-09-29). Idea delete uses × like checklist items (owner). P7a phone-tested ✅.
 - Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.
+
+## 24. P7b log (2026-09-29) — Discover built, awaiting owner test
+
+- ✅ Category chips (Bites; Shop / Attractions disabled with "Soon"), swipeable row.
+- ✅ Location control: Near me / chosen place card with Change; search field with suggestions and "Use my location instead".
+- ✅ States in cards: start (icon, "Find your next meal", Search nearby), loading, error (icon + Try again), no results (icon + Show all types).
+- ✅ Filter chips; result cards (photo, name, cuisine · price · distance · Open/Closed, rating); Show more / "That's all we found nearby".
+- ✅ Spot detail on the shared Sheet — Add to schedule (full width) above Navigate (stacked so the label fits); address + View on Google Maps.
+- ✅ Add to schedule on the shared Sheet: spot summary, Day ("Day 13 · Tue 29 Sep", defaults to today), Time (HH : MM), **Category dropdown** (was fixed to Food — now choosable, default Food).
+- ✅ Member message ("Only the trip planner can use Discover.") as an empty-state card.
+- Tested on Test trip: searched near Ben Thanh Market (1 search, 19 spots) → opened Bếp Mẹ Ỉn → added to Day 13 12:00 → shown on Schedule with its pin → deleted. Owner's own "test" / "idea 1" left untouched.
+- Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.
