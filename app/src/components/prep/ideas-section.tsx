@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Trash2, ExternalLink, CalendarPlus, Clock, MapPin, Lightbulb, Plus } from "lucide-react";
+import { X, ExternalLink, CalendarPlus, Clock, MapPin, Lightbulb, Plus } from "lucide-react";
 import { createIdea, updateIdea, deleteIdea, promoteIdea } from "@/lib/actions/idea";
 import { useTrip } from "@/lib/trip-context";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -237,7 +237,7 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
                       onClick={() => setDeleteId(idea.id)}
                       className="w-9 h-9 rounded-full flex items-center justify-center text-fg-faint hover:text-money-over transition-colors"
                     >
-                      <Trash2 size={16} />
+                      <X size={16} />
                     </button>
                   </div>
                 )}

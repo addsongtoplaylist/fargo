@@ -360,5 +360,5 @@ Decisions: no floating + on Prep (header links "+ New list" / "+ Add") ✅ · ad
 - 🐛 **Fixed:** members could tap a checklist item or idea title and get an edit box (the server refused the save). Tap-to-edit is now planner-only (P10: members read-only, can still tick).
 - ✅ Loading skeleton.
 - Tested on Test trip, then removed: list "P7 test list" → 3 items → tick Passport → rename item → remove Sunscreen → rename list "P7 packing" → deleted; idea "P7 test – night market" with link + notes → scheduled to Day 14 → checked on Schedule (Wed 30 Sep) → deleted the activity → deleted the idea. Left the owner's own "test" activity (29 Sep 23:00) untouched.
-- **Noticed (existing, not changed):** on long trips the "Pick a day" list shows every day as a chip (99 on Test trip). Suggest a Day dropdown ("Day 14 · Wed 30 Sep") like Add to schedule — owner to decide.
+- Long trips: "Pick a day" stays as chips (owner, 2026-09-29). Idea delete uses × like checklist items (owner). P7a phone-tested ✅.
 - Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.
