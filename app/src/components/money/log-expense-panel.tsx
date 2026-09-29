@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeftRight, Check } from "lucide-react";
+import { ArrowLeftRight } from "lucide-react";
 import { createExpense, updateExpense, deleteExpense } from "@/lib/actions/expense";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
@@ -253,16 +253,6 @@ export function LogExpensePanel({
         onClose={onClose}
         footer={
           <>
-            {/* Status line pinned above the buttons, so it stays visible however long the list is */}
-            <p
-              role="status"
-              className={`mb-2.5 rounded-field px-3 py-2 text-[13px] font-medium text-center flex items-center justify-center gap-1.5 ${
-                status.ok ? "bg-money-ok-soft text-money-ok" : "bg-money-warn-soft text-money-warn"
-              }`}
-            >
-              {status.text}
-              {status.ok && <Check size={14} strokeWidth={2.4} aria-hidden />}
-            </p>
             <div className="flex gap-2.5">
               <Button variant="quiet" size="lg" full onClick={onClose}>
                 Cancel
@@ -432,6 +422,8 @@ export function LogExpensePanel({
                   );
                 })}
               </div>
+              {/* Only when something needs fixing (owner, 2026-09-29: no pinned status line) */}
+              {!status.ok && <p className="mt-2 text-[13px] font-medium text-money-warn">{status.text}</p>}
             </div>
 
             </>

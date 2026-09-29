@@ -331,3 +331,34 @@ Decisions: two pushes (P6a / P6b) ✅ · Split shares saves on each tap ✅ · "
 - Docs: DESIGN.md form reference + REDESIGN.md A4 / E5 / E9 updated.
 - Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.
 - ✅ **"Split with others" switch** (owner, 2026-09-29; EXPENSES.md D10a): off → only the payer, pinned status "Just for you" / "Just for Ali"; on → Split as + Split between. New expense remembers the last choice per trip (this device, first one on); edit restores the saved state (personal = only the payer ticked); hidden on a solo trip. No database / split-maths change — a personal expense is saved as an equal split with just the payer. Tested: first open on → off → logged "P6c test – personal" (1 person) → next new expense opened off → edit opened off → deleted; existing "breakfast" (3 people) opens on. Test expense deleted, memory reset.
+
+## 22. P7 plan — Prep + Discover (not started)
+
+**Goal:** Tier 2 rule — keep today's layouts and behaviour, apply the v0.8 design system. Rows P1–P10, B1–B9. No change to `lib/actions`. Personal checklists and the Discover price filter stay separate post-redesign features.
+
+**Two pushes (as P6):**
+
+**P7a — Prep**
+1. **Checklists card(s):** list name + "N of M", ••• menu (Rename / Delete list with confirm), round tick boxes (brand when done, text struck through), tap text to edit (planner), delete × on each item, "+ Add item…" row (planner). "+ New list" text link in the section header; empty state with icon.
+2. **Ideas card:** rows with title, link icon (opens new tab), notes line, time/place from demoted activities; **Schedule** (soft button) → inline day picker; scheduled ideas struck through "→ Promoted to {date}" with **Reschedule**; delete with confirm. "+ Add" opens the inline add form (title, link, notes) restyled with the new fields.
+3. Members: read-only, can still tick. Loading skeleton.
+4. **No floating +** on Prep (two adds on one screen — both stay as header links).
+
+**P7b — Discover**
+5. Category chips (Bites live; Shop / Attractions "Soon" disabled), location control (Near me / search place), start / loading / error states with icons, filter chips, result cards (photo, name, cuisine · price · distance · Open/Closed, rating), Show more / "That's all…", empty with clear filter. Member message restyled (B1).
+6. **Spot detail** + **Add to schedule** on the shared Sheet; Add to schedule uses the same Time dropdowns and the new **Category dropdown** as Add activity; Day stays a dropdown.
+
+**Test (Test trip only):** Prep — create list, add / edit / tick / delete items, rename + delete list; add idea with link, schedule it, reschedule, delete. Discover — one search near the destination (keeps Google Places calls low), open a spot, add to schedule → check Schedule → delete the activity. Member view read-only.
+- 🔄 **Status line removed** (owner, 2026-09-29, after phone test): no pinned line in either switch state; a small amber hint under the Split between list appears only when something needs fixing. P6b + P6c phone-tested ✅.
+
+## 23. P7a log (2026-09-29) — Prep built, awaiting owner test
+
+Decisions: no floating + on Prep (header links "+ New list" / "+ Add") ✅ · add forms stay inline ✅ · Add to schedule will use the Category + Time dropdowns (P7b) ✅.
+
+- ✅ Checklists: section header + "New list" link; each list a card with name, "N of M", ••• menu (Rename / Delete list, confirm); round ticks (brand when done, text struck through); × to remove an item; "+ Add item" row keeps focus for rapid entry. Empty state card.
+- ✅ Ideas: one card, rows with title, time/place (demoted activities), notes, Link (new tab); **Schedule** / **Reschedule** soft button → "Pick a day" chips; promoted = struck through + "→ Promoted to Day N"; delete with confirm; inline add form (idea, link, notes) with the new fields.
+- 🐛 **Fixed:** members could tap a checklist item or idea title and get an edit box (the server refused the save). Tap-to-edit is now planner-only (P10: members read-only, can still tick).
+- ✅ Loading skeleton.
+- Tested on Test trip, then removed: list "P7 test list" → 3 items → tick Passport → rename item → remove Sunscreen → rename list "P7 packing" → deleted; idea "P7 test – night market" with link + notes → scheduled to Day 14 → checked on Schedule (Wed 30 Sep) → deleted the activity → deleted the idea. Left the owner's own "test" activity (29 Sep 23:00) untouched.
+- **Noticed (existing, not changed):** on long trips the "Pick a day" list shows every day as a chip (99 on Test trip). Suggest a Day dropdown ("Day 14 · Wed 30 Sep") like Add to schedule — owner to decide.
+- Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.

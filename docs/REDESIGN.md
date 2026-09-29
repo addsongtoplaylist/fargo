@@ -161,7 +161,7 @@ All former ⚠️ items are now drawn (canvas row 2) or marked as behaviour to k
 | E6 | Split as: Equal · Shares · % · Amounts | Behind a **"Split with others"** switch (owner, 2026-09-29): off = just for the payer ("Just for you"); on = today's split section. New expense remembers the last choice on the trip (this device), first one on; editing restores what was saved; hidden on a solo trip. Replaces D10's always-tick rule |
 | E7 | Split between: list of travellers with tick boxes, "N of M", **Select all / Clear** | |
 | E8 | Per-person share / % / amount fields when not Equal | |
-| E9 | Status line: "Tick who it's for" · "N% left to allocate" · "VND x over" · "split N ways" | **Pinned above Cancel / Log** so it stays visible with long traveller lists (owner, 2026-09-29) |
+| E9 | Status line: "Tick who it's for" · "N% left to allocate" · "VND x over" · "split N ways" | **No status line** (owner, 2026-09-29) — only a small amber hint under the list when something needs fixing ("Tick who it's for", "10% left to allocate", "VND x over"); nothing when it adds up or when not split |
 | E10 | Notes (optional) | |
 | E11 | Save disabled until valid; error toast | |
 | E12 | Edit only: Delete (confirm) | |
