@@ -1,3 +1,7 @@
+import Link from "next/link";
+import { Link2Off } from "lucide-react";
+import { Empty } from "@/components/ui/empty";
+import { buttonClasses } from "@/components/ui/button";
 import { getTripByInviteCode } from "@/lib/actions/trip";
 import { getOrCreateAccount } from "@/lib/account";
 import { InviteLanding } from "./invite-landing";
@@ -13,21 +17,18 @@ export default async function InvitePage({
 
   if (!trip) {
     return (
-      <div className="min-h-full flex flex-col items-center justify-center px-4 bg-ground">
-        <div className="w-full max-w-[360px] text-center">
-          <h1 className="text-2xl font-semibold text-ink mb-2">
-            Invalid invite link
-          </h1>
-          <p className="text-sm text-muted mb-6">
-            This invite link is expired or doesn&apos;t exist.
-          </p>
-          <a
-            href="/sign-in"
-            className="text-sm text-accent hover:underline"
-          >
-            Go to sign in
-          </a>
-        </div>
+      <div className="min-h-dvh flex flex-col items-center justify-center px-4 bg-page">
+        <Empty
+          size="page"
+          icon={Link2Off}
+          title="Invalid invite link"
+          message="This invite link is expired or doesn't exist. Ask the planner for a new one."
+          action={
+            <Link href="/sign-in" className={buttonClasses("soft", "md")}>
+              Go to sign in
+            </Link>
+          }
+        />
       </div>
     );
   }

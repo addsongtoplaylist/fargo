@@ -17,6 +17,8 @@ type DestinationSearchProps = {
   onChange: (dest: Destination | null) => void;
   /** Placeholder text */
   placeholder?: string;
+  /** Borderless, right-aligned — for a label-left row inside a card (New trip) */
+  bare?: boolean;
 };
 
 type MapboxFeature = {
@@ -32,6 +34,7 @@ export function DestinationSearch({
   value,
   onChange,
   placeholder = "Search destination…",
+  bare = false,
 }: DestinationSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<MapboxFeature[]>([]);
@@ -144,16 +147,22 @@ export function DestinationSearch({
   // If a destination is selected, show it as a pill
   if (value) {
     return (
-      <div className="flex items-center gap-1.5 bg-card border border-border rounded-md px-3 h-11">
-        <MapPin size={14} className="text-accent shrink-0" />
-        <span className="text-sm text-ink truncate flex-1">{value.name}</span>
+      <div
+        className={
+          bare
+            ? "flex items-center justify-end gap-1.5 h-11 min-w-0"
+            : "flex items-center gap-2 bg-page border border-line rounded-field px-3 h-11"
+        }
+      >
+        <MapPin size={16} className="text-brand shrink-0" />
+        <span className={`text-[15px] text-fg font-medium truncate ${bare ? "" : "flex-1"}`}>{value.name}</span>
         <button
           type="button"
           onClick={handleClear}
-          aria-label="Clear"
-          className="text-muted hover:text-ink shrink-0"
+          aria-label="Clear destination"
+          className="w-8 h-8 -mr-2 flex items-center justify-center text-fg-faint hover:text-fg shrink-0"
         >
-          <X size={14} />
+          <X size={15} />
         </button>
       </div>
     );
@@ -168,19 +177,24 @@ export function DestinationSearch({
           value={query}
           onChange={(e) => handleInput(e.target.value)}
           onFocus={() => results.length > 0 && setOpen(true)}
-          className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink placeholder:text-muted/50 outline-none focus:border-accent transition-colors pr-8"
+          aria-label="Destination"
+          className={
+            bare
+              ? "w-full h-11 bg-transparent text-right text-[15px] text-fg placeholder:text-fg-faint outline-none pr-6"
+              : "w-full h-11 px-3 bg-page border border-line rounded-field text-sm text-fg placeholder:text-fg-faint outline-none focus:border-brand transition-colors pr-8"
+          }
         />
         {loading && (
           <Loader2
             size={14}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted animate-spin"
+            className={`absolute top-1/2 -translate-y-1/2 text-fg-muted animate-spin ${bare ? "right-0" : "right-3"}`}
           />
         )}
       </div>
 
       {/* Dropdown */}
       {open && results.length > 0 && (
-        <div className="absolute left-0 right-0 top-full mt-1 bg-card border border-border rounded-md shadow-lg z-50 overflow-hidden">
+        <div className={`absolute top-full mt-1 bg-surface rounded-field shadow-float z-50 overflow-hidden ${bare ? "-right-4 w-[min(320px,calc(100vw-32px))]" : "left-0 right-0"}`}>
           {(() => {
             const seen = new Set<string>();
             return results.reduce<{ feature: MapboxFeature; label: string }[]>((acc, feature) => {
@@ -199,9 +213,9 @@ export function DestinationSearch({
                 key={i}
                 type="button"
                 onClick={() => handleSelect(feature)}
-                className="w-full text-left px-3 py-2.5 text-sm text-ink hover:bg-accent-soft transition-colors flex items-start gap-2 border-b border-border last:border-b-0"
+                className="w-full text-left px-3.5 py-3 text-sm text-fg hover:bg-brand-soft transition-colors flex items-start gap-2 border-b border-line last:border-b-0"
               >
-                <MapPin size={13} className="text-muted shrink-0 mt-0.5" />
+                <MapPin size={14} className="text-fg-muted shrink-0 mt-0.5" />
                 <span className="truncate">{label}</span>
               </button>
             ));

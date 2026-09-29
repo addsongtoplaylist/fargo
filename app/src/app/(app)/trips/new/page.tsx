@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Column } from "@/components/column";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronDown, Loader2, X } from "lucide-react";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 import Link from "next/link";
 import { createTrip } from "@/lib/actions/trip";
 import { useToast } from "@/components/toast";
 import { DestinationSearch, type Destination } from "@/components/destination-search";
+import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { Eyebrow } from "@/components/ui/card";
 
 const tripTypes = [
   "Free & easy",
@@ -101,142 +104,182 @@ export default function NewTripPage() {
     }
   }
 
+  const [step, setStep] = useState<1 | 2>(1);
+  const [name, setName] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [fxRate, setFxRate] = useState("");
+
+  // Step 1 is done when all four are filled and the dates are in order
+  const datesOk = !!startDate && !!endDate && endDate >= startDate;
+  const step1Done = !!name.trim() && !!destination && datesOk;
+  const step2Done = !!currency && parseFloat(fxRate) > 0;
+  const days = datesOk ? differenceInCalendarDays(parseISO(endDate), parseISO(startDate)) + 1 : 0;
+
+  const ROW = "flex items-center gap-3 min-h-[52px] px-4";
+  const LABEL = "text-sm text-fg-muted w-[112px] shrink-0 whitespace-nowrap";
+  const BARE = "flex-1 min-w-0 h-11 bg-transparent text-right text-[15px] text-fg placeholder:text-fg-faint outline-none";
+  const DATE_PILL =
+    "h-9 px-3.5 rounded-full bg-page text-sm text-fg tabular-nums outline-none focus:ring-2 focus:ring-brand/40 min-w-0 w-[140px]";
+
   return (
-    <Column className="py-4">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Link
-          href="/trips"
-          className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-ink transition-colors -ml-2"
-          aria-label="Back"
-        >
-          <ArrowLeft size={20} />
-        </Link>
-        <h1 className="text-xl font-semibold">New trip</h1>
+    <div className="mx-auto w-full max-w-[var(--max-width-column)] min-h-dvh flex flex-col">
+      {/* Top: close / back · progress */}
+      <div className="px-4 pt-4 flex items-center gap-3.5">
+        {step === 1 ? (
+          <Link
+            href="/trips?noauto=1"
+            aria-label="Close"
+            className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-fg shrink-0"
+          >
+            <X size={20} strokeWidth={2} aria-hidden />
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            aria-label="Back to step 1"
+            className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-fg shrink-0"
+          >
+            <ArrowLeft size={20} strokeWidth={2} aria-hidden />
+          </button>
+        )}
+        <div className="flex-1 flex gap-1.5" aria-hidden>
+          <span className="flex-1 h-1 rounded-full bg-brand" />
+          <span className={`flex-1 h-1 rounded-full ${step === 2 ? "bg-brand" : "bg-line"}`} />
+        </div>
+        <span className="text-xs text-fg-muted shrink-0">{step} of 2</span>
       </div>
 
-      <form action={handleSubmit} className="space-y-4">
-        {/* Trip name */}
-        <div>
-          <label className="block text-[13px] font-medium text-muted mb-1">
-            Trip name
-          </label>
-          <input
-            name="name"
-            type="text"
-            placeholder="e.g. Vietnam 2026"
-            required
-            className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink placeholder:text-muted/50 focus:outline-none focus:border-accent transition-colors"
-          />
-        </div>
+      <h1 className="mx-5 mt-6 text-[26px] font-bold text-fg tracking-[-0.4px]">{step === 1 ? "New trip" : "Trip details"}</h1>
+      <p className="mx-5 mt-1 mb-5 text-sm text-fg-muted">{step === 1 ? "Where and when?" : "Almost there."}</p>
 
-        {/* Destination */}
-        <div>
-          <label className="block text-[13px] font-medium text-muted mb-1">
-            Destination
-          </label>
-          <DestinationSearch
-            value={destination}
-            onChange={handleDestinationChange}
-            placeholder="e.g. Vietnam"
-          />
-          {/* Hidden input for form validation — destination is required */}
-          <input type="hidden" name="destination" value={destination?.name ?? ""} required />
-        </div>
-
-        {/* Dates */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-[13px] font-medium text-muted mb-1">
-              Start date
-            </label>
-            <input
-              name="startDate"
-              type="date"
-              required
-              className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink focus:outline-none focus:border-accent transition-colors min-w-0"
-            />
+      {/* One form, two views — both steps stay mounted so Back keeps what you typed */}
+      <form action={handleSubmit} className="flex-1 flex flex-col">
+        <div className={`px-4 space-y-3.5 ${step === 1 ? "" : "hidden"}`}>
+          <div className="bg-surface rounded-card">
+            <div className={ROW}>
+              <label htmlFor="trip-name" className={LABEL}>Trip name</label>
+              <input
+                id="trip-name"
+                name="name"
+                type="text"
+                placeholder="e.g. Vietnam 2026"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={BARE}
+              />
+            </div>
+            <div className="h-px bg-line ml-4" />
+            <div className={ROW}>
+              <span className={LABEL}>Destination</span>
+              <div className="flex-1 min-w-0 relative">
+                <DestinationSearch value={destination} onChange={handleDestinationChange} placeholder="e.g. Vietnam" bare />
+              </div>
+            </div>
           </div>
-          <div>
-            <label className="block text-[13px] font-medium text-muted mb-1">
-              End date
-            </label>
-            <input
-              name="endDate"
-              type="date"
-              required
-              className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink focus:outline-none focus:border-accent transition-colors min-w-0"
-            />
-          </div>
-        </div>
 
-        {/* Trip type */}
-        <div>
-          <label className="block text-[13px] font-medium text-muted mb-1.5">
-            Trip type
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {tripTypes.map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setSelectedType(type)}
-                className={`px-3 py-1.5 text-sm rounded-sm border transition-colors ${
-                  selectedType === type
-                    ? "border-accent bg-accent-soft text-accent font-medium"
-                    : "border-border text-muted hover:border-accent hover:text-accent"
-                }`}
-              >
-                {type}
-              </button>
-            ))}
+          <div className="bg-surface rounded-card px-4 py-3.5">
+            <div className="flex justify-between text-[13px] text-fg-muted">
+              <label htmlFor="trip-start">Start</label>
+              {days > 0 && <span className="font-semibold text-brand">{days} day{days === 1 ? "" : "s"}</span>}
+              <label htmlFor="trip-end">End</label>
+            </div>
+            <div className="flex items-center justify-between gap-2 mt-2">
+              <input
+                id="trip-start"
+                name="startDate"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className={DATE_PILL}
+              />
+              <ArrowRight size={18} className="text-fg-faint shrink-0" aria-hidden />
+              <input
+                id="trip-end"
+                name="endDate"
+                type="date"
+                value={endDate}
+                min={startDate || undefined}
+                onChange={(e) => setEndDate(e.target.value)}
+                className={DATE_PILL}
+              />
+            </div>
+            {startDate && endDate && endDate < startDate && (
+              <p className="text-[13px] font-medium text-money-warn mt-2">End date is before the start date</p>
+            )}
           </div>
         </div>
 
-        {/* Currency + rate */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className={`px-4 space-y-5 ${step === 2 ? "" : "hidden"}`}>
           <div>
-            <label className="block text-[13px] font-medium text-muted mb-1">
-              Local currency
-            </label>
-            <select
-              name="localCurrency"
-              required
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink focus:outline-none focus:border-accent transition-colors appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%236b6560%22%20d%3D%22M2%204l4%204%204-4%22%2F%3E%3C%2Fsvg%3E')] bg-[length:12px] bg-[right_12px_center] bg-no-repeat pr-8"
-            >
-              <option value="" disabled>Select currency</option>
-              {CURRENCIES.map(({ code, label }) => (
-                <option key={code} value={code}>{label}</option>
+            <Eyebrow className="mx-1 mb-2">Trip type</Eyebrow>
+            <div className="bg-surface rounded-card px-4 py-3.5 flex flex-wrap gap-2">
+              {tripTypes.map((type) => (
+                <Chip key={type} selected={selectedType === type} onClick={() => setSelectedType(type)}>
+                  {type}
+                </Chip>
               ))}
-            </select>
+            </div>
           </div>
+
           <div>
-            <label className="block text-[13px] font-medium text-muted mb-1">
-              1 MYR =
-            </label>
-            <input
-              name="fxRate"
-              type="number"
-              step="any"
-              placeholder="e.g. 5600"
-              required
-              className="w-full h-11 px-3 bg-card border border-border rounded-md text-ink placeholder:text-muted/50 focus:outline-none focus:border-accent transition-colors"
-            />
+            <Eyebrow className="mx-1 mb-2">Money</Eyebrow>
+            <div className="bg-surface rounded-card">
+              <div className={ROW}>
+                <label htmlFor="trip-currency" className={LABEL}>Local currency</label>
+                <select
+                  id="trip-currency"
+                  name="localCurrency"
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className={`${BARE} appearance-none pr-1 [text-align-last:right]`}
+                >
+                  <option value="" disabled>Select</option>
+                  {CURRENCIES.map(({ code, label }) => (
+                    <option key={code} value={code}>{label}</option>
+                  ))}
+                </select>
+                <ChevronDown size={16} className="text-fg-faint shrink-0 -ml-1" aria-hidden />
+              </div>
+              <div className="h-px bg-line ml-4" />
+              <div className={ROW}>
+                <label htmlFor="trip-rate" className={LABEL}>1 MYR =</label>
+                <input
+                  id="trip-rate"
+                  name="fxRate"
+                  type="number"
+                  step="any"
+                  inputMode="decimal"
+                  placeholder="e.g. 5600"
+                  value={fxRate}
+                  onChange={(e) => setFxRate(e.target.value)}
+                  className={`${BARE} tabular-nums`}
+                />
+                {currency && <span className="text-sm text-fg-muted shrink-0">{currency}</span>}
+              </div>
+            </div>
+            <p className="text-xs text-fg-muted mx-1 mt-2 leading-relaxed">
+              Currency picked from your destination. Enter today&apos;s rate — you can change it later in Trip settings.
+            </p>
           </div>
+          {/* Cover photo row — P10 (photo upload) */}
         </div>
 
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full h-11 bg-accent text-accent-on font-medium rounded-md hover:bg-accent-hover transition-colors mt-2 disabled:opacity-50 flex items-center justify-center gap-2"
-        >
-          {submitting && <Loader2 size={16} className="animate-spin" />}
-          {submitting ? "Creating trip…" : "Create trip"}
-        </button>
+        {/* Pinned action */}
+        <div className="mt-auto sticky bottom-0 px-4 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] bg-page">
+          {step === 1 ? (
+            <Button size="lg" full disabled={!step1Done} onClick={() => setStep(2)}>
+              Next
+            </Button>
+          ) : (
+            <Button type="submit" size="lg" full disabled={!step2Done || submitting}>
+              {submitting && <Loader2 size={16} className="animate-spin" aria-hidden />}
+              {submitting ? "Creating trip…" : "Create trip"}
+            </Button>
+          )}
+        </div>
       </form>
-    </Column>
+    </div>
   );
 }

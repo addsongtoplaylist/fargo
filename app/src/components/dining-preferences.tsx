@@ -3,6 +3,12 @@
 import { useState } from "react";
 import { updateProfile } from "@/lib/actions/account";
 import { useToast } from "@/components/toast";
+import { Wallet, Leaf } from "lucide-react";
+import { Sheet } from "@/components/ui/sheet";
+import { Chip } from "@/components/ui/chip";
+import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/card";
+import { ProfileRow, ROW_DIVIDER } from "@/components/profile-row";
 import {
   DINING_BUDGETS,
   DIETARY_OPTIONS,
@@ -31,18 +37,6 @@ type DiningPreferencesProps = {
   dietaryRestrictions: string[];
 };
 
-const selectClass =
-  "text-sm font-medium text-ink bg-ground border border-border rounded-md px-2 py-1 outline-none focus:border-accent transition-colors disabled:opacity-50";
-
-// Standard chip style (matches the category chips in Add activity)
-const chipBase =
-  "px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors disabled:opacity-50";
-
-const chipOff =
-  `${chipBase} bg-ground text-muted border border-border hover:border-accent/40`;
-
-const chipOn = `${chipBase} bg-accent text-accent-on`;
-
 export function DiningPreferences({
   diningBudget: initialBudget,
   dietaryRestrictions: initialDietary,
@@ -50,6 +44,7 @@ export function DiningPreferences({
   const [budget, setBudget] = useState(initialBudget);
   const [dietary, setDietary] = useState<string[]>(initialDietary);
   const [saving, setSaving] = useState(false);
+  const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
   // Saves instantly on every change (same as Home country); reverts on failure
@@ -79,42 +74,53 @@ export function DiningPreferences({
     );
   }
 
+  const dietaryValue =
+    dietary.length === 0
+      ? "None"
+      : dietary.length <= 2
+        ? dietary.map((d) => DIETARY_LABELS[d] ?? d).join(", ")
+        : `${DIETARY_LABELS[dietary[0]] ?? dietary[0]} +${dietary.length - 1}`;
+
   return (
-    <div className="space-y-5">
-      {/* Budget — single select dropdown */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-muted">Budget</span>
-        <select
-          value={budget}
-          onChange={(e) => save(e.target.value, dietary)}
-          disabled={saving}
-          className={selectClass}
-        >
-          {DINING_BUDGETS.map((b) => (
-            <option key={b} value={b}>
-              {BUDGET_LABELS[b]}
-            </option>
-          ))}
-        </select>
+    <>
+      <div className="bg-surface rounded-card">
+        <button type="button" onClick={() => setOpen(true)} className="w-full text-left">
+          <ProfileRow icon={Wallet} label="Budget" value={BUDGET_LABELS[budget as DiningBudget] ?? budget} chevron />
+        </button>
+        <div className={ROW_DIVIDER} />
+        <button type="button" onClick={() => setOpen(true)} className="w-full text-left">
+          <ProfileRow icon={Leaf} label="Dietary" value={dietaryValue} chevron />
+        </button>
       </div>
 
-      {/* Dietary — multi-select chips */}
-      <div>
-        <span className="text-sm text-muted">Dietary restrictions</span>
-        <div className="flex flex-wrap gap-2 mt-2">
-          {DIETARY_OPTIONS.map((d) => (
-            <button
-              key={d}
-              onClick={() => toggleDietary(d)}
-              disabled={saving}
-              className={dietary.includes(d) ? chipOn : chipOff}
-            >
-              {DIETARY_LABELS[d]}
-            </button>
+      <Sheet
+        open={open}
+        title="Dining preferences"
+        onClose={() => setOpen(false)}
+        footer={
+          <Button size="lg" full onClick={() => setOpen(false)}>
+            Done
+          </Button>
+        }
+      >
+        <p className="text-[13px] text-fg-muted mb-4">Used by Discover to filter spots by your budget and dietary needs.</p>
+        <Eyebrow className="mb-2">Budget · pick one</Eyebrow>
+        <div className="flex flex-wrap gap-2">
+          {DINING_BUDGETS.map((b) => (
+            <Chip key={b} selected={budget === b} disabled={saving} onClick={() => save(b, dietary)}>
+              {BUDGET_LABELS[b]}
+            </Chip>
           ))}
         </div>
-      </div>
-
-    </div>
+        <Eyebrow className="mt-5 mb-2">Dietary · pick any</Eyebrow>
+        <div className="flex flex-wrap gap-2 pb-1">
+          {DIETARY_OPTIONS.map((d) => (
+            <Chip key={d} selected={dietary.includes(d)} disabled={saving} onClick={() => toggleDietary(d)}>
+              {DIETARY_LABELS[d]}
+            </Chip>
+          ))}
+        </div>
+      </Sheet>
+    </>
   );
 }

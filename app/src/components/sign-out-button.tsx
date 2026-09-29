@@ -2,6 +2,8 @@
 
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
+import { ProfileRow } from "@/components/profile-row";
 
 export function SignOutButton() {
   const router = useRouter();
@@ -14,11 +16,8 @@ export function SignOutButton() {
   }
 
   return (
-    <button
-      onClick={handleSignOut}
-      className="mt-8 w-full py-2.5 text-sm font-medium text-money-over border border-money-over rounded-md hover:bg-money-over-soft transition-colors"
-    >
-      Sign out
+    <button type="button" onClick={handleSignOut} className="w-full text-left bg-surface rounded-card hover:bg-money-over-soft/40 transition-colors">
+      <ProfileRow icon={LogOut} label="Sign out" tone="danger" />
     </button>
   );
 }

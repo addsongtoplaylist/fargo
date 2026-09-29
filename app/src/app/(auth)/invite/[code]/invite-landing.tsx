@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { MapPin, Calendar, Users } from "lucide-react";
-import { formatDate } from "@/lib/dates";
+import { InviteShell, InviteTripSummary } from "./invite-card";
 
 type InviteLandingProps = {
   trip: {
+    id?: string;
     name: string;
     destination: string;
     start_date: string;
@@ -31,66 +31,32 @@ export function InviteLanding({ trip, inviteCode }: InviteLandingProps) {
   }
 
   return (
-    <div className="min-h-full flex flex-col items-center justify-center px-4 bg-ground">
-      <div className="w-full max-w-[360px]">
-        {/* Brand */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-semibold text-ink mb-1">Fargo</h1>
-          <p className="text-sm text-muted">You&apos;ve been invited to a trip</p>
-        </div>
-
-        {/* Trip card */}
-        <div className="bg-card rounded-lg border border-border p-5 mb-4">
-          <h2 className="text-lg font-semibold text-ink mb-3">{trip.name}</h2>
-
-          <div className="space-y-2 mb-4">
-            <div className="flex items-center gap-2 text-sm text-muted">
-              <MapPin size={14} className="text-accent shrink-0" />
-              <span>{trip.destination}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted">
-              <Calendar size={14} className="text-accent shrink-0" />
-              <span>
-                {formatDate(trip.start_date)} – {formatDate(trip.end_date)}
-              </span>
-            </div>
-            {trip.travellers && trip.travellers.length > 0 && (
-              <div className="flex items-center gap-2 text-sm text-muted">
-                <Users size={14} className="text-accent shrink-0" />
-                <span>
-                  {trip.travellers.length}{" "}
-                  {trip.travellers.length === 1 ? "traveller" : "travellers"}
-                </span>
-              </div>
-            )}
-          </div>
-
-          <button
-            onClick={handleJoin}
-            disabled={loading}
-            className="w-full h-12 flex items-center justify-center gap-2 bg-accent text-accent-on rounded-md text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60 disabled:pointer-events-none"
-          >
-            {loading ? (
-              <span className="w-4 h-4 border-2 border-accent-on/40 border-t-accent-on rounded-full animate-spin" />
-            ) : (
+    <InviteShell footnote="You'll be added as a member and can view the trip plan.">
+      <div className="bg-surface rounded-card p-5">
+        <InviteTripSummary trip={trip} />
+        <button
+          onClick={handleJoin}
+          disabled={loading}
+          className="w-full h-[50px] mt-5 flex items-center justify-center gap-2.5 bg-brand text-brand-on rounded-full text-[15px] font-semibold hover:bg-brand-hover transition-colors disabled:opacity-60 disabled:pointer-events-none"
+        >
+          {loading ? (
+            <span className="w-4 h-4 border-2 border-brand-on/40 border-t-brand-on rounded-full animate-spin" />
+          ) : (
+            <span className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
               <GoogleIcon />
-            )}
-            {loading ? "Signing in…" : "Sign in with Google to join"}
-          </button>
-        </div>
-
-        <p className="text-center text-xs text-muted">
-          You&apos;ll be added as a member and can view the trip plan.
-        </p>
+            </span>
+          )}
+          {loading ? "Signing in…" : "Sign in with Google to join"}
+        </button>
       </div>
-    </div>
+    </InviteShell>
   );
 }
 
 
 function GoogleIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+    <svg width="14" height="14" viewBox="0 0 18 18" fill="none" aria-hidden>
       <path
         d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
         fill="#4285F4"

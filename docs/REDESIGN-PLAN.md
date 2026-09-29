@@ -374,3 +374,39 @@ Decisions: no floating + on Prep (header links "+ New list" / "+ Add") ✅ · ad
 - ✅ Member message ("Only the trip planner can use Discover.") as an empty-state card.
 - Tested on Test trip: searched near Ben Thanh Market (1 search, 19 spots) → opened Bếp Mẹ Ỉn → added to Day 13 12:00 → shown on Schedule with its pin → deleted. Owner's own "test" / "idea 1" left untouched.
 - Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.
+- P7b phone-tested ✅ (owner, 2026-09-29).
+
+## 25. P8 plan — everything else (not started)
+
+**Design (owner, 2026-09-29, canvas row "P8 · chosen directions"):** Sign in = Wanderlog style · Invite = today's layout, restyled only · **New trip = 2 steps** (1: Trip name, Destination, dates · 2: Trip type, Local currency (auto from destination, editable), 1 MYR = (manual), Cover photo row — hidden until P10) · Profile = Airwallex-style icon rows + Dining sheet (budget pick one, dietary pick any) · Home currency follows the country (already true) · Trip settings, Shared trip, system pages = restyle only. No auto exchange rate; Trip type stays; Trip settings layout unchanged.
+
+**No data or logic changes:** same `createTrip`, `updateProfile`, invite/claim, share and auth code. Guard stays empty.
+
+**Two pushes:**
+
+**P8a — first impressions + create**
+1. **Sign in** (Wanderlog): white screen, mascot + logo + tagline, one large Continue with Google, "No passwords…" at the bottom; error line kept.
+2. **Invite** (signed out / "which one are you?" / invalid link): today's layouts on the v0.8 cards, buttons, avatars, empty state.
+3. **New trip, 2 steps:** progress "1 of 2"; one form, two views — Next only when name, destination and both dates are filled; Back keeps what you typed; Create trip on step 2; currency still auto-fills from the destination; cover row not shown until P10.
+4. **Profile:** avatar + name + email; TRAVEL (Home country select, Home currency read-only); DINING (Budget, Dietary → Dining sheet with chips); Sign out row; version. "Recently viewed" hidden (not built).
+
+**P8b — manage + system**
+5. **Trip settings:** restyled fields, share link card, Danger zone (outlined red) — same actions.
+6. **Shared trip** (signed-out view, Schedule / Prep segmented).
+7. **System pages:** page not found, app error, tab error, offline page, Explore placeholder — icon empty states, no emoji.
+8. **Small fix:** with two active trips, the auto-jump picks the one that started most recently (today it's random).
+
+**Test:** create + delete a throwaway trip (both steps, back/forward); Profile country + dining change and restore; signed-out shared link (private window); invite + "which one are you?" with the second account (owner); error / 404 pages; Trip settings save on Test trip only.
+
+## 26. P8a log (2026-09-29) — built, awaiting owner test
+
+Decisions: split P8a / P8b ✅ · Trip settings keeps only the share link (invite link removed in P8b) ✅.
+
+- ✅ **Sign in** (Wanderlog): white screen, mascot + logo + tagline in the upper third, one large Continue with Google, footnote at the bottom; error line kept. (Not viewable while signed in — owner to check signed out.)
+- ✅ **Invite:** shared layout (logo, "You've been invited", trip card with **colour cover**, place · dates, avatars + count); "Which one are you?" shows **names only** (paid/in counts removed, Tier 3 decision); already-member button shortened to "View trip"; invalid link = icon empty state + Go to sign in. Join / claim code unchanged.
+- ✅ **New trip, 2 steps:** progress "1 of 2"; step 1 Trip name · Destination (row style) · Start → End pills with "N days" (end can't be before start); Next only when all four are filled; step 2 Trip type chips · Local currency (auto from destination, editable) · 1 MYR = (manual) · hint; Back keeps everything (one form, both steps mounted); Create trip unchanged (`createTrip`). Cover photo row left for P10.
+- ✅ **Profile** (Airwallex): avatar, name, email; TRAVEL rows (Home country → phone picker, saves instantly; Home currency read-only); DINING rows (Budget, Dietary) → Dining sheet (budget pick one, dietary pick any, saves instantly, Done); Sign out row; version. Recently viewed hidden.
+- 🔎 **Correction:** Home currency does **not** follow the country — changing country only saves the country; the app assumes MYR everywhere ("1 MYR =", "≈ RM"). Shown read-only as before. Making it follow the country is a separate future change.
+- 🐛 Fixed during testing: logo on Invite / Sign in never loaded (lazy image) → loads straight away; "Local currency" label wrapped → wider label column.
+- Tested: Profile budget Any → $$ Moderate (kept after reload) → back to Any; New trip throwaway "P8 test – throwaway" (Japan, 20–25 Nov, JPY auto, rate 34) → created → Overview → invite link viewed as member ("View trip") → invalid link page → trip deleted in Trip settings. My trips back to the 4 trips.
+- Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.

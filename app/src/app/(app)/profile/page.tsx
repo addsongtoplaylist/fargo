@@ -3,52 +3,42 @@ import { getOrCreateAccount } from "@/lib/account";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ProfileSettings } from "@/components/profile-settings";
 import { DiningPreferences } from "@/components/dining-preferences";
+import { Eyebrow } from "@/components/ui/card";
 import pkg from "../../../../package.json";
 
 export default async function ProfilePage() {
   const account = await getOrCreateAccount();
 
   return (
-    <Column className="py-6">
-      <h1 className="text-2xl font-semibold mb-6">Profile</h1>
-
-      <div className="bg-card rounded-md border border-border p-3">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-accent-soft flex items-center justify-center text-accent font-semibold text-lg">
-            {account?.name?.[0]?.toUpperCase() || "?"}
-          </div>
-          <div>
-            <p className="font-semibold text-ink">{account?.name}</p>
-            <p className="text-sm text-muted">{account?.email}</p>
-          </div>
+    <Column className="pt-12 pb-8">
+      {/* Who you are */}
+      <div className="flex flex-col items-center text-center">
+        <div className="w-[76px] h-[76px] rounded-full bg-brand-soft flex items-center justify-center text-brand font-bold text-[30px]">
+          {account?.name?.[0]?.toUpperCase() || "?"}
         </div>
-        <ProfileSettings
-          homeCurrency={account?.home_currency || "MYR"}
-          homeCountryCode={account?.home_country_code ?? null}
-        />
+        <h1 className="text-xl font-bold text-fg mt-3">{account?.name}</h1>
+        <p className="text-[13px] text-fg-muted mt-0.5">{account?.email}</p>
       </div>
 
-      <h2 className="text-base font-semibold mt-8 mb-3">Dining preferences</h2>
-      <div className="bg-card rounded-md border border-border p-3">
-        <p className="text-sm text-muted mb-4">
-          Used by Discover to filter spots by your budget and dietary needs.
-        </p>
-        <DiningPreferences
-          diningBudget={account?.dining_budget || "moderate"}
-          dietaryRestrictions={account?.dietary_restrictions || []}
-        />
+      <Eyebrow className="mx-1 mt-7 mb-2">Travel</Eyebrow>
+      <ProfileSettings
+        homeCurrency={account?.home_currency || "MYR"}
+        homeCountryCode={account?.home_country_code ?? null}
+      />
+
+      <Eyebrow className="mx-1 mt-6 mb-2">Dining · used by Discover</Eyebrow>
+      <DiningPreferences
+        diningBudget={account?.dining_budget || "moderate"}
+        dietaryRestrictions={account?.dietary_restrictions || []}
+      />
+
+      {/* "Recently viewed" hidden until it's built (Tier 3 decision) */}
+
+      <div className="mt-6">
+        <SignOutButton />
       </div>
 
-      <h2 className="text-base font-semibold mt-8 mb-3">Recently viewed</h2>
-      <p className="text-sm text-muted">
-        Shared trips you&apos;ve viewed will appear here.
-      </p>
-
-      <SignOutButton />
-
-      <p className="text-center text-[11px] text-muted/50 mt-8">
-        Fargo v{pkg.version}
-      </p>
+      <p className="text-center text-[11px] text-fg-faint mt-5">Fargo v{pkg.version}</p>
     </Column>
   );
 }
