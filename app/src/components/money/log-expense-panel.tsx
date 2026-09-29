@@ -40,6 +40,9 @@ const SPLIT_TYPES: { value: SplitType; label: string }[] = [
   { value: "amount", label: "Amounts" },
 ];
 
+/** Per-trip memory of the last "Split with others" choice (this device). */
+const splitMemoryKey = (tripId: string) => `fargo:split-with-others:${tripId}`;
+
 const fmt = (n: number) =>
   n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -71,6 +74,23 @@ export function LogExpensePanel({
       editing?.expense_participants.map((p) => [p.traveller_id, String(parseFloat(p.weight))]) ?? []
     )
   );
+  // "Split with others" (owner, 2026-09-29, replaces D10's always-tick rule).
+  // Off = only the payer is on it (a personal expense, same as ticking just
+  // them). Editing restores what was saved; a new expense remembers the last
+  // choice on this trip (this device), first one on. Hidden on a solo trip.
+  const canSplit = travellers.length > 1;
+  const [splitOn, setSplitOn] = useState<boolean>(() => {
+    if (!canSplit) return false;
+    if (editing) {
+      const ids = editing.expense_participants.map((p) => p.traveller_id);
+      return !(ids.length === 1 && ids[0] === editing.paid_by);
+    }
+    try {
+      return localStorage.getItem(splitMemoryKey(tripId)) !== "off";
+    } catch {
+      return true;
+    }
+  });
   const amountRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -84,12 +104,14 @@ export function LogExpensePanel({
   // Splits always work on the local amount, to the cent (D34)
   const splitTotal = Math.round(localAmount * 100) / 100;
 
-  const ticked = travellers.filter((t) => included.has(t.id));
-  const tickedWeights = ticked.map((t) => (splitType === "equal" ? 1 : parseFloat(weights[t.id]) || 0));
-  const shares = computeShares(splitTotal, splitType, tickedWeights);
+  // Not split → just the payer, equal (one share of the whole amount)
+  const effectiveType: SplitType = splitOn ? splitType : "equal";
+  const ticked = splitOn ? travellers.filter((t) => included.has(t.id)) : travellers.filter((t) => t.id === paidBy);
+  const tickedWeights = ticked.map((t) => (effectiveType === "equal" ? 1 : parseFloat(weights[t.id]) || 0));
+  const shares = computeShares(splitTotal, effectiveType, tickedWeights);
   const shareOf = (id: string) => shares[ticked.findIndex((t) => t.id === id)] ?? 0;
-  const left = remaining(splitTotal, splitType, tickedWeights);
-  const sharesTotal = splitType === "shares" ? tickedWeights.reduce((a, b) => a + b, 0) : 1;
+  const left = remaining(splitTotal, effectiveType, tickedWeights);
+  const sharesTotal = effectiveType === "shares" ? tickedWeights.reduce((a, b) => a + b, 0) : 1;
   const splitValid = ticked.length > 0 && left === 0 && sharesTotal > 0;
   const allTicked = ticked.length === travellers.length;
 
@@ -145,10 +167,19 @@ export function LogExpensePanel({
       category,
       amount: splitTotal,
       paidBy,
-      splitType,
+      splitType: effectiveType,
       participants: ticked.map((t, i) => ({ travellerId: t.id, weight: tickedWeights[i] })),
       notes: notes.trim() || undefined,
     };
+
+    // Remember the choice for the next expense on this trip (this device only)
+    if (canSplit) {
+      try {
+        localStorage.setItem(splitMemoryKey(tripId), splitOn ? "on" : "off");
+      } catch {
+        /* storage unavailable — fine, the default is on */
+      }
+    }
 
     // Close panel immediately — optimistic UX
     onClose();
@@ -179,7 +210,9 @@ export function LogExpensePanel({
 
   // Status line under the list
   let status: { ok: boolean; text: string };
-  if (ticked.length === 0) status = { ok: false, text: "Tick who it's for" };
+  if (!splitOn)
+    status = { ok: true, text: paidBy === myTravellerId ? "Just for you" : `Just for ${ticked[0]?.display_name ?? "them"}` };
+  else if (ticked.length === 0) status = { ok: false, text: "Tick who it's for" };
   else if (splitType === "percent" && left !== 0)
     status = { ok: false, text: left > 0 ? `${left}% left to allocate` : `${-left}% over` };
   else if (splitType === "amount" && left !== 0)
@@ -321,60 +354,88 @@ export function LogExpensePanel({
           {/* Category */}
           <CategorySelect id="expense-category" value={category} options={CATEGORIES} onChange={setCategory} />
 
-          {/* Split as */}
-          <div className="pt-1">
-            <Eyebrow className="mb-1.5">Split as</Eyebrow>
-            <Segmented label="Split as" options={SPLIT_TYPES} value={splitType} onChange={changeSplitType} />
-          </div>
+          {/* Split with others — the split section only shows when it's on */}
+          {canSplit && (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={splitOn}
+              onClick={() => setSplitOn(!splitOn)}
+              className="w-full flex items-center justify-between gap-3 h-11 pt-1"
+            >
+              <span className="text-sm font-medium text-fg">Split with others</span>
+              <span
+                aria-hidden
+                className={`relative w-[46px] h-7 rounded-full transition-colors ${splitOn ? "bg-brand" : "bg-line"}`}
+              >
+                <span
+                  className={`absolute top-0.5 w-6 h-6 rounded-full bg-surface shadow-[0_1px_3px_rgba(23,32,51,0.25)] transition-all ${
+                    splitOn ? "left-[20px]" : "left-0.5"
+                  }`}
+                />
+              </span>
+            </button>
+          )}
 
-          {/* Split between — list (D32) */}
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <Eyebrow>
-                Split between · {ticked.length} of {travellers.length}
-              </Eyebrow>
-              <TextButton onClick={() => setTicked(allTicked ? new Set() : new Set(travellers.map((t) => t.id)))} className="py-0">
-                {allTicked ? "Clear" : "Select all"}
-              </TextButton>
+          {splitOn && (
+            <>
+            {/* Split as */}
+            <div className="pt-1">
+              <Eyebrow className="mb-1.5">Split as</Eyebrow>
+              <Segmented label="Split as" options={SPLIT_TYPES} value={splitType} onChange={changeSplitType} />
             </div>
-            <div className="border border-line rounded-field divide-y divide-line">
-              {travellers.map((t) => {
-                const on = included.has(t.id);
-                return (
-                  <div key={t.id} className="flex items-center gap-2.5 px-3 min-h-[44px]">
-                    <input
-                      id={`split-${t.id}`}
-                      type="checkbox"
-                      checked={on}
-                      onChange={() => toggle(t.id)}
-                      className="w-[18px] h-[18px] accent-[#0071bc] shrink-0"
-                    />
-                    <label
-                      htmlFor={`split-${t.id}`}
-                      className={`flex-1 min-w-0 truncate text-sm py-2.5 ${on ? "text-fg font-medium" : "text-fg-muted"}`}
-                    >
-                      {t.id === myTravellerId ? "You" : t.display_name}
-                    </label>
-                    {on && splitType !== "equal" && (
+
+            {/* Split between — list (D32) */}
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <Eyebrow>
+                  Split between · {ticked.length} of {travellers.length}
+                </Eyebrow>
+                <TextButton onClick={() => setTicked(allTicked ? new Set() : new Set(travellers.map((t) => t.id)))} className="py-0">
+                  {allTicked ? "Clear" : "Select all"}
+                </TextButton>
+              </div>
+              <div className="border border-line rounded-field divide-y divide-line">
+                {travellers.map((t) => {
+                  const on = included.has(t.id);
+                  return (
+                    <div key={t.id} className="flex items-center gap-2.5 px-3 min-h-[44px]">
                       <input
-                        type="number"
-                        inputMode="decimal"
-                        aria-label={`${t.display_name} ${splitType === "shares" ? "shares" : splitType === "percent" ? "percent" : "amount"}`}
-                        value={weights[t.id] ?? ""}
-                        onChange={(e) => setWeights((w) => ({ ...w, [t.id]: e.target.value }))}
-                        className={`${splitType === "amount" ? "w-24" : "w-14"} h-9 bg-page border border-line rounded-[10px] px-2 text-sm text-fg text-right outline-none focus:border-brand tabular-nums ${noSpin}`}
+                        id={`split-${t.id}`}
+                        type="checkbox"
+                        checked={on}
+                        onChange={() => toggle(t.id)}
+                        className="w-[18px] h-[18px] accent-[#0071bc] shrink-0"
                       />
-                    )}
-                    {splitType !== "amount" && (
-                      <span className={`w-20 text-right text-sm tabular-nums ${on ? "text-fg" : "text-fg-faint"}`}>
-                        {on ? fmt(shareOf(t.id)) : "—"}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
+                      <label
+                        htmlFor={`split-${t.id}`}
+                        className={`flex-1 min-w-0 truncate text-sm py-2.5 ${on ? "text-fg font-medium" : "text-fg-muted"}`}
+                      >
+                        {t.id === myTravellerId ? "You" : t.display_name}
+                      </label>
+                      {on && splitType !== "equal" && (
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          aria-label={`${t.display_name} ${splitType === "shares" ? "shares" : splitType === "percent" ? "percent" : "amount"}`}
+                          value={weights[t.id] ?? ""}
+                          onChange={(e) => setWeights((w) => ({ ...w, [t.id]: e.target.value }))}
+                          className={`${splitType === "amount" ? "w-24" : "w-14"} h-9 bg-page border border-line rounded-[10px] px-2 text-sm text-fg text-right outline-none focus:border-brand tabular-nums ${noSpin}`}
+                        />
+                      )}
+                      {splitType !== "amount" && (
+                        <span className={`w-20 text-right text-sm tabular-nums ${on ? "text-fg" : "text-fg-faint"}`}>
+                          {on ? fmt(shareOf(t.id)) : "—"}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+
+            </>
+          )}
 
           {/* Notes */}
           <textarea

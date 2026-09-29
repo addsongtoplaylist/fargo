@@ -36,6 +36,7 @@ A 7-person trip showed the current model breaks down: one planner can't log ever
 | D8 | **Edit rights:** you can edit/delete only expenses you logged; the planner can edit any. | 2026-09-26 |
 | D9 | **One payer per expense.** Two cards used → log two expenses. | 2026-09-26 |
 | D10 | **Participants start unticked** — you tick who was there. | 2026-09-26 |
+| D10a | **"Split with others" switch** (redesign P6c): off = a personal expense (only the payer, "Just for you"); on = the split section, still all unticked. New expenses remember the last choice per trip on the device (first one on); edits restore what was saved; hidden on a solo trip. No database change. | 2026-09-29 |
 | D11 | **Each traveller sets only their own budget.** | 2026-09-26 |
 | D12 | **Settle-up follows Kittysplit exactly:** the app shows the fewest payments needed (everyone who owes "puts money in the middle", everyone owed "takes from the middle" — so you may pay someone you never paid for directly). The **person who owes** taps "Mark as settled"; this records the repayment as an entry in the expense list and removes them from the debt list. Deleting that entry undoes it. | 2026-09-26 |
 | D13 | **Balances and settle-up in the trip's local currency** (Kittysplit's equivalent: the kitty's home currency). | 2026-09-26 |
