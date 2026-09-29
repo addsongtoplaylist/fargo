@@ -103,12 +103,12 @@ The screen has **three versions** depending on dates — the mockup only shows t
 
 | # | Today | Status | Notes |
 |---|---|---|---|
-| U1 | Your payments first; "You're settled up" / "All settled ✓" when none | ✅ | Empty states not shown |
+| U1 | Your payments first; "You're settled up" / "All settled ✓" when none | 🔄 | **One "How to settle up" list** (owner, 2026-09-29, Kittysplit-style): open payments first, then settle-ups newest first; rows with you marked with a blue bar + bold "You"; "All settled" when nothing is open |
 | U2 | Amounts with ≈ RM | ✅ | |
 | U3 | Mark as settled — only the person who owes or the planner; else "Waiting for X to mark it settled" | ✅ | |
 | U4 | Confirm dialog explaining it's added to the payer's expenses | ✅ | Board: Settle up · everyone + confirm |
-| U5 | Everyone (collapsed): all payments + each person's balance (+/−, RM) | ✅ | Expanded state not shown |
-| U6 | Settled list (planner sees all; others see their own); Unmark by payer or planner, with confirm | ✅ | |
+| U5 | Everyone (collapsed): all payments + each person's balance (+/−, RM) | 🔄 | **Removed** (owner, 2026-09-29): all payments are now in the one list; per-person balances dropped |
+| U6 | Settled list (planner sees all; others see their own); Unmark by payer or planner, with confirm | 🔄 | **Everyone sees all settle-ups** (owner, 2026-09-29); Unmark rules + confirm unchanged |
 | U7 | "Group split" on the Money card, this screen stays "Settle up" | 🔄 | Owner OK |
 
 (Your expenses moved to Tier 2 below.)

@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, Plus, StickyNote, Receipt } from "lucide-react";
+import { StickyNote, Receipt } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { useTrip } from "@/lib/trip-context";
 import { LogExpensePanel } from "./log-expense-panel";
 import { ExpenseDetail } from "./expense-detail";
 import type { Expense } from "@/lib/actions/expense";
-import { CATEGORY_EMOJI } from "@/lib/categories";
-import { EmptyState } from "@/components/empty-state";
+import { CategoryIcon } from "@/components/ui/category-icon";
+import { Empty } from "@/components/ui/empty";
+import { Fab } from "@/components/ui/fab";
 import { tripTravellers } from "./money-utils";
 
 /**
@@ -59,31 +59,12 @@ export function ExpensesView({
   const dates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <Link
-          href={`/trips/${tripId}/money`}
-          className="flex items-center gap-1.5 text-sm font-semibold text-ink"
-        >
-          <ArrowLeft size={16} className="text-muted" />
-          Your expenses
-        </Link>
-        {myTravellerId && (
-          <button
-            onClick={() => {
-              setEditing(null);
-              setPanelOpen(true);
-            }}
-            className="flex items-center gap-1 text-xs font-medium text-accent hover:text-accent-hover transition-colors"
-          >
-            <Plus size={14} />
-            Log expense
-          </button>
-        )}
-      </div>
+    <div className="space-y-4">
 
       {mine.length === 0 ? (
-        <EmptyState icon={Receipt} message="Nothing you've paid or logged yet. What others paid shows under Settle up." />
+        <div className="bg-surface rounded-card">
+          <Empty icon={Receipt} message="Nothing you've paid or logged yet. What others paid shows under Settle up." />
+        </div>
       ) : (
         dates.map((date) => {
           // Day total counts only what you paid, matching your breakdown
@@ -91,53 +72,62 @@ export function ExpensesView({
             .filter((e) => e.paid_by === myTravellerId)
             .reduce((sum, e) => sum + parseFloat(e.amount), 0);
           return (
-            <div key={date}>
-              <div className="flex items-center justify-between mb-1.5">
-                <p className="text-xs font-medium text-muted">{format(parseISO(date), "EEEE, d MMM")}</p>
-                <p className="text-xs font-medium text-muted money">
+            <section key={date}>
+              <div className="flex items-baseline justify-between px-1 mb-1.5">
+                <h3 className="text-[13px] font-semibold text-fg-muted">{format(parseISO(date), "EEEE, d MMM")}</h3>
+                <p className="text-[13px] font-semibold text-fg-muted tabular-nums">
                   {cur}{" "}
                   {dayTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
               </div>
-              <div className="bg-card rounded-lg border border-border overflow-hidden">
-                {byDate[date].map((e, i) => {
+              <div className="bg-surface rounded-card overflow-hidden divide-y divide-line">
+                {byDate[date].map((e) => {
                   const settle = e.kind === "settlement";
                   const to = e.expense_participants[0]?.traveller_id;
                   return (
                     <button
                       key={e.id}
                       onClick={() => open(e)}
-                      className={`flex items-center gap-2 px-3 py-2.5 w-full text-left hover:bg-ground/50 transition-colors active:bg-ground ${
-                        i > 0 ? "border-t border-border" : ""
-                      }`}
+                      className="flex items-center gap-3 px-4 py-3 w-full text-left hover:bg-page transition-colors"
                     >
-                      <span className="text-sm shrink-0">{settle ? "🤝" : CATEGORY_EMOJI[e.category] ?? "📦"}</span>
+                      <CategoryIcon category={settle ? "settlement" : e.category} size={36} />
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1">
-                          <p className="text-sm text-ink truncate">
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-[15px] font-semibold text-fg truncate">
                             {settle ? `You paid ${to ? nameOf(to) : "back"}` : e.title}
                           </p>
-                          {e.notes && <StickyNote size={10} className="text-muted/60 shrink-0" />}
+                          {e.notes && <StickyNote size={12} className="text-fg-faint shrink-0" aria-label="Has notes" />}
                         </div>
-                        <p className="text-[11px] text-muted truncate">
+                        <p className="text-[13px] text-fg-muted truncate">
                           {settle
-                            ? "Settlement"
+                            ? "Settle-up"
                             : `${e.paid_by !== myTravellerId ? `Logged for ${nameOf(e.paid_by)} · ` : ""}${e.expense_participants.length} ${e.expense_participants.length === 1 ? "person" : "people"}`}
                         </p>
                       </div>
                       <div className="text-right shrink-0">
-                        <p className="text-sm font-medium text-ink money">
+                        <p className="text-sm font-semibold text-fg tabular-nums">
                           {cur} {parseFloat(e.amount).toLocaleString()}
                         </p>
-                        <p className="text-[10px] text-muted money">≈ RM {parseFloat(e.amount_myr).toFixed(2)}</p>
+                        <p className="text-xs text-fg-muted tabular-nums">≈ RM {parseFloat(e.amount_myr).toFixed(2)}</p>
                       </div>
                     </button>
                   );
                 })}
               </div>
-            </div>
+            </section>
           );
         })
+      )}
+
+      {/* Anyone with an account can log (D1) */}
+      {myTravellerId && (
+        <Fab
+          label="Log expense"
+          onClick={() => {
+            setEditing(null);
+            setPanelOpen(true);
+          }}
+        />
       )}
 
       {panelOpen && myTravellerId && (

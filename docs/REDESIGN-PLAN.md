@@ -312,3 +312,14 @@ Decisions: two pushes (P6a / P6b) ✅ · Split shares saves on each tap ✅ · "
 - ✅ Loading skeleton.
 - Tested on Test trip: Raj shares 1→2→1; budget RM 1,000 (over, red) → RM 5,000 (left, green) → 0 (back to "Set a budget", as before). Read-only: We are Riize (past trip: no days-to-go, All square, fixed + daily groups).
 - Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.
+
+## 20. P6b log (2026-09-29) — built, awaiting owner test
+
+- ✅ **Log / Edit expense** on the shared Sheet — same fields, order and rules; split maths and save code untouched (only imports + render changed). Currency pill, big amount, fields, category chips with icons, Split as segmented, Split between list with Select all / Clear, status line with ✓, Notes; Delete (confirm) when editing.
+- ✅ **Expense detail** (read-only sheet): category icon (settle-up icon for settlements), amount + ≈ RM + date, paid by, split list, notes.
+- ✅ **Your expenses:** day groups with totals, rows with category icon, "Logged for X · N people", amount + ≈ RM; settle-ups get an icon (no 🤝); floating +.
+- ✅ **Money sub-pages header:** the trip header shows "‹ Your expenses" / "‹ Settle up" and goes back to Money (no second back arrow).
+- 🔄 **Settle up redesigned (owner, 2026-09-29, Kittysplit-style):** one "How to settle up" list — open payments first, then settle-ups newest first; your rows get a blue bar + bold "You"; everyone sees all settle-ups (was: members only their own); per-person balances ("Everyone") removed. Mark / unmark permissions + confirms unchanged. REDESIGN.md U1/U5/U6 + DESIGN.md updated.
+- Tested on Test trip: equal split (300 ÷ 5 = 60), shares split logged for Ali (You 1 : Mei 2 = 100 / 200), % and Amounts warnings with Log disabled, edit 300 → 500, mark Mei settled → unmark (back to original). The two test expenses were deleted outside this session (owner's phone?) — nothing left behind. Read-only: We are Riize settle-up (All settled + history).
+- **Not reachable as planner:** Expense detail (opens only for expenses you can't edit) — owner to check with the member account.
+- Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.

@@ -253,7 +253,7 @@ Back header → **sticky date strip** (‹ · five day cells with weekday / date
 Back header → **My budget** (spent as the hero number, "spent of 6,000,000", **daily free** on the right, progress bar, "left · days to go") → **Group split** ("You get back / You pay back / All square", amount + ≈ RM, **Settle up ›**, and a **Split shares · Edit** row for the planner) → **What you paid** (grouped **FIXED / DAILY / SETTLE-UPS**, category icon + amount + thin bar, "All expenses · N"). Log expense is the FAB.
 
 ### Settle up
-"Your payments" first (avatar, "Ali pays you", amount + ≈ RM, Mark as settled / "Waiting for X to mark it settled") → **Everyone** (collapsed: payments + each balance) → **Settled** (green tick, Unmark).
+One **"How to settle up"** card for the whole group (Kittysplit-style): open payments first (amber clock, "Ali pays you", amount + ≈ RM, Mark as settled / "Waiting for X to mark it settled"), then settle-ups newest first (green tick, "Mei paid you", "Settled 29 Sep · Unmark"). Rows with you get a blue left bar and a bold "You". "All settled" when nothing is open. Everyone sees every row; mark/unmark permissions unchanged.
 
 ### Tier 2 & 3 screens
 Keep today's layouts; apply the components above (Prep, Discover, Spot detail, Add to schedule, Your expenses, Expense detail, Sign in, Invite, Shared trip, New trip, Trip settings, Profile, error/offline pages). Details per screen are on the canvas and in [REDESIGN.md](REDESIGN.md).
