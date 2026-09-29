@@ -9,9 +9,8 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useTrip } from "@/lib/trip-context";
 import { Sheet } from "@/components/ui/sheet";
 import { Button, TextButton } from "@/components/ui/button";
-import { Chip } from "@/components/ui/chip";
+import { CategorySelect } from "@/components/ui/category-select";
 import { FieldRow, fieldClass, textareaClass } from "@/components/ui/field";
-import { categoryStyle } from "@/lib/category-style";
 
 import type { Activity } from "@/lib/actions/activity";
 import { ACTIVITY_CATEGORIES as CATEGORIES } from "@/lib/categories";
@@ -240,23 +239,8 @@ export function AddActivityPanel({
           {/* Location */}
           <LocationSearch value={place} onChange={setPlace} proximity={proximity} countries={countries} />
 
-          {/* Category chips */}
-          <div className="flex gap-2 flex-wrap pt-1">
-            {CATEGORIES.map((cat) => {
-              const style = categoryStyle(cat.value);
-              return (
-                <Chip
-                  key={cat.value}
-                  selected={category === cat.value}
-                  icon={style.icon}
-                  iconClassName={style.strong}
-                  onClick={() => setCategory(cat.value)}
-                >
-                  {style.label}
-                </Chip>
-              );
-            })}
-          </div>
+          {/* Category */}
+          <CategorySelect id="activity-category" value={category} options={CATEGORIES} onChange={setCategory} />
 
           {/* Notes */}
           <textarea

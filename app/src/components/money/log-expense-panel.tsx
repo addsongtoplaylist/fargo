@@ -11,11 +11,10 @@ import { EXPENSE_CATEGORIES as CATEGORIES } from "@/lib/categories";
 import { computeShares, evenWeights, remaining, type SplitType } from "@/lib/split";
 import { Sheet } from "@/components/ui/sheet";
 import { Button, TextButton } from "@/components/ui/button";
-import { Chip } from "@/components/ui/chip";
+import { CategorySelect } from "@/components/ui/category-select";
 import { Segmented } from "@/components/ui/segmented";
 import { Eyebrow } from "@/components/ui/card";
 import { FieldRow, fieldClass, textareaClass } from "@/components/ui/field";
-import { categoryStyle } from "@/lib/category-style";
 
 export type SplitTraveller = {
   id: string;
@@ -221,6 +220,16 @@ export function LogExpensePanel({
         onClose={onClose}
         footer={
           <>
+            {/* Status line pinned above the buttons, so it stays visible however long the list is */}
+            <p
+              role="status"
+              className={`mb-2.5 rounded-field px-3 py-2 text-[13px] font-medium text-center flex items-center justify-center gap-1.5 ${
+                status.ok ? "bg-money-ok-soft text-money-ok" : "bg-money-warn-soft text-money-warn"
+              }`}
+            >
+              {status.text}
+              {status.ok && <Check size={14} strokeWidth={2.4} aria-hidden />}
+            </p>
             <div className="flex gap-2.5">
               <Button variant="quiet" size="lg" full onClick={onClose}>
                 Cancel
@@ -309,23 +318,8 @@ export function LogExpensePanel({
             <input id="expense-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className={fieldClass} />
           </FieldRow>
 
-          {/* Category chips */}
-          <div className="flex gap-2 flex-wrap pt-1">
-            {CATEGORIES.map((cat) => {
-              const style = categoryStyle(cat.value);
-              return (
-                <Chip
-                  key={cat.value}
-                  selected={category === cat.value}
-                  icon={style.icon}
-                  iconClassName={style.strong}
-                  onClick={() => setCategory(cat.value)}
-                >
-                  {style.label}
-                </Chip>
-              );
-            })}
-          </div>
+          {/* Category */}
+          <CategorySelect id="expense-category" value={category} options={CATEGORIES} onChange={setCategory} />
 
           {/* Split as */}
           <div className="pt-1">
@@ -347,7 +341,7 @@ export function LogExpensePanel({
               {travellers.map((t) => {
                 const on = included.has(t.id);
                 return (
-                  <div key={t.id} className="flex items-center gap-2.5 px-3 min-h-[48px]">
+                  <div key={t.id} className="flex items-center gap-2.5 px-3 min-h-[44px]">
                     <input
                       id={`split-${t.id}`}
                       type="checkbox"
@@ -357,7 +351,7 @@ export function LogExpensePanel({
                     />
                     <label
                       htmlFor={`split-${t.id}`}
-                      className={`flex-1 min-w-0 truncate text-sm py-3 ${on ? "text-fg font-medium" : "text-fg-muted"}`}
+                      className={`flex-1 min-w-0 truncate text-sm py-2.5 ${on ? "text-fg font-medium" : "text-fg-muted"}`}
                     >
                       {t.id === myTravellerId ? "You" : t.display_name}
                     </label>
@@ -380,14 +374,6 @@ export function LogExpensePanel({
                 );
               })}
             </div>
-            <p
-              className={`mt-2 rounded-field px-3 py-2 text-[13px] font-medium text-center flex items-center justify-center gap-1.5 ${
-                status.ok ? "bg-money-ok-soft text-money-ok" : "bg-money-warn-soft text-money-warn"
-              }`}
-            >
-              {status.text}
-              {status.ok && <Check size={14} strokeWidth={2.4} aria-hidden />}
-            </p>
           </div>
 
           {/* Notes */}

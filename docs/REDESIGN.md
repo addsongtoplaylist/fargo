@@ -141,7 +141,7 @@ All former ⚠️ items are now drawn (canvas row 2) or marked as behaviour to k
 | A1 | Title ("What's the plan?") — required | |
 | A2 | Time (optional) with a clear (×) button | |
 | A3 | Date — limited to trip dates (lets you move an activity to another day) | |
-| A4 | Category chips: Food, Transport, Activities, Shopping, Flights, Stay, Other | Reference for all chips (DESIGN.md) |
+| A4 | Category chips: Food, Transport, Activities, Shopping, Flights, Stay, Other | **Dropdown** with the category icon beside it (owner, 2026-09-29) — same 7 options |
 | A5 | Place search (Google Places, biased to the destination + home country) | |
 | A6 | Notes (optional) | |
 | A7 | Cancel / Add (Save when editing); "Saving…" state; error toast | |
@@ -157,11 +157,11 @@ All former ⚠️ items are now drawn (canvas row 2) or marked as behaviour to k
 | E2 | What for? — required | |
 | E3 | Paid by (dropdown, defaults to you) | |
 | E4 | Date (defaults to today) | |
-| E5 | Category chips (same set as activities) | |
+| E5 | Category chips (same set as activities) | **Dropdown** with icon, like Add activity (owner, 2026-09-29) |
 | E6 | Split as: Equal · Shares · % · Amounts | |
 | E7 | Split between: list of travellers with tick boxes, "N of M", **Select all / Clear** | |
 | E8 | Per-person share / % / amount fields when not Equal | |
-| E9 | Status line: "Tick who it's for" · "N% left to allocate" · "VND x over" · "split N ways" | |
+| E9 | Status line: "Tick who it's for" · "N% left to allocate" · "VND x over" · "split N ways" | **Pinned above Cancel / Log** so it stays visible with long traveller lists (owner, 2026-09-29) |
 | E10 | Notes (optional) | |
 | E11 | Save disabled until valid; error toast | |
 | E12 | Edit only: Delete (confirm) | |

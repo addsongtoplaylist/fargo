@@ -212,7 +212,7 @@ Initial in a circle. Stacks overlap by −7px with a 2px white ring.
 ### Sheets (bottom)
 Dimmed backdrop (`ink` at 42%), white sheet with 26px top corners, grab handle, title (18/700) left, round × right. Content scrolls inside; actions at the bottom: **Cancel (quiet) + primary** side by side. Edit-only actions (Move to ideas, Delete) sit below as small text buttons. Used for Add/Edit activity, Log expense, Expense detail, Spot detail, Add to schedule, Split shares.
 
-**Add activity stays the form reference** (field order: title → Time → Date → Place → category chips → Notes). Log expense keeps its current order (amount → What for → Paid by → Date → category → Split as → Split between → status line → Notes).
+**Add activity stays the form reference** (field order: title → Time → Date → Place → Category → Notes). Log expense keeps its current order (amount → What for → Paid by → Date → Category → Split as → Split between → Notes), with the split status line pinned above Cancel / Log. **Category is a dropdown** in both forms (label beside, coloured category icon next to it) — chips stay for filters and multi-select (owner, 2026-09-29).
 
 ### Confirm dialog
 Centred white card (radius 22) over the dim backdrop: title (18/700), one sentence in `muted`, Cancel + confirm (red when destructive). "Working…" while saving.

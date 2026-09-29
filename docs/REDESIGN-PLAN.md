@@ -323,3 +323,10 @@ Decisions: two pushes (P6a / P6b) ✅ · Split shares saves on each tap ✅ · "
 - Tested on Test trip: equal split (300 ÷ 5 = 60), shares split logged for Ali (You 1 : Mei 2 = 100 / 200), % and Amounts warnings with Log disabled, edit 300 → 500, mark Mei settled → unmark (back to original). The two test expenses were deleted outside this session (owner's phone?) — nothing left behind. Read-only: We are Riize settle-up (All settled + history).
 - **Not reachable as planner:** Expense detail (opens only for expenses you can't edit) — owner to check with the member account.
 - Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.
+
+## 21. P6c log (2026-09-29) — built, awaiting owner test (with P6b)
+
+- ✅ **Category dropdown** on Log/Edit expense **and** Add/Edit activity (new `ui/category-select.tsx`): "Category" label, coloured category icon that follows the choice, native select with the same 7 options.
+- ✅ **Long traveller lists:** split status line pinned in the sheet footer above Cancel / Log; Split between rows 48 → 44px; one scroll for the whole sheet. Checked with 10 rows (5 demo rows added on screen only, nothing saved).
+- Docs: DESIGN.md form reference + REDESIGN.md A4 / E5 / E9 updated.
+- Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.
