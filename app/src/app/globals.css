@@ -5,26 +5,6 @@
  * See docs/DESIGN.md for rationale
  */
 @theme inline {
-  /* Core palette */
-  --color-ground: #eff2fa;
-  --color-card: #ffffff;
-  --color-ink: #2d2a27;
-  --color-muted: #6b6560;
-  --color-border: #e2dad3;
-  --color-accent: #0085d9;
-  --color-accent-hover: #0070b8;
-  --color-accent-on: #ffffff;
-  --color-accent-soft: #e0effa;
-
-  /* Secondary palette */
-  --color-navy: #1b2d50;
-  --color-navy-soft: #e8edf4;
-
-  /* Trip card rotation — Soft Sky tints */
-  --color-trip-blue-1: #5baed6;
-  --color-trip-blue-2: #6ab8c9;
-  --color-trip-green-1: #6dc4a8;
-
   /* Money states */
   --color-money-ok: #1a7a42;
   --color-money-ok-soft: #e6f4ec;
@@ -55,8 +35,7 @@
   /* Layout */
   --max-width-column: 480px;
 
-  /* ── Redesign v0.8 tokens (DESIGN.md). Added beside the old ones so
-     screens switch one phase at a time; old tokens are removed in P9. ── */
+  /* ── Colour tokens (DESIGN.md v0.8) ── */
   --color-page: #f3f5f9;
   --color-surface: #ffffff;
   --color-fg: #172033;
@@ -97,7 +76,7 @@
 
 body {
   background: var(--color-page);
-  color: var(--color-ink);
+  color: var(--color-fg);
   font-family: var(--font-sans);
 }
 
@@ -152,19 +131,6 @@ input[type="date"] {
   min-width: 0;
   -webkit-appearance: none;
   appearance: none;
-}
-
-/* Trip card colour utilities — Soft Sky tints */
-.bg-trip-blue-1 {
-  background-color: #5baed6;
-}
-
-.bg-trip-blue-2 {
-  background-color: #6ab8c9;
-}
-
-.bg-trip-green-1 {
-  background-color: #6dc4a8;
 }
 
 /* Hide scrollbar but keep scrolling */

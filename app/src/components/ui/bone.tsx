@@ -1,4 +1,4 @@
 /** v0.8 skeleton block for loading screens. */
-export function Bone({ className = "" }: { className?: string }) {
-  return <div aria-hidden className={`animate-pulse rounded-lg bg-skeleton ${className}`} />;
+export function Bone({ className = "", style }: { className?: string; style?: React.CSSProperties }) {
+  return <div aria-hidden style={style} className={`animate-pulse rounded-lg bg-skeleton ${className}`} />;
 }

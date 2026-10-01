@@ -1,6 +1,6 @@
 # Fargo — Design System
 
-> **v0.8 — 2026-09-28.** UI redesign. Trip sections move to a floating bottom bar; planner-uploaded cover photos (colour + country code when there's none); cooler ink, darker accent, rounder cards; category icons replace emoji; one main thing per screen; floating **+** for the main add action. Every screen is drawn on the [redesign canvas](https://claude.ai/artifact/Sjur61seR63um25VMXhAhs); the per-screen feature checklist is [REDESIGN.md](REDESIGN.md).
+> **v0.8 — 2026-09-28, live in v0.5.0 (2026-10-01).** UI redesign. Trip sections move to a floating bottom bar; planner-uploaded cover photos (colour + country code when there's none); cooler ink, darker accent, rounder cards; category icons replace emoji; one main thing per screen; floating **+** for the main add action. Every screen is drawn on the [redesign canvas](https://claude.ai/artifact/Sjur61seR63um25VMXhAhs); the per-screen feature checklist is [REDESIGN.md](REDESIGN.md).
 >
 > **v0.7 — 2026-09-26.** Design review: type scale, shadow rule and status colours matched to the app. Add activity became the form reference; generic-icon empty states.
 >
@@ -22,18 +22,21 @@
 
 ### Core palette
 
+Token names are the Tailwind names in `app/src/app/globals.css` (`bg-page`, `text-fg`, `border-line`, `bg-brand`…). The pre-v0.8 names (`ground`, `card`, `ink`, `muted`, `border`, `accent…`, `trip-…`, `navy`) were removed in v0.5.0.
+
 | Token | Hex | Usage |
 |---|---|---|
-| `ground` | `#F3F5F9` | Page background |
-| `card` | `#FFFFFF` | Cards, sheets, bottom bar |
-| `ink` | `#172033` | Primary text — cool navy (replaces warm `#2d2a27`) |
-| `muted` | `#5B6475` | Secondary text, labels, inactive icons (5.9:1 on white) |
-| `faint` | `#8A93A3` | Non-essential only: drag handles, delete ×, version line — never text a user must read |
-| `border` | `#E4E8EF` | Dividers, field borders |
-| `accent` | `#0071BC` | Primary actions, active tab, links — darker than v0.7 (`#0085D9`) so small blue text passes AA |
-| `accent-hover` | `#005A96` | Pressed / hover |
-| `accent-on` | `#FFFFFF` | Text on accent |
-| `accent-soft` | `#E3F0FA` | Selected states, active tab pill, secondary buttons, "Now" row |
+| `page` | `#F3F5F9` | Page background |
+| `surface` | `#FFFFFF` | Cards, sheets, bottom bar |
+| `fg` | `#172033` | Primary text — cool navy |
+| `fg-muted` | `#5B6475` | Secondary text, labels, inactive icons (5.9:1 on white) |
+| `fg-faint` | `#8A93A3` | Non-essential only: drag handles, delete ×, version line — never text a user must read |
+| `line` | `#E4E8EF` | Dividers, field borders |
+| `skeleton` | `#E6EAF1` | Loading placeholders |
+| `brand` | `#0071BC` | Primary actions, active tab, links — dark enough that small blue text passes AA |
+| `brand-hover` | `#005A96` | Pressed / hover |
+| `brand-on` | `#FFFFFF` | Text on brand |
+| `brand-soft` | `#E3F0FA` | Selected states, active tab pill, secondary buttons, "Now" row |
 
 ### Money states (unchanged meaning)
 

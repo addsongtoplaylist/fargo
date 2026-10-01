@@ -6,7 +6,7 @@ import { TripProvider } from "@/lib/trip-context";
 import { getTrip } from "@/lib/actions/trip";
 import { getOrCreateAccount } from "@/lib/account";
 import { notFound } from "next/navigation";
-import { Skeleton } from "@/components/skeleton";
+import { Bone } from "@/components/ui/bone";
 
 /**
  * Skeleton shell rendered instantly while trip data loads.
@@ -18,19 +18,19 @@ function TripLayoutSkeleton() {
     <div className="flex flex-col min-h-full">
       {/* Header skeleton — matches TripHeader: round back + caption + title */}
       <div className="mx-auto w-full max-w-[var(--max-width-column)] px-4 pt-4 pb-3 flex items-center gap-3">
-        <Skeleton className="h-10 w-10 rounded-full" />
+        <Bone className="h-10 w-10 rounded-full" />
         <div className="flex-1 space-y-1.5">
-          <Skeleton className="h-3 w-24" />
-          <Skeleton className="h-5 w-32" />
+          <Bone className="h-3 w-24" />
+          <Bone className="h-5 w-32" />
         </div>
       </div>
 
       {/* Content area skeleton */}
       <div className="flex-1">
         <div className="mx-auto max-w-[var(--max-width-column)] px-4 py-4 space-y-3">
-          <Skeleton className="h-10 w-full rounded-lg" />
-          <Skeleton className="h-24 w-full rounded-lg" />
-          <Skeleton className="h-24 w-full rounded-lg" />
+          <Bone className="h-10 w-full rounded-lg" />
+          <Bone className="h-24 w-full rounded-lg" />
+          <Bone className="h-24 w-full rounded-lg" />
         </div>
       </div>
     </div>

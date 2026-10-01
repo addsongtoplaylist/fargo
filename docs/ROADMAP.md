@@ -133,6 +133,7 @@ Phases 1–3 are complete. The remaining days (Aug 26–29) are hardening, UAT, 
 | 2026-09-28 | **Redesign design locked** — DESIGN.md v0.8 + canvas; feature checklist + build plan (v0.5.0–v0.5.6) in REDESIGN.md. Removed: "Turn into no account", trip type/length on cards, invite link in settings, claim counts on invite, Recently viewed (hidden). Personal checklists after the redesign |
 | 2026-09-28 | **After the redesign (enhancements):** (1) personal checklists; (2) **Discover price filter** — multi-select price chips using all 4 Google levels ($–$$$$), "Fine dining" becomes a real upscale filter, places with no price info handled separately (needs a DB change to store several levels) |
 | 2026-09-28 | **Cover photos are user-uploaded** (planner), no stock photos. No photo → colour + country code for now; switch to template illustrations once an identity guideline + illustration library exist |
+| 2026-10-01 | UI redesign (DESIGN.md v0.8) ships as **v0.5.0** — same features, no SQL; cover photo upload follows as v0.5.1 (P10, staging Supabase first). Then personal checklists → Discover price filter → Explore + travel stats |
 
 ### Open
 

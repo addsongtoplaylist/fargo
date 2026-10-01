@@ -411,7 +411,7 @@ Decisions: split P8a / P8b ✅ · Trip settings keeps only the share link (invit
 - Tested: Profile budget Any → $$ Moderate (kept after reload) → back to Any; New trip throwaway "P8 test – throwaway" (Japan, 20–25 Nov, JPY auto, rate 34) → created → Overview → invite link viewed as member ("View trip") → invalid link page → trip deleted in Trip settings. My trips back to the 4 trips.
 - Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅ · 375px check ✅.
 
-## 27. P8b log (2026-09-29) — built, awaiting owner test
+## 27. P8b log (2026-09-29) — owner tested ✅ (P8a + P8b)
 
 - ✅ **Trip settings:** fields in one card (FieldStack), Save; **Share** card — copy share link only, with "To add people to the trip, use Invite on Overview" (**invite link removed**, owner); Danger zone = outlined red Delete trip (same confirm).
 - ✅ **Shared trip** (`/s/[code]`): cover header (colour + code, destination, name, dates · days · travellers), Save as my trip / Sign in to save, sticky Schedule / Prep segmented; day cards with time · category icon · title (no notes, no cost — Schedule rules); Prep checklists with round ticks + "N of M", ideas with "In schedule"; icon empty states.
@@ -419,3 +419,34 @@ Decisions: split P8a / P8b ✅ · Trip settings keeps only the share link (invit
 - ✅ **Auto-jump fix** — the only `lib/actions` change in the redesign so far (guard flags it on purpose): `getActiveTrip` now returns the active trip that **started most recently** instead of whichever the database returned first. Read-only lookup; no data change. Checked: `/trips` lands on Test 123 (25 Sep) over Test trip (17 Sep), twice.
 - Tested: Trip settings view + copy share link (Test trip); shared link while signed in (Schedule + Prep); 404; Explore. Sign in screen seen signed out ✅. **Owner to check:** shared link signed out (private window), offline page (airplane mode on the installed app).
 - Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard: only `lib/actions/trip.ts` (auto-jump, intended) · 375px check ✅.
+
+## 28. P9 plan — clean-up, full check, release v0.5.0 (not started)
+
+**State:** every screen is on the v0.8 design (P1–P8 owner-tested). `main` has no new commits since `redesign` branched → clean merge. **No SQL in this release.**
+
+**1. Clean-up (one push to the preview, then you re-check):**
+- Move the last 4 files off the old colour names (My trips loading, `layout.tsx` background, old `skeleton` → `Bone`, delete unused `empty-state`).
+- Remove the old colour definitions from `globals.css` (`ground`, `card`, `ink`, `muted`, `border`, `accent*`, `trip-*`, `navy`) — the build fails loudly if anything still uses them.
+- Remove `CATEGORY_EMOJI` and the emoji in category labels (`lib/categories.ts`).
+- Delete the preview-only `/dev/ui` page.
+- Gates + a quick click-through of every section (anything missed shows up unstyled).
+
+**2. Docs:** DESIGN.md (v0.8 is now the live design; drop the "old tokens" notes), REDESIGN.md (every row ✅ / decided), CHANGELOG entry for v0.5.0, STATUS + ROADMAP (redesign done; next: P10 photo upload, then personal checklists → Discover price filter → Explore + travel stats), version `0.5.0` in `app/package.json`.
+
+**3. Full check before release (preview):**
+- Me: every REDESIGN.md row on Test trip as planner, at phone width; read-only on real trips.
+- You: member view with the second account (Overview, Schedule, Money, Prep, Discover, Settle up, Leave), phone install (PWA) + offline, iPhone + one other device.
+
+**4. Release (only on your "release"):** merge `redesign` → `main`, push → Vercel deploys `fargotravel.vercel.app`. Then a production smoke test (sign in, open a trip, each section, log + delete one Test trip expense). **Rollback:** in Vercel, promote the previous production deployment (one click, about a minute) — no data to undo since there's no SQL.
+
+**Follow-ups noted for after v0.5.0:** P10 cover photo upload (staging Supabase first) · Home currency following the country (touches money display everywhere) · members using Discover (B1) · personal checklists · Discover price filter · Explore + travel stats.
+
+## 29. P9 log (2026-10-01) — clean-up + docs pushed to preview
+
+- ✅ Old colour tokens removed from `globals.css` (`ground`, `card`, `ink`, `muted`, `border`, `accent*`, `navy*`, `trip-*`) plus the unused `.bg-trip-*` classes; body text uses `fg`. Scan of `src` for old colour classes: **0**. (Tailwind skips unknown classes silently, so the scan + a click-through is the safety net — not the build.)
+- ✅ Old `skeleton` → `Bone` (trip layout + trip loading); My trips loading redrawn for the new cards; unused `empty-state` deleted.
+- ✅ `CATEGORY_EMOJI` and emoji in category labels removed; `/dev/ui` preview page deleted.
+- ✅ Docs: CHANGELOG v0.5.0 entry (owner to review), `app/package.json` → 0.5.0, DESIGN.md token names = code names, CLAUDE.md design rule, STATUS entry, ROADMAP decision.
+- Spacing and corner-radius settings kept (still used by a few shapes).
+- Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅.
+- **Next:** click-through of every section signed in (browser pane signed out — owner to sign in), owner's full check (member + PWA), then release on the owner's "release".

@@ -2,6 +2,26 @@
 
 ---
 
+## v0.5.0 — 2026-10-01 · New look
+
+A full redesign of every screen. Same features and the same data — no database changes in this release.
+
+- **New design system** — cooler colours, white cards on a soft grey page, rounded sheets, category icons everywhere instead of emoji, icon empty states and calm loading placeholders.
+- **New navigation** — a floating bottom bar: My trips · Explore · Profile at home, and Overview · Schedule · Money · Prep · Discover inside a trip (swipe between sections still works). The floating **+** is each screen's main add (New trip, Add activity, Log expense).
+- **My trips** — trip cards with a colour cover and country code ("VN"), "Day 13 of 99" / "In 52 days", avatars; past trips as a compact list.
+- **Overview** — cover header (gear for the planner, Leave for members), time and temperature, Today's / Tomorrow's plan, Before / After trip versions, and a Travellers card with separate **Invite** (quick add + share link) and **tap a person** panels.
+- **Schedule** — date strip that stays at the top, daily budget card, map pins in category colours, a timeline with a NOW row, drag to reorder, and a new Add / Edit activity sheet. Notes and costs are no longer shown on rows.
+- **Money** — My budget (spent first), **Group split** (You get back / You pay back / All square) with **Split shares** for the planner, What you paid with bars; **Log expense** sheet with a Category dropdown and a **Split with others** switch (off = just for you; remembers your last choice per trip); **Settle up** is now one "How to settle up" list for the whole group.
+- **Prep** — checklist cards with round ticks, ideas with Schedule / Reschedule.
+- **Discover** — chips, result cards, Spot detail and Add to schedule sheets (Add to schedule now lets you pick the category).
+- **New trip in two steps** — (1) name, destination, dates · (2) trip type, currency (filled from the destination) and rate.
+- **Profile** — icon rows; Dining preferences open in a sheet. "Recently viewed" is hidden until it's built.
+- **Sign in, Invite, Shared trip, Trip settings, error and offline pages** restyled. Trip settings keeps the share link only — invite from Overview. "Which one are you?" shows names only.
+- **Removed:** "Turn into no account" for members (nobody needs it — people with expenses stay on the trip). The old People page.
+- **Fixes** — schedule drag warning, date strip centring on today, with two active trips the app now opens the one that started most recently.
+
+---
+
 ## v0.4.6 — 2026-09-27 · Weather follows your Stay
 
 - **Overview temperature follows where you're staying** — during the trip it uses the latest 🏨 Stay checked in on or before today (a Stay lasts until the next one), so multi-city trips switch cities on the right day ("today" is the destination's date). Before the first Stay, or when a Stay has no place set, it falls back to the base city. Before the trip starts: base city, else the first Stay.
