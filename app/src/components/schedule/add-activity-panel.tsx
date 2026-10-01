@@ -1,12 +1,16 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { X, ArrowDownToLine } from "lucide-react";
+import { ArrowDownToLine } from "lucide-react";
 import { createActivity, updateActivity, deleteActivity, demoteActivity } from "@/lib/actions/activity";
 import { LocationSearch } from "./location-search";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useTrip } from "@/lib/trip-context";
+import { Sheet } from "@/components/ui/sheet";
+import { Button, TextButton } from "@/components/ui/button";
+import { CategorySelect } from "@/components/ui/category-select";
+import { FieldRow, fieldClass, textareaClass } from "@/components/ui/field";
 
 import type { Activity } from "@/lib/actions/activity";
 import { ACTIVITY_CATEGORIES as CATEGORIES } from "@/lib/categories";
@@ -132,32 +136,40 @@ export function AddActivityPanel({
     }
   }
 
+  const [hh, mm] = time ? time.split(":") : ["", ""];
+  const selectClass = `${fieldClass} w-[76px] px-2.5`;
+
   return (
     <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-ink/30 z-[60]"
-        onClick={onClose}
-      />
-
-      {/* Panel — z-[60] to sit above the bottom nav (z-50), max-h + overflow for small screens */}
-      <div className="fixed inset-x-0 bottom-0 z-[60] bg-card rounded-t-2xl border-t border-border max-w-[var(--max-width-column)] mx-auto animate-slide-up max-h-[90dvh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <h3 className="text-sm font-semibold text-ink">
-            {editing ? "Edit activity" : "Add activity"}
-          </h3>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="w-10 h-10 flex items-center justify-center -mr-2 text-muted hover:text-ink transition-colors"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Form */}
-        <div className="px-4 py-3 space-y-3">
+      <Sheet
+        open
+        title={editing ? "Edit activity" : "Add activity"}
+        onClose={onClose}
+        footer={
+          <>
+            <div className="flex gap-2.5">
+              <Button variant="quiet" size="lg" full onClick={onClose}>
+                Cancel
+              </Button>
+              <Button size="lg" full onClick={handleSave} disabled={!title.trim() || saving}>
+                {saving ? "Saving…" : editing ? "Save" : "Add"}
+              </Button>
+            </div>
+            {/* Secondary actions — only in edit mode */}
+            {editing && (
+              <div className="flex items-center justify-center gap-5 pt-2">
+                <TextButton tone="muted" icon={ArrowDownToLine} onClick={() => setShowDemoteConfirm(true)} disabled={saving}>
+                  Move to ideas
+                </TextButton>
+                <TextButton tone="danger" onClick={() => setShowDeleteConfirm(true)} disabled={saving}>
+                  Delete
+                </TextButton>
+              </div>
+            )}
+          </>
+        }
+      >
+        <div className="space-y-3 pb-1">
           {/* Title */}
           <input
             ref={titleRef}
@@ -165,40 +177,38 @@ export function AddActivityPanel({
             placeholder="What's the plan?"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-transparent text-base font-medium text-ink placeholder:text-muted/50 outline-none"
+            aria-label="Title"
+            className="w-full bg-transparent text-[19px] font-semibold text-fg placeholder:text-fg-faint outline-none border-b border-line focus:border-brand pb-2.5 transition-colors"
             onKeyDown={(e) => {
               if (e.key === "Enter" && title.trim()) handleSave();
             }}
           />
 
           {/* Time — HH : MM dropdowns (15-min intervals) */}
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-muted w-10">Time</label>
+          <FieldRow label="Time" htmlFor="activity-hh">
             <select
-              value={time ? time.split(":")[0] : ""}
+              id="activity-hh"
+              aria-label="Hour"
+              value={hh}
               onChange={(e) => {
-                const hh = e.target.value;
-                if (!hh) { setTime(""); return; }
-                const mm = time ? time.split(":")[1] : "00";
-                setTime(`${hh}:${mm}`);
+                const h = e.target.value;
+                if (!h) { setTime(""); return; }
+                setTime(`${h}:${mm || "00"}`);
               }}
-              className="bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent transition-colors"
+              className={selectClass}
             >
               <option value="">HH</option>
-              {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0")).map((hh) => (
-                <option key={hh} value={hh}>{hh}</option>
+              {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0")).map((h) => (
+                <option key={h} value={h}>{h}</option>
               ))}
             </select>
-            <span className="text-sm text-muted">:</span>
+            <span className="text-sm text-fg-muted">:</span>
             <select
-              value={time ? time.split(":")[1] : ""}
-              onChange={(e) => {
-                const mm = e.target.value;
-                const hh = time ? time.split(":")[0] : "09";
-                setTime(`${hh}:${mm}`);
-              }}
+              aria-label="Minutes"
+              value={mm}
+              onChange={(e) => setTime(`${hh || "09"}:${e.target.value}`)}
               disabled={!time}
-              className="bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent transition-colors disabled:opacity-50"
+              className={`${selectClass} disabled:opacity-50`}
             >
               <option value="">MM</option>
               <option value="00">00</option>
@@ -207,103 +217,42 @@ export function AddActivityPanel({
               <option value="45">45</option>
             </select>
             {time && (
-              <button
-                onClick={() => setTime("")}
-                className="text-xs text-muted hover:text-ink"
-              >
+              <TextButton tone="muted" onClick={() => setTime("")} className="ml-1">
                 Clear
-              </button>
+              </TextButton>
             )}
-          </div>
+          </FieldRow>
 
           {/* Date — always shown so you can change which day */}
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-muted w-10">Date</label>
+          <FieldRow label="Date" htmlFor="activity-date">
             <input
+              id="activity-date"
               type="date"
               value={activityDate}
               min={trip?.start_date}
               max={trip?.end_date}
               onChange={(e) => setActivityDate(e.target.value)}
-              className="bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent transition-colors"
+              className={fieldClass}
             />
-          </div>
+          </FieldRow>
 
           {/* Location */}
           <LocationSearch value={place} onChange={setPlace} proximity={proximity} countries={countries} />
 
-          {/* Category chips */}
-          <div className="flex gap-1.5 flex-wrap">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat.value}
-                onClick={() => setCategory(cat.value)}
-                className={`
-                  px-2.5 py-1.5 rounded-full text-xs font-medium transition-colors
-                  ${
-                    category === cat.value
-                      ? "bg-accent text-accent-on"
-                      : "bg-ground text-muted border border-border hover:border-accent/40"
-                  }
-                `}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
+          {/* Category */}
+          <CategorySelect id="activity-category" value={category} options={CATEGORIES} onChange={setCategory} />
 
           {/* Notes */}
           <textarea
             placeholder="Notes (optional)"
+            aria-label="Notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
-            className="w-full bg-ground border border-border rounded-md px-3 py-2 text-sm text-ink placeholder:text-muted/50 outline-none focus:border-accent transition-colors resize-none"
+            className={textareaClass}
           />
         </div>
-
-        {/* Footer — clears the 56px bottom nav + safe area */}
-        <div className="px-4 pt-3 pb-[calc(0.75rem+56px+env(safe-area-inset-bottom))] border-t border-border space-y-3">
-          {/* Primary actions */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onClose}
-              className="flex-1 py-2 text-sm font-medium text-muted border border-border rounded-lg hover:border-ink/30 hover:text-ink transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={!title.trim() || saving}
-              className="flex-1 py-2 bg-accent text-accent-on text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
-            >
-              {saving ? "Saving…" : editing ? "Save" : "Add"}
-            </button>
-          </div>
-
-          {/* Secondary actions — only in edit mode */}
-          {editing && (
-            <div className="flex items-center justify-center gap-4 pt-1">
-              <button
-                onClick={() => setShowDemoteConfirm(true)}
-                disabled={saving}
-                className="flex items-center gap-1 text-xs text-muted hover:text-ink transition-colors disabled:opacity-50"
-              >
-                <ArrowDownToLine size={12} />
-                Move to ideas
-              </button>
-              <span className="text-border">·</span>
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                disabled={saving}
-                className="text-xs text-money-over hover:text-money-over/80 transition-colors disabled:opacity-50"
-              >
-                Delete
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+      </Sheet>
 
       <ConfirmDialog
         open={showDeleteConfirm}

@@ -98,17 +98,20 @@ export async function getActiveTrip(): Promise<string | null> {
   const supabase = await createClient();
   const today = todayForCountry(account.home_country_code);
 
-  // Single query: join travellers → trips, filter for active dates
+  // Single query: join travellers → trips, filter for active dates. With
+  // more than one active trip, open the one that started most recently
+  // (it used to be whichever the database returned first).
   const { data } = await supabase
     .from("travellers")
     .select("trip_id, trips!inner(id, start_date, end_date)")
     .eq("account_id", account.id)
     .lte("trips.start_date", today)
-    .gte("trips.end_date", today)
-    .limit(1)
-    .single();
+    .gte("trips.end_date", today);
 
-  return data?.trip_id ?? null;
+  const rows = (data ?? []) as unknown as { trip_id: string; trips: { start_date: string } }[];
+  if (rows.length === 0) return null;
+  rows.sort((a, b) => b.trips.start_date.localeCompare(a.trips.start_date));
+  return rows[0].trip_id;
 }
 
 /** Shape returned by the get_my_trips RPC */

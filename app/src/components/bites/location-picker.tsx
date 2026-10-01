@@ -160,12 +160,12 @@ export function LocationPicker({
   // "Near me" mode
   if (mode === "near_me" && !showSearch) {
     return (
-      <div className="flex items-center gap-2 bg-card border border-border rounded-lg px-3 py-2.5 mb-4">
-        <Navigation size={14} className="text-accent shrink-0" />
-        <span className="text-sm text-ink font-medium flex-1">Near me</span>
+      <div className="flex items-center gap-2.5 bg-surface rounded-card px-4 h-12 mb-4">
+        <Navigation size={16} className="text-brand shrink-0" />
+        <span className="text-sm text-fg font-semibold flex-1">Near me</span>
         <button
           onClick={handleShowSearch}
-          className="text-xs text-accent hover:underline"
+          className="text-[13px] font-semibold text-brand hover:text-brand-hover"
         >
           Change
         </button>
@@ -176,14 +176,14 @@ export function LocationPicker({
   // "Custom" mode — selected location
   if (mode === "custom" && customLocation && !showSearch) {
     return (
-      <div className="flex items-center gap-2 bg-card border border-accent/30 rounded-lg px-3 py-2.5 mb-4">
-        <MapPin size={14} className="text-accent shrink-0" />
-        <span className="text-sm text-ink font-medium flex-1 truncate">
+      <div className="flex items-center gap-2.5 bg-surface rounded-card px-4 h-12 mb-4">
+        <MapPin size={16} className="text-brand shrink-0" />
+        <span className="text-sm text-fg font-semibold flex-1 truncate">
           {customLocation.name}
         </span>
         <button
           onClick={handleShowSearch}
-          className="text-xs text-accent hover:underline"
+          className="text-[13px] font-semibold text-brand hover:text-brand-hover"
         >
           Change
         </button>
@@ -194,18 +194,18 @@ export function LocationPicker({
   // Search input mode
   return (
     <div ref={containerRef} className="relative mb-4">
-      <div className="flex items-center gap-2 bg-card border-2 border-accent rounded-lg px-3 py-2">
-        <MapPin size={14} className="text-accent shrink-0" />
+      <div className="flex items-center gap-2.5 bg-surface border-2 border-brand rounded-card px-4 h-12">
+        <MapPin size={16} className="text-brand shrink-0" />
         <input
           type="text"
           placeholder={`Search near ${tripDestination || "a place"}…`}
           value={query}
           onChange={(e) => handleInput(e.target.value)}
           autoFocus
-          className="flex-1 text-sm text-ink bg-transparent outline-none placeholder:text-muted/50"
+          className="flex-1 min-w-0 text-sm text-fg bg-transparent outline-none placeholder:text-fg-faint"
         />
         {loading && (
-          <Loader2 size={14} className="text-muted animate-spin shrink-0" />
+          <Loader2 size={15} className="text-fg-muted animate-spin shrink-0" />
         )}
         <button
           aria-label="Clear location"
@@ -213,15 +213,15 @@ export function LocationPicker({
             setShowSearch(false);
             setSuggestions([]);
           }}
-          className="text-muted hover:text-ink shrink-0"
+          className="w-8 h-8 -mr-2 flex items-center justify-center text-fg-faint hover:text-fg shrink-0"
         >
-          <X size={14} />
+          <X size={16} />
         </button>
       </div>
 
       {/* Autocomplete dropdown */}
       {suggestions.length > 0 && (
-        <div className="absolute left-0 right-0 top-full mt-1 bg-card border border-border rounded-lg shadow-lg z-50 overflow-hidden">
+        <div className="absolute left-0 right-0 top-full mt-1 bg-surface rounded-field shadow-float z-50 overflow-hidden">
           {suggestions.map((s, i) => {
             const pred = s.placePrediction;
             if (!pred) return null;
@@ -232,13 +232,13 @@ export function LocationPicker({
               <button
                 key={pred.placeId || i}
                 onClick={() => handleSelect(s)}
-                className="w-full text-left px-3 py-2 text-sm text-ink hover:bg-accent-soft transition-colors flex items-start gap-2 border-b border-border last:border-b-0"
+                className="w-full text-left px-3.5 py-2.5 text-sm text-fg hover:bg-brand-soft transition-colors flex items-start gap-2 border-b border-line last:border-b-0"
               >
-                <MapPin size={12} className="text-muted shrink-0 mt-0.5" />
+                <MapPin size={13} className="text-fg-muted shrink-0 mt-0.5" />
                 <div className="min-w-0">
                   <span className="block truncate">{main}</span>
                   {secondary && (
-                    <span className="block text-xs text-muted truncate">
+                    <span className="block text-xs text-fg-muted truncate">
                       {secondary}
                     </span>
                   )}
@@ -252,9 +252,9 @@ export function LocationPicker({
       {/* Switch back to near me */}
       <button
         onClick={handleSwitchToNearMe}
-        className="flex items-center gap-1.5 mx-auto mt-3 text-xs text-accent hover:underline"
+        className="flex items-center gap-1.5 mx-auto mt-3 text-[13px] font-medium text-brand hover:text-brand-hover"
       >
-        <Navigation size={11} />
+        <Navigation size={13} />
         Use my location instead
       </button>
     </div>

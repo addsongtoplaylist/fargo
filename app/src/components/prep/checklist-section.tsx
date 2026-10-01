@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { MoreHorizontal, Check, Trash2, Pencil, ListChecks } from "lucide-react";
+import { MoreHorizontal, Check, Trash2, Pencil, ListChecks, Plus, X } from "lucide-react";
 import {
   createChecklist,
   renameChecklist,
@@ -14,7 +14,9 @@ import {
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useToast } from "@/components/toast";
 import type { Checklist } from "@/lib/actions/checklist";
-import { EmptyState } from "@/components/empty-state";
+import { Empty } from "@/components/ui/empty";
+import { Button, TextButton } from "@/components/ui/button";
+import { fieldClass } from "@/components/ui/field";
 
 type ChecklistSectionProps = {
   checklists: Checklist[];
@@ -45,52 +47,47 @@ export function ChecklistSection({ checklists, tripId, isPlanner = true }: Check
   }
 
   return (
-    <div>
+    <section>
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold text-ink">Checklists</h3>
+      <div className="flex items-baseline justify-between px-1 mb-2">
+        <h2 className="text-base font-semibold text-fg">Checklists</h2>
         {isPlanner && (
-          <button
+          <TextButton
+            icon={Plus}
             onClick={() => {
               setCreatingList(true);
               setTimeout(() => newListRef.current?.focus(), 100);
             }}
-            className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+            className="py-0"
           >
-            + New list
-          </button>
+            New list
+          </TextButton>
         )}
       </div>
 
       {/* New list input */}
       {creatingList && (
-        <div className="bg-card rounded-lg border border-accent/40 px-3 py-2.5 mb-2">
+        <div className="bg-surface rounded-card p-4 mb-3">
           <input
             ref={newListRef}
             type="text"
             placeholder="List name"
+            aria-label="List name"
             value={newListName}
             onChange={(e) => setNewListName(e.target.value)}
-            className="w-full bg-transparent text-sm font-medium text-ink placeholder:text-muted/50 outline-none"
+            className={fieldClass}
             onKeyDown={(e) => {
               if (e.key === "Enter" && newListName.trim()) handleCreateList();
               if (e.key === "Escape") setCreatingList(false);
             }}
           />
-          <div className="flex justify-end gap-2 mt-2">
-            <button
-              onClick={() => setCreatingList(false)}
-              className="text-xs text-muted hover:text-ink transition-colors"
-            >
+          <div className="flex justify-end gap-2 mt-3">
+            <Button variant="quiet" size="sm" onClick={() => setCreatingList(false)}>
               Cancel
-            </button>
-            <button
-              onClick={handleCreateList}
-              disabled={!newListName.trim()}
-              className="px-3 py-1 bg-accent text-accent-on text-xs font-medium rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50"
-            >
+            </Button>
+            <Button size="sm" onClick={handleCreateList} disabled={!newListName.trim()}>
               Create
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -102,10 +99,12 @@ export function ChecklistSection({ checklists, tripId, isPlanner = true }: Check
         ))}
 
         {checklists.length === 0 && !creatingList && (
-          <EmptyState icon={ListChecks} message="No checklists yet. Create one to start packing." />
+          <div className="bg-surface rounded-card">
+            <Empty icon={ListChecks} message="No checklists yet. Create one to start packing." />
+          </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -225,17 +224,18 @@ function ChecklistCard({
   }
 
   return (
-    <div className="bg-card rounded-lg border border-border overflow-hidden">
+    <div className="bg-surface rounded-card">
       {/* List header */}
-      <div className="flex items-center justify-between px-3 py-2.5 border-b border-border">
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+      <div className="flex items-center justify-between gap-2 pl-4 pr-2 pt-3 pb-2">
+        <div className="flex items-baseline gap-2 flex-1 min-w-0">
           {renaming ? (
             <input
               ref={renameRef}
               type="text"
+              aria-label="List name"
               value={renameName}
               onChange={(e) => setRenameName(e.target.value)}
-              className="text-sm font-medium text-ink bg-transparent outline-none flex-1"
+              className={`${fieldClass} h-9`}
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleRename();
                 if (e.key === "Escape") setRenaming(false);
@@ -245,11 +245,9 @@ function ChecklistCard({
             />
           ) : (
             <>
-              <span className="text-sm font-medium text-ink truncate">
-                {checklist.name}
-              </span>
+              <span className="text-[15px] font-semibold text-fg truncate">{checklist.name}</span>
               {items.length > 0 && (
-                <span className="text-xs text-muted shrink-0">
+                <span className="text-[13px] text-fg-muted shrink-0 tabular-nums">
                   {doneCount} of {items.length}
                 </span>
               )}
@@ -258,129 +256,134 @@ function ChecklistCard({
         </div>
 
         {/* ••• menu — planner only */}
-        {isPlanner && <div className="relative">
-          <button
-            aria-label="List options"
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="text-muted hover:text-ink transition-colors p-0.5"
-          >
-            <MoreHorizontal size={16} />
-          </button>
+        {isPlanner && (
+          <div className="relative">
+            <button
+              aria-label="List options"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="w-9 h-9 rounded-full flex items-center justify-center text-fg-muted hover:bg-page hover:text-fg transition-colors"
+            >
+              <MoreHorizontal size={18} />
+            </button>
 
-          {menuOpen && (
-            <>
-              <div
-                className="fixed inset-0 z-40"
-                onClick={() => {
-                  setMenuOpen(false);
-                  setConfirmDelete(false);
-                }}
-              />
-              <div className="absolute right-0 top-full mt-1 z-50 bg-card border border-border rounded-lg shadow-sm py-1 min-w-[140px]">
-                <button
-                  onClick={() => {
-                    setRenaming(true);
-                    setMenuOpen(false);
-                    setTimeout(() => renameRef.current?.focus(), 50);
-                  }}
-                  className="w-full px-3 py-1.5 text-left text-sm text-ink hover:bg-ground flex items-center gap-2"
-                >
-                  <Pencil size={13} />
-                  Rename
-                </button>
-                <button
+            {menuOpen && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
                   onClick={() => {
                     setMenuOpen(false);
-                    setConfirmDelete(true);
+                    setConfirmDelete(false);
                   }}
-                  className="w-full px-3 py-1.5 text-left text-sm text-money-over hover:bg-ground flex items-center gap-2"
-                >
-                  <Trash2 size={13} />
-                  Delete list
-                </button>
-              </div>
-            </>
-          )}
-        </div>}
+                />
+                <div className="absolute right-0 top-full mt-1 z-50 bg-surface rounded-field shadow-float py-1.5 min-w-[160px]">
+                  <button
+                    onClick={() => {
+                      setRenaming(true);
+                      setMenuOpen(false);
+                      setTimeout(() => renameRef.current?.focus(), 50);
+                    }}
+                    className="w-full px-3.5 h-10 text-left text-sm text-fg hover:bg-page flex items-center gap-2.5"
+                  >
+                    <Pencil size={15} />
+                    Rename
+                  </button>
+                  <button
+                    onClick={() => {
+                      setMenuOpen(false);
+                      setConfirmDelete(true);
+                    }}
+                    className="w-full px-3.5 h-10 text-left text-sm text-money-over hover:bg-page flex items-center gap-2.5"
+                  >
+                    <Trash2 size={15} />
+                    Delete list
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Items */}
-      <div>
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-center gap-2 px-3 py-2 border-b border-border last:border-b-0 group"
-          >
-            {/* Checkbox */}
-            <button
-              onClick={() => handleToggle(item.id, isDone(item))}
-              className={`
-                w-[18px] h-[18px] rounded border-2 shrink-0 flex items-center justify-center transition-colors
-                ${
-                  isDone(item)
-                    ? "bg-accent border-accent text-accent-on"
-                    : "border-border hover:border-accent"
-                }
-              `}
-            >
-              {isDone(item) && <Check size={12} strokeWidth={3} />}
-            </button>
-
-            {/* Text — tap to edit */}
-            {editingItemId === item.id ? (
-              <input
-                type="text"
-                value={editItemText}
-                onChange={(e) => setEditItemText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleEditItemSave(item.id);
-                  if (e.key === "Escape") setEditingItemId(null);
-                }}
-                onBlur={() => handleEditItemSave(item.id)}
-                className="flex-1 text-sm text-ink bg-transparent outline-none border-b border-accent"
-                autoFocus
-              />
-            ) : (
-              <span
-                className={`flex-1 text-sm cursor-text ${
-                  isDone(item) ? "line-through text-muted" : "text-ink"
-                }`}
-                onClick={() => startEditingItem(item)}
-              >
-                {item.text}
-              </span>
-            )}
-
-            {/* Delete — always visible on touch, hover-reveal on desktop */}
-            {isPlanner && (
+      <div className="divide-y divide-line border-t border-line">
+        {items.map((item) => {
+          const done = isDone(item);
+          return (
+            <div key={item.id} className="flex items-center gap-3 pl-4 pr-2 min-h-[46px] group">
+              {/* Tick — everyone can tick (P2) */}
               <button
-                aria-label="Delete item"
-                onClick={() => handleDeleteItem(item.id)}
-                className="text-muted hover:text-money-over transition-colors p-0.5 sm:opacity-0 sm:group-hover:opacity-100"
+                onClick={() => handleToggle(item.id, done)}
+                role="checkbox"
+                aria-checked={done}
+                aria-label={item.text}
+                className={`w-[22px] h-[22px] rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
+                  done ? "bg-brand border-brand text-brand-on" : "border-line hover:border-brand"
+                }`}
               >
-                <Trash2 size={13} />
+                {done && <Check size={13} strokeWidth={3} />}
               </button>
-            )}
-          </div>
-        ))}
+
+              {/* Text — planner taps to edit */}
+              {editingItemId === item.id ? (
+                <input
+                  type="text"
+                  aria-label="Item"
+                  value={editItemText}
+                  onChange={(e) => setEditItemText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleEditItemSave(item.id);
+                    if (e.key === "Escape") setEditingItemId(null);
+                  }}
+                  onBlur={() => handleEditItemSave(item.id)}
+                  className="flex-1 text-sm text-fg bg-transparent outline-none border-b border-brand py-1"
+                  autoFocus
+                />
+              ) : (
+                <span
+                  className={`flex-1 text-sm py-2.5 ${isPlanner ? "cursor-text" : ""} ${
+                    done ? "line-through text-fg-faint" : "text-fg"
+                  }`}
+                  onClick={() => isPlanner && startEditingItem(item)}
+                >
+                  {item.text}
+                </span>
+              )}
+
+              {/* Delete — always visible on touch, hover-reveal on desktop */}
+              {isPlanner && (
+                <button
+                  aria-label={`Delete ${item.text}`}
+                  onClick={() => handleDeleteItem(item.id)}
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-fg-faint hover:text-money-over transition-colors sm:opacity-0 sm:group-hover:opacity-100 shrink-0"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Inline add item — planner only */}
       {isPlanner && (
-        <div className="px-3 py-2">
+        <div className={`flex items-center gap-3 px-4 min-h-[46px] ${items.length > 0 ? "border-t border-line" : ""}`}>
+          <Plus size={18} className="text-fg-faint shrink-0" aria-hidden />
           <input
             ref={addItemRef}
             type="text"
-            placeholder="+ Add item…"
+            placeholder="Add item"
+            aria-label="Add item"
             value={newItemText}
             onChange={(e) => setNewItemText(e.target.value)}
-            className="w-full bg-transparent text-sm text-ink placeholder:text-muted/50 outline-none border-b border-dashed border-border focus:border-accent transition-colors pb-1"
+            className="flex-1 bg-transparent text-sm text-fg placeholder:text-fg-faint outline-none py-2.5"
             onKeyDown={(e) => {
               if (e.key === "Enter" && newItemText.trim()) handleAddItem();
             }}
           />
         </div>
       )}
+      {!isPlanner && items.length === 0 && <p className="px-4 py-3 text-sm text-fg-muted border-t border-line">No items yet.</p>}
 
       <ConfirmDialog
         open={confirmDelete}

@@ -4,6 +4,16 @@
 
 ---
 
+**2026-10-01 — UI redesign complete (v0.5.0, pending release)**
+
+Every screen moved to the v0.8 design system in phases P0–P9 on the `redesign` branch, each tested by the owner on the Vercel preview before the next. Plan, decisions and per-phase logs: `docs/REDESIGN-PLAN.md`; screen checklist: `docs/REDESIGN.md`; design: `docs/DESIGN.md`.
+
+**Highlights:** floating bottom bars; trip covers (colour + country code); Overview Invite / tap-a-person panels; Schedule timeline + sticky date strip; Money: Group split, Split shares, Split with others switch, one-list Settle up; two-step New trip; Profile rows + Dining sheet. No database changes. Only data-code change: the auto-jump opens the most recently started active trip.
+
+**Next:** P10 cover photo upload (staging Supabase first) → personal checklists → Discover price filter → Explore + travel stats. Noted: Home currency following the country; members using Discover.
+
+---
+
 **2026-09-27 — Group expenses complete (v0.4.0 → v0.4.5)**
 
 Kittysplit-style group expenses, planned in `docs/EXPENSES.md` (D1–D43) and shipped in five phases over one day.

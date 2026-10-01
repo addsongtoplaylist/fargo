@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Copy } from "lucide-react";
 import { cloneTrip } from "@/lib/actions/trip";
+import { Button } from "@/components/ui/button";
 
 export function CloneTripButton({ shareCode }: { shareCode: string }) {
   const router = useRouter();
@@ -24,26 +25,11 @@ export function CloneTripButton({ shareCode }: { shareCode: string }) {
 
   return (
     <div>
-      <button
-        onClick={handleClone}
-        disabled={loading}
-        className="w-full py-2 flex items-center justify-center gap-1.5 text-xs font-medium text-accent border border-accent/30 rounded-md hover:bg-accent-soft transition-colors disabled:opacity-60"
-      >
-        {loading ? (
-          <>
-            <span className="w-3.5 h-3.5 border-2 border-accent/40 border-t-accent rounded-full animate-spin" />
-            Saving…
-          </>
-        ) : (
-          <>
-            <Copy size={13} />
-            Save as my trip
-          </>
-        )}
-      </button>
-      {error && (
-        <p className="text-xs text-red-500 mt-1 text-center">{error}</p>
-      )}
+      <Button variant="soft" full icon={loading ? undefined : Copy} onClick={handleClone} disabled={loading}>
+        {loading && <span className="w-4 h-4 border-2 border-brand/40 border-t-brand rounded-full animate-spin" aria-hidden />}
+        {loading ? "Saving…" : "Save as my trip"}
+      </Button>
+      {error && <p role="alert" className="text-[13px] font-medium text-money-over mt-2 text-center">{error}</p>}
     </div>
   );
 }

@@ -3,14 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f3f5f9">
   <title>Fargo — Offline</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap');
     * { margin: 0; box-sizing: border-box; }
     body {
       font-family: 'Sora', system-ui, sans-serif;
-      background: #f7f2ee;
-      color: #1c1917;
+      background: #f3f5f9;
+      color: #172033;
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
@@ -23,47 +24,37 @@
     .icon {
       width: 64px;
       height: 64px;
-      background: #1a8a6e;
-      border-radius: 16px;
+      background: #e3f0fa;
+      color: #0071bc;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 14px;
     }
-    .icon span {
-      color: #f7f2ee;
-      font-size: 28px;
-      font-weight: 600;
-    }
-    h1 {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-    p {
-      font-size: 0.875rem;
-      color: #78716c;
-      line-height: 1.5;
-      max-width: 280px;
-    }
+    h1 { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+    p { font-size: 14px; color: #5b6475; line-height: 1.6; max-width: 270px; }
     button {
-      margin-top: 1.5rem;
-      padding: 0.625rem 1.5rem;
-      background: #1a8a6e;
-      color: #f7f2ee;
+      margin-top: 20px;
+      height: 44px;
+      padding: 0 22px;
+      background: #0071bc;
+      color: #ffffff;
       border: none;
-      border-radius: 8px;
+      border-radius: 999px;
       font-family: inherit;
-      font-size: 0.875rem;
+      font-size: 14px;
       font-weight: 600;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-    button:active { opacity: 0.85; }
+    button:active { background: #005a96; }
   </style>
 </head>
 <body>
-  <div class="icon"><span>F</span></div>
+  <div class="icon" aria-hidden="true">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/></svg>
+  </div>
   <h1>You're offline</h1>
   <p>Check your internet connection and try again.</p>
   <button onclick="location.reload()">Retry</button>

@@ -1,78 +1,55 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, Settings, LogOut } from "lucide-react";
+import { useParams, usePathname, useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { useTrip } from "@/lib/trip-context";
-import { leaveTrip } from "@/lib/actions/trip";
-import { ConfirmDialog } from "@/components/confirm-dialog";
 
+/** Sub-pages: back goes to their section instead of My trips. */
+const SUB_TITLES: Record<string, string> = {
+  "money/expenses": "Your expenses",
+  "money/settle": "Settle up",
+};
+
+const TITLES: Record<string, string> = {
+  schedule: "Schedule",
+  money: "Money",
+  prep: "Prep",
+  discover: "Discover",
+  settings: "Trip settings",
+};
+
+/**
+ * Trip header for every section except Overview (which has its own cover
+ * header with the gear / Leave): round back (→ My trips; on Money's
+ * sub-pages → Money), trip name caption, section/sub-page title (DESIGN.md v0.8).
+ */
 export function TripHeader() {
   const router = useRouter();
+  const pathname = usePathname();
+  const params = useParams<{ id: string }>();
   const trip = useTrip();
-  const isPlanner = trip?.myRole === "planner";
-  const isMember = trip?.myRole && trip.myRole !== "planner";
-  const [showLeaveDialog, setShowLeaveDialog] = useState(false);
 
-  async function handleLeave() {
-    if (!trip?.id) return;
-    const result = await leaveTrip(trip.id);
-    if (result.error) {
-      alert(result.error);
-    } else {
-      router.push("/trips?noauto=1");
-    }
-  }
+  const rest = pathname.split(`/trips/${params.id}/`)[1] ?? "overview";
+  const section = rest.split("/")[0];
+  if (section === "overview") return null;
+
+  const subTitle = SUB_TITLES[rest.split("/").slice(0, 2).join("/")];
+  const backHref = subTitle ? `/trips/${params.id}/${section}` : "/trips?noauto=1";
 
   return (
-    <>
-      <header className="bg-card border-b border-border">
-        <div className="mx-auto max-w-[var(--max-width-column)] px-4 flex items-center h-12 gap-3">
-          <button
-            onClick={() => router.push("/trips?noauto=1")}
-            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-ink transition-colors -ml-2"
-            aria-label="Back to My trips"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-sm font-semibold truncate leading-tight">
-              {trip?.name || "Trip"}
-            </h1>
-            <p className="text-[11px] text-muted truncate leading-tight">
-              {trip?.destination}
-            </p>
-          </div>
-          {isPlanner && (
-            <button
-              onClick={() => router.push(`/trips/${trip?.id}/settings`)}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-ink transition-colors -mr-2"
-              aria-label="Trip settings"
-            >
-              <Settings size={18} />
-            </button>
-          )}
-          {isMember && (
-            <button
-              onClick={() => setShowLeaveDialog(true)}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-red-500 transition-colors -mr-2"
-              aria-label="Leave trip"
-            >
-              <LogOut size={18} />
-            </button>
-          )}
-        </div>
-      </header>
-
-      <ConfirmDialog
-        open={showLeaveDialog}
-        title="Leave trip"
-        message={`You'll be removed from "${trip?.name}" and it will disappear from your trips list.`}
-        confirmLabel="Leave"
-        destructive
-        onConfirm={handleLeave}
-        onCancel={() => setShowLeaveDialog(false)}
-      />
-    </>
+    <header className="mx-auto w-full max-w-[var(--max-width-column)] px-4 pt-4 pb-3 flex items-center gap-3">
+      <button
+        type="button"
+        onClick={() => router.push(backHref)}
+        className="w-10 h-10 rounded-full bg-surface border border-line flex items-center justify-center text-fg shrink-0 hover:border-fg-faint transition-colors"
+        aria-label={subTitle ? `Back to ${TITLES[section]}` : "Back to My trips"}
+      >
+        <ArrowLeft size={19} strokeWidth={1.9} aria-hidden />
+      </button>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs font-medium text-fg-muted truncate">{trip?.name || "Trip"}</p>
+        <h1 className="text-[22px] font-bold text-fg leading-tight tracking-[-0.2px] truncate">{subTitle ?? TITLES[section] ?? "Trip"}</h1>
+      </div>
+    </header>
   );
 }

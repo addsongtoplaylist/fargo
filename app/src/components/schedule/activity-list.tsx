@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, CalendarDays } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { format, parseISO, isToday } from "date-fns";
 import {
   DndContext,
@@ -22,12 +22,13 @@ import { useTrip } from "@/lib/trip-context";
 import { reorderActivities } from "@/lib/actions/activity";
 import { useToast } from "@/components/toast";
 import { DayPicker } from "./day-picker";
-import { ActivityCard } from "./activity-card";
+import { ActivityCard, ActivityRow } from "./activity-card";
 import { AddActivityPanel } from "./add-activity-panel";
 import { BudgetStrip } from "./budget-strip";
 import { DayMap } from "./day-map";
 import type { Activity } from "@/lib/actions/activity";
-import { EmptyState } from "@/components/empty-state";
+import { Empty } from "@/components/ui/empty";
+import { Fab } from "@/components/ui/fab";
 
 type ActivityListProps = {
   activities: Activity[];
@@ -179,12 +180,19 @@ function ActivityListInner({
   // Format the selected date for the header
   const selectedDateObj = parseISO(selectedDate);
   const dayLabel = isToday(selectedDateObj)
-    ? "Today"
+    ? `Today · ${format(selectedDateObj, "EEEE, d MMM")}`
     : format(selectedDateObj, "EEEE, d MMM");
+
+  const timelineProps = (activity: Activity, i: number) => ({
+    activity,
+    isYouAreHere: activity.id === youAreHereId,
+    isFirst: i === 0,
+    isLast: i === dayActivities.length - 1,
+  });
 
   return (
     <div>
-      {/* Day picker */}
+      {/* Sticky date strip */}
       <DayPicker
         startDate={trip.start_date}
         endDate={trip.end_date}
@@ -193,81 +201,60 @@ function ActivityListInner({
         isActiveTrip={isActiveTrip}
       />
 
-      {/* Daily budget strip — shows when budget is set */}
-      {dailyFree > 0 && (
-        <div className="pt-2">
+      <div className="mx-auto w-full max-w-[var(--max-width-column)] px-4 pt-1 space-y-3">
+        {/* Daily budget card — shows when budget is set */}
+        {dailyFree > 0 && (
           <BudgetStrip
             dailyFree={dailyFree}
             spentToday={Math.round((spendingByDate[selectedDate] ?? 0) * 100) / 100}
             localCurrency={trip?.local_currency ?? ""}
             fxRate={trip?.fx_rate ?? 1}
+            date={selectedDate}
+            isToday={isToday(selectedDateObj)}
           />
-        </div>
-      )}
+        )}
 
-      {/* Day header */}
-      <div className="px-4 pt-3 pb-2">
-        <h3 className="text-sm font-semibold text-ink">{dayLabel}</h3>
-      </div>
+        {/* Day map — pins for activities with locations (hidden when none) */}
+        <DayMap activities={dayActivities} currentId={youAreHereId} />
 
-      {/* Day map — shows pins for activities with locations */}
-      <div className="px-4 pb-2">
-        <DayMap activities={dayActivities} />
-      </div>
-
-      {/* Activity cards with drag-and-drop */}
-      <div className="px-4 space-y-2">
-        {dayActivities.length === 0 ? (
-          <EmptyState
-            icon={CalendarDays}
-            message={isPlanner ? "No activities yet. Tap below to add one." : "No activities planned for this day."}
-          />
-        ) : isPlanner ? (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={dayActivities.map((a) => a.id)}
-              strategy={verticalListSortingStrategy}
+        {/* Day card: heading + timeline */}
+        <div className="bg-surface rounded-card p-4">
+          <h2 className="text-base font-semibold text-fg mb-1.5">{dayLabel}</h2>
+          {dayActivities.length === 0 ? (
+            <Empty
+              icon={CalendarDays}
+              message={isPlanner ? "No activities yet. Tap + to add one." : "No activities planned for this day."}
+            />
+          ) : isPlanner ? (
+            <DndContext
+              id="schedule-activities"
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
             >
-              <div className="space-y-2">
-                {dayActivities.map((activity) => (
-                  <ActivityCard
-                    key={activity.id}
-                    activity={activity}
-                    isYouAreHere={activity.id === youAreHereId}
-                    onEdit={handleEdit}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        ) : (
-          <div className="space-y-2">
-            {dayActivities.map((activity) => (
-              <ActivityCard
-                key={activity.id}
-                activity={activity}
-                isYouAreHere={activity.id === youAreHereId}
-                onEdit={() => {}} // read-only — no edit panel
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Add activity button — planner only */}
-        {isPlanner && (
-          <button
-            onClick={handleAdd}
-            className="w-full py-2.5 flex items-center justify-center gap-1.5 text-sm font-medium text-accent border border-dashed border-accent/40 rounded-lg hover:bg-accent-soft transition-colors"
-          >
-            <Plus size={15} />
-            Add activity
-          </button>
-        )}
+              <SortableContext
+                items={dayActivities.map((a) => a.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div>
+                  {dayActivities.map((activity, i) => (
+                    <ActivityCard key={activity.id} {...timelineProps(activity, i)} onEdit={handleEdit} />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          ) : (
+            <div>
+              {dayActivities.map((activity, i) => (
+                <ActivityRow key={activity.id} {...timelineProps(activity, i)} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Add activity — planner only */}
+      {isPlanner && <Fab label="Add activity" onClick={handleAdd} />}
 
       {/* Add/Edit panel */}
       {panelOpen && (

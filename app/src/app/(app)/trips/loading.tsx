@@ -1,25 +1,20 @@
 import { Column } from "@/components/column";
-import { Skeleton } from "@/components/skeleton";
+import { Bone } from "@/components/ui/bone";
 
+/** Matches the redesigned My trips: title, current trip card, upcoming card. */
 export default function TripsLoading() {
   return (
-    <Column className="py-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <Skeleton className="h-7 w-28" />
-        <Skeleton className="h-5 w-20" />
-      </div>
-
-      {/* Trip cards */}
+    <Column className="pt-12 pb-8">
+      <Bone className="h-8 w-36 mb-6" />
       <div className="space-y-3">
-        {Array.from({ length: 2 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-card rounded-lg border border-border p-4 space-y-3"
-          >
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-5 w-48" />
-            <Skeleton className="h-3 w-36" />
+        {[104, 92].map((size, i) => (
+          <div key={i} className="bg-surface rounded-card p-3 flex gap-3.5">
+            <Bone className="rounded-[14px] shrink-0" style={{ width: size, height: size }} />
+            <div className="flex-1 space-y-2 pt-1.5">
+              <Bone className="h-4 w-2/3" />
+              <Bone className="h-3 w-1/2" />
+              <Bone className="h-6 w-24 rounded-full mt-3" />
+            </div>
           </div>
         ))}
       </div>

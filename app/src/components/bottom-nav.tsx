@@ -1,43 +1,25 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Plane, User } from "lucide-react";
+import { Compass, Map as MapIcon, User } from "lucide-react";
+import { TabBar } from "@/components/ui/tab-bar";
 
-const navItems = [
-  { href: "/trips?noauto=1", label: "My trips", icon: Plane },
-  // Explore hidden until it ships — /explore still has its placeholder page
-  { href: "/profile", label: "Profile", icon: User },
-] as const;
+/** Screens that show the home bar. Trips have their own bar; New trip has a back button. */
+const HOME_SCREENS = ["/trips", "/explore", "/profile"];
 
+/** Home bar: My trips · Explore · Profile (DESIGN.md v0.8). */
 export function BottomNav() {
   const pathname = usePathname();
+  if (!HOME_SCREENS.includes(pathname)) return null;
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 bg-card border-t border-border pb-[env(safe-area-inset-bottom)]">
-      <div className="mx-auto max-w-[var(--max-width-column)] flex items-center justify-around h-14">
-        {navItems.map(({ href, label, icon: Icon }) => {
-          // Strip query params for matching; /trips?noauto=1 should match /trips/*
-          const basePath = href.split("?")[0];
-          const isActive =
-            pathname === basePath || pathname.startsWith(`${basePath}/`);
-
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={`flex flex-col items-center gap-0.5 px-4 py-2 text-xs transition-colors ${
-                isActive
-                  ? "text-accent font-medium"
-                  : "text-muted hover:text-ink"
-              }`}
-            >
-              <Icon size={20} strokeWidth={isActive ? 2.2 : 1.8} />
-              <span>{label}</span>
-            </Link>
-          );
-        })}
-      </div>
-    </nav>
+    <TabBar
+      label="Main"
+      items={[
+        { href: "/trips?noauto=1", label: "My trips", icon: MapIcon, active: pathname === "/trips" },
+        { href: "/explore", label: "Explore", icon: Compass, active: pathname === "/explore" },
+        { href: "/profile", label: "Profile", icon: User, active: pathname === "/profile" },
+      ]}
+    />
   );
 }

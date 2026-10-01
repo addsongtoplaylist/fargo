@@ -32,51 +32,34 @@ function SignInContent() {
     });
   }
 
+  // Wanderlog-style (redesign P8a): brand in the upper third, one big button lower down
   return (
-    <div className="min-h-dvh flex flex-col items-center justify-center px-4 bg-ground">
-      <div className="w-full max-w-[360px]">
-        {/* Brand */}
-        <div className="flex flex-col items-center mb-8">
-          <Image
-            src="/mascot.png"
-            alt="Fargo mascot"
-            width={100}
-            height={114}
-            className="mb-2"
-          />
-          <Image
-            src="/logo.png"
-            alt="Fargo"
-            width={90}
-            height={34}
-            className="mb-2"
-          />
-          <p className="text-sm text-muted">
-            Every trip starts here.
+    <div className="min-h-dvh flex flex-col bg-surface px-6">
+      <div className="flex-1 flex flex-col items-center justify-end pb-10 min-h-[300px]">
+        <Image src="/mascot.png" alt="Fargo mascot" width={96} height={110} priority />
+        <Image src="/logo.png" alt="Fargo" width={132} height={50} className="mt-3.5" priority />
+        <p className="text-[15px] text-fg-muted mt-2.5">Every trip starts here.</p>
+      </div>
+
+      <div className="flex-1 w-full max-w-[360px] mx-auto flex flex-col pt-6">
+        {errorMessage && (
+          <p role="alert" className="text-[13px] font-medium text-money-over mb-3 text-center">
+            {errorMessage}
           </p>
-        </div>
-
-        <div className="bg-card rounded-lg border border-border p-5">
-          {errorMessage && (
-            <p className="text-xs text-money-over mb-3 text-center">
-              {errorMessage}
-            </p>
+        )}
+        <button
+          onClick={signInWithGoogle}
+          disabled={loading}
+          className="w-full h-[54px] flex items-center justify-center gap-2.5 bg-surface border border-line rounded-full text-[15px] font-semibold text-fg shadow-[0_1px_2px_rgba(23,32,51,0.06)] hover:bg-page transition-colors disabled:opacity-60 disabled:pointer-events-none"
+        >
+          {loading ? (
+            <span className="w-4 h-4 border-2 border-line border-t-brand rounded-full animate-spin" />
+          ) : (
+            <GoogleIcon />
           )}
-          <button
-            onClick={signInWithGoogle}
-            disabled={loading}
-            className="w-full h-12 flex items-center justify-center gap-2 bg-card border border-border rounded-md text-sm font-medium text-ink hover:bg-ground transition-colors disabled:opacity-60 disabled:pointer-events-none"
-          >
-            {loading ? (
-              <span className="w-4 h-4 border-2 border-muted border-t-accent rounded-full animate-spin" />
-            ) : (
-              <GoogleIcon />
-            )}
-            {loading ? "Signing in…" : "Continue with Google"}
-          </button>
-        </div>
-
-        <p className="text-center text-xs text-muted mt-4">
+          {loading ? "Signing in…" : "Continue with Google"}
+        </button>
+        <p className="mt-auto pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-8 text-center text-xs text-fg-muted leading-relaxed">
           No passwords. Sign in with your Google account.
         </p>
       </div>

@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Trash2, ExternalLink, ArrowRight, Clock, MapPin, Lightbulb } from "lucide-react";
+import { X, ExternalLink, CalendarPlus, Clock, MapPin, Lightbulb, Plus } from "lucide-react";
 import { createIdea, updateIdea, deleteIdea, promoteIdea } from "@/lib/actions/idea";
 import { useTrip } from "@/lib/trip-context";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { eachDayOfInterval, parseISO, format } from "date-fns";
 import type { Idea } from "@/lib/actions/idea";
-import { EmptyState } from "@/components/empty-state";
+import { Empty } from "@/components/ui/empty";
+import { Button, TextButton } from "@/components/ui/button";
+import { fieldClass } from "@/components/ui/field";
 
 type IdeasSectionProps = {
   ideas: Idea[];
@@ -79,194 +81,190 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
     setPromoteId(null);
   }
 
+  const promotedLabel = (d: string) => {
+    try {
+      return format(parseISO(d), "EEE d MMM");
+    } catch {
+      return d;
+    }
+  };
+
   return (
-    <div>
+    <section>
       {/* Header */}
-      <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold text-ink">Ideas</h3>
+      <div className="flex items-baseline justify-between px-1 mb-2">
+        <h2 className="text-base font-semibold text-fg">Ideas</h2>
         {isPlanner && (
-          <button
+          <TextButton
+            icon={Plus}
             onClick={() => {
               setAdding(true);
               setTimeout(() => titleRef.current?.focus(), 100);
             }}
-            className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
+            className="py-0"
           >
-            + Add
-          </button>
+            Add
+          </TextButton>
         )}
       </div>
 
-      {/* Ideas list */}
-      <div className="space-y-1.5">
-        {ideas.map((idea) => (
-          <div
-            key={idea.id}
-            className={`bg-card rounded-lg border border-border px-3 py-2.5 ${
-              idea.promoted ? "opacity-60" : ""
-            }`}
-          >
-            <div className="flex items-start gap-2">
-              <div className="flex-1 min-w-0">
-                {editingId === idea.id ? (
-                  <input
-                    type="text"
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleEditSave(idea.id);
-                      if (e.key === "Escape") setEditingId(null);
-                    }}
-                    onBlur={() => handleEditSave(idea.id)}
-                    className="text-sm font-medium text-ink bg-transparent outline-none w-full border-b border-accent"
-                    autoFocus
-                  />
-                ) : (
-                  <p
-                    className={`text-sm font-medium text-ink ${
-                      idea.promoted ? "line-through" : ""
-                    } ${!idea.promoted ? "cursor-text" : ""}`}
-                    onClick={() => !idea.promoted && startEditing(idea)}
-                  >
-                    {idea.title}
-                  </p>
-                )}
-                {idea.promoted && idea.promoted_date && (
-                  <p className="text-xs text-accent mt-0.5">
-                    → Promoted to {idea.promoted_date}
-                  </p>
-                )}
-                {/* Time + location from demoted activities */}
-                {!idea.promoted && (idea.time || idea.place_name) && (
-                  <div className="flex items-center gap-3 mt-0.5">
-                    {idea.time && (
-                      <span className="flex items-center gap-1 text-xs text-muted">
-                        <Clock size={10} />
-                        {idea.time}
-                      </span>
-                    )}
-                    {idea.place_name && (
-                      <span className="flex items-center gap-1 text-xs text-muted truncate">
-                        <MapPin size={10} />
-                        {idea.place_name}
-                      </span>
-                    )}
+      {/* Inline add form */}
+      {adding && (
+        <div className="bg-surface rounded-card p-4 mb-3 space-y-2.5">
+          <input
+            ref={titleRef}
+            type="text"
+            placeholder="What's the idea?"
+            aria-label="Idea"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className={fieldClass}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && title.trim()) handleAdd();
+              if (e.key === "Escape") setAdding(false);
+            }}
+          />
+          <input
+            type="url"
+            placeholder="Link (optional)"
+            aria-label="Link"
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+            className={fieldClass}
+          />
+          <input
+            type="text"
+            placeholder="Notes (optional)"
+            aria-label="Notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className={fieldClass}
+          />
+          <div className="flex justify-end gap-2 pt-0.5">
+            <Button variant="quiet" size="sm" onClick={() => setAdding(false)}>
+              Cancel
+            </Button>
+            <Button size="sm" onClick={handleAdd} disabled={!title.trim() || saving}>
+              {saving ? "Adding…" : "Add"}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {ideas.length === 0 && !adding ? (
+        <div className="bg-surface rounded-card">
+          <Empty icon={Lightbulb} message="No ideas yet. Add things you find along the way." />
+        </div>
+      ) : ideas.length > 0 ? (
+        <div className="bg-surface rounded-card divide-y divide-line">
+          {ideas.map((idea) => (
+            <div key={idea.id} className="px-4 py-3">
+              <div className="flex items-start gap-2">
+                <div className={`flex-1 min-w-0 ${idea.promoted ? "opacity-60" : ""}`}>
+                  {editingId === idea.id ? (
+                    <input
+                      type="text"
+                      aria-label="Idea"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleEditSave(idea.id);
+                        if (e.key === "Escape") setEditingId(null);
+                      }}
+                      onBlur={() => handleEditSave(idea.id)}
+                      className="text-[15px] font-semibold text-fg bg-transparent outline-none w-full border-b border-brand py-0.5"
+                      autoFocus
+                    />
+                  ) : (
+                    <p
+                      className={`text-[15px] font-semibold text-fg ${idea.promoted ? "line-through" : ""} ${
+                        isPlanner && !idea.promoted ? "cursor-text" : ""
+                      }`}
+                      onClick={() => isPlanner && !idea.promoted && startEditing(idea)}
+                    >
+                      {idea.title}
+                    </p>
+                  )}
+                  {idea.promoted && idea.promoted_date && (
+                    <p className="text-[13px] font-medium text-brand mt-0.5">→ Promoted to {promotedLabel(idea.promoted_date)}</p>
+                  )}
+                  {/* Time + location from demoted activities */}
+                  {!idea.promoted && (idea.time || idea.place_name) && (
+                    <div className="flex items-center gap-3 mt-1 min-w-0">
+                      {idea.time && (
+                        <span className="flex items-center gap-1 text-[13px] text-fg-muted shrink-0">
+                          <Clock size={13} aria-hidden />
+                          {idea.time}
+                        </span>
+                      )}
+                      {idea.place_name && (
+                        <span className="flex items-center gap-1 text-[13px] text-fg-muted min-w-0">
+                          <MapPin size={13} className="shrink-0" aria-hidden />
+                          <span className="truncate">{idea.place_name}</span>
+                        </span>
+                      )}
+                    </div>
+                  )}
+                  {!idea.promoted && idea.notes && <p className="text-[13px] text-fg-muted mt-1 truncate">{idea.notes}</p>}
+                  {!idea.promoted && idea.link && (
+                    <a
+                      href={idea.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[13px] font-medium text-brand mt-1 hover:underline"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <ExternalLink size={13} aria-hidden />
+                      Link
+                    </a>
+                  )}
+                </div>
+
+                {isPlanner && (
+                  <div className="flex items-center gap-0.5 shrink-0 -mr-2">
+                    {/* Schedule / Reschedule */}
+                    <Button
+                      variant="soft"
+                      size="sm"
+                      icon={CalendarPlus}
+                      aria-expanded={promoteId === idea.id}
+                      onClick={() => setPromoteId(promoteId === idea.id ? null : idea.id)}
+                    >
+                      {idea.promoted ? "Reschedule" : "Schedule"}
+                    </Button>
+                    <button
+                      aria-label={`Delete ${idea.title}`}
+                      onClick={() => setDeleteId(idea.id)}
+                      className="w-9 h-9 rounded-full flex items-center justify-center text-fg-faint hover:text-money-over transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
                   </div>
-                )}
-                {!idea.promoted && idea.notes && (
-                  <p className="text-xs text-muted mt-0.5 truncate">
-                    {idea.notes}
-                  </p>
-                )}
-                {!idea.promoted && idea.link && (
-                  <a
-                    href={idea.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs text-accent mt-0.5 hover:underline"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <ExternalLink size={10} />
-                    Link
-                  </a>
                 )}
               </div>
 
-              {isPlanner && (
-                <div className="flex items-center gap-1 shrink-0">
-                  {/* Schedule / Reschedule button */}
-                  <button
-                    onClick={() =>
-                      setPromoteId(promoteId === idea.id ? null : idea.id)
-                    }
-                    className="text-xs font-medium text-accent hover:text-accent-hover transition-colors flex items-center gap-0.5 px-1.5 py-0.5"
-                  >
-                    <ArrowRight size={12} />
-                    {idea.promoted ? "Reschedule" : "Schedule"}
-                  </button>
-                  {/* Delete */}
-                  <button
-                    aria-label="Delete idea"
-                    onClick={() => setDeleteId(idea.id)}
-                    className="text-muted hover:text-money-over transition-colors p-0.5"
-                  >
-                    <Trash2 size={13} />
-                  </button>
+              {/* Day picker for promote */}
+              {promoteId === idea.id && (
+                <div className="mt-3 pt-3 border-t border-line">
+                  <p className="text-[13px] text-fg-muted mb-2">Pick a day</p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {tripDays.map((day, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handlePromote(idea.id, day, index)}
+                        title={format(day, "EEE d MMM")}
+                        className="h-8 px-2.5 text-[13px] font-medium text-fg bg-page border border-line rounded-full hover:border-brand hover:text-brand transition-colors"
+                      >
+                        Day {index + 1}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
-
-            {/* Day picker for promote */}
-            {promoteId === idea.id && (
-              <div className="mt-2 pt-2 border-t border-border">
-                <p className="text-xs text-muted mb-1.5">Pick a day:</p>
-                <div className="flex gap-1 flex-wrap">
-                  {tripDays.map((day, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handlePromote(idea.id, day, index)}
-                      className="px-2 py-1 text-xs bg-ground border border-border rounded-md hover:border-accent hover:text-accent transition-colors"
-                    >
-                      Day {index + 1}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
-
-        {ideas.length === 0 && !adding && (
-          <EmptyState icon={Lightbulb} message="No ideas yet. Add things you find along the way." />
-        )}
-
-        {/* Inline add form */}
-        {adding && (
-          <div className="bg-card rounded-lg border border-accent/40 px-3 py-2.5 space-y-2">
-            <input
-              ref={titleRef}
-              type="text"
-              placeholder="What's the idea?"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-transparent text-sm font-medium text-ink placeholder:text-muted/50 outline-none"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && title.trim()) handleAdd();
-                if (e.key === "Escape") setAdding(false);
-              }}
-            />
-            <input
-              type="url"
-              placeholder="Link (optional)"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              className="w-full bg-ground border border-border rounded-md px-2 py-1 text-xs text-ink placeholder:text-muted/50 outline-none focus:border-accent transition-colors"
-            />
-            <input
-              type="text"
-              placeholder="Notes (optional)"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-ground border border-border rounded-md px-2 py-1 text-xs text-ink placeholder:text-muted/50 outline-none focus:border-accent transition-colors"
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setAdding(false)}
-                className="text-xs text-muted hover:text-ink transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAdd}
-                disabled={!title.trim() || saving}
-                className="px-3 py-1 bg-accent text-accent-on text-xs font-medium rounded-md hover:bg-accent-hover transition-colors disabled:opacity-50"
-              >
-                {saving ? "Adding…" : "Add"}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+          ))}
+        </div>
+      ) : null}
 
       <ConfirmDialog
         open={!!deleteId}
@@ -275,6 +273,6 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
         onConfirm={() => { if (deleteId) return handleDelete(deleteId); }}
         onCancel={() => setDeleteId(null)}
       />
-    </div>
+    </section>
   );
 }

@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { joinTripByInviteCode, claimTraveller, type InviteTrip } from "@/lib/actions/trip";
-import { MapPin, Calendar, Users, X, Loader2 } from "lucide-react";
-import { formatDate } from "@/lib/dates";
+import { X, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { InviteShell, InviteTripSummary } from "./invite-card";
 
 type InvitePreviewProps = {
   trip: InviteTrip;
@@ -46,131 +47,65 @@ export function InvitePreview({ trip, inviteCode, alreadyMember }: InvitePreview
   }
 
   return (
-    <div className="min-h-full flex flex-col items-center justify-center px-4 bg-ground">
-      <div className="w-full max-w-[360px]">
-        {/* Brand */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl font-semibold text-ink mb-1">Fargo</h1>
-          <p className="text-sm text-muted">You&apos;ve been invited to a trip</p>
+    <InviteShell
+      footnote={alreadyMember ? "You're already part of this trip." : "You'll be added as a member and can view the trip plan."}
+    >
+      <div className="bg-surface rounded-card p-5 relative">
+        <button
+          onClick={handleClose}
+          className="absolute top-2.5 right-2.5 w-9 h-9 rounded-full flex items-center justify-center text-fg-muted hover:bg-page hover:text-fg transition-colors"
+          aria-label="Close"
+        >
+          <X size={18} />
+        </button>
+
+        <div className="pr-8">
+          <InviteTripSummary trip={trip} />
         </div>
 
-        {/* Trip card */}
-        <div className="bg-card rounded-lg border border-border p-5 mb-4 relative">
-          {/* Close button */}
-          <button
-            onClick={handleClose}
-            className="absolute top-3 right-3 min-w-[44px] min-h-[44px] flex items-center justify-center text-muted hover:text-ink transition-colors"
-            aria-label="Close"
-          >
-            <X size={18} />
-          </button>
-
-          <h2 className="text-lg font-semibold text-ink mb-3 pr-8">{trip.name}</h2>
-
-          <div className="space-y-2 mb-4">
-            <div className="flex items-center gap-2 text-sm text-muted">
-              <MapPin size={14} className="text-accent shrink-0" />
-              <span>{trip.destination}</span>
+        {mustPick && (
+          <div className="mt-5">
+            <p className="text-sm font-semibold text-fg mb-2">Which one are you?</p>
+            <div className="border border-line rounded-field divide-y divide-line overflow-hidden">
+              {unclaimed.map((t) => (
+                <label
+                  key={t.id}
+                  htmlFor={`claim-${t.id}`}
+                  className={`flex items-center gap-3 px-3.5 min-h-[48px] cursor-pointer transition-colors ${picked === t.id ? "bg-brand-soft" : "hover:bg-page"}`}
+                >
+                  <input
+                    id={`claim-${t.id}`}
+                    type="radio"
+                    name="claim"
+                    checked={picked === t.id}
+                    onChange={() => setPicked(t.id)}
+                    className="w-[18px] h-[18px] accent-[#0071bc]"
+                  />
+                  <span className={`flex-1 text-[15px] ${picked === t.id ? "text-brand font-semibold" : "text-fg"}`}>{t.display_name}</span>
+                </label>
+              ))}
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted">
-              <Calendar size={14} className="text-accent shrink-0" />
-              <span>
-                {formatDate(trip.start_date)} – {formatDate(trip.end_date)}
-              </span>
-            </div>
-            {trip.travellers && trip.travellers.length > 0 && (
-              <div className="flex items-center gap-2 text-sm text-muted">
-                <Users size={14} className="text-accent shrink-0" />
-                <div className="flex items-center gap-1.5">
-                  {/* Traveller avatars */}
-                  <div className="flex -space-x-1.5">
-                    {trip.travellers.slice(0, 5).map((t, i) => (
-                      <div
-                        key={i}
-                        className="w-6 h-6 rounded-full bg-accent/20 border border-card flex items-center justify-center text-[10px] font-medium text-accent"
-                        title={t.display_name}
-                      >
-                        {t.display_name.charAt(0).toUpperCase()}
-                      </div>
-                    ))}
-                  </div>
-                  <span>
-                    {trip.travellers.length}{" "}
-                    {trip.travellers.length === 1 ? "traveller" : "travellers"}
-                  </span>
-                </div>
-              </div>
-            )}
+            <p className="text-xs text-fg-muted mt-2">Your name isn&apos;t here? Ask the planner to add it first.</p>
           </div>
+        )}
 
-          {mustPick && (
-            <div className="mb-4">
-              <p className="text-sm font-medium text-ink mb-2">Which one are you?</p>
-              <div className="border border-border rounded-md divide-y divide-border">
-                {unclaimed.map((t) => {
-                  const detail = [
-                    t.paid_count > 0 ? `paid ${t.paid_count}` : null,
-                    t.in_count > 0 ? `in ${t.in_count}` : null,
-                  ].filter(Boolean).join(" · ");
-                  return (
-                    <label
-                      key={t.id}
-                      htmlFor={`claim-${t.id}`}
-                      className={`flex items-center gap-2.5 px-3 py-2.5 cursor-pointer ${picked === t.id ? "bg-accent-soft" : ""}`}
-                    >
-                      <input
-                        id={`claim-${t.id}`}
-                        type="radio"
-                        name="claim"
-                        checked={picked === t.id}
-                        onChange={() => setPicked(t.id)}
-                        className="accent-[var(--color-accent)]"
-                      />
-                      <span className="flex-1 text-sm text-ink">{t.display_name}</span>
-                      {detail && <span className="text-[11px] text-muted">{detail}</span>}
-                    </label>
-                  );
-                })}
-              </div>
-              <p className="text-[11px] text-muted mt-1.5">
-                Your name isn&apos;t here? Ask the planner to add it first.
-              </p>
-            </div>
-          )}
+        {error && <p role="alert" className="text-[13px] font-medium text-money-over mt-4">{error}</p>}
 
-          {error && (
-            <p className="text-xs text-money-over mb-3">{error}</p>
-          )}
-
-          {alreadyMember ? (
-            <button
-              onClick={handleGoToTrip}
-              className="w-full h-12 flex items-center justify-center gap-2 bg-accent text-accent-on rounded-md text-sm font-medium hover:bg-accent-hover transition-colors"
-            >
-              You&apos;re already a member — view trip
-            </button>
-          ) : (
-            <button
-              onClick={handleJoin}
-              disabled={joining || (mustPick && !picked)}
-              className="w-full h-12 flex items-center justify-center gap-2 bg-accent text-accent-on rounded-md text-sm font-medium hover:bg-accent-hover transition-colors disabled:opacity-60 disabled:pointer-events-none"
-            >
-              {joining && <Loader2 size={16} className="animate-spin" />}
-              {joining
-                ? "Joining…"
-                : mustPick && picked
-                  ? `Join as ${unclaimed.find((t) => t.id === picked)?.display_name}`
-                  : "Join trip"}
-            </button>
-          )}
-        </div>
-
-        <p className="text-center text-xs text-muted">
-          {alreadyMember
-            ? "You're already part of this trip."
-            : "You'll be added as a member and can view the trip plan."}
-        </p>
+        {alreadyMember ? (
+          <Button size="lg" full className="mt-5" onClick={handleGoToTrip}>
+            View trip
+          </Button>
+        ) : (
+          <Button size="lg" full className="mt-5" onClick={handleJoin} disabled={joining || (mustPick && !picked)}>
+            {joining && <Loader2 size={16} className="animate-spin" aria-hidden />}
+            {joining
+              ? "Joining…"
+              : mustPick && picked
+                ? `Join as ${unclaimed.find((t) => t.id === picked)?.display_name}`
+                : "Join trip"}
+          </Button>
+        )}
       </div>
-    </div>
+    </InviteShell>
   );
 }

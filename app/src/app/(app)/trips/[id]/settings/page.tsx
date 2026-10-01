@@ -3,12 +3,15 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTrip } from "@/lib/trip-context";
-import { updateTrip, deleteTrip, getOrCreateShareCode, getOrCreateInviteCode } from "@/lib/actions/trip";
+import { updateTrip, deleteTrip, getOrCreateShareCode } from "@/lib/actions/trip";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { DestinationSearch, type Destination } from "@/components/destination-search";
 import { LocationSearch } from "@/components/schedule/location-search";
-import { Share2, Users, Check } from "lucide-react";
+import { Share2, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/card";
+import { FieldStack, fieldClass } from "@/components/ui/field";
 
 export default function TripSettingsPage() {
   const trip = useTrip();
@@ -41,15 +44,13 @@ export default function TripSettingsPage() {
 
   // Share/invite state
   const [shareCopied, setShareCopied] = useState(false);
-  const [inviteCopied, setInviteCopied] = useState(false);
   const [shareLoading, setShareLoading] = useState(false);
-  const [inviteLoading, setInviteLoading] = useState(false);
   // Codes known up front so a tap can copy immediately — iOS only allows a
   // clipboard write straight after a tap, not after a server round-trip
   const [shareCode, setShareCode] = useState<string | null>(trip?.share_code ?? null);
-  const [inviteCode, setInviteCode] = useState<string | null>(trip?.invite_code ?? null);
   // Link shown on screen when it was just created or couldn't be copied
-  const [shownLink, setShownLink] = useState<{ kind: "share" | "invite"; url: string } | null>(null);
+  // (Invite link moved to Overview → Travellers → Invite; owner, 2026-09-29)
+  const [shownLink, setShownLink] = useState<{ kind: "share"; url: string } | null>(null);
 
   if (!trip) return null;
 
@@ -93,24 +94,19 @@ export default function TripSettingsPage() {
     }
   }
 
-  function linkUrl(kind: "share" | "invite", code: string) {
-    return `${window.location.origin}/${kind === "share" ? "s" : "invite"}/${code}`;
+  function linkUrl(_kind: "share", code: string) {
+    return `${window.location.origin}/s/${code}`;
   }
 
   /** Must be called directly from a tap handler (no awaits before it). */
-  async function copyLink(kind: "share" | "invite", code: string) {
+  async function copyLink(kind: "share", code: string) {
     const url = linkUrl(kind, code);
-    const text = kind === "share" ? `Check out my trip on Fargo ✈️\n${url}` : url;
+    const text = `Check out my trip on Fargo ✈️\n${url}`;
     try {
       await navigator.clipboard.writeText(text);
       setShownLink(null);
-      if (kind === "share") {
-        setShareCopied(true);
-        setTimeout(() => setShareCopied(false), 2000);
-      } else {
-        setInviteCopied(true);
-        setTimeout(() => setInviteCopied(false), 2000);
-      }
+      setShareCopied(true);
+      setTimeout(() => setShareCopied(false), 2000);
     } catch {
       setShownLink({ kind, url });
       toast("Couldn't copy automatically. Copy the link below.", "info");
@@ -132,190 +128,105 @@ export default function TripSettingsPage() {
     }
   }
 
-  async function handleInviteLink() {
-    if (inviteCode) return copyLink("invite", inviteCode);
-    setInviteLoading(true);
-    try {
-      const code = await getOrCreateInviteCode(trip!.id);
-      setInviteCode(code);
-      setShownLink({ kind: "invite", url: linkUrl("invite", code) });
-    } catch {
-      toast("Failed to generate invite link", "error");
-    } finally {
-      setInviteLoading(false);
-    }
-  }
-
   return (
-    <div className="min-h-full bg-ground">
-      <div className="mx-auto max-w-[var(--max-width-column)] px-4 py-5 space-y-4">
-        {/* Trip name */}
-        <div>
-          <label className="text-xs font-medium text-muted block mb-1">Trip name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full bg-card border border-border rounded-md px-3 py-2 text-sm text-ink outline-none focus:border-accent transition-colors"
-          />
-        </div>
+    <div className="mx-auto max-w-[var(--max-width-column)] px-4 pt-1 pb-8 space-y-5">
+      {/* Trip */}
+      <section className="bg-surface rounded-card p-4 space-y-4">
+        <FieldStack label="Trip name" htmlFor="set-name">
+          <input id="set-name" type="text" value={name} onChange={(e) => setName(e.target.value)} className={fieldClass} />
+        </FieldStack>
 
-        {/* Destination */}
-        <div>
-          <label className="text-xs font-medium text-muted block mb-1">Destination</label>
-          <DestinationSearch
-            value={destination}
-            onChange={setDestination}
-            placeholder="Search destination…"
-          />
-        </div>
+        <FieldStack label="Destination">
+          <DestinationSearch value={destination} onChange={setDestination} placeholder="Search destination…" />
+        </FieldStack>
 
         {/* Base city — weather fallback when no Stay applies */}
         <div>
-          <label className="text-xs font-medium text-muted block mb-1">Base city</label>
+          <p className="text-[13px] font-medium text-fg-muted mb-1.5">Base city</p>
           <LocationSearch
             value={baseCity}
             onChange={setBaseCity}
             countries={destination?.countryCode ? [destination.countryCode] : undefined}
             proximity={destination?.lat && destination?.lng ? { lat: destination.lat, lng: destination.lng } : undefined}
           />
-          <p className="text-[11px] text-muted mt-1">Used for the weather on Overview before your first Stay, or when a Stay has no place set.</p>
+          <p className="text-xs text-fg-muted mt-1.5 leading-relaxed">
+            Used for the weather on Overview before your first Stay, or when a Stay has no place set.
+          </p>
         </div>
 
-        {/* Dates */}
-        <div className="flex gap-3">
-          <div className="flex-1">
-            <label className="text-xs font-medium text-muted block mb-1">Start date</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full bg-card border border-border rounded-md px-3 py-2 text-sm text-ink outline-none focus:border-accent transition-colors"
-            />
-          </div>
-          <div className="flex-1">
-            <label className="text-xs font-medium text-muted block mb-1">End date</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full bg-card border border-border rounded-md px-3 py-2 text-sm text-ink outline-none focus:border-accent transition-colors"
-            />
-          </div>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldStack label="Start date" htmlFor="set-start">
+            <input id="set-start" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={`${fieldClass} min-w-0`} />
+          </FieldStack>
+          <FieldStack label="End date" htmlFor="set-end">
+            <input id="set-end" type="date" value={endDate} min={startDate || undefined} onChange={(e) => setEndDate(e.target.value)} className={`${fieldClass} min-w-0`} />
+          </FieldStack>
         </div>
 
-        {/* Currency */}
-        <div className="flex gap-3">
-          <div className="flex-1">
-            <label className="text-xs font-medium text-muted block mb-1">Local currency</label>
+        <div className="grid grid-cols-2 gap-3">
+          <FieldStack label="Local currency" htmlFor="set-currency">
+            <input id="set-currency" type="text" value={localCurrency} onChange={(e) => setLocalCurrency(e.target.value)} className={`${fieldClass} uppercase`} />
+          </FieldStack>
+          <FieldStack label="1 MYR =" htmlFor="set-rate">
             <input
-              type="text"
-              value={localCurrency}
-              onChange={(e) => setLocalCurrency(e.target.value)}
-              className="w-full bg-card border border-border rounded-md px-3 py-2 text-sm text-ink outline-none focus:border-accent transition-colors"
-            />
-          </div>
-          <div className="flex-1">
-            <label className="text-xs font-medium text-muted block mb-1">FX rate to MYR</label>
-            <input
+              id="set-rate"
               type="number"
               inputMode="decimal"
               value={fxRate}
               onChange={(e) => setFxRate(e.target.value)}
-              className="w-full bg-card border border-border rounded-md px-3 py-2 text-sm text-ink outline-none focus:border-accent transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              className={`${fieldClass} tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
             />
-          </div>
+          </FieldStack>
         </div>
 
-        {/* Save button */}
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="w-full py-2.5 bg-accent text-accent-on text-sm font-medium rounded-lg hover:bg-accent-hover transition-colors disabled:opacity-50"
-        >
+        <Button size="lg" full onClick={handleSave} disabled={saving}>
           {saving ? "Saving…" : "Save changes"}
-        </button>
+        </Button>
+      </section>
 
-        {/* Share & Invite */}
-        <div className="pt-4 border-t border-border">
-          <p className="text-xs font-medium text-muted mb-2">Share & invite</p>
-          <div className="space-y-2">
-            <button
-              onClick={handleShareLink}
-              disabled={shareLoading}
-              className="w-full py-2.5 flex items-center justify-center gap-2 text-sm font-medium text-accent border border-accent/30 rounded-lg hover:bg-accent-soft transition-colors disabled:opacity-50"
-            >
-              {shareCopied ? (
-                <>
-                  <Check size={15} />
-                  Link copied!
-                </>
-              ) : (
-                <>
-                  <Share2 size={15} />
-                  {shareLoading ? "Generating…" : "Copy share link"}
-                </>
-              )}
-            </button>
-            <button
-              onClick={handleInviteLink}
-              disabled={inviteLoading}
-              className="w-full py-2.5 flex items-center justify-center gap-2 text-sm font-medium text-accent border border-accent/30 rounded-lg hover:bg-accent-soft transition-colors disabled:opacity-50"
-            >
-              {inviteCopied ? (
-                <>
-                  <Check size={15} />
-                  Invite link copied!
-                </>
-              ) : (
-                <>
-                  <Users size={15} />
-                  {inviteLoading ? "Generating…" : "Copy invite link"}
-                </>
-              )}
-            </button>
-            {shownLink && (
-              <div className="bg-card border border-border rounded-lg p-2 space-y-1.5">
-                <p className="text-[11px] text-muted">
-                  {shownLink.kind === "share" ? "Share link" : "Invite link"} ready
-                </p>
-                <div className="flex items-center gap-2">
-                  <input
-                    id="shown-link"
-                    readOnly
-                    value={shownLink.url}
-                    onFocus={(e) => e.currentTarget.select()}
-                    className="flex-1 min-w-0 bg-ground border border-border rounded-md px-2 py-1.5 text-xs text-ink outline-none"
-                  />
-                  <button
-                    onClick={() => {
-                      const code = shownLink.kind === "share" ? shareCode : inviteCode;
-                      if (code) copyLink(shownLink.kind, code);
-                    }}
-                    className="shrink-0 px-3 py-1.5 bg-accent text-accent-on text-xs font-medium rounded-md hover:bg-accent-hover transition-colors"
-                  >
-                    Copy
-                  </button>
-                </div>
+      {/* Share (read-only link) */}
+      <section>
+        <Eyebrow className="mx-1 mb-2">Share</Eyebrow>
+        <div className="bg-surface rounded-card p-4">
+          <p className="text-[13px] text-fg-muted mb-3 leading-relaxed">
+            Anyone with the link can view the plan — no money shown. To add people to the trip, use Invite on Overview.
+          </p>
+          <Button variant="soft" full icon={shareCopied ? Check : Share2} onClick={handleShareLink} disabled={shareLoading}>
+            {shareCopied ? "Link copied!" : shareLoading ? "Generating…" : "Copy share link"}
+          </Button>
+          {shownLink && (
+            <div className="mt-3 space-y-1.5">
+              <p className="text-xs text-fg-muted">Share link ready</p>
+              <div className="flex items-center gap-2">
+                <input
+                  id="shown-link"
+                  readOnly
+                  aria-label="Share link"
+                  value={shownLink.url}
+                  onFocus={(e) => e.currentTarget.select()}
+                  className={`${fieldClass} flex-1 min-w-0 text-xs`}
+                />
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    if (shareCode) copyLink("share", shareCode);
+                  }}
+                >
+                  Copy
+                </Button>
               </div>
-            )}
-            <p className="text-[11px] text-muted">
-              Share link lets people view your trip. Invite link lets them join as a member.
-            </p>
-          </div>
+            </div>
+          )}
         </div>
+      </section>
 
-        {/* Danger zone */}
-        <div className="pt-4 border-t border-border">
-          <p className="text-xs font-medium text-muted mb-2">Danger zone</p>
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="w-full py-2.5 text-sm font-medium text-money-over border border-money-over/30 rounded-lg hover:bg-money-over/10 transition-colors"
-          >
-            Delete trip
-          </button>
-        </div>
-      </div>
+      {/* Danger zone */}
+      <section>
+        <Eyebrow className="mx-1 mb-2">Danger zone</Eyebrow>
+        <Button variant="danger-outline" full onClick={() => setShowDeleteConfirm(true)}>
+          Delete trip
+        </Button>
+      </section>
 
       <ConfirmDialog
         open={showDeleteConfirm}

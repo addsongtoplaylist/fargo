@@ -2,17 +2,37 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { Plus, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import { useTrip } from "@/lib/trip-context";
 import { updateBudget } from "@/lib/actions/expense";
 import { LogExpensePanel } from "./log-expense-panel";
 import { useToast } from "@/components/toast";
 import type { Expense } from "@/lib/actions/expense";
-import { CATEGORY_EMOJI, categoryLabel } from "@/lib/categories";
+import { categoryLabel } from "@/lib/categories";
+import { categoryStyle } from "@/lib/category-style";
+import { Card, CardHeader, Eyebrow } from "@/components/ui/card";
+import { Button, TextButton } from "@/components/ui/button";
+import { CategoryIcon } from "@/components/ui/category-icon";
+import { Fab } from "@/components/ui/fab";
+import { FieldRow, fieldClass } from "@/components/ui/field";
+import { SplitSharesSheet } from "./split-shares-sheet";
 import { computeBalances, fewestPayments } from "@/lib/balances";
 import { tripTravellers, formatLocal, myrHint } from "./money-utils";
 
 const FIXED_CATEGORIES = ["flights", "accommodation", "activities"];
+
+/**
+ * "N days to go" under My budget (device-local date): during the trip, days
+ * left including today; before it, the trip length; after it, nothing.
+ */
+function daysToGoLabel(start: string, end: string): string | null {
+  const today = format(new Date(), "yyyy-MM-dd");
+  const plural = (n: number) => `${n} day${n === 1 ? "" : "s"}`;
+  if (today > end) return null;
+  if (today < start) return `${plural(differenceInCalendarDays(parseISO(end), parseISO(start)) + 1)} trip`;
+  return `${plural(differenceInCalendarDays(parseISO(end), parseISO(today)) + 1)} to go`;
+}
 
 export type BudgetSummary = {
   travellerId: string;
@@ -36,6 +56,7 @@ type MoneyViewProps = {
 export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const trip = useTrip();
   const [panelOpen, setPanelOpen] = useState(false);
+  const [sharesOpen, setSharesOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState(false);
   const [budgetInput, setBudgetInput] = useState(
     budget?.budgetTotal ? budget.budgetTotal.toString() : ""
@@ -75,30 +96,37 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
     const unique = [...new Set(ids)].map(nameOf);
     return unique.length <= 2 ? unique.join(" and ") : `${unique.slice(0, 2).join(", ")} and ${unique.length - 2} more`;
   };
-  let settle: { title: string; sub: string; done: boolean } | null = null;
+  // Group split card: 2+ travellers and at least one expense (M3)
+  let settle: { label: string; amount: string | null; sub: string; tone: "ok" | "over" | "plain" } | null = null;
   if (travellers.length > 1 && expenses.length > 0 && myTravellerId) {
     if (myBalance < 0) {
       settle = {
-        title: `You owe ${cur} ${formatLocal(-myBalance)}`,
+        label: "You pay back",
+        amount: `${cur} ${formatLocal(-myBalance)}`,
         sub: `${myrHint(myBalance, fxRate)} · To ${names(payments.filter((p) => p.from === myTravellerId).map((p) => p.to))}`,
-        done: false,
+        tone: "over",
       };
     } else if (myBalance > 0) {
       settle = {
-        title: `You're owed ${cur} ${formatLocal(myBalance)}`,
+        label: "You get back",
+        amount: `${cur} ${formatLocal(myBalance)}`,
         sub: `${myrHint(myBalance, fxRate)} · From ${names(payments.filter((p) => p.to === myTravellerId).map((p) => p.from))}`,
-        done: false,
+        tone: "ok",
       };
     } else if (payments.length > 0) {
       settle = {
-        title: "You're settled up",
+        label: "You're settled up",
+        amount: null,
         sub: `${payments.length} payment${payments.length === 1 ? "" : "s"} still open in the group`,
-        done: true,
+        tone: "plain",
       };
     } else {
-      settle = { title: "All settled ✓", sub: "Everyone is square", done: true };
+      settle = { label: "All square", amount: null, sub: "Everyone is settled up", tone: "ok" };
     }
   }
+  const isPlanner = trip.myRole === "planner";
+  // Planner reaches Split shares from this card even before the first expense
+  const showGroupCard = !!settle || (isPlanner && travellers.length > 1);
 
   // ── Breakdown (what you paid, D19/D27) ──
   const entries = Object.entries(budget?.spendingByCategory ?? {});
@@ -115,72 +143,49 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   ).length;
   const spentLocal = Math.round((budget?.totalSpent ?? 0) * fxRate);
 
-  return (
-    <div className="space-y-4">
-      {/* Settle-up card */}
-      {settle && (
-        <Link
-          href={`/trips/${tripId}/money/settle`}
-          className={`block bg-card rounded-lg border p-3 hover:bg-ground/50 transition-colors ${
-            settle.done ? "border-border" : "border-accent/40"
-          }`}
-        >
-          <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <p className={`text-sm font-semibold ${settle.done && payments.length === 0 ? "text-money-ok" : "text-ink"}`}>
-                {settle.title}
-              </p>
-              <p className="text-xs text-muted truncate">{settle.sub}</p>
-            </div>
-            <span className="flex items-center text-xs font-medium text-accent shrink-0">
-              Settle up <ChevronRight size={14} />
-            </span>
-          </div>
-        </Link>
-      )}
+  const daysToGo = daysToGoLabel(trip.start_date, trip.end_date);
+  const paidTotal = entries.reduce((sum, [, v]) => sum + v, 0);
 
-      {/* My budget card */}
-      <div className="bg-card rounded-lg border border-border p-3">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xs font-medium text-muted uppercase tracking-wide">My budget</h3>
-          {(editingBudget || hasBudget) && (
-            <button
-              onClick={() => setEditingBudget(!editingBudget)}
-              className="text-xs text-accent hover:text-accent-hover transition-colors"
-            >
-              {editingBudget ? "Cancel" : "Edit"}
-            </button>
-          )}
-        </div>
+  return (
+    <div className="space-y-3">
+      {/* My budget — only you see and set this */}
+      <Card>
+        <CardHeader
+          title="My budget"
+          action={
+            (editingBudget || hasBudget) && (
+              <TextButton onClick={() => setEditingBudget(!editingBudget)} className="py-0">
+                {editingBudget ? "Cancel" : "Edit"}
+              </TextButton>
+            )
+          }
+        />
 
         {editingBudget ? (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted">RM</span>
+          <div className="mt-3 space-y-2">
+            <FieldRow label="RM" htmlFor="budget-input">
               <input
                 id="budget-input"
                 type="number"
+                inputMode="numeric"
                 value={budgetInput}
                 onChange={(e) => setBudgetInput(e.target.value)}
-                className="flex-1 bg-ground border border-border rounded-md px-2 py-1.5 text-sm text-ink outline-none focus:border-accent"
+                className={`${fieldClass} flex-1 min-w-0`}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleBudgetSave();
                 }}
               />
-              <button
-                onClick={handleBudgetSave}
-                className="px-3 py-1.5 bg-accent text-accent-on text-xs font-medium rounded-md"
-              >
+              <Button variant="soft" onClick={handleBudgetSave}>
                 Save
-              </button>
-            </div>
+              </Button>
+            </FieldRow>
             {budgetInput && !isNaN(parseInt(budgetInput)) && parseInt(budgetInput) > 0 && (
-              <p className="text-xs text-muted">
+              <p className="text-[13px] text-fg-muted">
                 ≈ {cur} {Math.round(parseInt(budgetInput) * fxRate).toLocaleString()} in {trip.destination}
               </p>
             )}
-            <p className="text-[10px] text-muted/70">
+            <p className="text-xs text-fg-muted leading-relaxed">
               Only you see and set this. (Total budget − fixed costs you paid) ÷ {budget?.tripDays ?? "trip"} days = daily free budget
             </p>
           </div>
@@ -188,89 +193,149 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
           (() => {
             const budgetLocal = Math.round(budget.budgetTotal * fxRate);
             const remainingLocal = Math.round(budget.remaining * fxRate);
-            // Smaller font when either amount is 6+ digits (e.g. VND 1,500,000)
-            const isLarge = Math.abs(budgetLocal) >= 100_000 || Math.abs(remainingLocal) >= 100_000;
+            const over = budget.remaining < 0;
+            // Smaller hero when amounts are 6+ digits (e.g. VND 1,500,000)
+            const isLarge = Math.abs(spentLocal) >= 100_000 || Math.abs(budgetLocal) >= 100_000;
             return (
-              <div>
-                <div className="flex items-baseline justify-between">
-                  <div>
-                    <p
-                      className={`${isLarge ? "text-lg" : "text-2xl"} font-semibold tabular-nums ${
-                        budget.remaining >= 0 ? "text-money-ok" : "text-money-over"
-                      }`}
-                    >
-                      {cur} {remainingLocal.toLocaleString()}
+              <div className="mt-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className={`${isLarge ? "text-[22px]" : "text-[26px]"} font-bold leading-tight tabular-nums ${over ? "text-money-over" : "text-fg"}`}>
+                      {cur} {spentLocal.toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted mt-0.5">
-                      left of {cur} {budgetLocal.toLocaleString()}
+                    <p className="text-[13px] text-fg-muted mt-0.5 tabular-nums">
+                      spent of {cur} {budgetLocal.toLocaleString()}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className={`${isLarge ? "text-base" : "text-lg"} font-semibold text-ink money`}>
+                  <div className="text-right shrink-0">
+                    <p className="text-base font-semibold text-fg tabular-nums">
                       {cur} {Math.round(budget.dailyFree * fxRate).toLocaleString()}
                     </p>
-                    <p className="text-xs text-muted mt-0.5">daily free</p>
+                    <p className="text-[13px] text-fg-muted mt-0.5">daily free</p>
                   </div>
                 </div>
-                <div className="mt-3 h-2 bg-ground rounded-full overflow-hidden">
+                <div className="mt-3 h-2 bg-page rounded-full overflow-hidden" aria-hidden>
                   <div
-                    className={`h-full rounded-full transition-all ${
-                      budget.remaining >= 0 ? "bg-money-ok" : "bg-money-over"
-                    }`}
+                    className={`h-full rounded-full transition-all ${over ? "bg-money-over" : "bg-brand"}`}
                     style={{ width: `${Math.min(100, (budget.totalSpent / budget.budgetTotal) * 100)}%` }}
                   />
                 </div>
-                <p className="text-xs text-muted mt-1.5">
-                  Spent {cur} {spentLocal.toLocaleString()} · what you paid
+                <p className="text-[13px] mt-2 tabular-nums">
+                  <span className={`font-semibold ${over ? "text-money-over" : "text-money-ok"}`}>
+                    {cur} {Math.abs(remainingLocal).toLocaleString()} {over ? "over" : "left"}
+                  </span>
+                  {daysToGo && <span className="text-fg-muted"> · {daysToGo}</span>}
                 </p>
               </div>
             );
           })()
         ) : (
-          // No budget (D20)
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-lg font-semibold text-ink tabular-nums">
+          // No budget (D20): what you paid + Set a budget
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[22px] font-bold text-fg leading-tight tabular-nums">
                 {cur} {spentLocal.toLocaleString()}
               </p>
-              <p className="text-xs text-muted">Spent · what you paid</p>
+              <p className="text-[13px] text-fg-muted mt-0.5">spent · what you paid</p>
             </div>
             {myTravellerId && (
-              <button
+              <Button
+                variant="soft"
+                size="sm"
                 onClick={() => {
                   setEditingBudget(true);
                   setBudgetInput("");
                 }}
-                className="text-xs font-medium text-accent hover:text-accent-hover transition-colors"
               >
                 Set a budget
-              </button>
+              </Button>
             )}
           </div>
         )}
-      </div>
+      </Card>
 
-      {/* Breakdown card */}
-      <div className="bg-card rounded-lg border border-border p-3">
-        <h3 className="text-xs font-medium text-muted uppercase tracking-wide mb-2">Breakdown · what you paid</h3>
+      {/* Group split — who owes whom (D21, D30) + planner's Split shares */}
+      {showGroupCard && (
+        <Card>
+          <CardHeader
+            title="Group split"
+            action={
+              settle && (
+                <Link
+                  href={`/trips/${tripId}/money/settle`}
+                  className="flex items-center text-[13px] font-semibold text-brand hover:text-brand-hover"
+                >
+                  Settle up <ChevronRight size={15} strokeWidth={2.2} aria-hidden />
+                </Link>
+              )
+            }
+          />
+          {settle && (
+            <Link href={`/trips/${tripId}/money/settle`} className="block mt-2.5">
+              {settle.amount ? (
+                <>
+                  <p className="text-[13px] text-fg-muted">{settle.label}</p>
+                  <p className={`text-[22px] font-bold leading-tight tabular-nums ${settle.tone === "over" ? "text-money-over" : "text-money-ok"}`}>
+                    {settle.amount}
+                  </p>
+                </>
+              ) : (
+                <p className={`text-[17px] font-semibold ${settle.tone === "ok" ? "text-money-ok" : "text-fg"}`}>{settle.label}</p>
+              )}
+              <p className="text-[13px] text-fg-muted mt-0.5 truncate">{settle.sub}</p>
+            </Link>
+          )}
+          {isPlanner && travellers.length > 1 && (
+            <div className={`flex items-center justify-between ${settle ? "mt-3.5 pt-3 border-t border-line" : "mt-2"}`}>
+              <span className="text-sm text-fg">Split shares</span>
+              <TextButton onClick={() => setSharesOpen(true)} className="py-0">
+                Edit
+              </TextButton>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* What you paid (D19/D27) */}
+      <Card>
+        <CardHeader
+          title="What you paid"
+          action={
+            <Link
+              href={`/trips/${tripId}/money/expenses`}
+              className="flex items-center text-[13px] font-semibold text-brand hover:text-brand-hover"
+            >
+              All expenses · {viewCount} <ChevronRight size={15} strokeWidth={2.2} aria-hidden />
+            </Link>
+          }
+        />
         {groups.length === 0 ? (
-          <p className="text-xs text-muted">Nothing paid yet.</p>
+          <p className="text-sm text-fg-muted mt-3">Nothing paid yet.</p>
         ) : (
-          <div className="space-y-2">
+          <div className="mt-3 space-y-4">
             {groups.map((g) => (
               <div key={g.label}>
-                <p className="text-[10px] font-medium text-muted/60 uppercase tracking-wide mb-1">{g.label}</p>
-                <div className="space-y-1">
+                <Eyebrow className="mb-2">{g.label}</Eyebrow>
+                <div className="space-y-3">
                   {[...g.items]
                     .sort(([, a], [, b]) => b - a)
                     .map(([key, amount]) => (
-                      <div key={key} className="flex items-center justify-between text-xs">
-                        <span className="text-muted">
-                          {CATEGORY_EMOJI[key] ?? "📦"} {categoryLabel(key)}
-                        </span>
-                        <span className="text-ink money">
-                          {cur} {Math.round(amount * fxRate).toLocaleString()}
-                        </span>
+                      <div key={key} className="flex items-center gap-3">
+                        <CategoryIcon category={key} size={32} />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <span className="text-sm text-fg truncate">{categoryLabel(key)}</span>
+                            <span className="text-sm font-semibold text-fg tabular-nums shrink-0">
+                              {cur} {Math.round(amount * fxRate).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="mt-1.5 h-1 bg-page rounded-full overflow-hidden" aria-hidden>
+                            <div
+                              className={`h-full rounded-full ${categoryStyle(key).bar}`}
+                              style={{ width: `${paidTotal > 0 ? Math.max(3, (amount / paidTotal) * 100) : 0}%` }}
+                            />
+                          </div>
+                        </div>
                       </div>
                     ))}
                 </div>
@@ -278,26 +343,13 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
             ))}
           </div>
         )}
-        <Link
-          href={`/trips/${tripId}/money/expenses`}
-          className="mt-3 pt-2.5 border-t border-border flex items-center justify-between text-xs font-medium text-accent hover:text-accent-hover transition-colors"
-        >
-          <span className="flex items-center">
-            View expenses <ChevronRight size={14} />
-          </span>
-          <span className="text-muted font-normal">{viewCount}</span>
-        </Link>
-      </div>
+      </Card>
 
-      {/* Anyone on the trip can log (D1) */}
-      {myTravellerId && (
-        <button
-          onClick={() => setPanelOpen(true)}
-          className="w-full flex items-center justify-center gap-1 py-2.5 text-sm font-medium text-accent border border-dashed border-accent/40 rounded-lg hover:bg-accent-soft transition-colors"
-        >
-          <Plus size={15} />
-          Log expense
-        </button>
+      {/* Anyone on the trip with an account can log (D1) */}
+      {myTravellerId && <Fab label="Log expense" onClick={() => setPanelOpen(true)} />}
+
+      {sharesOpen && (
+        <SplitSharesSheet tripId={tripId} travellers={travellers} onClose={() => setSharesOpen(false)} />
       )}
 
       {panelOpen && myTravellerId && (
