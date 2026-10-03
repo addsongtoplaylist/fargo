@@ -15,9 +15,11 @@ export function TripCard({
   dates,
   chip,
   travellers,
+  coverPath,
   current = false,
 }: {
   id: string;
+  coverPath?: string | null;
   href: string;
   name: string;
   destination: string;
@@ -31,7 +33,7 @@ export function TripCard({
       href={href}
       className={`flex items-center gap-3.5 bg-surface rounded-[20px] p-2.5 ${current ? "ring-[1.5px] ring-inset ring-brand" : ""}`}
     >
-      <TripCover tripId={id} destination={destination} size={current ? 104 : 92} />
+      <TripCover tripId={id} destination={destination} coverPath={coverPath} size={current ? 104 : 92} />
       <div className="flex-1 min-w-0 flex flex-col gap-1">
         <p className="text-base font-semibold text-fg truncate">{name}</p>
         <p className="text-[13px] text-fg-muted truncate">
@@ -59,16 +61,18 @@ export function PastTripRow({
   name,
   destination,
   dates,
+  coverPath,
 }: {
   id: string;
   href: string;
   name: string;
   destination: string;
   dates: string;
+  coverPath?: string | null;
 }) {
   return (
     <Link href={href} className="flex items-center gap-3 p-2">
-      <TripCover tripId={id} destination={destination} size={52} radius={12} />
+      <TripCover tripId={id} destination={destination} coverPath={coverPath} size={52} radius={12} />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-fg truncate">{name}</p>
         <p className="text-xs text-fg-muted truncate mt-0.5">

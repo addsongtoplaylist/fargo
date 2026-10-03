@@ -2,6 +2,15 @@
 
 ---
 
+## v0.5.1 — 2026-10-03 · Trip cover photos
+
+- **Cover photos** — the planner can add a photo to a trip: on New trip (step 2, optional) or any time in **Trip settings → Cover photo** (Add / Change / Remove). Photos are shrunk on the phone before upload (fast on mobile data). Without a photo, trips keep their colour + country code.
+- **Where it shows** — My trips cards and past-trip rows, the Overview header (with a dark gradient so the text stays readable) and the shared trip link.
+- **Only the planner** can add, change or remove a cover — enforced by the database, not just hidden buttons.
+- *Requires `20261002_trip_cover_photo.sql` before deploying (already run).*
+
+---
+
 ## v0.5.0 — 2026-10-01 · New look
 
 A full redesign of every screen. Same features and the same data — no database changes in this release.

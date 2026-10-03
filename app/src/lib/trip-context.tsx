@@ -22,6 +22,8 @@ type TripInput = {
   planner_id: string;
   share_code?: string | null;
   invite_code?: string | null;
+  /** P10 cover photo path in the trip-covers bucket (null = colour cover) */
+  cover_path?: string | null;
   travellers?: {
     id: string;
     display_name: string;

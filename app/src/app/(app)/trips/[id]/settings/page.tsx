@@ -10,6 +10,7 @@ import { DestinationSearch, type Destination } from "@/components/destination-se
 import { LocationSearch } from "@/components/schedule/location-search";
 import { Share2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CoverPhotoSetting } from "@/components/cover-photo-setting";
 import { Eyebrow } from "@/components/ui/card";
 import { FieldStack, fieldClass } from "@/components/ui/field";
 
@@ -132,6 +133,9 @@ export default function TripSettingsPage() {
     <div className="mx-auto max-w-[var(--max-width-column)] px-4 pt-1 pb-8 space-y-5">
       {/* Trip */}
       <section className="bg-surface rounded-card p-4 space-y-4">
+        <CoverPhotoSetting tripId={trip.id} destination={trip.destination} coverPath={trip.cover_path ?? null} />
+        <div className="h-px bg-line" />
+
         <FieldStack label="Trip name" htmlFor="set-name">
           <input id="set-name" type="text" value={name} onChange={(e) => setName(e.target.value)} className={fieldClass} />
         </FieldStack>

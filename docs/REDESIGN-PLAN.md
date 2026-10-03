@@ -450,3 +450,35 @@ Decisions: split P8a / P8b ✅ · Trip settings keeps only the share link (invit
 - Spacing and corner-radius settings kept (still used by a few shapes).
 - Gates: type-check ✅ lint ✅ production build ✅ · logic-file guard ✅.
 - **Next:** click-through of every section signed in (browser pane signed out — owner to sign in), owner's full check (member + PWA), then release on the owner's "release".
+
+## 30. v0.5.0 released (2026-10-01) ✅
+
+Merged `redesign` → `main` (`dce489f`), Vercel production deploy succeeded. Live end-to-end test on fargotravel.vercel.app (Test trip only, everything removed after): My trips + auto-jump, Schedule add/edit/delete, Overview Today's plan + Invite panel, Money split (600 ÷ 3 → spent 22,337 → 22,937, get back 18,288.66 → 18,688.66) and personal (+100, balance unchanged), Settle up mark/unmark, delete both → back to exact baseline, Prep add/tick/delete, Discover search + spot sheet, New trip both steps → delete, Profile v0.5.0, shared link — all ✅, no console errors. Owner still to check: member view (second account), installed PWA.
+
+## 31. P10 plan — cover photo upload (v0.5.1, not started)
+
+**Goal:** the planner can add a trip photo; it replaces the colour + country-code cover wherever a cover shows. Members can't change it.
+
+**Database (one migration, additive — nothing removed):**
+- `trips.cover_path` (text, empty = no photo → colour cover as today).
+- Storage bucket **`trip-covers`**: anyone with the link can view a cover (needed for the share page); file names are random, one folder per trip. **Only that trip's planner can upload, replace or delete** (storage policy checks the caller is the trip's planner via `auth.uid()`).
+- `get_my_trips` and `get_shared_trip` also return `cover_path` (they return JSON objects, so an extra field doesn't break the PWA or the native app). Native app: unaffected; can show covers later.
+
+**App:**
+- **Add / change / remove:** New trip step 2 ("Cover photo · Add") and Trip settings (Cover photo row: Change / Remove). Planner only.
+- **Before upload, the phone shrinks the photo** (long side ~1600px, JPEG ~85%, usually 200–400 KB) — fast on mobile data, small storage. iPhone photos (HEIC) are converted to JPEG by the browser when picked.
+- **Where it shows:** My trips cards and past-trip rows, Overview header (photo with a dark gradient at the bottom so white text stays readable — the Qantas look), invite card, shared link header.
+- No photo → today's colour + country code, unchanged.
+
+**Safety / order:**
+1. Owner runs the SQL (I give it with plain-English steps) — first on a **staging** database (see options), then production.
+2. Then the app update deploys (app code checks `cover_path`; old app ignores it, so SQL-first is safe).
+3. Test on Test trip: add photo (iPhone + Android/desktop), change, remove; member can't see the controls and the database refuses a member's upload; shared link shows the photo; My trips / Overview / invite show it.
+4. Release v0.5.1.
+
+## 32. P10 log (2026-10-03) — released as v0.5.1
+
+- SQL `20261002_trip_cover_photo.sql` run by the owner (helper renamed `can_manage_trip_cover` — production already had an unrelated `is_trip_planner`). Checked from the app: `get_shared_cover` answers; signed-out `set_trip_cover` → permission denied; signed-out upload → refused by storage rules.
+- App: `lib/cover.ts` (public URL), `lib/cover-upload.ts` (shrink to 1600px JPEG, upload, save, remove old file; undo upload if saving fails), `setTripCover` action, `createTrip` returns the id when a photo is attached, covers loaded for My trips (normal trip read) and the share page (`get_shared_cover`). Shown on My trips cards/rows, Overview header (photo + dark gradient), shared link. Picker: New trip step 2 (optional) + **Trip settings → Cover photo** (owner chose this as the place to change it; no Overview camera button).
+- Not shown on the invite card yet (`get_trip_by_invite` doesn't return it) — small follow-up.
+- **Owner chose to release without an end-to-end upload test.** First real upload should be watched; undo script: `20261002_trip_cover_photo_UNDO.sql`.
