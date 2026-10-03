@@ -39,6 +39,7 @@ export default async function TripsPage({
             <TripCard
               key={trip.id}
               id={trip.id}
+              coverPath={trip.cover_path}
               href={`/trips/${trip.id}/${i === 0 ? "overview" : "schedule"}`}
               name={trip.name}
               destination={trip.destination}
@@ -53,6 +54,7 @@ export default async function TripsPage({
             <TripCard
               key={trip.id}
               id={trip.id}
+              coverPath={trip.cover_path}
               href={`/trips/${trip.id}/overview`}
               name={trip.name}
               destination={trip.destination}
@@ -70,6 +72,7 @@ export default async function TripsPage({
                   <PastTripRow
                     key={trip.id}
                     id={trip.id}
+                    coverPath={trip.cover_path}
                     href={`/trips/${trip.id}/overview`}
                     name={trip.name}
                     destination={trip.destination}

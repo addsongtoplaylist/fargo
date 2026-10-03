@@ -475,3 +475,10 @@ Merged `redesign` → `main` (`dce489f`), Vercel production deploy succeeded. Li
 2. Then the app update deploys (app code checks `cover_path`; old app ignores it, so SQL-first is safe).
 3. Test on Test trip: add photo (iPhone + Android/desktop), change, remove; member can't see the controls and the database refuses a member's upload; shared link shows the photo; My trips / Overview / invite show it.
 4. Release v0.5.1.
+
+## 32. P10 log (2026-10-03) — released as v0.5.1
+
+- SQL `20261002_trip_cover_photo.sql` run by the owner (helper renamed `can_manage_trip_cover` — production already had an unrelated `is_trip_planner`). Checked from the app: `get_shared_cover` answers; signed-out `set_trip_cover` → permission denied; signed-out upload → refused by storage rules.
+- App: `lib/cover.ts` (public URL), `lib/cover-upload.ts` (shrink to 1600px JPEG, upload, save, remove old file; undo upload if saving fails), `setTripCover` action, `createTrip` returns the id when a photo is attached, covers loaded for My trips (normal trip read) and the share page (`get_shared_cover`). Shown on My trips cards/rows, Overview header (photo + dark gradient), shared link. Picker: New trip step 2 (optional) + **Trip settings → Cover photo** (owner chose this as the place to change it; no Overview camera button).
+- Not shown on the invite card yet (`get_trip_by_invite` doesn't return it) — small follow-up.
+- **Owner chose to release without an end-to-end upload test.** First real upload should be watched; undo script: `20261002_trip_cover_photo_UNDO.sql`.

@@ -17,7 +17,7 @@ const TRIP_TYPE_MAP: Record<string, string> = {
   Business: "business",
 };
 
-export async function createTrip(formData: FormData): Promise<{ error?: string }> {
+export async function createTrip(formData: FormData): Promise<{ error?: string; tripId?: string }> {
   const account = await getOrCreateAccount();
   if (!account) return { error: "Not signed in" };
 
@@ -83,7 +83,36 @@ export async function createTrip(formData: FormData): Promise<{ error?: string }
     console.error("Failed to add planner as traveller:", travellerError);
   }
 
+  // New trip with a cover photo: the browser uploads the photo next, so it
+  // needs the id back instead of a redirect (P10)
+  if (formData.get("returnId") === "1") {
+    revalidatePath("/trips");
+    return { tripId: trip.id };
+  }
+
   redirect(`/trips/${trip.id}/overview`);
+}
+
+/**
+ * Save or clear a trip's cover photo (P10). The database function checks the
+ * caller is the trip's planner and that the path is inside the trip's folder.
+ */
+export async function setTripCover(tripId: string, path: string | null): Promise<{ error?: string }> {
+  try {
+    tripIdSchema.parse(tripId);
+  } catch {
+    return { error: "Invalid input" };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_trip_cover", { p_trip_id: tripId, p_path: path });
+  if (error) {
+    console.error("set_trip_cover failed:", error);
+    return { error: error.message.includes("planner") ? "Only the planner can change the cover photo" : "Couldn't save the cover photo" };
+  }
+  revalidateTag(`trip-${tripId}`, "max");
+  revalidatePath("/trips");
+  revalidatePath(`/trips/${tripId}`, "layout");
+  return {};
 }
 
 /**
@@ -128,6 +157,8 @@ export type MyTrip = {
   planner_id: string;
   share_code: string | null;
   invite_code: string | null;
+  /** P10 — read from trips (get_my_trips doesn't return it) */
+  cover_path?: string | null;
   travellers: {
     id: string;
     display_name: string;
@@ -147,6 +178,16 @@ export async function getMyTrips(): Promise<{ active: MyTrip[]; upcoming: MyTrip
   // Single RPC call replaces the 2-query waterfall
   const { data } = await supabase.rpc("get_my_trips");
   const trips = (Array.isArray(data) ? data : []) as MyTrip[];
+
+  // Cover photos (P10): one extra read, under the normal trip rules
+  if (trips.length > 0) {
+    const { data: covers } = await supabase
+      .from("trips")
+      .select("id, cover_path")
+      .in("id", trips.map((t) => t.id));
+    const byId = new Map((covers ?? []).map((c: { id: string; cover_path: string | null }) => [c.id, c.cover_path]));
+    for (const t of trips) t.cover_path = byId.get(t.id) ?? null;
+  }
 
   const active = trips.filter((t) => t.start_date <= today && t.end_date >= today);
   const upcoming = trips.filter((t) => t.start_date > today);
@@ -220,6 +261,8 @@ export async function getOrCreateShareCode(tripId: string) {
 export type SharedTrip = {
   trip: {
     id: string;
+    /** P10 — from get_shared_cover */
+    cover_path?: string | null;
     name: string;
     destination: string;
     start_date: string;
@@ -263,8 +306,13 @@ export type SharedTrip = {
  */
 export async function getSharedTrip(code: string): Promise<SharedTrip | null> {
   const supabase = await createClient();
-  const { data } = await supabase.rpc("get_shared_trip", { p_code: code });
-  return (data as SharedTrip | null) ?? null;
+  const [{ data }, { data: cover }] = await Promise.all([
+    supabase.rpc("get_shared_trip", { p_code: code }),
+    supabase.rpc("get_shared_cover", { p_code: code }),
+  ]);
+  const shared = (data as SharedTrip | null) ?? null;
+  if (shared) shared.trip.cover_path = (cover as string | null) ?? null;
+  return shared;
 }
 
 /** Generate or return the invite code for a trip (planner only) */

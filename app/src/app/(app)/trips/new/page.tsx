@@ -1,13 +1,16 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { ArrowLeft, ArrowRight, ChevronDown, Loader2, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronDown, ImagePlus, Loader2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import Link from "next/link";
 import { createTrip } from "@/lib/actions/trip";
 import { useToast } from "@/components/toast";
 import { DestinationSearch, type Destination } from "@/components/destination-search";
-import { Button } from "@/components/ui/button";
+import { Button, TextButton } from "@/components/ui/button";
+import { TripCover } from "@/components/trip-cover";
+import { resizeImage, uploadTripCover } from "@/lib/cover-upload";
 import { Chip } from "@/components/ui/chip";
 import { Eyebrow } from "@/components/ui/card";
 
@@ -90,14 +93,25 @@ export default function NewTripPage() {
       formData.set("destinationLat", String(destination.lat));
       formData.set("destinationLng", String(destination.lng));
     }
+    // With a cover photo, createTrip returns the new id so the photo can be
+    // uploaded straight after (P10); without one it redirects as before
+    if (coverPhoto) formData.set("returnId", "1");
     try {
       const result = await createTrip(formData);
       if (result?.error) {
         toast(result.error, "error");
         setSubmitting(false);
         submittingRef.current = false;
+        return;
       }
-      // On success, createTrip calls redirect() which throws (expected)
+      if (result?.tripId) {
+        if (coverPhoto) {
+          const uploaded = await uploadTripCover(result.tripId, coverPhoto);
+          if (uploaded.error) toast("Trip created, but the photo didn't upload. Add it in Trip settings.", "error");
+        }
+        router.push(`/trips/${result.tripId}/overview`);
+      }
+      // Without a photo, createTrip calls redirect() which throws (expected)
     } catch {
       // redirect() throws a NEXT_REDIRECT error — that's normal.
       // Only real errors should show a toast, which we handle above via result.error
@@ -109,6 +123,34 @@ export default function NewTripPage() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [fxRate, setFxRate] = useState("");
+  // Cover photo (P10): shrunk on pick, uploaded after the trip is created
+  const router = useRouter();
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const [coverPhoto, setCoverPhoto] = useState<Blob | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverBusy, setCoverBusy] = useState(false);
+
+  async function handleCoverPick(file: File | undefined) {
+    if (!file) return;
+    setCoverBusy(true);
+    try {
+      const photo = await resizeImage(file);
+      if (coverPreview) URL.revokeObjectURL(coverPreview);
+      setCoverPhoto(photo);
+      setCoverPreview(URL.createObjectURL(photo));
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Couldn't add the photo", "error");
+    } finally {
+      setCoverBusy(false);
+      if (coverInputRef.current) coverInputRef.current.value = "";
+    }
+  }
+
+  function clearCover() {
+    if (coverPreview) URL.revokeObjectURL(coverPreview);
+    setCoverPhoto(null);
+    setCoverPreview(null);
+  }
 
   // Step 1 is done when all four are filled and the dates are in order
   const datesOk = !!startDate && !!endDate && endDate >= startDate;
@@ -263,7 +305,41 @@ export default function NewTripPage() {
               Currency picked from your destination. Enter today&apos;s rate — you can change it later in Trip settings.
             </p>
           </div>
-          {/* Cover photo row — P10 (photo upload) */}
+          {/* Cover photo (P10) — optional */}
+          <div>
+            <Eyebrow className="mx-1 mb-2">Optional</Eyebrow>
+            <div className="bg-surface rounded-card flex items-center gap-3 px-4 min-h-[64px]">
+              {coverPreview ? (
+                // eslint-disable-next-line @next/next/no-img-element -- local preview of the picked photo
+                <img src={coverPreview} alt="" aria-hidden className="w-11 h-11 rounded-[12px] object-cover shrink-0" />
+              ) : (
+                <TripCover tripId={name || "new-trip"} destination={destination?.name ?? ""} size={44} radius={12} />
+              )}
+              <span className="flex-1 text-sm font-medium text-fg">Cover photo</span>
+              {coverBusy ? (
+                <Loader2 size={18} className="text-fg-muted animate-spin" aria-label="Preparing photo" />
+              ) : (
+                <div className="flex items-center gap-3">
+                  {coverPhoto && (
+                    <TextButton tone="danger" onClick={clearCover}>
+                      Remove
+                    </TextButton>
+                  )}
+                  <Button variant="soft" size="sm" icon={coverPhoto ? undefined : ImagePlus} onClick={() => coverInputRef.current?.click()}>
+                    {coverPhoto ? "Change" : "Add"}
+                  </Button>
+                </div>
+              )}
+              <input
+                ref={coverInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                aria-label="Choose a cover photo"
+                onChange={(e) => handleCoverPick(e.target.files?.[0])}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Pinned action */}

@@ -1,5 +1,6 @@
 import { Map as MapIcon } from "lucide-react";
 import { countryCode } from "@/lib/country-code";
+import { coverUrl } from "@/lib/cover";
 
 /** 8 soft colour pairs (DESIGN.md → No photo). Listed in full so Tailwind generates them. */
 const TINTS = [
@@ -21,20 +22,36 @@ export function tintFor(tripId: string) {
 }
 
 /**
- * Trip cover thumbnail. Until photo upload ships (P10) every trip uses the
- * no-photo cover: its colour + the 2-letter country code (map icon if unknown).
+ * Trip cover thumbnail: the planner's photo when there is one (P10),
+ * otherwise the trip's colour + 2-letter country code (map icon if unknown).
  */
 export function TripCover({
   tripId,
   destination,
+  coverPath,
   size,
   radius = 14,
 }: {
   tripId: string;
   destination: string;
+  coverPath?: string | null;
   size: number;
   radius?: number;
 }) {
+  const url = coverUrl(coverPath);
+  if (url) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- Supabase storage photo; already resized on upload
+      <img
+        src={url}
+        alt=""
+        aria-hidden
+        loading="lazy"
+        className="shrink-0 object-cover bg-skeleton"
+        style={{ width: size, height: size, borderRadius: radius }}
+      />
+    );
+  }
   const code = countryCode(destination);
   return (
     <span
