@@ -36,7 +36,7 @@ function SignInContent() {
   return (
     <div className="min-h-dvh flex flex-col bg-surface px-6">
       <div className="flex-1 flex flex-col items-center justify-end pb-10 min-h-[300px]">
-        <Image src="/mascot.png" alt="Fargo mascot" width={96} height={110} priority />
+        <Image src="/mascot.png" alt="Fargo frog" width={103} height={110} priority />
         <Image src="/logo.png" alt="Fargo" width={132} height={50} className="mt-3.5" priority />
         <p className="text-[15px] text-fg-muted mt-2.5">Every trip starts here.</p>
       </div>

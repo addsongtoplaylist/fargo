@@ -2,6 +2,14 @@
 
 ---
 
+## v0.5.2 — 2026-10-07 · New logo
+
+- **New frog logo** — replaces the running mascot on the home-screen app icon, browser tab icon, iPhone/iPad launch screens and the Sign in page. The "fargo" wordmark stays.
+- Installed apps pick up the new icon after the next update (the offline cache was refreshed). On iPhone, the home-screen icon only changes after removing and re-adding Fargo to the home screen.
+- Removed an unused old icon file.
+
+---
+
 ## v0.5.1 — 2026-10-03 · Trip cover photos
 
 - **Cover photos** — the planner can add a photo to a trip: on New trip (step 2, optional) or any time in **Trip settings → Cover photo** (Add / Change / Remove). Photos are shrunk on the phone before upload (fast on mobile data). Without a photo, trips keep their colour + country code.

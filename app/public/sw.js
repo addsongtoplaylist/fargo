@@ -1,4 +1,4 @@
-const CACHE_NAME = "fargo-v4";
+const CACHE_NAME = "fargo-v5";
 
 // App shell files to pre-cache
 const PRECACHE_URLS = [
