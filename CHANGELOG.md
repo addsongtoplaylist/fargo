@@ -2,6 +2,13 @@
 
 ---
 
+## v0.5.3 — 2026-10-08 · Logo on blue
+
+- **Logo updated** — the frog now sits on its blue gradient tile (white frog), so it stands out on any background, light or dark. Used for the home-screen app icon, browser tab icon, iPhone/iPad launch screens and the Sign in page.
+- Installed apps pick up the new icon after the next update. On iPhone, remove and re-add Fargo to the home screen to see it.
+
+---
+
 ## v0.5.2 — 2026-10-07 · New logo
 
 - **New frog logo** — replaces the running mascot on the home-screen app icon, browser tab icon, iPhone/iPad launch screens and the Sign in page. The "fargo" wordmark stays.
