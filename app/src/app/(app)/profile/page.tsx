@@ -4,10 +4,14 @@ import { SignOutButton } from "@/components/sign-out-button";
 import { ProfileSettings } from "@/components/profile-settings";
 import { DiningPreferences } from "@/components/dining-preferences";
 import { Eyebrow } from "@/components/ui/card";
+import Link from "next/link";
+import { ListChecks } from "lucide-react";
+import { ProfileRow } from "@/components/profile-row";
+import { getMyDefaultChecklists } from "@/lib/actions/checklist";
 import pkg from "../../../../package.json";
 
 export default async function ProfilePage() {
-  const account = await getOrCreateAccount();
+  const [account, defaultLists] = await Promise.all([getOrCreateAccount(), getMyDefaultChecklists()]);
 
   return (
     <Column className="pt-12 pb-8">
@@ -25,6 +29,16 @@ export default async function ProfilePage() {
         homeCurrency={account?.home_currency || "MYR"}
         homeCountryCode={account?.home_country_code ?? null}
       />
+
+      <Eyebrow className="mx-1 mt-6 mb-2">Prep</Eyebrow>
+      <Link href="/profile/checklists" className="block bg-surface rounded-card">
+        <ProfileRow
+          icon={ListChecks}
+          label="My checklists"
+          value={defaultLists.length > 0 ? `${defaultLists.length} default ${defaultLists.length === 1 ? "list" : "lists"}` : "Set up"}
+          chevron
+        />
+      </Link>
 
       <Eyebrow className="mx-1 mt-6 mb-2">Dining · used by Discover</Eyebrow>
       <DiningPreferences

@@ -598,7 +598,7 @@ export async function deleteTrip(tripId: string): Promise<{ error?: string }> {
   return {};
 }
 
-/** Clone a shared trip as your own (activities + ideas, not expenses/checklists) */
+/** Clone a shared trip as your own (activities only — the share page shows no ideas or checklists) */
 export async function cloneTrip(
   shareCode: string
 ): Promise<{ tripId?: string; error?: string }> {
@@ -659,20 +659,6 @@ export async function cloneTrip(
       sort_order: a.sort_order,
     }));
     await supabase.from("activities").insert(clonedActivities);
-  }
-
-  // Clone ideas (unpromoted only)
-  const ideas = shared.ideas.filter((i) => !i.promoted);
-
-  if (ideas.length > 0) {
-    const clonedIdeas = ideas.map((i) => ({
-      trip_id: newTrip.id,
-      title: i.title,
-      link: i.link,
-      notes: i.notes,
-      promoted: false,
-    }));
-    await supabase.from("ideas").insert(clonedIdeas);
   }
 
   return { tripId: newTrip.id };

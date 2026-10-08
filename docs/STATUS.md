@@ -4,6 +4,14 @@
 
 ---
 
+**2026-10-09 — Personal checklists + idea suggestions (v0.5.4)**
+
+Specs: `docs/CHECKLISTS.md`, `docs/IDEAS.md`; access table: `docs/PERMISSIONS.md` v2. One additive migration (`20261008_checklists_ideas.sql`: `my_checklists` / `my_checklist_items` / `my_checklist_setup`, `ideas.created_by` + `suggested_at`, `activities.suggested_by`, `prep_seen`, idea + badge functions; `get_shared_trip` now returns empty checklists/ideas). Old `checklists` tables untouched for the parked native app. Tested on localhost (planner) and by the owner with a second account (member).
+
+**Next:** Discover price filter → Explore + travel stats. Noted: cover on the invite card; Home currency following the country; members using Discover; native app to move to personal checklists before the old tables can be dropped.
+
+---
+
 **2026-10-01 — UI redesign complete (v0.5.0, pending release)**
 
 Every screen moved to the v0.8 design system in phases P0–P9 on the `redesign` branch, each tested by the owner on the Vercel preview before the next. Plan, decisions and per-phase logs: `docs/REDESIGN-PLAN.md`; screen checklist: `docs/REDESIGN.md`; design: `docs/DESIGN.md`.

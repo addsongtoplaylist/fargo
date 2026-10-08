@@ -2,6 +2,19 @@
 
 ---
 
+## v0.5.4 — 2026-10-09 · Personal checklists + idea suggestions
+
+- **Personal checklists** — every traveller now has their own lists on each trip (Prep → **My checklists**). Nobody else sees your lists or ticks, the planner included. Members can make lists too.
+- **Default lists** — Profile → **My checklists** holds lists you want on every trip (e.g. Packing). They're copied into a trip, unticked, the first time you open its Prep — trips you create and trips you join. On any trip list, ⋯ → **Save to my defaults** (asks before replacing one with the same name).
+- **Old shared lists** were copied to each trip's planner as their own lists, ticks kept.
+- **Idea suggestions** — everyone on the trip can add ideas (**Suggest**). Each idea shows who suggested it ("Ali suggested" / "You suggested"). You can edit or delete your own ideas; the planner can edit or delete any and is the only one who moves ideas to Schedule. An idea moved to Schedule and back keeps its original author.
+- **Planner badge** — a red number on the Prep tab when members suggest new ideas; opening Prep clears it.
+- **Share link** shows the trip header and Schedule only (no checklists or ideas). "Save as my trip" copies activities only.
+- All rules are enforced by the database, not just hidden buttons (`docs/PERMISSIONS.md`).
+- *Requires `20261008_checklists_ideas.sql` before deploying (already run). Undo: `20261008_checklists_ideas_UNDO.sql`.*
+
+---
+
 ## v0.5.3 — 2026-10-08 · Logo on blue
 
 - **Logo updated** — the frog now sits on its blue gradient tile (white frog), so it stands out on any background, light or dark. Used for the home-screen app icon, browser tab icon, iPhone/iPad launch screens and the Sign in page.

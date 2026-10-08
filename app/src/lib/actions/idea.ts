@@ -19,6 +19,8 @@ export type Idea = {
   promoted: boolean;
   promoted_activity_id: string | null;
   promoted_date: string | null;
+  /** Account that suggested it (null for ideas from before v0.5.4) */
+  created_by: string | null;
   sort_order: number;
   created_at: string;
 };
@@ -37,6 +39,7 @@ export async function getIdeas(tripId: string): Promise<Idea[]> {
   return (data as Idea[]) ?? [];
 }
 
+/** Add an idea — anyone on the trip with an account (shown as "Ali suggested"). */
 export async function createIdea(
   tripId: string,
   fields: { title: string; link?: string; notes?: string }
@@ -45,22 +48,11 @@ export async function createIdea(
   if (!account) throw new Error("Not signed in");
 
   const supabase = await createClient();
-
-  const { data: existing } = await supabase
-    .from("ideas")
-    .select("sort_order")
-    .eq("trip_id", tripId)
-    .order("sort_order", { ascending: false })
-    .limit(1);
-
-  const nextOrder = existing && existing.length > 0 ? existing[0].sort_order + 1 : 0;
-
-  const { error } = await supabase.from("ideas").insert({
-    trip_id: tripId,
-    title: fields.title,
-    link: fields.link || null,
-    notes: fields.notes || null,
-    sort_order: nextOrder,
+  const { error } = await supabase.rpc("add_idea", {
+    p_trip_id: tripId,
+    p_title: fields.title,
+    p_link: fields.link ?? null,
+    p_notes: fields.notes ?? null,
   });
 
   if (error) {
@@ -71,6 +63,7 @@ export async function createIdea(
   revalidatePath(`/trips/${tripId}/prep`);
 }
 
+/** Edit an idea — the author or the planner (checked by the database). */
 export async function updateIdea(
   ideaId: string,
   tripId: string,
@@ -79,16 +72,14 @@ export async function updateIdea(
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 
+  // undefined = leave unchanged; "" clears link / notes
   const supabase = await createClient();
-  const updates: Record<string, unknown> = {};
-  if (fields.title !== undefined) updates.title = fields.title;
-  if (fields.link !== undefined) updates.link = fields.link || null;
-  if (fields.notes !== undefined) updates.notes = fields.notes || null;
-
-  const { error } = await supabase
-    .from("ideas")
-    .update(updates)
-    .eq("id", ideaId);
+  const { error } = await supabase.rpc("update_idea", {
+    p_idea_id: ideaId,
+    p_title: fields.title ?? null,
+    p_link: fields.link ?? null,
+    p_notes: fields.notes ?? null,
+  });
 
   if (error) {
     console.error("Failed to update idea:", error);
@@ -98,12 +89,13 @@ export async function updateIdea(
   revalidatePath(`/trips/${tripId}/prep`);
 }
 
+/** Delete an idea — the author or the planner (checked by the database). */
 export async function deleteIdea(ideaId: string, tripId: string) {
   const account = await getOrCreateAccount();
   if (!account) throw new Error("Not signed in");
 
   const supabase = await createClient();
-  const { error } = await supabase.from("ideas").delete().eq("id", ideaId);
+  const { error } = await supabase.rpc("delete_idea", { p_idea_id: ideaId });
 
   if (error) {
     console.error("Failed to delete idea:", error);
@@ -111,6 +103,27 @@ export async function deleteIdea(ideaId: string, tripId: string) {
   }
 
   revalidatePath(`/trips/${tripId}/prep`);
+}
+
+/** Planner's Prep badge: ideas members added since they last opened Prep (0 for members). */
+export async function getPrepBadgeCount(tripId: string): Promise<number> {
+  const account = await getOrCreateAccount();
+  if (!account) return 0;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("prep_badge_count", { p_trip_id: tripId });
+  if (error) return 0;
+  return typeof data === "number" ? data : 0;
+}
+
+/** Planner opened Prep — clears their badge (no-op for members). */
+export async function markPrepSeen(tripId: string) {
+  const account = await getOrCreateAccount();
+  if (!account) return;
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("mark_prep_seen", { p_trip_id: tripId });
+  if (error) console.error("Failed to mark Prep seen:", error);
 }
 
 /** Promote an idea to a scheduled activity, preserving all its data */
@@ -144,6 +157,15 @@ export async function promoteIdea(
     place_lat: idea.place_lat || undefined,
     place_lng: idea.place_lng || undefined,
   });
+
+  // Remember who suggested it, so moving it back to Ideas keeps the author
+  if (idea.created_by) {
+    const { error: authorErr } = await supabase
+      .from("activities")
+      .update({ suggested_by: idea.created_by })
+      .eq("id", activityId);
+    if (authorErr) console.error("Failed to keep idea author:", authorErr);
+  }
 
   // Mark the idea as promoted
   const { error } = await supabase

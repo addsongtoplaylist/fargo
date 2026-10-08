@@ -25,8 +25,6 @@ export default async function SharedTripPage({
     <SharedTripView
       trip={shared.trip}
       activities={shared.activities}
-      checklists={shared.checklists}
-      ideas={shared.ideas}
       shareCode={code}
       isSignedIn={!!account}
     />
