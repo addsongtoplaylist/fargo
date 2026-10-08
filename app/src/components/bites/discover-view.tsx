@@ -7,7 +7,6 @@ import {
   UtensilsCrossed,
   ShoppingBag,
   Landmark,
-  Compass,
   AlertCircle,
   SearchX,
 } from "lucide-react";
@@ -169,17 +168,6 @@ export function DiscoverView() {
     setLastCoords(null);
   }
 
-  // Non-planner view (B1)
-  if (!isPlanner) {
-    return (
-      <div className="px-4 pt-2">
-        <div className="bg-surface rounded-card">
-          <Empty icon={Compass} message="Only the trip planner can use Discover." />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="px-4">
       {/* Category selector */}
@@ -307,6 +295,7 @@ export function DiscoverView() {
           spot={selectedSpot}
           tripId={trip?.id ?? ""}
           localCurrency={trip?.local_currency ?? ""}
+          isPlanner={isPlanner}
           onClose={() => setSelectedSpot(null)}
         />
       )}

@@ -19,16 +19,32 @@ export function InviteShell({ children, footnote }: { children: React.ReactNode;
   );
 }
 
-/** Trip summary at the top of the invite card: colour cover, name, place · dates, who's in. */
+/** Trip summary at the top of the invite card: cover (photo or colour), name, place · dates, who's in. */
 export function InviteTripSummary({
   trip,
 }: {
-  trip: { id?: string; name: string; destination: string; start_date: string; end_date: string; travellers?: { display_name: string }[] };
+  trip: {
+    id?: string;
+    name: string;
+    destination: string;
+    start_date: string;
+    end_date: string;
+    travellers?: { display_name: string }[];
+    cover_path?: string | null;
+    cover_position?: number | null;
+  };
 }) {
   const names = (trip.travellers ?? []).map((t) => t.display_name);
   return (
     <div className="flex items-start gap-3.5">
-      <TripCover tripId={trip.id ?? trip.name} destination={trip.destination} size={60} radius={16} />
+      <TripCover
+        tripId={trip.id ?? trip.name}
+        destination={trip.destination}
+        coverPath={trip.cover_path}
+        coverPosition={trip.cover_position}
+        size={60}
+        radius={16}
+      />
       <div className="flex-1 min-w-0 pt-0.5">
         <h2 className="text-[17px] font-bold text-fg leading-tight truncate">{trip.name}</h2>
         <p className="text-[13px] text-fg-muted mt-1">

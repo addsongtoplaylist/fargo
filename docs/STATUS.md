@@ -4,6 +4,16 @@
 
 ---
 
+**2026-10-09 — Cover position, invite cover, Discover for members (v0.5.5)**
+
+Additive migration `20261009_cover_position.sql` (`trips.cover_position`, `set_trip_cover_position`, `get_shared_cover_info`, `get_invite_cover`, `suggest_place_idea`). Tested on localhost (planner) and by the owner as a member.
+
+**Parked (KIV):** Discover price filter. **Home currency following the country** — not a label change: money is built around MYR (trip rates "1 MYR =", `amount_myr`, budgets in MYR); doing it properly means a per-trip base currency, a money change to plan and test on staging as its own release.
+
+**Next:** Explore + travel stats. Noted: native app to move to personal checklists before the old tables can be dropped.
+
+---
+
 **2026-10-09 — Personal checklists + idea suggestions (v0.5.4)**
 
 Specs: `docs/CHECKLISTS.md`, `docs/IDEAS.md`; access table: `docs/PERMISSIONS.md` v2. One additive migration (`20261008_checklists_ideas.sql`: `my_checklists` / `my_checklist_items` / `my_checklist_setup`, `ideas.created_by` + `suggested_at`, `activities.suggested_by`, `prep_seen`, idea + badge functions; `get_shared_trip` now returns empty checklists/ideas). Old `checklists` tables untouched for the parked native app. Tested on localhost (planner) and by the owner with a second account (member).

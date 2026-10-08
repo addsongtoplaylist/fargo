@@ -109,6 +109,30 @@ export async function setTripCover(tripId: string, path: string | null): Promise
     console.error("set_trip_cover failed:", error);
     return { error: error.message.includes("planner") ? "Only the planner can change the cover photo" : "Couldn't save the cover photo" };
   }
+  // A new photo starts centred
+  if (path) await supabase.rpc("set_trip_cover_position", { p_trip_id: tripId, p_position: 50 });
+  revalidateTag(`trip-${tripId}`, "max");
+  revalidatePath("/trips");
+  revalidatePath(`/trips/${tripId}`, "layout");
+  return {};
+}
+
+/** Save how far down the cover photo is shown (0–100, planner only — checked by the database). */
+export async function setTripCoverPosition(tripId: string, position: number): Promise<{ error?: string }> {
+  try {
+    tripIdSchema.parse(tripId);
+  } catch {
+    return { error: "Invalid input" };
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("set_trip_cover_position", {
+    p_trip_id: tripId,
+    p_position: Math.round(Math.min(100, Math.max(0, position))),
+  });
+  if (error) {
+    console.error("set_trip_cover_position failed:", error);
+    return { error: error.message.includes("planner") ? "Only the planner can change the cover photo" : "Couldn't save the position" };
+  }
   revalidateTag(`trip-${tripId}`, "max");
   revalidatePath("/trips");
   revalidatePath(`/trips/${tripId}`, "layout");
@@ -159,6 +183,7 @@ export type MyTrip = {
   invite_code: string | null;
   /** P10 — read from trips (get_my_trips doesn't return it) */
   cover_path?: string | null;
+  cover_position?: number | null;
   travellers: {
     id: string;
     display_name: string;
@@ -183,10 +208,14 @@ export async function getMyTrips(): Promise<{ active: MyTrip[]; upcoming: MyTrip
   if (trips.length > 0) {
     const { data: covers } = await supabase
       .from("trips")
-      .select("id, cover_path")
+      .select("id, cover_path, cover_position")
       .in("id", trips.map((t) => t.id));
-    const byId = new Map((covers ?? []).map((c: { id: string; cover_path: string | null }) => [c.id, c.cover_path]));
-    for (const t of trips) t.cover_path = byId.get(t.id) ?? null;
+    type Cover = { id: string; cover_path: string | null; cover_position: number | null };
+    const byId = new Map((covers ?? []).map((c: Cover) => [c.id, c]));
+    for (const t of trips) {
+      t.cover_path = byId.get(t.id)?.cover_path ?? null;
+      t.cover_position = byId.get(t.id)?.cover_position ?? 50;
+    }
   }
 
   const active = trips.filter((t) => t.start_date <= today && t.end_date >= today);
@@ -261,8 +290,9 @@ export async function getOrCreateShareCode(tripId: string) {
 export type SharedTrip = {
   trip: {
     id: string;
-    /** P10 — from get_shared_cover */
+    /** P10 / v0.5.5 — from get_shared_cover_info */
     cover_path?: string | null;
+    cover_position?: number | null;
     name: string;
     destination: string;
     start_date: string;
@@ -308,10 +338,14 @@ export async function getSharedTrip(code: string): Promise<SharedTrip | null> {
   const supabase = await createClient();
   const [{ data }, { data: cover }] = await Promise.all([
     supabase.rpc("get_shared_trip", { p_code: code }),
-    supabase.rpc("get_shared_cover", { p_code: code }),
+    supabase.rpc("get_shared_cover_info", { p_code: code }),
   ]);
   const shared = (data as SharedTrip | null) ?? null;
-  if (shared) shared.trip.cover_path = (cover as string | null) ?? null;
+  const info = cover as { path: string | null; position: number | null } | null;
+  if (shared) {
+    shared.trip.cover_path = info?.path ?? null;
+    shared.trip.cover_position = info?.position ?? 50;
+  }
   return shared;
 }
 
@@ -366,6 +400,9 @@ export type InviteTrip = {
   start_date: string;
   end_date: string;
   travellers: InviteTraveller[];
+  /** v0.5.5 — from get_invite_cover */
+  cover_path?: string | null;
+  cover_position?: number | null;
 };
 
 /** Look up a trip by its invite code */
@@ -373,11 +410,18 @@ export async function getTripByInviteCode(code: string) {
   const supabase = await createClient();
   // Use RPC function (SECURITY DEFINER) so unauthenticated visitors
   // can see the invite preview without being blocked by RLS.
-  const { data } = await supabase.rpc("get_trip_by_invite", {
-    p_code: code,
-  });
+  const [{ data }, { data: cover }] = await Promise.all([
+    supabase.rpc("get_trip_by_invite", { p_code: code }),
+    supabase.rpc("get_invite_cover", { p_code: code }),
+  ]);
 
-  return data as InviteTrip | null;
+  const trip = (data as InviteTrip | null) ?? null;
+  const info = cover as { path: string | null; position: number | null } | null;
+  if (trip) {
+    trip.cover_path = info?.path ?? null;
+    trip.cover_position = info?.position ?? 50;
+  }
+  return trip;
 }
 
 /** Join a trip using an invite code */

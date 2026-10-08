@@ -24,6 +24,8 @@ type TripInput = {
   invite_code?: string | null;
   /** P10 cover photo path in the trip-covers bucket (null = colour cover) */
   cover_path?: string | null;
+  /** v0.5.5 how far down the cover is shown, 0–100 (50 = middle) */
+  cover_position?: number | null;
   travellers?: {
     id: string;
     display_name: string;

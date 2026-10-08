@@ -13,6 +13,7 @@ type SharedTripViewProps = {
   trip: {
     id: string;
     cover_path?: string | null;
+    cover_position?: number | null;
     name: string;
     destination: string;
     start_date: string;
@@ -58,7 +59,7 @@ export function SharedTripView({
       <header className="mx-auto max-w-[480px] px-4 pt-6">
         <div className="bg-surface rounded-card p-4">
           <div className="flex items-start gap-3.5">
-            <TripCover tripId={trip.id} destination={trip.destination} coverPath={trip.cover_path} size={64} radius={16} />
+            <TripCover tripId={trip.id} destination={trip.destination} coverPath={trip.cover_path} coverPosition={trip.cover_position} size={64} radius={16} />
             <div className="flex-1 min-w-0 pt-0.5">
               <p className="text-xs font-semibold tracking-[1px] uppercase text-brand">{trip.destination}</p>
               <h1 className="text-xl font-bold text-fg leading-tight mt-0.5">{trip.name}</h1>
