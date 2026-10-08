@@ -2,6 +2,15 @@
 
 ---
 
+## v0.5.5 — 2026-10-09 · Cover position, invite cover, Discover for members
+
+- **Reposition the cover photo** — in Trip settings, tap the cover thumbnail to open **Reposition cover**: drag the photo up or down (or use the slider) and Save. The position is used everywhere the cover shows — Overview, My trips, the share link and invites. A new photo starts centred.
+- **Invite card shows the cover photo** instead of the trip colour.
+- **Members can use Discover** — search places like the planner. Instead of Add to schedule, members get **Suggest as idea**: the place lands in Prep → Ideas as "Mei suggested" (with its map pin) and lights up the planner's badge. Only the planner adds to the schedule.
+- *Requires `20261009_cover_position.sql` before deploying (already run). Undo: `20261009_cover_position_UNDO.sql`.*
+
+---
+
 ## v0.5.4 — 2026-10-09 · Personal checklists + idea suggestions
 
 - **Personal checklists** — every traveller now has their own lists on each trip (Prep → **My checklists**). Nobody else sees your lists or ticks, the planner included. Members can make lists too.

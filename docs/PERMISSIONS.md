@@ -17,6 +17,7 @@
 |---|---|:-:|:-:|:-:|:-:|
 | **Trip** | View the trip | ✅ | ✅ | — | Header + Schedule only |
 | | Edit trip settings, delete trip | ✅ | ❌ | — | ❌ |
+| | Add / change / reposition / remove the cover photo | ✅ | ❌ | — | ❌ |
 | | Copy share link | ✅ | ❌ | — | ❌ |
 | **Travellers** | Invite, quick add, rename name-only, remove¹ | ✅ | ❌ | — | ❌ |
 | | Leave trip, change owner (pick their name) | — | ✅ | — | ❌ |
@@ -35,7 +36,9 @@
 | | Unmark settled | ✅ any | ✅ if they paid | — | ❌ |
 | | Set budget | ✅ own | ✅ own | — | ❌ |
 | | See settle-ups | ✅ all | ✅ all | — | ❌ |
-| **Discover** | Search, add to schedule | ✅ | ❌ (message) | — | ❌ |
+| **Discover** | Search places | ✅ | ✅ | — | ❌ |
+| | Add a place to the schedule | ✅ | ❌ | — | ❌ |
+| | Suggest a place as an idea | — | ✅ | — | ❌ |
 
 ¹ Remove works only for people with no expenses.
 ² Anyone with an account can log an expense a name-only traveller paid or shares in.

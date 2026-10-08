@@ -7,7 +7,7 @@ import { leaveTrip } from "@/lib/actions/trip";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { tintFor } from "@/components/trip-cover";
 import { countryCode } from "@/lib/country-code";
-import { coverUrl } from "@/lib/cover";
+import { coverUrl, coverObjectPosition } from "@/lib/cover";
 
 const ROUND =
   "w-10 h-10 rounded-full bg-white/90 border border-line flex items-center justify-center text-fg shrink-0";
@@ -24,9 +24,11 @@ export function OverviewHeader({
   subline,
   role,
   coverPath,
+  coverPosition,
 }: {
   tripId: string;
   coverPath?: string | null;
+  coverPosition?: number | null;
   name: string;
   destination: string;
   subline: string;
@@ -57,7 +59,13 @@ export function OverviewHeader({
           {photo && (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element -- Supabase storage photo; already resized on upload */}
-              <img src={photo} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover" />
+              <img
+                src={photo}
+                alt=""
+                aria-hidden
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ objectPosition: coverObjectPosition(coverPosition) }}
+              />
               {/* Dark gradient from the bottom so white text stays readable (Qantas look) */}
               <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
             </>

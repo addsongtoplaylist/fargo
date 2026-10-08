@@ -133,7 +133,7 @@ export default function TripSettingsPage() {
     <div className="mx-auto max-w-[var(--max-width-column)] px-4 pt-1 pb-8 space-y-5">
       {/* Trip */}
       <section className="bg-surface rounded-card p-4 space-y-4">
-        <CoverPhotoSetting tripId={trip.id} destination={trip.destination} coverPath={trip.cover_path ?? null} />
+        <CoverPhotoSetting tripId={trip.id} destination={trip.destination} coverPath={trip.cover_path ?? null} coverPosition={trip.cover_position ?? null} />
         <div className="h-px bg-line" />
 
         <FieldStack label="Trip name" htmlFor="set-name">

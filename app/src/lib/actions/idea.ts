@@ -63,6 +63,34 @@ export async function createIdea(
   revalidatePath(`/trips/${tripId}/prep`);
 }
 
+/** Suggest a Discover place as an idea, keeping its map pin (members, v0.5.5). */
+export async function suggestPlaceIdea(
+  tripId: string,
+  place: { title: string; link?: string; notes?: string; category?: string; place_name?: string; lat: number; lng: number }
+) {
+  const account = await getOrCreateAccount();
+  if (!account) throw new Error("Not signed in");
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("suggest_place_idea", {
+    p_trip_id: tripId,
+    p_title: place.title,
+    p_link: place.link ?? null,
+    p_notes: place.notes ?? null,
+    p_category: place.category ?? null,
+    p_place_name: place.place_name ?? null,
+    p_lat: String(place.lat),
+    p_lng: String(place.lng),
+  });
+
+  if (error) {
+    console.error("Failed to suggest place:", error);
+    throw new Error("Failed to suggest place");
+  }
+
+  revalidatePath(`/trips/${tripId}/prep`);
+}
+
 /** Edit an idea — the author or the planner (checked by the database). */
 export async function updateIdea(
   ideaId: string,

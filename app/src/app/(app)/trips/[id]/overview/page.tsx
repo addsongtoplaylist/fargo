@@ -159,7 +159,7 @@ export default async function OverviewPage({
 
   return (
     <>
-      <OverviewHeader tripId={trip.id} name={trip.name} destination={trip.destination} subline={`${dateRange} · ${state}`} role={role} coverPath={trip.cover_path} />
+      <OverviewHeader tripId={trip.id} name={trip.name} destination={trip.destination} subline={`${dateRange} · ${state}`} role={role} coverPath={trip.cover_path} coverPosition={trip.cover_position} />
 
       <Column className="pt-4 space-y-3">
         {/* Local time & temperature — before/during the trip, when the country is known */}

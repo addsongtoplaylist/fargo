@@ -7,7 +7,10 @@ import {
   Navigation,
   Plus,
   ExternalLink,
+  Lightbulb,
 } from "lucide-react";
+import { suggestPlaceIdea } from "@/lib/actions/idea";
+import { useToast } from "@/components/toast";
 import type { DiningSpot } from "@/lib/actions/bites";
 import { AddToSchedule } from "@/components/bites/add-to-schedule";
 import { Sheet } from "@/components/ui/sheet";
@@ -17,6 +20,8 @@ type SpotDetailProps = {
   spot: DiningSpot;
   tripId: string;
   localCurrency: string;
+  /** Members suggest the place as an idea instead of adding it to the schedule */
+  isPlanner?: boolean;
   onClose: () => void;
 };
 
@@ -24,9 +29,33 @@ export function SpotDetail({
   spot,
   tripId,
   localCurrency,
+  isPlanner = true,
   onClose,
 }: SpotDetailProps) {
   const [showAddToSchedule, setShowAddToSchedule] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
+  const { toast } = useToast();
+
+  async function handleSuggest() {
+    setSuggesting(true);
+    try {
+      await suggestPlaceIdea(tripId, {
+        title: spot.name,
+        link: spot.googleMapsUri || undefined,
+        notes: [spot.cuisine, spot.priceTier].filter(Boolean).join(" · ") || undefined,
+        category: "food",
+        place_name: spot.address || spot.name,
+        lat: spot.lat,
+        lng: spot.lng,
+      });
+      toast("Suggested — it's in Prep → Ideas", "success");
+      onClose();
+    } catch (err) {
+      console.error(err);
+      toast("Couldn't suggest this place. Please try again.", "error");
+      setSuggesting(false);
+    }
+  }
 
   const navigateUrl = `https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`;
 
@@ -50,15 +79,23 @@ export function SpotDetail({
       footer={
         <>
           <div className="flex flex-col gap-2.5">
-            <Button size="lg" full icon={Plus} onClick={() => setShowAddToSchedule(true)}>
-              Add to schedule
-            </Button>
+            {isPlanner ? (
+              <Button size="lg" full icon={Plus} onClick={() => setShowAddToSchedule(true)}>
+                Add to schedule
+              </Button>
+            ) : (
+              <Button size="lg" full icon={Lightbulb} onClick={handleSuggest} disabled={suggesting}>
+                {suggesting ? "Suggesting…" : "Suggest as idea"}
+              </Button>
+            )}
             <a href={navigateUrl} target="_blank" rel="noopener noreferrer" className={buttonClasses("quiet", "lg", true)}>
               <Navigation size={16} strokeWidth={2.2} aria-hidden />
               Navigate
             </a>
           </div>
-          <p className="text-center text-xs text-fg-muted mt-2">Navigate opens Google Maps</p>
+          <p className="text-center text-xs text-fg-muted mt-2">
+            {isPlanner ? "Navigate opens Google Maps" : "The planner decides what goes on the schedule"}
+          </p>
         </>
       }
     >

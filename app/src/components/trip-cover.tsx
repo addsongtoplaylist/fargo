@@ -1,6 +1,6 @@
 import { Map as MapIcon } from "lucide-react";
 import { countryCode } from "@/lib/country-code";
-import { coverUrl } from "@/lib/cover";
+import { coverUrl, coverObjectPosition } from "@/lib/cover";
 
 /** 8 soft colour pairs (DESIGN.md → No photo). Listed in full so Tailwind generates them. */
 const TINTS = [
@@ -29,12 +29,15 @@ export function TripCover({
   tripId,
   destination,
   coverPath,
+  coverPosition,
   size,
   radius = 14,
 }: {
   tripId: string;
   destination: string;
   coverPath?: string | null;
+  /** 0–100, how far down the photo is shown (50 = middle) */
+  coverPosition?: number | null;
   size: number;
   radius?: number;
 }) {
@@ -48,7 +51,7 @@ export function TripCover({
         aria-hidden
         loading="lazy"
         className="shrink-0 object-cover bg-skeleton"
-        style={{ width: size, height: size, borderRadius: radius }}
+        style={{ width: size, height: size, borderRadius: radius, objectPosition: coverObjectPosition(coverPosition) }}
       />
     );
   }
