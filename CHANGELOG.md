@@ -2,6 +2,16 @@
 
 ---
 
+## v0.5.6 — 2026-10-09 · Passport
+
+- **New Passport tab** (home bar: My trips · Explore · **Passport** · Profile) — your travel stats from the trips you're on.
+- **Stamps** — every trip that has started adds an ink stamp (round or square, in the trip's colour) with the place and month. A trip's Base city shows on its stamp (e.g. a Penang trip reads "Penang"), otherwise the country. Newest 6 on Passport (3 per row); **See all** for the full collection.
+- **Numbers** — total days away, a bar for the days this year you've spent travelling, then countries · trips · buddies. Countries count **abroad only** (your home country doesn't count, but home trips still get a stamp and count as trips and days away).
+- **Highlights** — who you've travelled with most, furthest from home, biggest time difference — plus the trip you're on now, or your next / last trip.
+- No database changes.
+
+---
+
 ## v0.5.5 — 2026-10-09 · Cover position, invite cover, Discover for members
 
 - **Reposition the cover photo** — in Trip settings, tap the cover thumbnail to open **Reposition cover**: drag the photo up or down (or use the slider) and Save. The position is used everywhere the cover shows — Overview, My trips, the share link and invites. A new photo starts centred.

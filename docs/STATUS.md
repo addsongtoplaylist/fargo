@@ -4,6 +4,14 @@
 
 ---
 
+**2026-10-09 — Passport (v0.5.6)**
+
+New home tab built from existing trip data (no SQL): `lib/passport.ts` (pure stats), `lib/actions/passport.ts`, `/passport`, `/passport/stamps`. Owner decisions: one stamp per trip; home country excluded from "countries"; ink-stamp style, 3 per row × 2 rows, See all; no map; colour stamps only (no cover photos).
+
+**Next:** Strava-style trip stats — a shareable mini recap for a single trip (to plan). Then **AI stamp art (v0.6.0)**: generated once per place in a fixed house style, via a Supabase Edge Function holding an image-AI key (owner to choose provider and create the account). Still parked: Discover price filter, home currency per trip.
+
+---
+
 **2026-10-09 — Cover position, invite cover, Discover for members (v0.5.5)**
 
 Additive migration `20261009_cover_position.sql` (`trips.cover_position`, `set_trip_cover_position`, `get_shared_cover_info`, `get_invite_cover`, `suggest_place_idea`). Tested on localhost (planner) and by the owner as a member.
