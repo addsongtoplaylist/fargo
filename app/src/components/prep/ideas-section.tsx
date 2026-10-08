@@ -10,15 +10,31 @@ import type { Idea } from "@/lib/actions/idea";
 import { Empty } from "@/components/ui/empty";
 import { Button, TextButton } from "@/components/ui/button";
 import { fieldClass } from "@/components/ui/field";
+import { useToast } from "@/components/toast";
 
 type IdeasSectionProps = {
   ideas: Idea[];
   tripId: string;
   isPlanner?: boolean;
+  /** Signed-in account — "You suggested" and edit rights on your own ideas */
+  myAccountId?: string | null;
 };
 
-export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionProps) {
+/**
+ * Ideas (v0.5.4, docs/IDEAS.md): everyone on the trip adds ideas; the author
+ * or the planner edits / deletes; only the planner moves one to Schedule.
+ */
+export function IdeasSection({ ideas, tripId, isPlanner = true, myAccountId = null }: IdeasSectionProps) {
   const trip = useTrip();
+  const { toast } = useToast();
+
+  const canEdit = (idea: Idea) => isPlanner || (!!myAccountId && idea.created_by === myAccountId);
+  const authorLabel = (idea: Idea) => {
+    if (!idea.created_by) return null;
+    if (idea.created_by === myAccountId) return "You suggested";
+    const name = trip?.travellers?.find((t) => t.account_id === idea.created_by)?.display_name;
+    return name ? `${name} suggested` : null;
+  };
   const [adding, setAdding] = useState(false);
   const [title, setTitle] = useState("");
   const [link, setLink] = useState("");
@@ -53,12 +69,18 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
       setAdding(false);
     } catch (err) {
       console.error(err);
+      toast("Couldn't add the idea. Please try again.", "error");
     }
     setSaving(false);
   }
 
   async function handleDelete(ideaId: string) {
-    await deleteIdea(ideaId, tripId);
+    try {
+      await deleteIdea(ideaId, tripId);
+    } catch (err) {
+      console.error(err);
+      toast("Couldn't delete the idea. Please try again.", "error");
+    }
     setDeleteId(null);
   }
 
@@ -72,7 +94,12 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
       setEditingId(null);
       return;
     }
-    await updateIdea(ideaId, tripId, { title: editText.trim() });
+    try {
+      await updateIdea(ideaId, tripId, { title: editText.trim() });
+    } catch (err) {
+      console.error(err);
+      toast("Couldn't save the idea. Please try again.", "error");
+    }
     setEditingId(null);
   }
 
@@ -94,18 +121,16 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
       {/* Header */}
       <div className="flex items-baseline justify-between px-1 mb-2">
         <h2 className="text-base font-semibold text-fg">Ideas</h2>
-        {isPlanner && (
-          <TextButton
-            icon={Plus}
-            onClick={() => {
-              setAdding(true);
-              setTimeout(() => titleRef.current?.focus(), 100);
-            }}
-            className="py-0"
-          >
-            Add
-          </TextButton>
-        )}
+        <TextButton
+          icon={Plus}
+          onClick={() => {
+            setAdding(true);
+            setTimeout(() => titleRef.current?.focus(), 100);
+          }}
+          className="py-0"
+        >
+          {isPlanner ? "Add" : "Suggest"}
+        </TextButton>
       </div>
 
       {/* Inline add form */}
@@ -178,13 +203,14 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
                   ) : (
                     <p
                       className={`text-[15px] font-semibold text-fg ${idea.promoted ? "line-through" : ""} ${
-                        isPlanner && !idea.promoted ? "cursor-text" : ""
+                        canEdit(idea) && !idea.promoted ? "cursor-text" : ""
                       }`}
-                      onClick={() => isPlanner && !idea.promoted && startEditing(idea)}
+                      onClick={() => canEdit(idea) && !idea.promoted && startEditing(idea)}
                     >
                       {idea.title}
                     </p>
                   )}
+                  {authorLabel(idea) && <p className="text-xs text-fg-muted mt-0.5">{authorLabel(idea)}</p>}
                   {idea.promoted && idea.promoted_date && (
                     <p className="text-[13px] font-medium text-brand mt-0.5">→ Promoted to {promotedLabel(idea.promoted_date)}</p>
                   )}
@@ -220,18 +246,20 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
                   )}
                 </div>
 
-                {isPlanner && (
+                {canEdit(idea) && (
                   <div className="flex items-center gap-0.5 shrink-0 -mr-2">
-                    {/* Schedule / Reschedule */}
-                    <Button
-                      variant="soft"
-                      size="sm"
-                      icon={CalendarPlus}
-                      aria-expanded={promoteId === idea.id}
-                      onClick={() => setPromoteId(promoteId === idea.id ? null : idea.id)}
-                    >
-                      {idea.promoted ? "Reschedule" : "Schedule"}
-                    </Button>
+                    {/* Schedule / Reschedule — planner only */}
+                    {isPlanner && (
+                      <Button
+                        variant="soft"
+                        size="sm"
+                        icon={CalendarPlus}
+                        aria-expanded={promoteId === idea.id}
+                        onClick={() => setPromoteId(promoteId === idea.id ? null : idea.id)}
+                      >
+                        {idea.promoted ? "Reschedule" : "Schedule"}
+                      </Button>
+                    )}
                     <button
                       aria-label={`Delete ${idea.title}`}
                       onClick={() => setDeleteId(idea.id)}
@@ -244,7 +272,7 @@ export function IdeasSection({ ideas, tripId, isPlanner = true }: IdeasSectionPr
               </div>
 
               {/* Day picker for promote */}
-              {promoteId === idea.id && (
+              {isPlanner && promoteId === idea.id && (
                 <div className="mt-3 pt-3 border-t border-line">
                   <p className="text-[13px] text-fg-muted mb-2">Pick a day</p>
                   <div className="flex gap-1.5 flex-wrap">

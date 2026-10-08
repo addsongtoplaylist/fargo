@@ -15,7 +15,7 @@ Fargo is a trip planner where the plan and the spending are one record: schedule
 | `docs/` | Product, experience, design, technical, roadmap, status, review docs |
 | `CHANGELOG.md` | Per-release changes — the most reliable "what shipped" record |
 
-Docs map: `PRODUCT.md` / `EXPERIENCE.md` = original vision (not everything is built) · `DESIGN.md` = design system · `PERMISSIONS.md` = who can do what (update it first when access changes) · `TECHNICAL.md` = how it's actually built · `ROADMAP.md` = phases + decision log · `STATUS.md` = milestone log (newest first) · `REVIEW.md` = review findings.
+Docs map: `PRODUCT.md` / `EXPERIENCE.md` = original vision (not everything is built) · `DESIGN.md` = design system · `PERMISSIONS.md` = who can do what (update it first when access changes) · `CHECKLISTS.md` / `IDEAS.md` = personal checklists / idea suggestions specs · `TECHNICAL.md` = how it's actually built · `ROADMAP.md` = phases + decision log · `STATUS.md` = milestone log (newest first) · `REVIEW.md` = review findings.
 
 ## Commands
 
@@ -51,7 +51,7 @@ npx next build     # production build
 
 - **Shared database:** the native app (`~/Desktop/fargo-app`, repo `addsongtoplaylist/fargo-app`) uses the same Supabase project. Before changing any table, policy or database function, grep `fargo-app/packages/core/src/api` for how it's used and keep it working (or plan its update).
 - **Data access:** Supabase JS client with the anon key + user session; **RLS is the security boundary**. No service-role key in the app. Drizzle schema (`app/src/db/schema.ts`) is reference only.
-- **Planner-only writes — except money.** Only the planner edits the plan (activities, ideas, checklists, trip settings); members are read-only there. **Expenses are the exception** (group expenses, `docs/EXPENSES.md`): any traveller with an account can log; you edit what you logged, the planner edits anything; settle-ups by the person who owes or the planner; each traveller sets their own budget. All money writes go through database functions (`save_expense`, `delete_expense`, `mark_settled`, `unmark_settled`, `set_my_budget`).
+- **Planner-only writes — except money, ideas and checklists.** Only the planner edits activities and trip settings; members are read-only there. **Ideas** (`docs/IDEAS.md`): anyone on the trip suggests; the author or planner edits/deletes (`add_idea`, `update_idea`, `delete_idea`); only the planner moves an idea to Schedule. **Checklists** are personal (`docs/CHECKLISTS.md`, `my_checklists` tables) — owner-only, nobody else sees them; the old `checklists` tables stay for the parked native app. **Expenses are the exception** (group expenses, `docs/EXPENSES.md`): any traveller with an account can log; you edit what you logged, the planner edits anything; settle-ups by the person who owes or the planner; each traveller sets their own budget. All money writes go through database functions (`save_expense`, `delete_expense`, `mark_settled`, `unmark_settled`, `set_my_budget`).
 - **Travellers without an account** (`account_id` null) are real travellers for splits. Invite links require picking an unclaimed name when any exist.
 - **SECURITY DEFINER functions** must identify the caller with `auth.uid()` (never trust an account-ID parameter), set `search_path = public`, and `REVOKE EXECUTE … FROM PUBLIC, anon` unless signed-out access is truly needed.
 - **Shared trips** (`/s/[code]`) are read only through `get_shared_trip(code)` — no invite code, account IDs, budgets or expenses.

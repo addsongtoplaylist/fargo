@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { MoreHorizontal, Check, Trash2, Pencil, ListChecks, Plus, X } from "lucide-react";
+import Link from "next/link";
+import { MoreHorizontal, Check, Trash2, Pencil, ListChecks, Plus, X, BookmarkPlus } from "lucide-react";
 import {
   createChecklist,
   renameChecklist,
   deleteChecklist,
+  saveChecklistToDefaults,
   addChecklistItem,
   updateChecklistItem,
   toggleChecklistItem,
@@ -15,21 +17,28 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useToast } from "@/components/toast";
 import type { Checklist } from "@/lib/actions/checklist";
 import { Empty } from "@/components/ui/empty";
-import { Button, TextButton } from "@/components/ui/button";
+import { Button, TextButton, buttonClasses } from "@/components/ui/button";
 import { fieldClass } from "@/components/ui/field";
 
 type ChecklistSectionProps = {
   checklists: Checklist[];
-  tripId: string;
-  isPlanner?: boolean;
+  /** The trip these lists belong to; null = your default lists (Profile) */
+  tripId: string | null;
+  /** Names of your default lists — to ask "Replace?" when saving one with the same name */
+  defaultNames?: string[];
 };
 
-export function ChecklistSection({ checklists, tripId, isPlanner = true }: ChecklistSectionProps) {
+/**
+ * Personal checklists (v0.5.4, docs/CHECKLISTS.md). Only you see your lists.
+ * On a trip they can be ticked; your defaults (tripId null) are templates.
+ */
+export function ChecklistSection({ checklists, tripId, defaultNames = [] }: ChecklistSectionProps) {
   const [creatingList, setCreatingList] = useState(false);
   const [newListName, setNewListName] = useState("");
   const newListRef = useRef<HTMLInputElement>(null);
   const creatingRef = useRef(false);
   const { toast } = useToast();
+  const isDefaults = tripId === null;
 
   async function handleCreateList() {
     if (!newListName.trim() || creatingRef.current) return;
@@ -50,19 +59,22 @@ export function ChecklistSection({ checklists, tripId, isPlanner = true }: Check
     <section>
       {/* Header */}
       <div className="flex items-baseline justify-between px-1 mb-2">
-        <h2 className="text-base font-semibold text-fg">Checklists</h2>
-        {isPlanner && (
-          <TextButton
-            icon={Plus}
-            onClick={() => {
-              setCreatingList(true);
-              setTimeout(() => newListRef.current?.focus(), 100);
-            }}
-            className="py-0"
-          >
-            New list
-          </TextButton>
-        )}
+        <div>
+          <h2 className="text-base font-semibold text-fg">{isDefaults ? "Default lists" : "My checklists"}</h2>
+          <p className="text-xs text-fg-muted mt-0.5">
+            {isDefaults ? "Copied into a trip the first time you open its Prep" : "Only you can see these"}
+          </p>
+        </div>
+        <TextButton
+          icon={Plus}
+          onClick={() => {
+            setCreatingList(true);
+            setTimeout(() => newListRef.current?.focus(), 100);
+          }}
+          className="py-0 shrink-0"
+        >
+          New list
+        </TextButton>
       </div>
 
       {/* New list input */}
@@ -73,6 +85,7 @@ export function ChecklistSection({ checklists, tripId, isPlanner = true }: Check
             type="text"
             placeholder="List name"
             aria-label="List name"
+            maxLength={100}
             value={newListName}
             onChange={(e) => setNewListName(e.target.value)}
             className={fieldClass}
@@ -95,12 +108,27 @@ export function ChecklistSection({ checklists, tripId, isPlanner = true }: Check
       {/* Checklist cards */}
       <div className="space-y-3">
         {checklists.map((list) => (
-          <ChecklistCard key={list.id} checklist={list} tripId={tripId} isPlanner={isPlanner} />
+          <ChecklistCard key={list.id} checklist={list} tripId={tripId} defaultNames={defaultNames} />
         ))}
 
         {checklists.length === 0 && !creatingList && (
           <div className="bg-surface rounded-card">
-            <Empty icon={ListChecks} message="No checklists yet. Create one to start packing." />
+            {isDefaults ? (
+              <Empty
+                icon={ListChecks}
+                message="No default lists yet. Make one here (e.g. Packing) and it appears on every trip."
+              />
+            ) : (
+              <Empty
+                icon={ListChecks}
+                message="No lists yet. Add one here, or set up default lists in Profile so they appear on every trip."
+                action={
+                  <Link href="/profile/checklists" className={buttonClasses("soft", "sm")}>
+                    Set up default lists
+                  </Link>
+                }
+              />
+            )}
           </div>
         )}
       </div>
@@ -113,16 +141,18 @@ export function ChecklistSection({ checklists, tripId, isPlanner = true }: Check
 function ChecklistCard({
   checklist,
   tripId,
-  isPlanner = true,
+  defaultNames,
 }: {
   checklist: Checklist;
-  tripId: string;
-  isPlanner?: boolean;
+  tripId: string | null;
+  defaultNames: string[];
 }) {
+  const isDefaults = tripId === null;
   const [menuOpen, setMenuOpen] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [renameName, setRenameName] = useState(checklist.name);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmReplace, setConfirmReplace] = useState(false);
   const [newItemText, setNewItemText] = useState("");
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [editItemText, setEditItemText] = useState("");
@@ -169,6 +199,25 @@ function ChecklistCard({
       () => deleteChecklist(checklist.id, tripId),
       "Failed to delete checklist. Please try again."
     );
+  }
+
+  function handleSaveToDefaults() {
+    setMenuOpen(false);
+    const name = checklist.name.trim().toLowerCase();
+    if (defaultNames.some((n) => n.trim().toLowerCase() === name)) {
+      setConfirmReplace(true);
+    } else {
+      saveToDefaults();
+    }
+  }
+
+  async function saveToDefaults() {
+    setConfirmReplace(false);
+    const ok = await run(
+      () => saveChecklistToDefaults(checklist.id),
+      "Couldn't save to your defaults. Please try again."
+    );
+    if (ok) toast(`"${checklist.name}" saved to your defaults`, "success");
   }
 
   async function handleAddItem() {
@@ -233,6 +282,7 @@ function ChecklistCard({
               ref={renameRef}
               type="text"
               aria-label="List name"
+              maxLength={100}
               value={renameName}
               onChange={(e) => setRenameName(e.target.value)}
               className={`${fieldClass} h-9`}
@@ -248,87 +298,97 @@ function ChecklistCard({
               <span className="text-[15px] font-semibold text-fg truncate">{checklist.name}</span>
               {items.length > 0 && (
                 <span className="text-[13px] text-fg-muted shrink-0 tabular-nums">
-                  {doneCount} of {items.length}
+                  {isDefaults ? `${items.length} ${items.length === 1 ? "item" : "items"}` : `${doneCount} of ${items.length}`}
                 </span>
               )}
             </>
           )}
         </div>
 
-        {/* ••• menu — planner only */}
-        {isPlanner && (
-          <div className="relative">
-            <button
-              aria-label="List options"
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="w-9 h-9 rounded-full flex items-center justify-center text-fg-muted hover:bg-page hover:text-fg transition-colors"
-            >
-              <MoreHorizontal size={18} />
-            </button>
+        {/* ••• menu */}
+        <div className="relative">
+          <button
+            aria-label="List options"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-fg-muted hover:bg-page hover:text-fg transition-colors"
+          >
+            <MoreHorizontal size={18} />
+          </button>
 
-            {menuOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-40"
+          {menuOpen && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => {
+                  setMenuOpen(false);
+                  setConfirmDelete(false);
+                }}
+              />
+              <div className="absolute right-0 top-full mt-1 z-50 bg-surface rounded-field shadow-float py-1.5 min-w-[200px]">
+                <button
                   onClick={() => {
+                    setRenaming(true);
                     setMenuOpen(false);
-                    setConfirmDelete(false);
+                    setTimeout(() => renameRef.current?.focus(), 50);
                   }}
-                />
-                <div className="absolute right-0 top-full mt-1 z-50 bg-surface rounded-field shadow-float py-1.5 min-w-[160px]">
+                  className="w-full px-3.5 h-10 text-left text-sm text-fg hover:bg-page flex items-center gap-2.5"
+                >
+                  <Pencil size={15} />
+                  Rename
+                </button>
+                {!isDefaults && (
                   <button
-                    onClick={() => {
-                      setRenaming(true);
-                      setMenuOpen(false);
-                      setTimeout(() => renameRef.current?.focus(), 50);
-                    }}
+                    onClick={handleSaveToDefaults}
                     className="w-full px-3.5 h-10 text-left text-sm text-fg hover:bg-page flex items-center gap-2.5"
                   >
-                    <Pencil size={15} />
-                    Rename
+                    <BookmarkPlus size={15} />
+                    Save to my defaults
                   </button>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      setConfirmDelete(true);
-                    }}
-                    className="w-full px-3.5 h-10 text-left text-sm text-money-over hover:bg-page flex items-center gap-2.5"
-                  >
-                    <Trash2 size={15} />
-                    Delete list
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        )}
+                )}
+                <button
+                  onClick={() => {
+                    setMenuOpen(false);
+                    setConfirmDelete(true);
+                  }}
+                  className="w-full px-3.5 h-10 text-left text-sm text-money-over hover:bg-page flex items-center gap-2.5"
+                >
+                  <Trash2 size={15} />
+                  Delete list
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Items */}
       <div className="divide-y divide-line border-t border-line">
         {items.map((item) => {
-          const done = isDone(item);
+          const done = !isDefaults && isDone(item);
           return (
             <div key={item.id} className="flex items-center gap-3 pl-4 pr-2 min-h-[46px] group">
-              {/* Tick — everyone can tick (P2) */}
-              <button
-                onClick={() => handleToggle(item.id, done)}
-                role="checkbox"
-                aria-checked={done}
-                aria-label={item.text}
-                className={`w-[22px] h-[22px] rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
-                  done ? "bg-brand border-brand text-brand-on" : "border-line hover:border-brand"
-                }`}
-              >
-                {done && <Check size={13} strokeWidth={3} />}
-              </button>
+              {/* Tick — trip lists only; defaults are templates */}
+              {!isDefaults && (
+                <button
+                  onClick={() => handleToggle(item.id, done)}
+                  role="checkbox"
+                  aria-checked={done}
+                  aria-label={item.text}
+                  className={`w-[22px] h-[22px] rounded-full border-2 shrink-0 flex items-center justify-center transition-colors ${
+                    done ? "bg-brand border-brand text-brand-on" : "border-line hover:border-brand"
+                  }`}
+                >
+                  {done && <Check size={13} strokeWidth={3} />}
+                </button>
+              )}
 
-              {/* Text — planner taps to edit */}
+              {/* Text — tap to edit */}
               {editingItemId === item.id ? (
                 <input
                   type="text"
                   aria-label="Item"
+                  maxLength={300}
                   value={editItemText}
                   onChange={(e) => setEditItemText(e.target.value)}
                   onKeyDown={(e) => {
@@ -341,49 +401,43 @@ function ChecklistCard({
                 />
               ) : (
                 <span
-                  className={`flex-1 text-sm py-2.5 ${isPlanner ? "cursor-text" : ""} ${
-                    done ? "line-through text-fg-faint" : "text-fg"
-                  }`}
-                  onClick={() => isPlanner && startEditingItem(item)}
+                  className={`flex-1 text-sm py-2.5 cursor-text ${done ? "line-through text-fg-faint" : "text-fg"}`}
+                  onClick={() => startEditingItem(item)}
                 >
                   {item.text}
                 </span>
               )}
 
               {/* Delete — always visible on touch, hover-reveal on desktop */}
-              {isPlanner && (
-                <button
-                  aria-label={`Delete ${item.text}`}
-                  onClick={() => handleDeleteItem(item.id)}
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-fg-faint hover:text-money-over transition-colors sm:opacity-0 sm:group-hover:opacity-100 shrink-0"
-                >
-                  <X size={16} />
-                </button>
-              )}
+              <button
+                aria-label={`Delete ${item.text}`}
+                onClick={() => handleDeleteItem(item.id)}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-fg-faint hover:text-money-over transition-colors sm:opacity-0 sm:group-hover:opacity-100 shrink-0"
+              >
+                <X size={16} />
+              </button>
             </div>
           );
         })}
       </div>
 
-      {/* Inline add item — planner only */}
-      {isPlanner && (
-        <div className={`flex items-center gap-3 px-4 min-h-[46px] ${items.length > 0 ? "border-t border-line" : ""}`}>
-          <Plus size={18} className="text-fg-faint shrink-0" aria-hidden />
-          <input
-            ref={addItemRef}
-            type="text"
-            placeholder="Add item"
-            aria-label="Add item"
-            value={newItemText}
-            onChange={(e) => setNewItemText(e.target.value)}
-            className="flex-1 bg-transparent text-sm text-fg placeholder:text-fg-faint outline-none py-2.5"
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && newItemText.trim()) handleAddItem();
-            }}
-          />
-        </div>
-      )}
-      {!isPlanner && items.length === 0 && <p className="px-4 py-3 text-sm text-fg-muted border-t border-line">No items yet.</p>}
+      {/* Inline add item */}
+      <div className={`flex items-center gap-3 px-4 min-h-[46px] ${items.length > 0 ? "border-t border-line" : ""}`}>
+        <Plus size={18} className="text-fg-faint shrink-0" aria-hidden />
+        <input
+          ref={addItemRef}
+          type="text"
+          placeholder="Add item"
+          aria-label="Add item"
+          maxLength={300}
+          value={newItemText}
+          onChange={(e) => setNewItemText(e.target.value)}
+          className="flex-1 bg-transparent text-sm text-fg placeholder:text-fg-faint outline-none py-2.5"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && newItemText.trim()) handleAddItem();
+          }}
+        />
+      </div>
 
       <ConfirmDialog
         open={confirmDelete}
@@ -391,6 +445,15 @@ function ChecklistCard({
         message={`Are you sure you want to delete "${checklist.name}" and all its items?`}
         onConfirm={handleDeleteList}
         onCancel={() => setConfirmDelete(false)}
+      />
+      <ConfirmDialog
+        open={confirmReplace}
+        title="Replace default list?"
+        message={`You already have a default list called "${checklist.name}". Replace it with this one? Your other trips won't change.`}
+        confirmLabel="Replace"
+        destructive={false}
+        onConfirm={saveToDefaults}
+        onCancel={() => setConfirmReplace(false)}
       />
     </div>
   );

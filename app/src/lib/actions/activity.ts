@@ -234,6 +234,8 @@ export async function demoteActivity(activityId: string, tripId: string) {
     place_lat: activity.place_lat || null,
     place_lng: activity.place_lng || null,
     sort_order: nextOrder,
+    // Original suggester; an activity the planner added counts as theirs
+    created_by: activity.suggested_by ?? account.id,
   }).select("id").single();
 
   if (insertErr) {
