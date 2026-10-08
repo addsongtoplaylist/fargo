@@ -159,7 +159,7 @@ Floating layers only (unchanged rule): bottom bar, FAB, sheets, dialogs, toasts,
 
 - Floating rounded bar: 14px from the sides, 22px from the bottom, 66px tall, `radius 24`, white at 96%, 1px `border`, shadow.
 - Items: icon (21px) + label (10px). **Active item:** `accent` text/icon inside an `accent-soft` **rounded rectangle** (radius 14, padding 0 10px, 48px tall).
-- **Home (outside a trip):** My trips (`Map` icon) · Explore (`Compass`) · Profile (`User`).
+- **Home (outside a trip):** My trips (`Map` icon) · Explore (`Compass`) · Passport (`Stamp`, v0.5.6) · Profile (`User`).
 - **Inside a trip:** Overview (`LayoutDashboard`) · Schedule (`CalendarDays`) · Money (`Wallet`) · Prep (`ListChecks`) · Discover (`Compass`). Sub-pages (Your expenses, Settle up) keep their section active.
 - **Swipe left/right** on content still switches trip sections (ignored on the date strip and chip rows).
 - Hidden while the keyboard is open.
