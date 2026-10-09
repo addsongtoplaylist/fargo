@@ -1,6 +1,6 @@
 # Fargo — Stamp generation
 
-> **v1 — 2026-10-09. Planned, not built.** How each place gets its own passport-stamp artwork for the **Passport stamp** share overlay (v0.5.7). Ho Chi Minh City has hand-made art today; every other place shows a drawn ring with the country code until its stamp is generated.
+> **v1.1 — 2026-10-09. Planned, not built — waiting on the style check (API keys).** How each place gets its own passport-stamp artwork for the **Passport stamp** share overlay (v0.5.7). Ho Chi Minh City has hand-made art today; every other place shows a drawn ring with the country code until its stamp is generated.
 
 ## Decisions (owner, 2026-10-09)
 
@@ -12,7 +12,8 @@
 | 4 | **No limit on trips.** Generation runs through a **queue**; places waiting show as **pending**. |
 | 5 | **Safety cap: 10 new stamps a day** in total. The rest wait in the queue for the next day. |
 | 6 | **Style check first:** 5 test stamps (Penang, Bangkok, Tokyo, Paris, Bali) approved by the owner before the generator is switched on. |
-| 7 | **Model: Google Gemini image** ("Nano Banana", the model behind the Gemini app). The Ho Chi Minh City sample was made with it, so new stamps match. Price per image to be confirmed before launch (≈ US$0.04). |
+| 7 | **Model: Google Gemini image** ("Nano Banana", `gemini-nano-banana-2.1`, the model behind the Gemini app, ≈ US$0.034 per image, billing required — no free tier). The Ho Chi Minh City sample was made with it, so new stamps match. |
+| 8 | **OpenAI (GPT image) is tested alongside Gemini** in the style check; the owner picks the provider from a side-by-side comparison. Final model + price recorded here after the check. |
 
 Claude can't generate images; it writes the prompts and builds everything around the image model.
 
@@ -59,7 +60,7 @@ New table **`place_stamps`** (additive):
 - **Prompt:** the house template below, with the place filled in.
 - **Clean-up** (automatic, same as the hand-made sample): turn the ink into cream `#f6f2e8` on a transparent background, crop to the stamp's circle, resize to 600 × 600.
 - **Failure:** retries up to 3 times across runs, then `failed` (the overlay keeps the drawn ring).
-- **Secrets** (Supabase function secrets, never in the app): `GEMINI_API_KEY`; the service role key is provided to Edge Functions by Supabase.
+- **Secrets** (Supabase function secrets, never in the app): `GEMINI_API_KEY` or `OPENAI_API_KEY` (whichever wins the style check); the service role key is provided to Edge Functions by Supabase.
 
 ### 4. In the app
 
@@ -86,12 +87,14 @@ Negative / avoid: `text, letters, numbers, words, multiple colours, gradients, 3
 
 ## Cost
 
-About **US$0.04 per place, once** (to confirm). At most 10 a day → at most ≈ US$12 a month even at full cap; in practice far less, since each place is made only once.
+About **US$0.03–0.04 per place, once** (Gemini ≈ US$0.034; OpenAI price confirmed during the style check). At most 10 a day → at most ≈ US$12 a month even at full cap; in practice far less, since each place is made only once.
 
 ## Rollout
 
-1. **Style check:** generate the 5 test stamps with the template; owner approves (adjust the template if needed).
-2. **Owner:** create a Gemini API key (Google AI Studio) and add it as a Supabase function secret; run the SQL (table, bucket, policies, `pg_cron` jobs); deploy the Edge Function (or sign the Supabase CLI in so Claude can).
+1. **Style check:** generate the 5 test stamps with the template on **both Gemini and OpenAI**, run each through the same clean-up, and show a grid (place × provider, raw and cleaned). Owner picks the provider and approves (adjust the template if needed).
+   - **Waiting on owner:** add `GEMINI_API_KEY` and `OPENAI_API_KEY` to `app/.env.local` (gitignored; never paste keys in chat). Gemini needs billing enabled; OpenAI needs credit/billing and may ask to verify the organisation before image models work. Either key alone is enough to start.
+   - Run as a local script (scratchpad), not app code; costs well under US$1 for both.
+2. **Owner:** add the chosen provider's API key as a Supabase function secret; run the SQL (table, bucket, policies, `pg_cron` jobs); deploy the Edge Function (or sign the Supabase CLI in so Claude can).
 3. **Claude:** SQL + undo script, Edge Function, app lookup + pending note, seed Ho Chi Minh City; test on the Test trip.
 4. Release (next version after v0.5.7).
 
