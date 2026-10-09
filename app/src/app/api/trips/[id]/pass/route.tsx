@@ -314,13 +314,14 @@ function PhotoTicket({
 }) {
   const W = 760;
   const H = 1300;
-  const win = { x: 48, y: 120, w: W - 96, h: 640 };
-  const routeY = win.y + win.h + 100;
-  const tear = routeY + 80;
+  // Stub below the tear line = 20% of the ticket; the window takes the space freed up
+  const tear = Math.round(H * 0.8);
+  const routeY = tear - 72;
+  const win = { x: 48, y: 120, w: W - 96, h: routeY - 66 - 120 - 34 };
   const dark = "#1b1b1b";
   const muted = "#7a7a7a";
-  const mono = { fontFamily: "Plex", fontSize: 26, fontWeight: 600, color: muted, letterSpacing: 1 };
-  const value = { fontFamily: "Sora", fontSize: 46, color: dark, lineHeight: 1.1, marginTop: 6 };
+  const mono = { fontFamily: "Plex", fontSize: 22, fontWeight: 600, color: muted, letterSpacing: 1 };
+  const value = { fontFamily: "Sora", fontSize: 36, color: dark, lineHeight: 1.1, marginTop: 4 };
   const tripLength = days > 1 ? `${days}D${days - 1}N` : `${days}D`;
   const fields: [string, string][] = [
     ["DATE", month],
@@ -356,7 +357,7 @@ function PhotoTicket({
       </div>
 
       {/* From → to */}
-      <div style={{ position: "absolute", left: 48, right: 48, top: win.y + win.h + 34, display: "flex", justifyContent: "space-between" }}>
+      <div style={{ position: "absolute", left: 48, right: 48, top: routeY - 58, display: "flex", justifyContent: "space-between" }}>
         <span style={{ fontFamily: "Sora", fontSize: placeSize(from.label), color: dark }}>{from.label.toUpperCase()}</span>
         <span style={{ fontFamily: "Sora", fontSize: placeSize(to.label), color: dark }}>{to.label.toUpperCase()}</span>
       </div>
@@ -366,9 +367,9 @@ function PhotoTicket({
       </div>
 
       {/* Stub */}
-      <div style={{ position: "absolute", left: 48, right: 48, top: tear + 44, display: "flex", flexWrap: "wrap" }}>
+      <div style={{ position: "absolute", left: 48, right: 48, top: tear + 36, display: "flex", flexWrap: "wrap" }}>
         {fields.map(([k, v]) => (
-          <div key={k} style={{ display: "flex", flexDirection: "column", width: (W - 96) / 2, marginBottom: 28 }}>
+          <div key={k} style={{ display: "flex", flexDirection: "column", width: (W - 96) / 2, marginBottom: 22 }}>
             <span style={mono}>{k}</span>
             <span style={value}>{v}</span>
           </div>
