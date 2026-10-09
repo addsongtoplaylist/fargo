@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Download, Loader2 } from "lucide-react";
+import { Copy, Download, Loader2 } from "lucide-react";
 import { Sheet } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/toast";
@@ -24,10 +24,11 @@ const CHECKERBOARD = {
 
 /**
  * Share trip (v0.5.7): swipe between overlay styles (transparent PNGs, plus
- * the white pass card), then Instagram story — save the overlay to Photos via
- * the phone's share sheet and open Instagram, where it's added with Sticker →
- * Photo — or Save overlay. Images are fetched when the sheet opens so the
- * share runs straight from the tap (phones require that).
+ * the white pass card), then Save overlay (to Photos via the phone's share
+ * sheet; download on a computer) or Copy image (paste onto a story). A web
+ * app can't hand a sticker to another app directly, so the steps guide the
+ * user; no other brand is named. Images are fetched when the sheet opens so
+ * save / copy run straight from the tap (phones require that).
  */
 export function ShareTripSheet({ tripId, tripName, onClose }: { tripId: string; tripName: string; onClose: () => void }) {
   const { toast } = useToast();
@@ -36,7 +37,7 @@ export function ShareTripSheet({ tripId, tripName, onClose }: { tripId: string; 
   const [previews, setPreviews] = useState<Partial<Record<StyleKey, string>>>({});
   const [failed, setFailed] = useState(false);
   const [index, setIndex] = useState(0);
-  const [showSteps, setShowSteps] = useState(false);
+  const [done, setDone] = useState<"saved" | "copied" | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
 
   const current = STYLES[index].key;
@@ -103,17 +104,19 @@ export function ShareTripSheet({ tripId, tripName, onClose }: { tripId: string; 
     }
   }
 
-  async function handleInstagram() {
-    setShowSteps(true);
-    const saved = await save();
-    if (saved && canShareFiles) {
-      // Opens Instagram's story camera when the app is installed
-      window.location.href = "instagram://story-camera";
-    }
+  async function handleSave() {
+    if (await save()) setDone("saved");
   }
 
-  async function handleSave() {
-    if (await save()) toast("Overlay ready — find it in your Photos", "success");
+  async function handleCopy() {
+    if (!blob) return;
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      setDone("copied");
+      toast("Image copied", "success");
+    } catch {
+      toast("This browser can't copy images. Try Save overlay.", "error");
+    }
   }
 
   return (
@@ -123,11 +126,11 @@ export function ShareTripSheet({ tripId, tripName, onClose }: { tripId: string; 
       onClose={onClose}
       footer={
         <div className="flex gap-2.5">
-          <Button size="lg" onClick={handleInstagram} disabled={!blob} className="flex-1">
-            Instagram story
-          </Button>
-          <Button variant="soft" size="lg" icon={Download} onClick={handleSave} disabled={!blob} className="flex-1">
+          <Button size="lg" icon={Download} onClick={handleSave} disabled={!blob} className="flex-1">
             Save overlay
+          </Button>
+          <Button variant="soft" size="lg" icon={Copy} onClick={handleCopy} disabled={!blob} className="flex-1">
+            Copy image
           </Button>
         </div>
       }
@@ -172,23 +175,23 @@ export function ShareTripSheet({ tripId, tripName, onClose }: { tripId: string; 
         <p className="text-xs text-fg-muted mt-1.5">{STYLES[index].label}</p>
       </div>
 
-      {/* How it goes on Instagram */}
-      {showSteps && (
-        <ol className="mt-4 bg-page rounded-card p-4 space-y-2.5 text-[13px] text-fg">
-          {[
-            "Tap Save Image so the overlay goes to your Photos",
-            "In Instagram, pick your photo or video for the story",
-            "Tap the sticker icon → Photo → choose the Fargo overlay",
-          ].map((text, i) => (
-            <li key={text} className="flex gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-brand-soft text-brand text-[11px] font-bold flex items-center justify-center shrink-0">
-                {i + 1}
-              </span>
-              <span>{text}</span>
-            </li>
-          ))}
-        </ol>
-      )}
+      {/* How to use it — no app names */}
+      <div className="mt-4 bg-page rounded-card p-4 space-y-3 text-[13px] text-fg">
+        <div className={`flex gap-2.5 ${done === "copied" ? "opacity-50" : ""}`}>
+          <Download size={16} className="text-brand shrink-0 mt-0.5" aria-hidden />
+          <p>
+            <span className="font-semibold">Save overlay</span> — on your phone, tap Save Image. Then open your story,
+            pick a photo or video, and add the overlay from your photos as a photo sticker.
+          </p>
+        </div>
+        <div className={`flex gap-2.5 ${done === "saved" ? "opacity-50" : ""}`}>
+          <Copy size={16} className="text-brand shrink-0 mt-0.5" aria-hidden />
+          <p>
+            <span className="font-semibold">Copy image</span> — then open your story, pick a photo or video, and paste.
+            It lands as a sticker you can move and resize.
+          </p>
+        </div>
+      </div>
     </Sheet>
   );
 }

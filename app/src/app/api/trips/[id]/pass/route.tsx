@@ -14,14 +14,15 @@ import { todayForCountry } from "@/lib/dates";
  * Trip pass overlay (v0.5.7): boarding-pass layout — FROM / TO codes and
  * places, then distance · temperature · days of trip, and the wordmark.
  * `?style=light` (white text) / `dark` (dark text) are transparent PNGs to
- * place as an Instagram story sticker; `card` is the same on a white card.
+ * place on a story as a sticker; `card` is the same on a white card.
  * Only for people on the trip (getTrip reads under the normal trip rules).
  */
 
+/** Wordmark matches the text: white / dark on transparent, brand blue on the card. */
 const STYLES = {
-  light: { ink: "#ffffff", background: "transparent" },
-  dark: { ink: "#2b2b2b", background: "transparent" },
-  card: { ink: "#2b2b2b", background: "#ffffff" },
+  light: { ink: "#ffffff", background: "transparent", logo: "src/assets/logo-white.png" },
+  dark: { ink: "#2b2b2b", background: "transparent", logo: "src/assets/logo-dark.png" },
+  card: { ink: "#2b2b2b", background: "#ffffff", logo: "public/logo.png" },
 } as const;
 type Style = keyof typeof STYLES;
 
@@ -34,7 +35,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const { id } = await params;
   const styleParam = new URL(req.url).searchParams.get("style");
   const style: Style = styleParam === "dark" || styleParam === "card" ? styleParam : "light";
-  const { ink, background } = STYLES[style];
+  const { ink, background, logo: logoPath } = STYLES[style];
 
   const [trip, account] = await Promise.all([getTrip(id), getOrCreateAccount()]);
   if (!trip || !account) return new Response("Not found", { status: 404 });
@@ -66,7 +67,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     asset("src/assets/fonts/Sora-Bold.woff"),
     asset("src/assets/fonts/IBMPlexMono-Regular.woff"),
     asset("src/assets/fonts/IBMPlexMono-SemiBold.woff"),
-    asset("public/logo.png"),
+    asset(logoPath),
   ]);
   const days = differenceInCalendarDays(parseISO(trip.end_date), parseISO(trip.start_date)) + 1;
 
