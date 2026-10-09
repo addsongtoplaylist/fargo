@@ -1,6 +1,6 @@
 # Fargo — Who can do what
 
-> **v2 — 2026-10-09.** The single reference for access rules. When a feature changes who can do something, update this table first, then the code (server actions + database policies), then the spec. v2: personal checklists, idea suggestions and the Schedule-only share link are live (v0.5.4).
+> **v3 draft — 2026-10-09.** The single reference for access rules. When a feature changes who can do something, update this table first, then the code (server actions + database policies), then the spec. v2: personal checklists, idea suggestions and the Schedule-only share link are live (v0.5.4). v3 draft: Explore rows added, marked *planned* (`EXPLORE.md`; Explore is shelved as of 2026-10-09).
 
 ## Roles
 
@@ -10,6 +10,7 @@
 | **Member** | Joined the trip with an account (invite link). |
 | **Name-only traveller** | Added by the planner by name (e.g. "Mom"). Never signs in — real for splits, can't act. |
 | **Link viewer** | Opens the share link (`/s/…`). No account needed. |
+| **Explore viewer** *(planned)* | Anyone signed in, browsing Explore. Not on the published trip. |
 
 ## Access
 
@@ -41,6 +42,22 @@
 | | Add a place to the schedule | ✅ | ❌ | — | ❌ |
 | | Suggest a place as an idea | — | ✅ | — | ❌ |
 
+| **Explore** *(planned)* | Publish, update or unpublish the trip (after it ends) | ✅ | ❌ | — | ❌ |
+| | Choose whether the cover photo is shown | ✅ | ❌ | — | ❌ |
+| | See the "On Explore" label | ✅ | ✅ | — | ❌ |
+| | See that the trip was hidden or removed after reports | ✅ | ❌ | — | ❌ |
+
+**Explore (planned)**: what an Explore viewer can do with someone else's published trip. Full spec: `EXPLORE.md`.
+
+| Action | Explore viewer | Signed out |
+|---|:-:|:-:|
+| Browse Explore, open a published trip | ✅ | ❌ |
+| **+ Idea**: add a place to Ideas of an upcoming or ongoing trip they're on, same country | ✅ (as a suggestion if they're a member) | ❌ |
+| **Copy day** into a trip | ✅ only upcoming or ongoing trips they plan, same country | ❌ |
+| **Use this trip**: new trip from the plan | ✅ | ❌ |
+| Report a trip (once per trip; hidden for them straight away) | ✅ | ❌ |
+| See expenses, checklists, ideas, notes, other travellers' names, exact dates | ❌ | ❌ |
+
 ¹ Remove works only for people with no expenses.
 ² Anyone with an account can log an expense a name-only traveller paid or shares in.
 
@@ -52,4 +69,5 @@
 - **Default checklists**: copied into a trip automatically the first time you open its Prep; editing a trip's copy doesn't change your defaults (use "Save to my defaults"). Full spec: `CHECKLISTS.md`.
 - **Leaving a trip** keeps your checklists for it hidden; they return if you rejoin.
 - **Save this trip** (from a share link) copies activities only.
+- **Reported trips** (planned): hidden for everyone at 3 reports. Only the app owner restores or removes them, in the Supabase dashboard; there's no in-app admin role yet. Full spec: `EXPLORE.md` → Reports.
 - **Security boundary:** these rules are enforced by Supabase row-level security and database functions, not only by hiding buttons. The native app (`fargo-app`) shares the same database.

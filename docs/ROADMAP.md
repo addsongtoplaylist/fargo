@@ -1,76 +1,51 @@
 # Fargo — Roadmap
 
-> **v0.8 — 2026-09-26.** Releases v0.3.1–v0.3.6: polish, performance, then a full security / code / design / docs review. RLS audit done. Explore hidden from the bottom nav. Trip tabs: Overview · Schedule · Money · Prep · Discover.
+> **v0.9 — 2026-10-09.** Live: v0.5.7 (PWA, `fargotravel.vercel.app`). Phases 1–3 done; Phase 4 almost done. Since the last refresh: group expenses (v0.4), the redesign and cover photos (v0.5.0–0.5.1), personal checklists and idea suggestions (v0.5.4), Passport (v0.5.6) and share overlays (v0.5.7). Explore was specced and then **shelved**. Native app parked; all effort is on the PWA.
 >
-> **v0.7 — 2026-09-06.** Phases 1–3 complete and deployed. Phase 4 partially done (invite flow). v0.1 launched Aug 30. v0.2 shipped Sep 5 — post-trip polish from Singapore trip. v0.3 shipped Sep 6 — Smart Meal Discovery (Discover tab with Bites, Google Places, filter chips). Auth simplified to Google-only. People tab merged into Overview (5 → 4 tabs, then 5 with Discover).
+> v0.8 — 2026-09-26 · v0.7 — 2026-09-06 (history in the decision log and `STATUS.md`).
 
 **Sequencing principle:** the planner working alone *is* the product. Multi-user is the most expensive thing in MVP, so it comes after the single-planner trip works end to end — not because it's optional, but because everything it multiplies must be right first.
 
 ---
 
-## Phase 1 — The shell ✅
+## Done ✅
 
-Project scaffold (Next.js + Supabase + Tailwind), auth (Google sign-in), the app layout (bottom nav, routing), trip CRUD (create/list/edit/delete), and the trip shell with its 4-tab structure. **Fully styled from day one** — design tokens (Sora font, cream ground, teal accent, shadowless cards), hero trip cards on My trips, the complete visual language.
+| Milestone | Release |
+|---|---|
+| **Phase 1 — Shell:** Next.js + Supabase, Google sign-in, trip CRUD, layout | Aug 22 |
+| **Phase 2 — Plan:** schedule (drag to reorder), ideas → schedule, checklists | Aug 23 |
+| **Phase 3 — Money + share:** budget, expenses, invite link, read-only share link | Aug 25 · v0.1 launched Aug 30 |
+| Post-trip polish (Singapore) | v0.2 · Sep 5 |
+| **Discover (Bites):** dining search, Google Places | v0.3 · Sep 6 |
+| Polish, performance, full security / code / design / docs review, RLS audit | v0.3.1–0.3.6 · Sep 26 |
+| **Group expenses:** everyone logs, split by participants, settle-ups, own budgets (`EXPENSES.md`) | v0.4.0–0.4.5 · Sep 27 |
+| Weather follows your Stay | v0.4.6 |
+| **New look** (`DESIGN.md` v0.8) and **cover photos** | v0.5.0–0.5.1 · Oct 1–3 |
+| New logo | v0.5.2–0.5.3 |
+| **Personal checklists + idea suggestions** (`CHECKLISTS.md`, `IDEAS.md`) | v0.5.4 |
+| Cover position, invite cover, Discover for members | v0.5.5 |
+| **Passport** tab with travel stats | v0.5.6 |
+| **Share trip overlays:** trip pass, stamp, photo ticket | v0.5.7 · Oct 9 |
 
-**What was built:**
-- Next.js 16 project with App Router, Tailwind v4 with `@theme inline` design tokens
-- Supabase project with SQL-managed schema for Account + Trip + Traveller
-- Auth: Google OAuth only (magic link removed — unnecessary complexity for v0.1)
-- App layout: bottom nav (My trips · Explore · Profile — Explore hidden since v0.3.6), centred column (480px)
-- My trips page: hero trip cards (active + upcoming variants), past trips, "+ New trip"
-- Create trip form: name, destination (Mapbox search), dates, trip type, local currency, frozen rate
-- Trip interior: header + 4-tab bar (Overview · Schedule · Money · Prep) — People merged into Overview
-- Profile page: account settings, sign out
+## In progress 🟡
 
-**Completed:** Aug 22, 2026.
+- **AI stamp art per place** (`STAMPS.md`), v0.5.8. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
+- **Phase 4 — Real travellers.** Invite, join, leave, read-only members and the RLS audit are done. **Remaining:** upgrade a name-only traveller to an account, keeping their history.
 
-## Phase 2 — The plan ✅
+## Parked ⏸
 
-Schedule (day picker → activities with drag-to-reorder), ideas backlog with promote-to-schedule, checklists with full CRUD (••• menu, swipe-to-delete, inline add). Active trip auto-land on Schedule scrolled to today, swipe-to-switch tabs on mobile. Map deferred to future phase.
+- **Explore** — specced, wireframed and planned (`EXPLORE.md`, `EXPLORE-PLAN.md`); shelved 2026-10-09 because the user base is too small. The tab stays with its placeholder.
+- **Discover price filter** — keep in view.
+- **Home currency per trip** — money is built around MYR; needs its own release, tested on staging.
+- **Native iOS app** (`fargo-app`) — parked 2026-09-26. Before it resumes it must move to personal checklists so the old checklist tables can be dropped.
 
-**Completed:** Aug 23, 2026.
+## Not scheduled
 
-## Phase 3 — The money + share ✅ ⭐
-
-Budget setup (single total), expense logging (phone-first form with optimistic UI), daily budget strip on Schedule, category breakdown, solo/shared expenses. Plus **invite flow** — planner generates invite link, unauthenticated users see trip preview, sign in via Google, join as traveller. Share trip as read-only public link.
-
-**Completed:** Aug 25, 2026.
-
-> Phases 1–3 are a complete, genuinely useful product for one planner + invited travellers.
-
-## Phase 4 — Real travellers 🟡
-
-Invite flow is built (via SECURITY DEFINER RPCs). Members are read-only — only the planner edits. **Full RLS audit done 2026-09-26** (v0.3.4): functions derive the caller from `auth.uid()`, no public table access, shared trips via `get_shared_trip`. **Remaining:** account binding/upgrade path for name-only travellers.
-
-**Mostly done** — invite, join, leave and read-only members work end-to-end.
-
-## Phase 5 — Proposals and approvals
-
-Proposal model covering both schedule and expenses, the planner's approval queue with before/after, approve/reject with reason, and status visible to the submitter.
-
-**Done when:** a traveller submits the airport Grab, you approve it, and it becomes real.
-
-## Phase 6 — Polish + explore
-
-Empty states (generic-icon version shipped v0.3.6; illustrations still later), explore page (2-column grid, search, trip-type filters), final phone layout pass at 375px.
-
-**Travel stats** ship with Explore (inspired by Polarsteps): countries seen, % of the world visited, travel buddies, holiday days per year, furthest from home, biggest time difference, days since the last holiday / countdown to the next. All from existing trip data — no new tables (furthest-from-home needs destination coordinates).
-
-**Done when:** the trip is finished, readable, every empty state has a placeholder, and explore is browsable.
-
----
-
-## Later — deliberately not scheduled
-
-Settlement (who owes whom) · co-planners · publishing trips by trip type · file attachments on bookings · reusable checklist templates · duplicate a trip · illustrations (10 placements identified in DESIGN.md).
-
----
-
-## Launch deadline
-
-**v0.1 internal launch: Aug 30, 2026.** Target: the planner + 1 invited traveller on a real trip.
-
-Phases 1–3 are complete. The remaining days (Aug 26–29) are hardening, UAT, and bug buffer — no new features. Platform strategy: PWA on Vercel Hobby plan (`fargotravel.vercel.app`) as the beta, with a native iOS app planned for maturity.
+- **Map** — per-day pins (decided Aug 17, deferred in Phase 2).
+- **Discover: Shop & Attractions.**
+- **Proposals and approvals (old Phase 5)** — replaced 2026-09-26 by "members are read-only, the planner edits"; money is the exception.
+- **Illustrations** for empty states and no-photo covers — need an identity guideline and an illustration library first.
+- Co-planners · file attachments on bookings · duplicate a trip.
 
 ---
 
@@ -136,6 +111,7 @@ Phases 1–3 are complete. The remaining days (Aug 26–29) are hardening, UAT, 
 | 2026-10-01 | UI redesign (DESIGN.md v0.8) ships as **v0.5.0** — same features, no SQL; cover photo upload follows as v0.5.1 (P10, staging Supabase first). Then personal checklists → Discover price filter → Explore + travel stats |
 | 2026-10-09 | **Passport tab** (v0.5.6) and **Share trip overlays** (v0.5.7: trip pass, passport stamp card, photo ticket) — inspired by Strava, not a copy; save/copy flow because web apps can't post stickers to Instagram directly |
 | 2026-10-09 | **AI stamp art per place** (`docs/STAMPS.md`): one per Base city, only after a trip starts, auto-published, ≤ 10/day; Gemini vs OpenAI decided by a style check. Parked: Discover price filter (KIV), home currency per trip (money change, own release) |
+| 2026-10-09 | **Explore shelved** — spec (`EXPLORE.md`), wireframes, reference study and build plan done; not built. Reason: user base too small for Explore to work yet; launching it near-empty could backfire. Tab stays in the nav with its "on its way" placeholder |
 
 ### Open
 
