@@ -15,7 +15,7 @@ Fargo is a trip planner where the plan and the spending are one record: schedule
 | `docs/` | Product, experience, design, technical, roadmap, status, review docs |
 | `CHANGELOG.md` | Per-release changes — the most reliable "what shipped" record |
 
-Docs map: `PRODUCT.md` / `EXPERIENCE.md` = original vision (not everything is built) · `DESIGN.md` = design system · `PERMISSIONS.md` = who can do what (update it first when access changes) · `CHECKLISTS.md` / `IDEAS.md` = personal checklists / idea suggestions specs · `TECHNICAL.md` = how it's actually built · `ROADMAP.md` = phases + decision log · `STATUS.md` = milestone log (newest first) · `REVIEW.md` = review findings.
+Docs map: `PRODUCT.md` / `EXPERIENCE.md` = original vision (not everything is built) · `DESIGN.md` = design system · `PERMISSIONS.md` = who can do what (update it first when access changes) · `CHECKLISTS.md` / `IDEAS.md` = personal checklists / idea suggestions specs · `STAMPS.md` = stamp generation plan · `TECHNICAL.md` = how it's actually built · `ROADMAP.md` = phases + decision log · `STATUS.md` = milestone log (newest first) · `REVIEW.md` = review findings.
 
 ## Commands
 
