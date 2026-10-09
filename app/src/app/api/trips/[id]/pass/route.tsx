@@ -27,18 +27,8 @@ const WHITE = "#ffffff";
 const CREAM = "#f6f2e8";
 const NAVY = "#0b3a5e";
 
-/** "17–20 SEP 2026", "28 SEP – 2 OCT 2026", "30 DEC 2026 – 2 JAN 2027" */
-function dateRange(start: string, end: string) {
-  const d = (iso: string) => ({ day: Number(iso.slice(8, 10)), mon: MONTHS[Number(iso.slice(5, 7)) - 1], year: iso.slice(0, 4) });
-  const a = d(start);
-  const b = d(end);
-  if (start === end) return `${a.day} ${a.mon} ${a.year}`;
-  if (a.year !== b.year) return `${a.day} ${a.mon} ${a.year} – ${b.day} ${b.mon} ${b.year}`;
-  if (a.mon !== b.mon) return `${a.day} ${a.mon} – ${b.day} ${b.mon} ${b.year}`;
-  return `${a.day}–${b.day} ${a.mon} ${a.year}`;
-}
-
-const asset = (...parts: string[]) => readFile(join(process.cwd(), ...parts));
+// Files are listed in next.config (outputFileTracingIncludes), so skip whole-project tracing here
+const asset = (...parts: string[]) => readFile(join(/* turbopackIgnore: true */ process.cwd(), ...parts));
 const dataUri = (buf: Buffer) => `data:image/png;base64,${buf.toString("base64")}`;
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -112,7 +102,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   if (style === "photo") {
     const logo = await asset("public/logo.png");
     return new ImageResponse(
-      <PhotoTicket from={from} to={to} dates={dateRange(start, end)} km={kmText} logo={dataUri(logo)} />,
+      <PhotoTicket from={from} to={to} month={month} km={kmText} logo={dataUri(logo)} />,
       { width: 760, height: 1224, fonts, headers }
     );
   }
@@ -297,18 +287,18 @@ function StampCard({
 /**
  * Vertical ticket with a see-through window: on a story, the user's own photo
  * or video shows through it. White frame; everything else transparent.
- * Window on top; below the tear line the route, then dates · distance.
+ * Window on top; below the tear line the route, then month · distance.
  */
 function PhotoTicket({
   from,
   to,
-  dates,
+  month,
   km,
   logo,
 }: {
   from: { code: string; label: string };
   to: { code: string; label: string };
-  dates: string;
+  month: string;
   km: string | null;
   logo: string;
 }) {
@@ -358,9 +348,9 @@ function PhotoTicket({
         <span style={{ fontFamily: "Plex", fontSize: 28, color: muted }}>{to.code}</span>
       </div>
 
-      {/* Dates · distance */}
+      {/* Month · distance */}
       <div style={{ ...row, top: 1132 }}>
-        <span style={{ fontFamily: "Sora", fontSize: 32, color: dark }}>{dates}</span>
+        <span style={{ fontFamily: "Sora", fontSize: 32, color: dark }}>{month}</span>
         {km && <span style={{ fontFamily: "Sora", fontSize: 32, color: dark }}>{km}</span>}
       </div>
     </div>
