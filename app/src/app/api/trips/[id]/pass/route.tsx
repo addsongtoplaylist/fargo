@@ -320,15 +320,10 @@ function PhotoTicket({
   const win = { x: 48, y: 120, w: W - 96, h: routeY - 66 - 120 - 34 };
   const dark = "#1b1b1b";
   const muted = "#7a7a7a";
-  const mono = { fontFamily: "Plex", fontSize: 22, fontWeight: 600, color: muted, letterSpacing: 1 };
-  const value = { fontFamily: "Sora", fontSize: 36, color: dark, lineHeight: 1.1, marginTop: 4 };
   const tripLength = days > 1 ? `${days}D${days - 1}N` : `${days}D`;
-  const fields: [string, string][] = [
-    ["DATE", month],
-    ["TRIP", tripLength],
-    ["DISTANCE", km ?? "—"],
-    ["TEMP", temp ?? "—"],
-  ];
+  // One row, no labels: SEP 2026 · 4D3N · 897 KM · 27°C (missing facts left out)
+  const facts = [month, tripLength, km, temp].filter((f): f is string => !!f);
+  const factSize = Math.min(34, Math.floor((W - 96 - (facts.length - 1) * 24) / (facts.join("").length * 0.64)));
   const placeSize = (t: string) => (t.length > 16 ? 28 : 34);
 
   return (
@@ -366,13 +361,23 @@ function PhotoTicket({
         <span style={{ fontFamily: "Plex", fontSize: 28, color: muted }}>{to.code}</span>
       </div>
 
-      {/* Stub */}
-      <div style={{ position: "absolute", left: 48, right: 48, top: tear + 36, display: "flex", flexWrap: "wrap" }}>
-        {fields.map(([k, v]) => (
-          <div key={k} style={{ display: "flex", flexDirection: "column", width: (W - 96) / 2, marginBottom: 22 }}>
-            <span style={mono}>{k}</span>
-            <span style={value}>{v}</span>
-          </div>
+      {/* Stub: one clean row */}
+      <div
+        style={{
+          position: "absolute",
+          left: 48,
+          right: 48,
+          top: tear,
+          height: H - tear,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        {facts.map((f) => (
+          <span key={f} style={{ fontFamily: "Sora", fontSize: factSize, color: dark }}>
+            {f}
+          </span>
         ))}
       </div>
     </div>
