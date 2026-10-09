@@ -9,7 +9,7 @@ import { useToast } from "@/components/toast";
 const STYLES = [
   { key: "pass", label: "Trip pass", aspect: "aspect-[1080/860]" },
   { key: "stamp", label: "Passport stamp", aspect: "aspect-[1180/700]" },
-  { key: "photo", label: "Photo ticket", aspect: "aspect-[760/1300] max-h-[420px] mx-auto" },
+  { key: "photo", label: "Photo ticket", aspect: "aspect-[760/1224] max-h-[420px] mx-auto" },
 ] as const;
 type StyleKey = (typeof STYLES)[number]["key"];
 

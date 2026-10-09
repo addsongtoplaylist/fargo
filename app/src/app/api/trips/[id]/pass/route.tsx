@@ -27,6 +27,17 @@ const WHITE = "#ffffff";
 const CREAM = "#f6f2e8";
 const NAVY = "#0b3a5e";
 
+/** "17–20 SEP 2026", "28 SEP – 2 OCT 2026", "30 DEC 2026 – 2 JAN 2027" */
+function dateRange(start: string, end: string) {
+  const d = (iso: string) => ({ day: Number(iso.slice(8, 10)), mon: MONTHS[Number(iso.slice(5, 7)) - 1], year: iso.slice(0, 4) });
+  const a = d(start);
+  const b = d(end);
+  if (start === end) return `${a.day} ${a.mon} ${a.year}`;
+  if (a.year !== b.year) return `${a.day} ${a.mon} ${a.year} – ${b.day} ${b.mon} ${b.year}`;
+  if (a.mon !== b.mon) return `${a.day} ${a.mon} – ${b.day} ${b.mon} ${b.year}`;
+  return `${a.day}–${b.day} ${a.mon} ${a.year}`;
+}
+
 const asset = (...parts: string[]) => readFile(join(process.cwd(), ...parts));
 const dataUri = (buf: Buffer) => `data:image/png;base64,${buf.toString("base64")}`;
 
@@ -101,16 +112,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   if (style === "photo") {
     const logo = await asset("public/logo.png");
     return new ImageResponse(
-      <PhotoTicket
-        from={from}
-        to={to}
-        month={month}
-        days={days}
-        km={kmText}
-        temp={tempText}
-        logo={dataUri(logo)}
-      />,
-      { width: 760, height: 1300, fonts, headers }
+      <PhotoTicket from={from} to={to} dates={dateRange(start, end)} km={kmText} logo={dataUri(logo)} />,
+      { width: 760, height: 1224, fonts, headers }
     );
   }
 
@@ -294,37 +297,31 @@ function StampCard({
 /**
  * Vertical ticket with a see-through window: on a story, the user's own photo
  * or video shows through it. White frame; everything else transparent.
+ * Window on top; below the tear line the route, then dates · distance.
  */
 function PhotoTicket({
   from,
   to,
-  month,
-  days,
+  dates,
   km,
-  temp,
   logo,
 }: {
   from: { code: string; label: string };
   to: { code: string; label: string };
-  month: string;
-  days: number;
+  dates: string;
   km: string | null;
-  temp: string | null;
   logo: string;
 }) {
   const W = 760;
-  const H = 1300;
-  // Stub below the tear line = 20% of the ticket; the window takes the space freed up
-  const tear = Math.round(H * 0.8);
-  const routeY = tear - 72;
-  const win = { x: 48, y: 120, w: W - 96, h: routeY - 66 - 120 - 34 };
+  const H = 1224;
+  const pad = 44;
+  const win = { x: pad, y: 110, w: W - pad * 2, h: 832 };
+  const tear = 980;
+  const arrowY = 1068;
   const dark = "#1b1b1b";
   const muted = "#7a7a7a";
-  const tripLength = days > 1 ? `${days}D${days - 1}N` : `${days}D`;
-  // One row, no labels: SEP 2026 · 4D3N · 897 KM · 27°C (missing facts left out)
-  const facts = [month, tripLength, km, temp].filter((f): f is string => !!f);
-  const factSize = Math.min(34, Math.floor((W - 96 - (facts.length - 1) * 24) / (facts.join("").length * 0.64)));
-  const placeSize = (t: string) => (t.length > 16 ? 28 : 34);
+  const placeSize = Math.min(36, Math.floor((W - pad * 2 - 40) / ((from.label.length + to.label.length) * 0.64)));
+  const row = { position: "absolute" as const, left: pad, right: pad, display: "flex", justifyContent: "space-between", alignItems: "center" };
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex", position: "relative" }}>
@@ -340,45 +337,31 @@ function PhotoTicket({
         <rect width={W} height={H} rx={30} fill="#fff" mask="url(#frame)" />
         <line x1={40} y1={tear} x2={W - 40} y2={tear} stroke="#b4b4b4" strokeWidth={3} strokeDasharray="13 13" />
         {/* Route arrow */}
-        <line x1={48} y1={routeY} x2={W - 62} y2={routeY} stroke={dark} strokeWidth={3} />
-        <path d={`M${W - 48} ${routeY} L${W - 66} ${routeY - 9} L${W - 66} ${routeY + 9} Z`} fill={dark} />
+        <line x1={pad} y1={arrowY} x2={W - pad - 14} y2={arrowY} stroke={dark} strokeWidth={3} />
+        <path d={`M${W - pad} ${arrowY} L${W - pad - 18} ${arrowY - 9} L${W - pad - 18} ${arrowY + 9} Z`} fill={dark} />
       </svg>
 
       {/* Header: wordmark · TRIP PASS */}
-      <div style={{ position: "absolute", left: 48, top: 26, right: 48, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div style={{ ...row, top: 30 }}>
         {/* eslint-disable-next-line @next/next/no-img-element -- rendered into the PNG, not the page */}
-        <img src={logo} width={150} height={56} alt="" />
+        <img src={logo} width={136} height={51} alt="" />
         <span style={{ fontFamily: "Plex", fontSize: 30, fontWeight: 600, color: dark, letterSpacing: 2 }}>TRIP PASS</span>
       </div>
 
       {/* From → to */}
-      <div style={{ position: "absolute", left: 48, right: 48, top: routeY - 58, display: "flex", justifyContent: "space-between" }}>
-        <span style={{ fontFamily: "Sora", fontSize: placeSize(from.label), color: dark }}>{from.label.toUpperCase()}</span>
-        <span style={{ fontFamily: "Sora", fontSize: placeSize(to.label), color: dark }}>{to.label.toUpperCase()}</span>
+      <div style={{ ...row, top: arrowY - 62 }}>
+        <span style={{ fontFamily: "Sora", fontSize: placeSize, color: dark }}>{from.label.toUpperCase()}</span>
+        <span style={{ fontFamily: "Sora", fontSize: placeSize, color: dark }}>{to.label.toUpperCase()}</span>
       </div>
-      <div style={{ position: "absolute", left: 48, right: 48, top: routeY + 12, display: "flex", justifyContent: "space-between" }}>
+      <div style={{ ...row, top: arrowY + 12 }}>
         <span style={{ fontFamily: "Plex", fontSize: 28, color: muted }}>{from.code}</span>
         <span style={{ fontFamily: "Plex", fontSize: 28, color: muted }}>{to.code}</span>
       </div>
 
-      {/* Stub: one clean row */}
-      <div
-        style={{
-          position: "absolute",
-          left: 48,
-          right: 48,
-          top: tear,
-          height: H - tear,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        {facts.map((f) => (
-          <span key={f} style={{ fontFamily: "Sora", fontSize: factSize, color: dark }}>
-            {f}
-          </span>
-        ))}
+      {/* Dates · distance */}
+      <div style={{ ...row, top: 1132 }}>
+        <span style={{ fontFamily: "Sora", fontSize: 32, color: dark }}>{dates}</span>
+        {km && <span style={{ fontFamily: "Sora", fontSize: 32, color: dark }}>{km}</span>}
       </div>
     </div>
   );
