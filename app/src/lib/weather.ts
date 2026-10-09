@@ -41,3 +41,51 @@ export function weatherLocation(
   const current = stays.filter((a) => a.date <= today).at(-1);
   return current ? pin(current) : baseLoc;
 }
+
+/**
+ * Mean temperature (°C) at a place over a trip's dates, via Open-Meteo (free,
+ * no key). Days more than 6 days ago come from the historical archive; recent
+ * and upcoming days (up to 15 days ahead) from the forecast. Days further
+ * ahead are skipped. Null when no day has data (e.g. a trip months away).
+ */
+export async function getMeanTemperature(
+  lat: number,
+  lng: number,
+  start: string,
+  end: string,
+  today: string
+): Promise<number | null> {
+  const addDays = (d: string, n: number) => {
+    const t = new Date(`${d}T00:00:00Z`);
+    t.setUTCDate(t.getUTCDate() + n);
+    return t.toISOString().slice(0, 10);
+  };
+  const archiveEnd = addDays(today, -7);
+  const forecastEnd = addDays(today, 15);
+
+  async function daily(base: string, from: string, to: string): Promise<number[]> {
+    if (from > to) return [];
+    try {
+      const url = `${base}?latitude=${lat}&longitude=${lng}&start_date=${from}&end_date=${to}&daily=temperature_2m_mean&timezone=auto`;
+      const res = await fetch(url, { next: { revalidate: 21600 }, signal: AbortSignal.timeout(4000) });
+      if (!res.ok) return [];
+      const data = await res.json();
+      const values: unknown[] = data?.daily?.temperature_2m_mean ?? [];
+      return values.filter((v): v is number => typeof v === "number");
+    } catch {
+      return [];
+    }
+  }
+
+  const [past, recent] = await Promise.all([
+    daily("https://archive-api.open-meteo.com/v1/archive", start, end < archiveEnd ? end : archiveEnd),
+    daily(
+      "https://api.open-meteo.com/v1/forecast",
+      start > archiveEnd ? start : addDays(archiveEnd, 1),
+      end < forecastEnd ? end : forecastEnd
+    ),
+  ]);
+  const all = [...past, ...recent];
+  if (all.length === 0) return null;
+  return Math.round(all.reduce((a, b) => a + b, 0) / all.length);
+}

@@ -92,7 +92,7 @@ function utcOffsetHours(timeZone: string): number | null {
 }
 
 /** Great-circle distance in km. */
-function distanceKm(a: [number, number], b: [number, number]): number {
+export function distanceKm(a: [number, number], b: [number, number]): number {
   const rad = (d: number) => (d * Math.PI) / 180;
   const dLat = rad(b[0] - a[0]);
   const dLng = rad(b[1] - a[1]);
@@ -106,6 +106,25 @@ function overlapDays(start: string, end: string, from: string, to: string): numb
   const e = end < to ? end : to;
   if (e < s) return 0;
   return differenceInCalendarDays(parseISO(e), parseISO(s)) + 1;
+}
+
+/** Straight-line km from your home country's centre to a trip (its location, else its country's centre). */
+export function kmFromHome(
+  homeCountryCode: string | null | undefined,
+  lat: number | null,
+  lng: number | null,
+  countryCode: string | null
+): number | null {
+  const home = homeCountryCode ? CENTROID[homeCountryCode] : undefined;
+  const point: [number, number] | undefined =
+    lat != null && lng != null ? [lat, lng] : countryCode ? CENTROID[countryCode] : undefined;
+  if (!home || !point) return null;
+  return Math.round(distanceKm(home, point));
+}
+
+/** Rough centre of a country we list, for places without saved coordinates. */
+export function countryCentre(code: string | null | undefined): [number, number] | null {
+  return (code && CENTROID[code]) || null;
 }
 
 export function countryName(code: string): string {
