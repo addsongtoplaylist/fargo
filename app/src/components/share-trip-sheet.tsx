@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/toast";
 
 const STYLES = [
-  { key: "light", label: "White text" },
-  { key: "dark", label: "Dark text" },
-  { key: "card", label: "Pass card" },
+  { key: "pass", label: "Trip pass", aspect: "aspect-[1080/860]" },
+  { key: "stamp", label: "Passport stamp", aspect: "aspect-[1180/700]" },
+  { key: "photo", label: "Photo ticket", aspect: "aspect-[760/1300] max-h-[420px] mx-auto" },
 ] as const;
 type StyleKey = (typeof STYLES)[number]["key"];
 
@@ -23,8 +23,8 @@ const CHECKERBOARD = {
 };
 
 /**
- * Share trip (v0.5.7): swipe between overlay styles (transparent PNGs, plus
- * the white pass card), then Save overlay (to Photos via the phone's share
+ * Share trip (v0.5.7): swipe between the trip pass (white text on a
+ * transparent background) and the passport stamp card, then Save overlay (to Photos via the phone's share
  * sheet; download on a computer) or Copy image (paste onto a story). A web
  * app can't hand a sticker to another app directly, so the steps guide the
  * user; no other brand is named. Images are fetched when the sheet opens so
@@ -142,9 +142,9 @@ export function ShareTripSheet({ tripId, tripName, onClose }: { tripId: string; 
         data-swipe-ignore
         className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none -mx-1"
       >
-        {STYLES.map(({ key, label }) => (
+        {STYLES.map(({ key, label, aspect }) => (
           <div key={key} className="snap-center shrink-0 w-full px-1">
-            <div className="rounded-[18px] aspect-[1080/860] flex items-center justify-center p-4" style={CHECKERBOARD}>
+            <div className={`rounded-[18px] ${aspect} flex items-center justify-center p-4`} style={CHECKERBOARD}>
               {failed && !previews[key] ? (
                 <p className="text-sm text-white/80">Couldn&apos;t make the overlay. Please try again.</p>
               ) : previews[key] ? (
