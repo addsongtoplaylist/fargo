@@ -144,7 +144,7 @@ export function ShareTripSheet({ tripId, tripName, onClose }: { tripId: string; 
       >
         {STYLES.map(({ key, label }) => (
           <div key={key} className="snap-center shrink-0 w-full px-1">
-            <div className="rounded-[18px] aspect-square flex items-center justify-center p-4" style={CHECKERBOARD}>
+            <div className="rounded-[18px] aspect-[1080/860] flex items-center justify-center p-4" style={CHECKERBOARD}>
               {failed && !previews[key] ? (
                 <p className="text-sm text-white/80">Couldn&apos;t make the overlay. Please try again.</p>
               ) : previews[key] ? (
@@ -176,22 +176,20 @@ export function ShareTripSheet({ tripId, tripName, onClose }: { tripId: string; 
       </div>
 
       {/* How to use it — no app names */}
-      <div className="mt-4 bg-page rounded-card p-4 space-y-3 text-[13px] text-fg">
-        <div className={`flex gap-2.5 ${done === "copied" ? "opacity-50" : ""}`}>
+      <ul className="mt-4 bg-page rounded-card p-4 space-y-2 text-[13px] text-fg">
+        <li className={`flex gap-2.5 ${done === "copied" ? "opacity-50" : ""}`}>
           <Download size={16} className="text-brand shrink-0 mt-0.5" aria-hidden />
-          <p>
-            <span className="font-semibold">Save overlay</span> — on your phone, tap Save Image. Then open your story,
-            pick a photo or video, and add the overlay from your photos as a photo sticker.
-          </p>
-        </div>
-        <div className={`flex gap-2.5 ${done === "saved" ? "opacity-50" : ""}`}>
+          <span>
+            <span className="font-semibold">Save overlay</span>, then add it to your story as a photo sticker.
+          </span>
+        </li>
+        <li className={`flex gap-2.5 ${done === "saved" ? "opacity-50" : ""}`}>
           <Copy size={16} className="text-brand shrink-0 mt-0.5" aria-hidden />
-          <p>
-            <span className="font-semibold">Copy image</span> — then open your story, pick a photo or video, and paste.
-            It lands as a sticker you can move and resize.
-          </p>
-        </div>
-      </div>
+          <span>
+            <span className="font-semibold">Copy image</span>, then paste it on your story.
+          </span>
+        </li>
+      </ul>
     </Sheet>
   );
 }

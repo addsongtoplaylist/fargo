@@ -27,7 +27,7 @@ const STYLES = {
 type Style = keyof typeof STYLES;
 
 const WIDTH = 1080;
-const HEIGHT = 1080;
+const HEIGHT = 860;
 
 const asset = (...parts: string[]) => readFile(join(process.cwd(), ...parts));
 
@@ -89,7 +89,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
           flexDirection: "column",
           background,
           borderRadius: 48,
-          padding: "96px 96px 88px",
+          padding: "72px 96px 64px",
         }}
       >
         {/* FROM → TO */}
@@ -116,7 +116,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         </div>
 
         {/* DISTANCE · TEMPERATURE · DAYS OF TRIP */}
-        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 120 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginTop: 64 }}>
           <div style={stat}>
             <span style={statLabel}>DISTANCE</span>
             <span style={statValue}>{km != null ? `${km.toLocaleString("en")} km` : "—"}</span>
@@ -132,7 +132,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         </div>
 
         {/* Wordmark */}
-        <div style={{ display: "flex", marginTop: "auto" }}>
+        <div style={{ display: "flex", marginTop: "auto", paddingTop: 48 }}>
           {/* eslint-disable-next-line @next/next/no-img-element -- rendered into the PNG, not the page */}
           <img src={`data:image/png;base64,${logo.toString("base64")}`} width={204} height={76} alt="" />
         </div>

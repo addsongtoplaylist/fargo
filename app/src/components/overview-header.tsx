@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Settings, LogOut, Share } from "lucide-react";
+import { ArrowLeft, Settings, LogOut, Share2 } from "lucide-react";
 import { leaveTrip } from "@/lib/actions/trip";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ShareTripSheet } from "@/components/share-trip-sheet";
@@ -85,7 +85,7 @@ export function OverviewHeader({
               {/* Share trip pass (v0.5.7) — anyone on the trip */}
               {role && (
                 <button type="button" onClick={() => setSharing(true)} className={ROUND} aria-label="Share trip">
-                  <Share size={18} strokeWidth={1.9} aria-hidden />
+                  <Share2 size={18} strokeWidth={1.9} aria-hidden />
                 </button>
               )}
               {role === "planner" && (
