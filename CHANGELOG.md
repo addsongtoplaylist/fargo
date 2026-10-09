@@ -2,6 +2,18 @@
 
 ---
 
+## v0.5.7 — 2026-10-09 · Share trip
+
+- **Share trip** — a new share icon on each trip's Overview (anyone on the trip). Swipe between three overlays and **Save overlay** or **Copy image**, then add it to a story as a sticker:
+  - **Trip pass** — boarding-pass layout in white text on a see-through background: FROM → TO airport-style codes, distance, mean temperature during the trip, trip days.
+  - **Passport stamp** — deep-navy ticket with an ink passport stamp across the tear line (place and month lettered round the ring), month, from, distance · temperature, and the trip length as **4D3N**.
+  - **Photo ticket** — a white vertical ticket with a see-through window, so your own photo or video shows through; route and month · distance below.
+- Codes come from a built-in list of airports (the trip's Base city, else the country's main airport). Distance is straight-line from your home country; temperature is the trip's mean from Open-Meteo.
+- Stamp artwork exists for Ho Chi Minh City so far; other places get a drawn ring with the country code until per-place art arrives.
+- Sign-in on Vercel preview links now returns to the preview (Supabase redirect URL added).
+
+---
+
 ## v0.5.6 — 2026-10-09 · Passport
 
 - **New Passport tab** (home bar: My trips · Explore · **Passport** · Profile) — your travel stats from the trips you're on.

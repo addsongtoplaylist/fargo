@@ -4,6 +4,14 @@
 
 ---
 
+**2026-10-09 — Share trip overlays (v0.5.7)**
+
+`/api/trips/[id]/pass?style=pass|stamp|photo` renders PNGs with `next/og` (fonts + logos + stamp art in `src/assets`, listed in `next.config` tracing). Curved stamp lettering uses font outlines (`lib/curved-text.ts`, opentype.js). Web apps can't hand a sticker straight to Instagram (that needs a native app + Meta app ID), so the flow is Save overlay / Copy image → add to story. No database changes.
+
+**Next:** per-place stamp art (AI-generated passport stamps, one per place, shared by everyone) — planning now. Still parked: Discover price filter, home currency per trip.
+
+---
+
 **2026-10-09 — Passport (v0.5.6)**
 
 New home tab built from existing trip data (no SQL): `lib/passport.ts` (pure stats), `lib/actions/passport.ts`, `/passport`, `/passport/stamps`. Owner decisions: one stamp per trip; home country excluded from "countries"; ink-stamp style, 3 per row × 2 rows, See all; no map; colour stamps only (no cover photos).
