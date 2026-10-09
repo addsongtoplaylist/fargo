@@ -19,6 +19,7 @@
 | | Edit trip settings, delete trip | ✅ | ❌ | — | ❌ |
 | | Add / change / reposition / remove the cover photo | ✅ | ❌ | — | ❌ |
 | | Copy share link | ✅ | ❌ | — | ❌ |
+| | Share trip overlays (trip pass, stamp, photo ticket) | ✅ | ✅ | — | ❌ |
 | **Travellers** | Invite, quick add, rename name-only, remove¹ | ✅ | ❌ | — | ❌ |
 | | Leave trip, change owner (pick their name) | — | ✅ | — | ❌ |
 | **Schedule** | Add, edit, move, delete, reorder activities | ✅ | View | — | View |
