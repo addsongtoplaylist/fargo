@@ -18,12 +18,12 @@ const FEATURES = [
   },
   {
     title: "Travel buddies",
-    photoSrc: "/marketing/photo-buddies-3.webp" as string | undefined,
+    photoSrc: "/marketing/photo-buddies-4.webp" as string | undefined,
     tint: "bg-[#f6eedc]",
     body: "Invite your friends with one link. They suggest ideas, you decide what makes the schedule.",
     screen: "Fargo Prep with a packing list and ideas",
     src: "/marketing/screen-prep.webp",
-    photo: "Friends laughing together on a mountain hike",
+    photo: "Friends walking together on a forest trail",
   },
   {
     title: "Shared costs",
