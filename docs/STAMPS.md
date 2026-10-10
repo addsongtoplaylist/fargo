@@ -13,7 +13,8 @@
 | 5 | **Fallback:** today's drawn ring with **✈** in the middle — no country code. |
 | 6 | **Batch 1 = Asia, including China and India. Batch 2 = popular countries further away.** |
 | 7 | **Owner reviews every stamp** before it's added. Nothing is published automatically. |
-| 8 | **Style check first:** 5 test stamps on **Gemini and OpenAI** side by side; the owner picks the provider. (Gemini "Nano Banana" ≈ US$0.034/image; the Ho Chi Minh City sample was made with it.) |
+| 8 | **Stamp names use the state or region name where that's what travellers say** (Penang, not George Town; Hokkaido, Kerala, Palawan). Where the city itself is the destination, the city name stays (Osaka, Bangkok). Matching is by map location, so a trip to George Town or Batu Ferringhi still gets the Penang stamp; the ring lettering keeps the trip's own place name. |
+| 9 | **Style check first:** 5 test stamps on **Gemini and OpenAI** side by side; the owner picks the provider. (Gemini "Nano Banana" ≈ US$0.034/image; the Ho Chi Minh City sample was made with it.) |
 
 Claude can't generate images; it writes the prompts and the scripts around the image model.
 
@@ -37,7 +38,7 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 |---|---|
 | `country` | ISO code, e.g. `MY` |
 | `kind` | `city` or `country` |
-| `name`, `aliases` | e.g. "George Town" · ["Penang", "Pulau Pinang"] — used for the ring lettering and as a name match |
+| `name`, `aliases` | e.g. "Penang" · ["George Town", "Pulau Pinang", "Batu Ferringhi"] — used for the ring lettering and as a name match |
 | `lat`, `lng`, `radiusKm` | Centre and reach, e.g. 50 km for a city, larger for islands/regions (Bali, Hokkaido) |
 | `file` | Path to the PNG |
 
@@ -63,19 +64,19 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 
 | Country | City stamps (up to 6) | + 2 country stamps |
 |---|---|---|
-| Malaysia | Kuala Lumpur · George Town (Penang) · Langkawi · Melaka · Kota Kinabalu · Ipoh | ✓ |
+| Malaysia | Kuala Lumpur · Penang · Langkawi · Melaka · Kota Kinabalu · Ipoh | ✓ |
 | Singapore | — (city-state) | ✓ |
 | Thailand | Bangkok · Phuket · Chiang Mai · Krabi · Pattaya · Koh Samui | ✓ |
-| Indonesia | Bali · Jakarta · Yogyakarta · Bandung · Lombok · Labuan Bajo | ✓ |
-| Vietnam | Ho Chi Minh City (hand-made, kept) · Hanoi · Da Nang · Hoi An · Nha Trang · Ha Long | ✓ |
-| Philippines | Manila · Cebu · Boracay · El Nido (Palawan) · Bohol · Siargao | ✓ |
+| Indonesia | Bali · Jakarta · Yogyakarta · Bandung · Lombok · Komodo (Labuan Bajo) | ✓ |
+| Vietnam | Ho Chi Minh City (hand-made, kept) · Hanoi · Da Nang · Hoi An · Nha Trang · Ha Long Bay | ✓ |
+| Philippines | Manila · Cebu · Boracay · Palawan · Bohol · Siargao | ✓ |
 | Cambodia | Siem Reap · Phnom Penh | ✓ |
-| Japan | Tokyo · Osaka · Kyoto · Sapporo (Hokkaido) · Fukuoka · Okinawa | ✓ |
+| Japan | Tokyo · Osaka · Kyoto · Hokkaido · Fukuoka · Okinawa | ✓ |
 | South Korea | Seoul · Busan · Jeju · Gyeongju · Incheon · Gangneung | ✓ |
 | Taiwan | Taipei · Taichung · Tainan · Kaohsiung · Hualien · Jiufen | ✓ |
 | Hong Kong | — (city) | ✓ |
 | China | Beijing · Shanghai · Chengdu · Chongqing · Xi'an · Guilin | ✓ |
-| India | Delhi · Mumbai · Jaipur · Agra · Goa · Kochi (Kerala) | ✓ |
+| India | Delhi · Mumbai · Jaipur · Agra · Goa · Kerala | ✓ |
 
 ≈ 63 city + 26 country stamps ≈ **89 stamps** (88 new). Possible additions: Macau, Maldives, Sri Lanka, Nepal, Myanmar, Laos.
 
@@ -100,15 +101,21 @@ Negative / avoid: `text, letters, numbers, words, multiple colours, gradients, 3
 
 About **US$0.03–0.04 per image**. Batch 1 (≈ 88 stamps, allowing redos) ≈ **US$5–8**, paid once. The style check is well under US$1. Nothing is spent while people use Fargo.
 
-## Rollout
+## Rollout and timeline
 
-1. **Style check:** 5 test stamps — Penang, Bangkok, Tokyo, Seoul, Bali — on **both Gemini and OpenAI**, same clean-up, shown side by side. Owner picks the provider and approves the template.
-   - **Waiting on owner:** `GEMINI_API_KEY` and `OPENAI_API_KEY` in `app/.env.local` (never paste keys in chat). Gemini needs billing enabled; OpenAI needs credit and may ask to verify the organisation. Either key alone is enough to start.
-2. **Owner:** confirm the batch 1 list (cities + country symbols).
-3. **Claude:** generation script + clean-up + review sheet; run batch 1.
-4. **Owner:** review; redo where needed.
-5. **Claude:** library manifest + lookup (coordinates, names, country stamp by trip id), ✈ fallback; add the approved stamps; test on the Test trip.
-6. Release (v0.5.16).
+Elapsed time is mostly the owner's review; Claude's work is about three sessions. Dates assume the keys go in on **Sat 11 Oct 2026**.
+
+| # | Step | Who | Effort | Target |
+|---|---|---|---|---|
+| 0 | Add `GEMINI_API_KEY` and/or `OPENAI_API_KEY` to `app/.env.local` (billing on; never paste in chat) | Owner | 15 min | Sat 11 Oct |
+| 1 | **Style check:** script + clean-up; 5 places (Penang, Bangkok, Tokyo, Seoul, Bali) × 2 providers, raw + cleaned, side by side | Claude | 1 session, < US$1 | Sat 11 Oct |
+| 2 | Pick provider, approve or tweak the template | Owner | 30 min | Sun 12 Oct |
+| 3 | Confirm batch 1 list + the 2 country symbols per country (Claude proposes the symbols) | Owner | 30 min | Sun 12 Oct |
+| 4 | **Generate batch 1** (≈ 88 stamps, ≈ 30–45 min run) + review sheet | Claude | 1 session, ≈ US$4 | Mon 13 Oct |
+| 5 | Review: approve or mark redo; 1–2 redo rounds | Owner + Claude | 1–2 days | Tue 14 – Wed 15 Oct |
+| 6 | **Build in the app:** library manifest, nearest-stamp matching, country stamp by trip id, ✈ fallback; test every country on the Test trip with a local production build | Claude | 1 session | Wed 15 Oct |
+| 7 | Owner looks at the Share trip overlays; **release v0.5.16** | Owner + Claude | 30 min | Thu 16 Oct |
+| 8 | Batch 2 (further away): list → generate → review → release | Both | ≈ 2–3 days | After ~2 weeks of batch 1 in use |
 
 ## Not affected
 
