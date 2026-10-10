@@ -38,7 +38,9 @@ function prompt(e) {
     `Composition: ${e.composition ?? "the landmark centred"}. Everything stays inside the border.`,
     "Style: bold, clean linework like a hand-carved rubber stamp, slightly uneven ink coverage with small worn gaps and light texture, as if stamped on paper.",
     "One flat ink colour: deep teal. Plain white background, the stamp only, centred, no shadow, no paper texture.",
-    "No sun, no moon. Absolutely no text, letters, numbers or words anywhere.",
+    e.text
+      ? `No sun, no moon. Lettering: the text ${e.text.map((t) => `"${t}"`).join(" and ")} in bold capital letters, spelled exactly as given, set in a band or banner along the border in the same ink. No other text, letters or numbers.`
+      : "No sun, no moon. Absolutely no text, letters, numbers or words anywhere.",
   ].join(" ");
 }
 

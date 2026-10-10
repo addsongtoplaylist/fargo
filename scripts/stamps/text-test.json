@@ -1,0 +1,22 @@
+[
+  { "id": "TEXT-1-penang", "kind": "place", "name": "Penang", "country": "Malaysia",
+    "subject": "a Penang trishaw and the clan jetty wooden stilt houses over the sea",
+    "shape": "rounded square",
+    "composition": "the trishaw large in the foreground on the left, the stilt houses small behind on the right",
+    "text": ["PENANG", "MALAYSIA"] },
+  { "id": "TEXT-2-bangkok", "kind": "place", "name": "Bangkok", "country": "Thailand",
+    "subject": "a Thai long-tail boat on the river and the spires of Wat Arun temple",
+    "shape": "tall arch (rectangle with a semicircular top)",
+    "composition": "the boat big in the foreground, the temple small in the distance",
+    "text": ["BANGKOK"] },
+  { "id": "TEXT-3-japan", "kind": "country", "name": "Japan", "country": "Japan",
+    "subject": "Mount Fuji, a five-storey pagoda and a cherry blossom branch",
+    "shape": "circle",
+    "composition": "Mount Fuji large behind, the pagoda small at the right edge, a cherry branch across the top",
+    "text": ["JAPAN"] },
+  { "id": "TEXT-4-seoul", "kind": "place", "name": "Seoul", "country": "South Korea",
+    "subject": "the roof of Gyeongbokgung palace gate with Namsan Seoul Tower behind",
+    "shape": "hexagon",
+    "composition": "the curved palace roof large across the bottom, the tower rising behind it on the left",
+    "text": ["SEOUL", "OCT 2026"] }
+]
