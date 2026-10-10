@@ -1,6 +1,6 @@
 # Fargo — Who can do what
 
-> **v3.1 — 2026-10-10** (database guarantees for travellers added). **v3 draft — 2026-10-09.** The single reference for access rules. When a feature changes who can do something, update this table first, then the code (server actions + database policies), then the spec. v2: personal checklists, idea suggestions and the Schedule-only share link are live (v0.5.4). v3 draft: Explore rows added, marked *planned* (`EXPLORE.md`; Explore is shelved as of 2026-10-09).
+> **v3.2 — 2026-10-11** (collecting stamps, v0.5.17; the stamp share overlay was removed in v0.5.16). **v3.1 — 2026-10-10** (database guarantees for travellers added). **v3 draft — 2026-10-09.** The single reference for access rules. When a feature changes who can do something, update this table first, then the code (server actions + database policies), then the spec. v2: personal checklists, idea suggestions and the Schedule-only share link are live (v0.5.4). v3 draft: Explore rows added, marked *planned* (`EXPLORE.md`; Explore is shelved as of 2026-10-09).
 
 ## Roles
 
@@ -20,7 +20,9 @@
 | | Edit trip settings, delete trip | ✅ | ❌ | — | ❌ |
 | | Add / change / reposition / remove the cover photo | ✅ | ❌ | — | ❌ |
 | | Copy share link | ✅ | ❌ | — | ❌ |
-| | Share trip overlays (trip pass, stamp, photo ticket) | ✅ | ✅ | — | ❌ |
+| | Share trip overlays (trip pass, photo ticket) | ✅ | ✅ | — | ❌ |
+| **Passport** | Collect a trip's stamp (after the trip ends, once each) | ✅ | ✅ | — | ❌ |
+| | See collected stamps | ✅ own only | ✅ own only | — | ❌ |
 | **Travellers** | Invite, quick add, rename name-only, remove¹ | ✅ | ❌ | — | ❌ |
 | | Leave trip, change owner (pick their name) | — | ✅ | — | ❌ |
 | **Schedule** | Add, edit, move, delete, reorder activities | ✅ | View | — | View |
@@ -72,4 +74,5 @@
 - **The invite page** shows the trip and travellers' names to anyone with the link, but never other people's account details.
 - **Save this trip** (from a share link) copies activities only.
 - **Reported trips** (planned): hidden for everyone at 3 reports. Only the app owner restores or removes them, in the Supabase dashboard; there's no in-app admin role yet. Full spec: `EXPLORE.md` → Reports.
+- **Collected stamps** are personal, like checklists: each traveller with an account collects their own, nobody else sees them, and they stay in your Passport after you leave the trip or it's deleted. Saving only goes through `collect_stamp()`, which checks you're on the trip and it has ended (v0.5.17, `STAMPS.md`).
 - **Security boundary:** these rules are enforced by Supabase row-level security and database functions, not only by hiding buttons. The native app (`fargo-app`) shares the same database.

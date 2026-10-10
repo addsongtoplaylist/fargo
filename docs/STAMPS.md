@@ -86,7 +86,7 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 
 ≈ 64 city + 26 country stamps ≈ **90 stamps** (89 new; 90 with an 8th Malaysian place). Possible additions: Macau, Maldives, Sri Lanka, Nepal, Myanmar, Laos.
 
-## Next — collecting stamps (v0.5.17, plan agreed 2026-10-11)
+## Collecting stamps (v0.5.17, released 2026-10-11)
 
 When a trip ends, each traveller **collects** its stamp themselves. They see a "Collect stamp" card on the trip overview, tap it, and the stamp is pressed into their Passport. Today's dashed placeholder stamps become the waiting state; collected stamps show the real library art.
 
@@ -144,12 +144,12 @@ When a trip ends, each traveller **collects** its stamp themselves. They see a "
 | # | Step | Who | Effort |
 |---|---|---|---|
 | 1 | ✅ **Done 2026-10-11:** `20261011_collected_stamps.sql` run on staging and **production**; TEST T0–T8 all PASS on production (staging has no trips with an account, so the test can't run there) | Claude → owner | 1 session + 15 min |
-| 2 | Pick-stamp logic (C3 + C5) with tests, next to `stamp-library.ts` | Claude | small |
-| 3 | `getPassport`: read collected stamps + Base city coordinates; work out which ended trips can be collected | Claude | small |
-| 4 | Collect card on the trip overview + press animation | Claude | medium |
-| 5 | Passport: real art, "to collect" row, ×2, See all | Claude | medium |
-| 6 | Test on the **Test trip** / demo trip with `fargo-prod` (end dates in the past), then delete the test rows | Claude + owner | 30 min |
-| 7 | Owner review → `PERMISSIONS.md` (who can collect) → **release v0.5.17** | Owner + Claude | 30 min |
+| 2 | ✅ `chooseStamp()` in `stamp-library.ts`, tests in `library-cases.ts.txt` | Claude | small |
+| 3 | ✅ `getPassport` + `lib/actions/stamps.ts` (`getStampToCollect`, `collectStamp`) | Claude | small |
+| 4 | ✅ `components/collect-stamp.tsx` + `stamp-press` animation | Claude | medium |
+| 5 | ✅ Passport + See all | Claude | medium |
+| 6 | ✅ Tested on the Test trip and Test 123 with `fargo-prod`; test rows deleted | Claude + owner | 30 min |
+| 7 | ✅ **Released v0.5.17 (2026-10-11)**; `PERMISSIONS.md` v3.2 | Owner + Claude | 30 min |
 
 ### Open for later
 

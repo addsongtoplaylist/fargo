@@ -4,6 +4,17 @@
 
 ---
 
+## v0.5.17 — 2026-10-11 · Collect your stamps
+
+- **Collect a stamp when a trip ends.** The day after the last day, the trip overview shows **"Trip complete! You've earned a stamp from …"**. Tap **Collect stamp** and it's pressed into your Passport with a short animation, then **View in Passport**. Everyone on the trip with an account collects their own.
+- **Passport shows the real stamps:** collected stamps use the 124-stamp library art. Ended trips you haven't claimed are listed under **"You have N stamps to collect"** (past trips count too). Upcoming and in-progress trips show a faded dashed stamp. **Stamps · N** now counts collected stamps.
+- **Same place twice:** your next trip there gives you a country stamp you don't have yet; once you have them all, a repeat shows **×2**. Countries without library stamps give a ✈ ring stamp, so every trip counts.
+- Stamps stay in your Passport even if you leave the trip or it's deleted.
+- **Database:** new `collected_stamps` table (you can only read your own) and `collect_stamp()` function — already run on production (`supabase/migrations/20261011_collected_stamps.sql`, TEST T0–T8 all PASS). The native app doesn't use it.
+- Stamp images moved to `public/stamps` so the browser can show them.
+
+---
+
 ## v0.5.16 — 2026-10-11 · Stamp library ready; simpler Share trip
 
 - **Share trip now has two overlays: Trip pass and Photo ticket.** The Passport stamp card is gone (owner decision after trying a redesign); old links to it get the Trip pass.

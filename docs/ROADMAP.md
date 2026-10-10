@@ -1,6 +1,6 @@
 # Fargo — Roadmap
 
-> **v1.0 — 2026-10-10.** Live: v0.5.13 (PWA, `fargotravel.vercel.app`). Since v0.9: landing page (v0.5.8) and a full security review (v0.5.8–0.5.13, `REVIEW.md`). Before that (v0.9 — 2026-10-09): Phases 1–3 done; Phase 4 almost done. Since the last refresh: group expenses (v0.4), the redesign and cover photos (v0.5.0–0.5.1), personal checklists and idea suggestions (v0.5.4), Passport (v0.5.6) and share overlays (v0.5.7). Explore was specced and then **shelved**. Native app parked; all effort is on the PWA.
+> **v1.0 — 2026-10-10** (live version updated 2026-10-11). Live: v0.5.17 (PWA, `fargotravel.vercel.app`). Since v0.9: landing page (v0.5.8) and a full security review (v0.5.8–0.5.13, `REVIEW.md`). Before that (v0.9 — 2026-10-09): Phases 1–3 done; Phase 4 almost done. Since the last refresh: group expenses (v0.4), the redesign and cover photos (v0.5.0–0.5.1), personal checklists and idea suggestions (v0.5.4), Passport (v0.5.6) and share overlays (v0.5.7). Explore was specced and then **shelved**. Native app parked; all effort is on the PWA.
 >
 > v0.8 — 2026-09-26 · v0.7 — 2026-09-06 (history in the decision log and `STATUS.md`).
 
@@ -31,10 +31,12 @@
 | Google key kept private (place search via the server) | v0.5.10 · Oct 10 |
 | Security check-up: only you can add yourself to a trip, invite links hide account details | v0.5.11 · Oct 10 |
 | Content Security Policy, report-only → enforced | v0.5.12–0.5.13 · Oct 10 |
+| Sharper landing page, new photos and favicon | v0.5.14–0.5.15 · Oct 10 |
+| **Stamp library** (124 stamps, `STAMPS.md`); Share trip is now trip pass + photo ticket | v0.5.16 · Oct 11 |
+| **Collect stamps** when a trip ends, real stamp art in Passport | v0.5.17 · Oct 11 |
 
 ## In progress 🟡
 
-- **Collecting stamps** (`STAMPS.md` v2.2), v0.5.17: plan agreed 2026-10-11 — "Collect stamp" card on the trip overview when a trip ends, real stamp art in Passport, new `collected_stamps` table + `collect_stamp()`. Next: migration on staging.
 - **Phase 4 — Real travellers.** Invite, join, leave, read-only members and the RLS audit are done. **Remaining:** upgrade a name-only traveller to an account, keeping their history.
 
 ## Parked ⏸
@@ -119,6 +121,7 @@
 | 2026-10-10 | **Stamps: pre-made library instead of on-demand generation** (`STAMPS.md` v2). Per country up to 6 city stamps + 2 country stamps (trip id picks one); fallback drawn ring with ✈. Batch 1 Asia incl. China and India, batch 2 further away. Generated on the owner's machine, owner-reviewed, shipped in the app — no queue, Edge Function, database or runtime AI calls |
 | 2026-10-10 | **Security review closed** (`REVIEW.md`): Google Places calls server-only (website restrictions aren't enforced by Google for Places (New)); Content Security Policy enforced; Mapbox token URL-restricted; direct DB writes can only link your own account to a trip; invite preview hides other account IDs; master DB password removed from Vercel. Native app will need a new iOS-restricted Google key when it resumes |
 | 2026-10-10 | **One version for app + landing page.** They share one codebase and one deploy, so the landing page doesn't keep its own number; "Landing page v0.1" folded into v0.5.8. Separate numbers only if the marketing site ever moves to its own project |
+| 2026-10-11 | **Passport stamp share card removed; stamps are collected instead** (`STAMPS.md` v2.2). After trying a boarding-pass redesign the owner dropped the stamp overlay. Stamps never go on the trip pass or photo ticket. When a trip ends each traveller taps **Collect stamp**; saved per person in `collected_stamps`; same place twice → a new country stamp, then ×2; no library stamp → ✈ ring |
 | 2026-10-09 | **Explore shelved** — spec (`EXPLORE.md`), wireframes, reference study and build plan done; not built. Reason: user base too small for Explore to work yet; launching it near-empty could backfire. Tab stays in the nav with its "on its way" placeholder |
 
 ### Open
