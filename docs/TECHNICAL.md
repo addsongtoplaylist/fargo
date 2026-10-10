@@ -74,7 +74,7 @@ All queries go through **`@supabase/supabase-js`** (via `@supabase/ssr`) with th
 
 **Response headers** (`next.config.ts` → `headers()`, every path): `X-Frame-Options: DENY` (no framing; old browsers), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` with camera/microphone/payment/usb off and geolocation `self` (Discover "near me"). Plus an enforced `Content-Security-Policy` (v0.5.13, `REVIEW.md` SEC-3) with `frame-ancestors 'none'`: allowed sources are self, the Supabase project (https + wss; cover photos load straight from storage), `api.mapbox.com`, `events.mapbox.com`, `lh3.googleusercontent.com` (Discover photos); `blob:` for Mapbox workers and share-overlay images. Adding a new outside service means adding its host there. If something stops loading after adding a service, the browser console says which directive refused it.
 
-Drizzle was the original plan but direct Postgres connections failed (IPv6), so `src/db/schema.ts` is kept only as a readable schema reference. `DATABASE_URL` is only used by `drizzle-kit`.
+Drizzle was the original plan but direct Postgres connections failed (IPv6), so `src/db/schema.ts` is kept only as a readable schema reference. `DATABASE_URL` is only used by `drizzle-kit` on the owner's machine (`app/.env.local`) — it's deliberately **not** in Vercel, since it bypasses every access rule (the unused runtime client `src/db/index.ts` was removed in v0.5.11).
 
 ### Tables
 
@@ -199,8 +199,10 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 GOOGLE_PLACES_SERVER_KEY=        # server only; Places API (New)
 NEXT_PUBLIC_MAPBOX_TOKEN=        # URL-restricted in Mapbox
-DATABASE_URL=                    # drizzle-kit only
+DATABASE_URL=                    # local only (drizzle-kit); never in Vercel
 ```
+
+Vercel has the first four. Add new secrets as **Secret**, browser-visible values (`NEXT_PUBLIC_…`) as **Config** — Vercel refuses a Secret with a `NEXT_PUBLIC_` name.
 
 ---
 

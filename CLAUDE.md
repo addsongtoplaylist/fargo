@@ -1,6 +1,6 @@
-# Fargo — CLAUDE.md (v2)
+# Fargo — CLAUDE.md (v2.1)
 
-> **v2 — 2026-09-26.** Replaces `docs/CLAUDE.md` (v1, sunset). Loaded automatically at the start of every session — keep it short and current.
+> **v2.1 — 2026-10-10** (security rules, landing page, local production preview). v2 — 2026-09-26 replaced `docs/CLAUDE.md` (v1, sunset). Loaded automatically at the start of every session — keep it short and current.
 
 Fargo is a trip planner where the plan and the spending are one record: schedule, prep, money and dining discovery for a trip, shared with invited travellers. Live as a PWA at `fargotravel.vercel.app`; a native iOS app is planned.
 
@@ -11,7 +11,9 @@ Fargo is a trip planner where the plan and the spending are one record: schedule
 | `app/` | The Next.js app (all code lives here — run commands from `app/`) |
 | `app/src/lib/actions/` | Server actions — all data reads/writes |
 | `app/src/components/` | UI components, grouped by tab (`schedule/`, `money/`, `prep/`, `bites/`, …) |
-| `supabase/migrations/` | **All** SQL migrations. Applied by hand in the Supabase SQL Editor |
+| `supabase/migrations/` | **All** SQL migrations. Applied by hand in the Supabase SQL Editor. `…_UNDO.sql` / `…_TEST.sql` / `…_CHECK.sql` alongside |
+| `supabase/audits/` | Read-only checks of the live database (e.g. every policy, grant and function) |
+| `app/src/app/(marketing)/` | Landing page (`/`, `/home`), Privacy, Terms — spec `docs/LANDING.md`, voice `docs/BRAND.md` |
 | `docs/` | Product, experience, design, technical, roadmap, status, review docs |
 | `CHANGELOG.md` | Per-release changes — the most reliable "what shipped" record |
 
@@ -39,10 +41,12 @@ npx next build     # production build
 - **Databases:** production Supabase `ejduelwzdsompgemmxeh` (PWA + native production build); **staging** `lpiadmuojfbktajvcfzy` (native staging build). Try risky SQL on staging first.
 - The PWA and the planned native app share one Supabase instance — test writes hit production data.
 - Claude can't sign in (Google OAuth): ask the owner to sign in in the browser pane, then browse.
+- **Test the production build locally** with preview `fargo-prod` (`next start`, port 3000 — the Mapbox token only allows `localhost:3000` and `fargotravel.vercel.app`). Run `npx next build` first.
+- **Don't poll the live site in tight loops.** Vercel's DDoS protection then challenges the owner's home IP (Claude shares it). Space checks out or read the Vercel Deployments page.
 
 ## Releasing
 
-1. Bump `version` in `app/package.json` (shown on the Profile page).
+1. Bump `version` in `app/package.json` (shown on the Profile page). **One version for app + landing page** — landing changes go in the next app version under a "Landing page" changelog heading.
 2. Add a `CHANGELOG.md` entry at the top.
 3. Commit and push `main` → Vercel deploys automatically. Push only when the owner says so.
 4. If there's SQL: the owner runs it in the Supabase SQL Editor. When app code depends on new SQL (or SQL removes something old code uses), spell out the order.
@@ -54,7 +58,10 @@ npx next build     # production build
 - **Planner-only writes — except money, ideas and checklists.** Only the planner edits activities and trip settings; members are read-only there. **Ideas** (`docs/IDEAS.md`): anyone on the trip suggests; the author or planner edits/deletes (`add_idea`, `update_idea`, `delete_idea`); only the planner moves an idea to Schedule. **Checklists** are personal (`docs/CHECKLISTS.md`, `my_checklists` tables) — owner-only, nobody else sees them; the old `checklists` tables stay for the parked native app. **Expenses are the exception** (group expenses, `docs/EXPENSES.md`): any traveller with an account can log; you edit what you logged, the planner edits anything; settle-ups by the person who owes or the planner; each traveller sets their own budget. All money writes go through database functions (`save_expense`, `delete_expense`, `mark_settled`, `unmark_settled`, `set_my_budget`).
 - **Travellers without an account** (`account_id` null) are real travellers for splits. Invite links require picking an unclaimed name when any exist.
 - **SECURITY DEFINER functions** must identify the caller with `auth.uid()` (never trust an account-ID parameter), set `search_path = public`, and `REVOKE EXECUTE … FROM PUBLIC, anon` unless signed-out access is truly needed.
-- **Shared trips** (`/s/[code]`) are read only through `get_shared_trip(code)` — no invite code, account IDs, budgets or expenses.
+- **Shared trips** (`/s/[code]`) are read only through `get_shared_trip(code)` — no invite code, account IDs, budgets or expenses. The invite preview (`get_trip_by_invite`) returns only the caller's own `account_id`.
+- **Linking accounts to trips:** trigger `travellers_guard_account_link` lets direct writes link only the caller's own account; linking anyone else goes through the invite / claim / change-owner functions.
+- **Keys:** Google keys are **server-only** (`GOOGLE_PLACES_SERVER_KEY`, used by `lib/actions/places.ts` and `bites.ts`) — Google doesn't enforce website restrictions on Places (New), so never put a Google or AI key in `NEXT_PUBLIC_…`. The Mapbox token is public but URL-restricted in Mapbox.
+- **Content Security Policy** (enforced, `next.config.ts`): the browser may only load from self, the Supabase project, Mapbox and `lh3.googleusercontent.com`. **A new outside service the browser talks to must have its host added there**, or it's blocked. Security findings and fixes live in `docs/REVIEW.md`.
 - **Caching:** `getTrip`, `getActivities`, `getExpenses`, `getBudgetSummary` use `unstable_cache` (30s). Every mutation must `revalidateTag` the tags it affects (`trip-…`, `activities-…`, `expenses-…`).
 - **"Today"** in client components uses the device's local date; trip "active" state is derived from dates, not the stored `status` column.
 - **Design:** follow `docs/DESIGN.md` (v0.8 redesign) — floating bottom bar for trip sections, floating + for the main add, category icons (no emoji), shadows only on floating layers; Add activity is the form reference. New screens use the v0.8 tokens (`page`, `surface`, `fg`, `line`, `brand`…) and `components/ui/` building blocks; `docs/REDESIGN.md` records what each screen must still do — no feature is removed without the owner's OK.

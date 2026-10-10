@@ -1,6 +1,6 @@
 # Fargo — Roadmap
 
-> **v0.9 — 2026-10-09.** Live: v0.5.7 (PWA, `fargotravel.vercel.app`). Phases 1–3 done; Phase 4 almost done. Since the last refresh: group expenses (v0.4), the redesign and cover photos (v0.5.0–0.5.1), personal checklists and idea suggestions (v0.5.4), Passport (v0.5.6) and share overlays (v0.5.7). Explore was specced and then **shelved**. Native app parked; all effort is on the PWA.
+> **v1.0 — 2026-10-10.** Live: v0.5.13 (PWA, `fargotravel.vercel.app`). Since v0.9: landing page (v0.5.8) and a full security review (v0.5.8–0.5.13, `REVIEW.md`). Before that (v0.9 — 2026-10-09): Phases 1–3 done; Phase 4 almost done. Since the last refresh: group expenses (v0.4), the redesign and cover photos (v0.5.0–0.5.1), personal checklists and idea suggestions (v0.5.4), Passport (v0.5.6) and share overlays (v0.5.7). Explore was specced and then **shelved**. Native app parked; all effort is on the PWA.
 >
 > v0.8 — 2026-09-26 · v0.7 — 2026-09-06 (history in the decision log and `STATUS.md`).
 
@@ -116,6 +116,7 @@
 | 2026-10-01 | UI redesign (DESIGN.md v0.8) ships as **v0.5.0** — same features, no SQL; cover photo upload follows as v0.5.1 (P10, staging Supabase first). Then personal checklists → Discover price filter → Explore + travel stats |
 | 2026-10-09 | **Passport tab** (v0.5.6) and **Share trip overlays** (v0.5.7: trip pass, passport stamp card, photo ticket) — inspired by Strava, not a copy; save/copy flow because web apps can't post stickers to Instagram directly |
 | 2026-10-09 | **AI stamp art per place** (`docs/STAMPS.md`): one per Base city, only after a trip starts, auto-published, ≤ 10/day; Gemini vs OpenAI decided by a style check. Parked: Discover price filter (KIV), home currency per trip (money change, own release) |
+| 2026-10-10 | **Security review closed** (`REVIEW.md`): Google Places calls server-only (website restrictions aren't enforced by Google for Places (New)); Content Security Policy enforced; Mapbox token URL-restricted; direct DB writes can only link your own account to a trip; invite preview hides other account IDs; master DB password removed from Vercel. Native app will need a new iOS-restricted Google key when it resumes |
 | 2026-10-10 | **One version for app + landing page.** They share one codebase and one deploy, so the landing page doesn't keep its own number; "Landing page v0.1" folded into v0.5.8. Separate numbers only if the marketing site ever moves to its own project |
 | 2026-10-09 | **Explore shelved** — spec (`EXPLORE.md`), wireframes, reference study and build plan done; not built. Reason: user base too small for Explore to work yet; launching it near-empty could backfire. Tab stays in the nav with its "on its way" placeholder |
 

@@ -45,7 +45,7 @@ New table **`place_stamps`** (additive):
 | `attempts`, `error` | Retry count (max 3) and last error |
 | `requested_at`, `ready_at` | Timestamps (queue order, daily cap) |
 
-- **Storage:** public bucket `place-stamps`, PNG, ≤ 1 MB.
+- **Storage:** public bucket `place-stamps`, PNG, ≤ 1 MB. Served from the Supabase project, which the enforced Content Security Policy already allows; if the browser ever loads stamp images from anywhere else, add that host in `next.config.ts`.
 - **Who can do what:** anyone signed in can **read** the library (to show stamps). Only the generator (service role inside the Edge Function) **writes** rows and images. The app never holds the service key or the AI key.
 - **Seed:** the Ho Chi Minh City art moves from `app/src/assets/stamps/` into the bucket as the first `ready` row.
 

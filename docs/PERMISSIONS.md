@@ -1,6 +1,6 @@
 # Fargo — Who can do what
 
-> **v3 draft — 2026-10-09.** The single reference for access rules. When a feature changes who can do something, update this table first, then the code (server actions + database policies), then the spec. v2: personal checklists, idea suggestions and the Schedule-only share link are live (v0.5.4). v3 draft: Explore rows added, marked *planned* (`EXPLORE.md`; Explore is shelved as of 2026-10-09).
+> **v3.1 — 2026-10-10** (database guarantees for travellers added). **v3 draft — 2026-10-09.** The single reference for access rules. When a feature changes who can do something, update this table first, then the code (server actions + database policies), then the spec. v2: personal checklists, idea suggestions and the Schedule-only share link are live (v0.5.4). v3 draft: Explore rows added, marked *planned* (`EXPLORE.md`; Explore is shelved as of 2026-10-09).
 
 ## Roles
 
@@ -68,6 +68,8 @@
 - **Ideas moved back from Schedule** keep the person who first suggested them.
 - **Default checklists**: copied into a trip automatically the first time you open its Prep; editing a trip's copy doesn't change your defaults (use "Save to my defaults"). Full spec: `CHECKLISTS.md`.
 - **Leaving a trip** keeps your checklists for it hidden; they return if you rejoin.
+- **Nobody can put someone else on a trip.** A person's account is linked to a trip only when *they* use the invite link or claim their name (or the planner hands over ownership to an existing traveller). The planner adds people by name only. Enforced in the database since v0.5.11 (`travellers_guard_account_link`).
+- **The invite page** shows the trip and travellers' names to anyone with the link, but never other people's account details.
 - **Save this trip** (from a share link) copies activities only.
 - **Reported trips** (planned): hidden for everyone at 3 reports. Only the app owner restores or removes them, in the Supabase dashboard; there's no in-app admin role yet. Full spec: `EXPLORE.md` → Reports.
 - **Security boundary:** these rules are enforced by Supabase row-level security and database functions, not only by hiding buttons. The native app (`fargo-app`) shares the same database.
