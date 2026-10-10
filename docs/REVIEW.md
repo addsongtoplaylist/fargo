@@ -4,6 +4,22 @@
 
 ---
 
+## 2026-10-10 — Landing page: code and security review
+
+Scope: marketing pages (`(marketing)/`, `components/marketing/`), install prompt, middleware, sign-in and auth callback, live response headers, `npm audit`.
+
+| # | Severity | Finding | Status |
+|---|---|---|---|
+| SEC-1 | Critical | Next.js 16.3.1 had published advisories (RCE in `next/og` ImageResponse and in Image Optimization with AVIF, image SSRF, SSG/ISR cache poisoning); `sharp` and `source-map-js` advisories too | ✅ Fixed v0.5.8: Next 16.4.0 + `npm audit fix` → 0 vulnerabilities |
+| SEC-2 | Medium | No protective headers: site could be framed (clickjacking), no `nosniff`, `Referrer-Policy` or `Permissions-Policy` | ✅ Fixed v0.5.8: `headers()` in `next.config.ts` on `/:path*` (X-Frame-Options DENY + CSP `frame-ancestors 'none'`, nosniff, strict-origin-when-cross-origin, camera/microphone/payment/usb off, geolocation self for Discover) |
+| SEC-3 | Low | No full Content Security Policy. A nonce-based CSP makes every page dynamic (landing loses prerendering). React escapes output; no `dangerouslySetInnerHTML` in marketing code | Later: start as `Content-Security-Policy-Report-Only` |
+| SEC-4 | Low (app-wide) | Service worker caches every visited page, including trip pages, and keeps them after sign-out (shared device) | Batch B: clear the cache on sign-out |
+| CODE-1 | Trivial | Two comments still said signed-in users never see the landing page (outdated since `/home`) | ✅ Fixed v0.5.8 |
+
+**Checked and fine:** auth callback only redirects to same-site paths (`//`, `/\` rejected); sign-in shows fixed error messages only (no reflected text); no remote image patterns, so `/_next/image` only serves our own files; landing reads no data and the signed-in check is display only (RLS unchanged); HSTS on; `/_vercel` matcher exclusion only covers Vercel's own analytics path; analytics cookieless; `access-control-allow-origin: *` is Vercel's default on public static pages and exposes nothing private; Vercel DDoS mitigation automatic (Attack Challenge Mode available in Firewall).
+
+---
+
 ## 2026-09-05 — Money tab: post-trip feedback (We Are Riise Singapore)
 
 Source: planner's own trip (31 Aug – 2 Sep 2026, 2 travellers, RM 1,300 budget, 24 expenses logged).

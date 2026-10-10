@@ -4,6 +4,14 @@
 
 ---
 
+**2026-10-10 — Security update (v0.5.8)**
+
+Landing page code and security review (`REVIEW.md` 2026-10-10). Batch A shipped: Next.js 16.4.0 + dependency fixes (`npm audit` 0), protective headers in `next.config.ts`, two stale comments. Verified locally: headers on every page, landing, schedule + map, money, prep, discover (location still allowed), overview, passport, profile, share overlays (all 3 PNGs). No SQL.
+
+**Next:** Batch B (clear offline cache on sign-out); later a report-only CSP. Stamp work moves to **v0.5.9**.
+
+---
+
 **2026-10-10 — Landing page follow-ups**
 
 Vercel Web Analytics switched on (Hobby); the middleware matcher now skips `/_vercel`, which had been redirecting the tracking script to `/sign-in`. Verified: first visit counted in the dashboard. Privacy and Terms now have real plain-English text (`components/marketing/legal-page.tsx`, contact line says "coming soon" until `CONTACT_EMAIL` is set). Shared costs has its photo (`photo-costs.webp`).
@@ -18,7 +26,7 @@ Marketing site at `/` for signed-out visitors (`LANDING.md` v5 + reviews, `BRAND
 
 **Owner to-dos:** turn on Web Analytics in Vercel; real Privacy/Terms text; contact email; a free photo for Shared costs; frog illustrations; test the install prompt on an iPhone after deploy.
 
-**Next:** stamp work (v0.5.8) once the API keys are in.
+**Next:** stamp work (v0.5.8, since moved to v0.5.9) once the API keys are in.
 
 ---
 

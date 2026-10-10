@@ -27,10 +27,11 @@
 | **Passport** tab with travel stats | v0.5.6 |
 | **Share trip overlays:** trip pass, stamp, photo ticket | v0.5.7 · Oct 9 |
 | **Landing page v0.1** (marketing site at `/`, install prompt, analytics; `LANDING.md`) | Oct 10 |
+| **Security update:** Next.js 16.4.0, protective headers (`REVIEW.md`) | v0.5.8 · Oct 10 |
 
 ## In progress 🟡
 
-- **AI stamp art per place** (`STAMPS.md`), v0.5.8. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
+- **AI stamp art per place** (`STAMPS.md`), v0.5.9. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
 - **Phase 4 — Real travellers.** Invite, join, leave, read-only members and the RLS audit are done. **Remaining:** upgrade a name-only traveller to an account, keeping their history.
 
 ## Parked ⏸

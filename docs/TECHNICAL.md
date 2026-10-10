@@ -72,6 +72,8 @@ The PWA manifest's `start_url` is `/trips`, so the Home Screen app never opens o
 
 All queries go through **`@supabase/supabase-js`** (via `@supabase/ssr`) with the **anon key + the user's session**. There is no service-role key in the app. **Row-level security is the security boundary** — the server actions check sign-in and planner role for nicer errors, but RLS is what actually enforces access.
 
+**Response headers** (`next.config.ts` → `headers()`, every path): `X-Frame-Options: DENY` + CSP `frame-ancestors 'none'` (no framing), `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` with camera/microphone/payment/usb off and geolocation `self` (Discover "near me"). No full CSP yet (`REVIEW.md` SEC-3).
+
 Drizzle was the original plan but direct Postgres connections failed (IPv6), so `src/db/schema.ts` is kept only as a readable schema reference. `DATABASE_URL` is only used by `drizzle-kit`.
 
 ### Tables

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: "The trip planner for your whole group. Plan the days, share the plan with your buddies, and keep the costs fair.",
 };
 
-/** Landing page (LANDING.md v5 + reviews, BRAND.md voice). Signed-in visitors never see it — the middleware sends them to /trips. */
+/** Landing page (LANDING.md v5 + reviews, BRAND.md voice). At / for signed-out visitors (signed-in go to /trips); /home reuses it for anyone. */
 export default function LandingPage() {
   return (
     <>

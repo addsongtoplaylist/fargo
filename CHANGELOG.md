@@ -2,6 +2,16 @@
 
 ---
 
+## v0.5.8 — 2026-10-10 · Security update
+
+*From the landing page code and security review (`docs/REVIEW.md`).*
+
+- **Next.js 16.3.1 → 16.4.0.** Fixes known security flaws, including one in the share-overlay images that could let an attacker run code on the server. Image libraries (`sharp`, `source-map-js`) updated too. `npm audit`: 0 vulnerabilities.
+- **Protective headers on every page:** no other site can show Fargo inside a frame (stops clickjacking); browsers never guess file types; links to other sites don't reveal the page you were on; camera, microphone, payment and USB access switched off. Location stays on for Discover.
+- No database changes. Stamp work moves to v0.5.9.
+
+---
+
 ## Landing page v0.1 — 2026-10-10
 
 *Marketing site, versioned on its own. The app stays at v0.5.7.*
