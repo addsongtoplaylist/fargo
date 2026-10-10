@@ -1,6 +1,6 @@
 # Fargo — Stamp library
 
-> **v2.0 — 2026-10-10. Planned, not built — waiting on the style check (API keys).** Passport-stamp artwork for the **Passport stamp** share overlay (v0.5.7). **v2 replaces v1's on-demand generator** (queue, Edge Function, daily cap) with a **pre-made library**: stamps are generated in batches on the owner's machine, reviewed, and shipped with the app. No AI calls while people use Fargo. Ho Chi Minh City has hand-made art today; everywhere else shows a drawn ring until the library ships.
+> **v2.1 — 2026-10-11. Style agreed (OpenAI); batch 1 list ready for owner review (`STAMPS-BATCH1.md`).** v2.0 — 2026-10-10: Passport-stamp artwork for the **Passport stamp** share overlay (v0.5.7). **v2 replaces v1's on-demand generator** (queue, Edge Function, daily cap) with a **pre-made library**: stamps are generated in batches on the owner's machine, reviewed, and shipped with the app. No AI calls while people use Fargo. Ho Chi Minh City has hand-made art today; everywhere else shows a drawn ring until the library ships.
 
 ## Decisions (owner, 2026-10-10)
 
@@ -15,7 +15,11 @@
 | 7 | **Owner reviews every stamp** before it's added. Nothing is published automatically. |
 | 8 | **Stamp names use the state or region name where that's what travellers say** (Penang, not George Town; Hokkaido, Kerala, Palawan). Where the city itself is the destination, the city name stays (Osaka, Bangkok). Matching is by map location, so a trip to George Town or Batu Ferringhi still gets the Penang stamp; the ring lettering keeps the trip's own place name. |
 | 9 | **Collecting comes later.** The owner wants users to **collect stamps** eventually (e.g. in the Passport tab). Not part of v0.5.16, but the library is built for it: every stamp has a **permanent id** that never changes or gets reused, and both country designs are distinct stamps (a second trip to a country can earn the other one). |
-| 10 | **Style check first:** 10 test stamps on **Gemini and OpenAI** side by side; the owner picks the provider. (Gemini "Nano Banana" ≈ US$0.034/image; the Ho Chi Minh City sample was made with it.) |
+| 10 | ~~Style check on Gemini and OpenAI~~ **Done 2026-10-11: OpenAI `gpt-image-2` (medium quality). Gemini dropped.** Three rounds: round 1 (all round, all with a sun, similar layouts), round 2 (owner feedback below), lettering tests. |
+| 11 | **Style (owner, 2026-10-11):** one teal rubber-stamp ink style for the whole set; **no sun or moon**; a **different shape** per stamp (circle, rounded square, tall arch, hexagon, wide oval, tall rectangle, shield, octagon, triangle, postage stamp), rotating so neighbours never repeat; a **different composition** per stamp (close-ups, views through arches, panoramas, steep perspective — not the same landmark-in-the-middle layout). |
+| 12 | **Lettering in the art** (gpt-image-2 spelled every test correctly): city stamps alternate **city + country** and **city only**; country stamps show the **country**. Placement follows the shape: **curved** along round borders, **header bar** on squares, **vertical** on tall rectangles, **big postcard letters** on wide ovals, **ribbon** or **band** on the rest, and a **hanging luggage tag** on about 1 in 10. "Part of the scene" was tried and dropped (too small to read). |
+| 13 | **No date** anywhere — not in the art, not on the card. |
+| 14 | **White share card.** The Passport stamp card moves from navy to white, so each stamp is used as generated (teal ink on transparent) — one version per stamp, no cream re-inking. |
 
 Claude can't generate images; it writes the prompts and the scripts around the image model.
 
@@ -32,7 +36,7 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 
 ### 1. Library (inside the app)
 
-- **Images:** `app/src/assets/stamps/<country code>/<slug>.png` — cream ink on transparent, 600 × 600, ≈ 100–150 KB each. Already bundled with the share-overlay route (`outputFileTracingIncludes` covers `src/assets/**`).
+- **Images:** `app/src/assets/stamps/<country code>/<slug>.png` — teal ink on transparent (white card), up to 600 px on the long side (shapes vary), ≈ 100–200 KB each. Already bundled with the share-overlay route (`outputFileTracingIncludes` covers `src/assets/**`).
 - **Manifest:** `app/src/lib/stamp-library.ts` (replaces the hard-coded list in `lib/stamp-art.ts`). One entry per stamp:
 
 | Field | What |
@@ -50,7 +54,7 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 ### 2. Making a batch (owner's machine)
 
 1. `scripts/stamps/generate.mjs` (to be written) reads the batch list, calls the chosen model with the template below, saves raw images to a gitignored `stamps-review/` folder.
-2. **Clean-up** (automatic, same as the hand-made sample): ink → cream `#f6f2e8` on transparent, crop to the circle, 600 × 600.
+2. **Clean-up** (automatic): white paper → transparent, ink → one exact Fargo teal so every stamp matches, crop to the stamp's shape. (`clean.py` currently re-inks cream for the old navy card; switch to teal when building v0.5.16.)
 3. **Review sheet:** an HTML contact sheet (raw + cleaned, per place). The owner approves or marks "redo"; redos are regenerated (a few tries per place).
 4. Approved stamps are copied into the library and the manifest is updated; ships in the next release.
 5. **Later batches:** a read-only query lists Base cities from real trips that have no stamp — the owner picks which to add. No background jobs.
@@ -59,8 +63,8 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 
 ### 3. In the app
 
-- The stamp overlay uses the library lookup above; the fallback draws the ring with **✈** (the country code is no longer printed in the middle).
-- Fargo still letters the ring itself (place · country on top, month at the bottom) — the art leaves the ring blank.
+- The stamp overlay uses the library lookup above on a **white** card; the fallback draws a plain ring with **✈** (no country code).
+- The place name is part of the artwork now, so Fargo no longer letters a ring around it; no month or year is shown.
 
 ## Batch 1 — Asia (proposed, owner to edit)
 
@@ -92,22 +96,25 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 
 Popular long-haul destinations, e.g. Australia, New Zealand, United Kingdom, France, Italy, Spain, Switzerland, Turkey, the US, the UAE. List to be agreed after batch 1 ships.
 
-## Prompt (house template)
+## Prompt (house template, `scripts/stamps/generate.mjs`)
 
 ```
-Single-colour rubber ink passport stamp, round, for {CITY}, {COUNTRY}. Double circular border ring with an empty band between the two rings (leave the band blank, no text). In the centre, a simple line illustration of {CITY}'s best-known landmark with one small local street detail beside it, small sun above. Bold, clean linework like a hand-carved rubber stamp, slightly uneven ink coverage with small worn gaps and light texture, as if stamped on paper. One flat ink colour: deep teal. Plain white background, stamp only, centred, no shadow.
+Single-colour rubber ink travel stamp for {NAME}, {COUNTRY}.
+Shape: {SHAPE}, with a bold double-line border that follows that shape.
+Inside the border, a line illustration of {SUBJECT}.
+Composition: {COMPOSITION}. Everything stays inside the border.
+Style: bold, clean linework like a hand-carved rubber stamp, slightly uneven ink coverage with small worn
+gaps and light texture, as if stamped on paper.
+One flat ink colour: deep teal. Plain white background, the stamp only, centred, no shadow, no paper texture.
+No sun, no moon. Lettering: the text "{LINE 1}" and "{LINE 2}" in bold capital letters, spelled exactly as
+given, {PLACEMENT}, in the same ink. No other text, letters or numbers.
 ```
 
-Negative / avoid: `text, letters, numbers, words, multiple colours, gradients, 3D, photorealistic, paper texture background, frame, shadow, watermark`.
-
-- The ring is left blank on purpose: image models misspell text. Fargo letters the ring itself (place · country on top, month at the bottom).
-- The ink colour doesn't matter for the final look (the clean-up re-inks it cream); one dark colour on white keeps the clean-up reliable.
-
-**Country stamp variant:** same template, but the centre shows *"one simple, widely recognised national symbol or landmark of {COUNTRY}"*; the two designs use different symbols (e.g. Japan: Mount Fuji · torii gate). Symbols are agreed in the review sheet.
+Per-stamp fields live in `scripts/stamps/batch-1.json`, built by `build-batch-1.py` (shape rotation, lettering alternation, placement by shape, hanging tag ≈ 1 in 10). Review table: `docs/STAMPS-BATCH1.md`.
 
 ## Cost
 
-About **US$0.03–0.04 per image**. Batch 1 (≈ 88 stamps, allowing redos) ≈ **US$5–8**, paid once. The style check (20 images) is ≈ US$1–1.5. Nothing is spent while people use Fargo.
+A few US cents per image (`gpt-image-2`, medium). The style check used 30 images. Batch 1 (89 stamps, allowing redos) ≈ **US$5–8**, paid once — OpenAI's usage page shows the exact amount. Nothing is spent while people use Fargo.
 
 ## Rollout and timeline
 
@@ -116,7 +123,7 @@ Elapsed time is mostly the owner's review; Claude's work is about three sessions
 | # | Step | Who | Effort | Target |
 |---|---|---|---|---|
 | 0 | Add `GEMINI_API_KEY` and/or `OPENAI_API_KEY` to `app/.env.local` (billing on; never paste in chat) | Owner | 15 min | Sat 11 Oct |
-| 1 | **Style check:** script + clean-up; **10 stamps** × 2 providers = 20 images, raw + cleaned, side by side — 7 place stamps (Penang · Bangkok · Tokyo · Bali · Agra · Hokkaido · Sarawak) + 3 country stamps (Malaysia · Japan · China), covering buildings, fine detail, nature/regions and the country style | Claude | 1 session, ≈ US$1–1.5 | Sat 11 Oct |
+| 1 | ✅ **Style check (done 2026-10-11, OpenAI):** script + clean-up; **10 stamps** × 2 providers = 20 images, raw + cleaned, side by side — 7 place stamps (Penang · Bangkok · Tokyo · Bali · Agra · Hokkaido · Sarawak) + 3 country stamps (Malaysia · Japan · China), covering buildings, fine detail, nature/regions and the country style | Claude | 1 session, ≈ US$1–1.5 | Sat 11 Oct |
 | 2 | Pick provider, approve or tweak the template | Owner | 30 min | Sun 12 Oct |
 | 3 | Confirm batch 1 list + the 2 country symbols per country (Claude proposes the symbols) | Owner | 30 min | Sun 12 Oct |
 | 4 | **Generate batch 1** (≈ 88 stamps, ≈ 30–45 min run) + review sheet | Claude | 1 session, ≈ US$4 | Mon 13 Oct |
