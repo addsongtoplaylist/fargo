@@ -1,0 +1,38 @@
+const T: [string, Parameters<typeof stampFor>[0], string][] = [
+  ["George Town", { tripId: "a", country: "MY", lat: 5.414, lng: 100.329 }, "MY-penang"],
+  ["Batu Ferringhi", { tripId: "a", country: "MY", lat: 5.47, lng: 100.25 }, "MY-penang"],
+  ["Cameron Highlands (no stamp)", { tripId: "a", country: "MY", lat: 4.47, lng: 101.38 }, "MY-country-"],
+  ["Kota Kinabalu", { tripId: "a", country: "MY", lat: 5.98, lng: 116.07 }, "MY-sabah"],
+  ["Semporna", { tripId: "a", country: "MY", lat: 4.48, lng: 118.61 }, "MY-sabah"],
+  ["Kuching", { tripId: "a", country: "MY", lat: 1.55, lng: 110.35 }, "MY-sarawak"],
+  ["Miri", { tripId: "a", country: "MY", lat: 4.40, lng: 114.01 }, "MY-sarawak"],
+  ["Lawas (Sarawak, near Sabah)", { tripId: "a", country: "MY", lat: 4.85, lng: 115.41 }, "MY-sarawak"],
+  ["Johor Bahru", { tripId: "a", country: "MY", lat: 1.4927, lng: 103.7414 }, "MY-johor-bahru"],
+  ["Singapore (country only)", { tripId: "a", country: "SG", lat: 1.29, lng: 103.85 }, "SG-country-"],
+  ["Ubud", { tripId: "a", country: "ID", lat: -8.5069, lng: 115.2625 }, "ID-bali"],
+  ["Hoi An (next to Da Nang)", { tripId: "a", country: "VN", lat: 15.8801, lng: 108.338 }, "VN-hoi-an"],
+  ["Da Nang", { tripId: "a", country: "VN", lat: 16.0544, lng: 108.2022 }, "VN-da-nang"],
+  ["Niseko", { tripId: "a", country: "JP", lat: 42.80, lng: 140.69 }, "JP-hokkaido"],
+  ["Nara (no stamp)", { tripId: "a", country: "JP", lat: 34.685, lng: 135.805 }, "JP-country-"],
+  ["Universal Studios Japan", { tripId: "a", country: "JP", lat: 34.6654, lng: 135.4323 }, "JP-osaka"],
+  ["Ulsan (no stamp, near Busan)", { tripId: "a", country: "KR", lat: 35.5384, lng: 129.3114 }, "KR-country-"],
+  ["Jiufen", { tripId: "a", country: "TW", lat: 25.1097, lng: 121.8445 }, "TW-jiufen"],
+  ["Taipei", { tripId: "a", country: "TW", lat: 25.033, lng: 121.5654 }, "TW-taipei"],
+  ["El Nido", { tripId: "a", country: "PH", lat: 11.19, lng: 119.40 }, "PH-palawan"],
+  ["Name only: Saigon", { tripId: "a", country: "VN", place: "Saigon" }, "VN-ho-chi-minh-city"],
+  ["Name only: KK", { tripId: "a", country: "MY", place: "KK" }, "MY-sabah"],
+  ["Paris (country only)", { tripId: "a", country: "FR", lat: 48.85, lng: 2.35 }, "FR-country-"],
+  ["Brazil (not in library)", { tripId: "a", country: "BR", lat: -22.9, lng: -43.2 }, "null"],
+  ["No country", { tripId: "a", country: null }, "null"],
+];
+let fails = 0;
+for (const [label, input, want] of T) {
+  const got = stampFor(input)?.id ?? "null";
+  const ok = want === "null" ? got === "null" : got.startsWith(want);
+  if (!ok) fails++;
+  console.log(`${ok ? "PASS" : "FAIL"}  ${label.padEnd(30)} -> ${got}`);
+}
+const a = new Set(Array.from({ length: 40 }, (_, i) => stampFor({ tripId: "trip-" + i, country: "FR" })!.id));
+const same = stampFor({ tripId: "trip-7", country: "FR" })!.id === stampFor({ tripId: "trip-7", country: "FR" })!.id;
+console.log(`country stamps vary across trips: ${a.size === 2 ? "PASS" : "FAIL"} (${[...a].join(", ")}); same trip always same: ${same ? "PASS" : "FAIL"}`);
+console.log(fails ? `${fails} FAILED` : "ALL PASS");
