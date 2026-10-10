@@ -98,7 +98,7 @@
       "IPOH",
       "MALAYSIA"
     ],
-    "placement": "on a small luggage tag hanging from the lower right corner of the border by a little loop of string",
+    "placement": "on a large luggage tag — about a quarter of the stamp's width — hanging from the lower right corner of the border by a loop of string, the lettering big and easy to read on the tag",
     "placementName": "Hanging tag"
   },
   {
@@ -121,13 +121,13 @@
     "name": "Malaysia",
     "country": "Malaysia",
     "subject": "the Petronas Twin Towers with the KL Tower and city skyline behind, clouds, hibiscus flowers and palm fronds",
-    "shape": "downward-pointing pennant (triangle with a flat top edge, point at the bottom)",
+    "shape": "tall arch",
     "composition": "layered depth: hibiscus and palm fronds in the foreground corners, the twin towers in the middle, skyline and clouds behind",
     "text": [
       "MALAYSIA"
     ],
-    "placement": "in a straight band along the wide flat top edge of the pennant",
-    "placementName": "Band"
+    "placement": "curved along the inside of the arch top, following its curve",
+    "placementName": "Curved"
   },
   {
     "id": "MY-country-2",

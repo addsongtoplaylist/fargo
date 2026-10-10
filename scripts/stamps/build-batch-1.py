@@ -14,17 +14,17 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[2]
 
-# Friendly shapes only (owner, 2026-10-11): no shield (looks odd), no upward triangle (hazard sign),
-# no octagon (stop sign); ticket, scallop, cloud and pill were considered and declined.
-SHAPES = ["circle", "rounded square", "tall arch", "hexagon", "wide horizontal oval",
-          "tall rectangle", "downward-pointing pennant (triangle with a flat top edge, point at the bottom)",
-          "dome (flat bottom edge, semicircular top)", "square with a perforated postage-stamp edge"]
+# Friendly shapes only (owner, 2026-10-11): no shield (looks odd), no triangles either way (hazard sign /
+# awkward pennant), no octagon (stop sign); ticket, scallop, cloud and pill were considered and declined.
+DOME = "dome (flat bottom edge, semicircular top)"
+POSTAGE = "square with a perforated postage-stamp edge"
+SHAPES = ["circle", "rounded square", "tall arch", "hexagon", "wide horizontal oval", "tall rectangle", DOME, POSTAGE]
 # Round A (approved 2026-10-11) keeps its shapes; Ipoh, Johor Bahru and Malaysia 1 moved off dropped shapes.
 PINNED = {
     "MY-kuala-lumpur": "circle", "MY-penang": "rounded square", "MY-langkawi": "tall arch",
     "MY-melaka": "hexagon", "MY-sabah": "wide horizontal oval", "MY-sarawak": "tall rectangle",
-    "MY-ipoh": "rounded square", "MY-johor-bahru": SHAPES[7], "MY-country-1": SHAPES[6],
-    "MY-country-2": SHAPES[8], "SG-country-1": "circle", "SG-country-2": "rounded square",
+    "MY-ipoh": "rounded square", "MY-johor-bahru": DOME, "MY-country-1": "tall arch",
+    "MY-country-2": POSTAGE, "SG-country-1": "circle", "SG-country-2": "rounded square",
 }
 
 PLACEMENT = {
@@ -35,18 +35,16 @@ PLACEMENT = {
     "rounded square": "in a solid straight header bar across the top, the letters reversed out (paper colour) inside the inked bar",
     "square with a perforated postage-stamp edge": "in a solid straight header bar across the bottom, the letters reversed out (paper colour) inside the inked bar",
     "hexagon": "in a ribbon banner across the top edge (any second line in a ribbon across the bottom edge)",
-    SHAPES[6]: "in a straight band along the wide flat top edge of the pennant (any second line small just below it)",
-    SHAPES[7]: "curved along the inside of the dome's round top (any second line in a straight band along the flat bottom edge)",
+    DOME: "curved along the inside of the dome's round top (any second line in a straight band along the flat bottom edge)",
 }
 ONE_LINE = {
     "circle": "curved along the top arc of the circle between two concentric border lines, like a classic round passport stamp; the bottom of the border has no lettering",
     "wide horizontal oval": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters",
     "tall rectangle": "set vertically down the left edge, one upright letter under another, inside a narrow vertical strip of the border",
     "hexagon": "in one ribbon banner across the top edge; no other ribbons or banners",
-    SHAPES[6]: "in a straight band along the wide flat top edge of the pennant",
-    SHAPES[7]: "curved along the inside of the dome's round top; the flat bottom edge has no lettering",
+    DOME: "curved along the inside of the dome's round top; the flat bottom edge has no lettering",
 }
-TAG = "on a small luggage tag hanging from the lower right corner of the border by a little loop of string"
+TAG = "on a large luggage tag — about a quarter of the stamp's width — hanging from the lower right corner of the border by a loop of string, the lettering big and easy to read on the tag"
 
 # country code, country name, [(id, name, subject, composition)], [(country subject, composition) x2]
 COUNTRIES = [
