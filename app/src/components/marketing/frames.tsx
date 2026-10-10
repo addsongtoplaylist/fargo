@@ -38,11 +38,14 @@ export function PhotoFrame({
   src,
   className = "",
   plain = false,
+  sizes = "(max-width: 768px) 100vw, 560px",
   children,
 }: {
   label: string;
   src?: string;
   className?: string;
+  /** How wide the photo shows, so the browser fetches a sharp enough file (full-width bands: "100vw") */
+  sizes?: string;
   /** No photo yet: show the background colour from className instead of a labelled placeholder. */
   plain?: boolean;
   children?: React.ReactNode;
@@ -51,7 +54,7 @@ export function PhotoFrame({
     // Callers may position it absolutely; otherwise it's a positioned box so the caption can sit inside.
     <div className={`${/\babsolute\b/.test(className) ? "" : "relative"} overflow-hidden ${plain ? "" : "bg-[#c5cfda]"} ${className}`}>
       {src ? (
-        <Image src={src} alt={label} fill sizes="(max-width: 768px) 100vw, 560px" className="object-cover" />
+        <Image src={src} alt={label} fill sizes={sizes} className="object-cover" />
       ) : plain ? null : (
         <span className="absolute left-3 top-3 z-[1] inline-flex items-center gap-2 rounded-[10px] bg-white/90 px-2.5 py-1.5 text-xs font-semibold text-[#3b4556]">
           <ImageIcon size={16} aria-hidden />

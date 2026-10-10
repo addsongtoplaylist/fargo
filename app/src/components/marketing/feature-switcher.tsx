@@ -18,7 +18,7 @@ const FEATURES = [
   },
   {
     title: "Travel buddies",
-    photoSrc: "/marketing/photo-buddies.webp" as string | undefined,
+    photoSrc: "/marketing/photo-buddies-2.webp" as string | undefined,
     tint: "bg-[#f6eedc]",
     body: "Invite your friends with one link. They suggest ideas, you decide what makes the schedule.",
     screen: "Fargo Prep with a packing list and ideas",
@@ -27,7 +27,7 @@ const FEATURES = [
   },
   {
     title: "Shared costs",
-    photoSrc: "/marketing/photo-costs.webp" as string | undefined,
+    photoSrc: "/marketing/photo-costs-2.webp" as string | undefined,
     tint: "bg-money-ok-soft",
     body: "Everyone adds what they paid along the way. Fargo keeps it fair, with no awkward chat at the end.",
     screen: "Fargo Money with the group split",
@@ -36,7 +36,7 @@ const FEATURES = [
   },
   {
     title: "Passport",
-    photoSrc: "/marketing/photo-passport.webp" as string | undefined,
+    photoSrc: "/marketing/photo-passport-2.webp" as string | undefined,
     tint: "bg-cat-stay-soft",
     body: "Every trip earns a stamp. See your countries, trips and travel buddies add up, then share a trip card.",
     screen: "Fargo Passport with stamps and travel stats",
@@ -57,7 +57,7 @@ export function FeatureSwitcher() {
           <Image src="/mascot.png" alt="" width={64} height={64} className="rounded-2xl shadow-[0_10px_24px_rgba(0,113,188,0.20)]" />
           <h2 className="text-[32px] md:text-[44px] leading-[1.1] font-extrabold tracking-[-0.8px] md:tracking-[-1.2px] text-fg">Your trip, your way.</h2>
           <p className="max-w-[560px] text-[17px] leading-relaxed text-fg-muted">
-            The plan, the places and the people in one trip. Here&apos;s what&apos;s inside.
+            Fargo keeps the plan, the places and the people in one trip. Here&apos;s what&apos;s inside.
           </p>
         </div>
 

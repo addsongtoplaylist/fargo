@@ -4,6 +4,17 @@
 
 ---
 
+## v0.5.15 — 2026-10-10 · Sharper landing page
+
+### Landing page
+
+- **Sharper pictures.** The illustrations now load at full size without re-compression, and the photos behind the phone are cut to the panel's tall shape at higher resolution, so nothing is stretched on phone or retina screens.
+- **New closing photo:** the view from a plane window at golden hour (Eva Darron, Unsplash), with no dark overlay; a soft shadow keeps "Every trip starts here." readable.
+- "Your trip, your way" now says **"Fargo keeps the plan, the places and the people in one trip."**
+- Changed photos have new file names so no cached old copy shows.
+
+---
+
 ## v0.5.14 — 2026-10-10 · Landing page photos and illustrations
 
 ### Landing page

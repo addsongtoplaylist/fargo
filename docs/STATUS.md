@@ -4,6 +4,12 @@
 
 ---
 
+**2026-10-10 — Sharper landing page (v0.5.15)**
+
+Owner reported pixelated images. Causes: illustrations shrunk to 720px then re-compressed; landscape photos stretched to fill portrait panels; the closing band told `next/image` it was 560px wide. Fixes: full-size illustrations served `unoptimized`; portrait crops ~1376×1700; `PhotoFrame` `sizes` prop (`100vw` for the band); renamed changed files (`-2`, `-plane`) because the optimiser caches by URL. New closing photo (plane window, no overlay, headline text shadow) and "Fargo keeps the plan…" copy. Stamp work is now **v0.5.16**.
+
+---
+
 **2026-10-10 — Landing page photos + illustrations (v0.5.14)**
 
 Owner-supplied illustrations in the journey timeline (`illus-before/during/after.webp`, transparent, trimmed; `IllustrationFrame` takes a `src`, fixed 170px height). New Unsplash photos for Travel buddies (UmV2wr-Vbq8) and Passport (GOZxrAlNIt4). The Shared costs pick (KbP0nALUBGo) is Unsplash+ (paid) — not used. Checked desktop + phone. Stamp work is now **v0.5.15**.
