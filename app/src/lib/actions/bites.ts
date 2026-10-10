@@ -172,8 +172,13 @@ export async function searchDiningSpots(
     return { spots: [], total: 0, error: "Not signed in" };
   }
 
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_KEY;
-  if (!apiKey) {
+  // Two Google keys (REVIEW.md SEC-5): the search runs here on the server with a private key
+  // (no website restriction possible, never sent to the browser). Photo links are loaded by the
+  // browser, so they use the public key, which Google limits to Fargo's own web addresses.
+  // Until GOOGLE_PLACES_SERVER_KEY is set in Vercel, the public key is used for both.
+  const browserKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_KEY;
+  const apiKey = process.env.GOOGLE_PLACES_SERVER_KEY ?? browserKey;
+  if (!apiKey || !browserKey) {
     return { spots: [], total: 0, error: "Google Places API key not configured" };
   }
 
@@ -271,7 +276,7 @@ export async function searchDiningSpots(
         // Build photo URI (first photo, medium size)
         let photoUri: string | null = null;
         if (photos.length > 0) {
-          photoUri = `https://places.googleapis.com/v1/${photos[0].name}/media?maxWidthPx=400&key=${apiKey}`;
+          photoUri = `https://places.googleapis.com/v1/${photos[0].name}/media?maxWidthPx=400&key=${browserKey}`;
         }
 
         return {
