@@ -34,7 +34,7 @@
 
 ## In progress 🟡
 
-- **AI stamp art per place** (`STAMPS.md`), v0.5.16. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
+- **Stamp library** (`STAMPS.md` v2), v0.5.16: pre-made city + country stamps, batch 1 Asia. Waiting on the owner's Gemini / OpenAI keys → style check → batch → review. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
 - **Phase 4 — Real travellers.** Invite, join, leave, read-only members and the RLS audit are done. **Remaining:** upgrade a name-only traveller to an account, keeping their history.
 
 ## Parked ⏸
@@ -116,6 +116,7 @@
 | 2026-10-01 | UI redesign (DESIGN.md v0.8) ships as **v0.5.0** — same features, no SQL; cover photo upload follows as v0.5.1 (P10, staging Supabase first). Then personal checklists → Discover price filter → Explore + travel stats |
 | 2026-10-09 | **Passport tab** (v0.5.6) and **Share trip overlays** (v0.5.7: trip pass, passport stamp card, photo ticket) — inspired by Strava, not a copy; save/copy flow because web apps can't post stickers to Instagram directly |
 | 2026-10-09 | **AI stamp art per place** (`docs/STAMPS.md`): one per Base city, only after a trip starts, auto-published, ≤ 10/day; Gemini vs OpenAI decided by a style check. Parked: Discover price filter (KIV), home currency per trip (money change, own release) |
+| 2026-10-10 | **Stamps: pre-made library instead of on-demand generation** (`STAMPS.md` v2). Per country up to 6 city stamps + 2 country stamps (trip id picks one); fallback drawn ring with ✈. Batch 1 Asia incl. China and India, batch 2 further away. Generated on the owner's machine, owner-reviewed, shipped in the app — no queue, Edge Function, database or runtime AI calls |
 | 2026-10-10 | **Security review closed** (`REVIEW.md`): Google Places calls server-only (website restrictions aren't enforced by Google for Places (New)); Content Security Policy enforced; Mapbox token URL-restricted; direct DB writes can only link your own account to a trip; invite preview hides other account IDs; master DB password removed from Vercel. Native app will need a new iOS-restricted Google key when it resumes |
 | 2026-10-10 | **One version for app + landing page.** They share one codebase and one deploy, so the landing page doesn't keep its own number; "Landing page v0.1" folded into v0.5.8. Separate numbers only if the marketing site ever moves to its own project |
 | 2026-10-09 | **Explore shelved** — spec (`EXPLORE.md`), wireframes, reference study and build plan done; not built. Reason: user base too small for Explore to work yet; launching it near-empty could backfire. Tab stays in the nav with its "on its way" placeholder |

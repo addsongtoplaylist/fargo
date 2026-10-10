@@ -1,78 +1,87 @@
-# Fargo — Stamp generation
+# Fargo — Stamp library
 
-> **v1.1 — 2026-10-09. Planned, not built — waiting on the style check (API keys).** How each place gets its own passport-stamp artwork for the **Passport stamp** share overlay (v0.5.7). Ho Chi Minh City has hand-made art today; every other place shows a drawn ring with the country code until its stamp is generated.
+> **v2.0 — 2026-10-10. Planned, not built — waiting on the style check (API keys).** Passport-stamp artwork for the **Passport stamp** share overlay (v0.5.7). **v2 replaces v1's on-demand generator** (queue, Edge Function, daily cap) with a **pre-made library**: stamps are generated in batches on the owner's machine, reviewed, and shipped with the app. No AI calls while people use Fargo. Ho Chi Minh City has hand-made art today; everywhere else shows a drawn ring until the library ships.
 
-## Decisions (owner, 2026-10-09)
+## Decisions (owner, 2026-10-10)
 
 | # | Decision |
 |---|---|
-| 1 | **One stamp per Base city**, shared by every user and trip (e.g. "Penang, Malaysia"). A trip without a Base city uses its **country**. |
-| 2 | **Generated only once the trip has started** (start date ≤ today), so changing a destination while planning never triggers extra generations. |
-| 3 | **Published automatically.** A bad stamp can be regenerated. |
-| 4 | **No limit on trips.** Generation runs through a **queue**; places waiting show as **pending**. |
-| 5 | **Safety cap: 10 new stamps a day** in total. The rest wait in the queue for the next day. |
-| 6 | **Style check first:** 5 test stamps (Penang, Bangkok, Tokyo, Paris, Bali) approved by the owner before the generator is switched on. |
-| 7 | **Model: Google Gemini image** ("Nano Banana", `gemini-nano-banana-2.1`, the model behind the Gemini app, ≈ US$0.034 per image, billing required — no free tier). The Ho Chi Minh City sample was made with it, so new stamps match. |
-| 8 | **OpenAI (GPT image) is tested alongside Gemini** in the style check; the owner picks the provider from a side-by-side comparison. Final model + price recorded here after the check. |
+| 1 | **Pre-made library, not generated on demand.** Batches are made separately, reviewed, then added — no processing or waiting when a trip is created or shared. |
+| 2 | **Per country: up to 6 city stamps + 2 generic country stamps.** (Fewer cities where a country has fewer destinations; city-states get the 2 country stamps only.) |
+| 3 | **Which stamp a trip gets:** its Base city's stamp if the library has one → otherwise one of the country's **2 country stamps** (also used when no Base city is set) → otherwise the **fallback**. |
+| 4 | **Two country stamps = two designs.** Each trip always gets the same one (picked from the trip id), so different trips vary but a trip's card never changes. |
+| 5 | **Fallback:** today's drawn ring with **✈** in the middle — no country code. |
+| 6 | **Batch 1 = Asia, including China and India. Batch 2 = popular countries further away.** |
+| 7 | **Owner reviews every stamp** before it's added. Nothing is published automatically. |
+| 8 | **Style check first:** 5 test stamps on **Gemini and OpenAI** side by side; the owner picks the provider. (Gemini "Nano Banana" ≈ US$0.034/image; the Ho Chi Minh City sample was made with it.) |
 
-Claude can't generate images; it writes the prompts and builds everything around the image model.
+Claude can't generate images; it writes the prompts and the scripts around the image model.
 
 ## How it works
 
 ```
-Trip started ─▶ daily sweep queues its Base city (if no stamp yet)
-                        │
-                        ▼
-place_stamps row: pending ─▶ generator (Edge Function, one at a time, ≤ 10/day)
-                                  │  1. prompt from the house template
-                                  │  2. Gemini image
-                                  │  3. clean-up: cream ink on transparent, cropped to the circle
-                                  │  4. upload to storage
-                                  ▼
-                        ready  (or failed after 3 tries)
+Owner's machine (script, key in app/.env.local)        Fargo app
+─────────────────────────────────────────────          ───────────────────────────────
+city list ─▶ prompt ─▶ image model ─▶ clean-up            share overlay asks the library:
+        ─▶ review sheet ─▶ owner approves                 Base city near a stamp? ─▶ city stamp
+        ─▶ PNGs + manifest into the app ─▶ release        else country stamp (1 of 2)
+                                                          else drawn ring + ✈
 ```
 
-### 1. Stamp library (database)
+### 1. Library (inside the app)
 
-New table **`place_stamps`** (additive):
+- **Images:** `app/src/assets/stamps/<country code>/<slug>.png` — cream ink on transparent, 600 × 600, ≈ 100–150 KB each. Already bundled with the share-overlay route (`outputFileTracingIncludes` covers `src/assets/**`).
+- **Manifest:** `app/src/lib/stamp-library.ts` (replaces the hard-coded list in `lib/stamp-art.ts`). One entry per stamp:
 
-| Column | What |
+| Field | What |
 |---|---|
-| `place_key` | Unique key: country code + normalised city, e.g. `VN:ho chi minh city`; country only: `VN` |
-| `city`, `country_code`, `country` | For the prompt and display |
-| `status` | `pending` → `making` → `ready` / `failed` |
-| `path` | Image in the `place-stamps` storage bucket (when ready) |
-| `attempts`, `error` | Retry count (max 3) and last error |
-| `requested_at`, `ready_at` | Timestamps (queue order, daily cap) |
+| `country` | ISO code, e.g. `MY` |
+| `kind` | `city` or `country` |
+| `name`, `aliases` | e.g. "George Town" · ["Penang", "Pulau Pinang"] — used for the ring lettering and as a name match |
+| `lat`, `lng`, `radiusKm` | Centre and reach, e.g. 50 km for a city, larger for islands/regions (Bali, Hokkaido) |
+| `file` | Path to the PNG |
 
-- **Storage:** public bucket `place-stamps`, PNG, ≤ 1 MB. Served from the Supabase project, which the enforced Content Security Policy already allows; if the browser ever loads stamp images from anywhere else, add that host in `next.config.ts`.
-- **Who can do what:** anyone signed in can **read** the library (to show stamps). Only the generator (service role inside the Edge Function) **writes** rows and images. The app never holds the service key or the AI key.
-- **Seed:** the Ho Chi Minh City art moves from `app/src/assets/stamps/` into the bucket as the first `ready` row.
+- **Matching:** trips already store the Base city's coordinates (`base_lat`, `base_lng`). Fargo picks the **nearest city stamp in the same country within its radius**; if there are no coordinates, it tries the name and aliases. No database change.
+- **Why in the app, not Supabase storage:** simplest (no table, bucket or policies), and stamps ship with normal releases. ~100 stamps ≈ 12–15 MB, fine for the server bundle. Move to storage only if the library passes ~200 stamps.
 
-### 2. Queueing (only trips that have started)
+### 2. Making a batch (owner's machine)
 
-- A **daily scheduled job** (Supabase `pg_cron`, early morning MYT) looks for trips with `start_date ≤ today` whose Base city (or country) has no `place_stamps` row, and adds them as `pending`.
-- Because it only looks at started trips, editing a destination while planning never queues anything. Existing trips that have started are picked up the same way, within the daily cap.
+1. `scripts/stamps/generate.mjs` (to be written) reads the batch list, calls the chosen model with the template below, saves raw images to a gitignored `stamps-review/` folder.
+2. **Clean-up** (automatic, same as the hand-made sample): ink → cream `#f6f2e8` on transparent, crop to the circle, 600 × 600.
+3. **Review sheet:** an HTML contact sheet (raw + cleaned, per place). The owner approves or marks "redo"; redos are regenerated (a few tries per place).
+4. Approved stamps are copied into the library and the manifest is updated; ships in the next release.
+5. **Later batches:** a read-only query lists Base cities from real trips that have no stamp — the owner picks which to add. No background jobs.
 
-### 3. Generator (Supabase Edge Function `generate-stamps`)
+- **Key:** `GEMINI_API_KEY` / `OPENAI_API_KEY` in `app/.env.local` only (gitignored). Never in Vercel, Supabase or the browser.
 
-- Runs on a schedule (e.g. every 10 minutes) and handles **one pending place per run**, oldest first, while fewer than **10** stamps have been made today.
-- **Prompt:** the house template below, with the place filled in.
-- **Clean-up** (automatic, same as the hand-made sample): turn the ink into cream `#f6f2e8` on a transparent background, crop to the stamp's circle, resize to 600 × 600.
-- **Failure:** retries up to 3 times across runs, then `failed` (the overlay keeps the drawn ring).
-- **Secrets** (Supabase function secrets, never in the app): `GEMINI_API_KEY` or `OPENAI_API_KEY` (whichever wins the style check); the service role key is provided to Edge Functions by Supabase.
+### 3. In the app
 
-### 4. In the app
+- The stamp overlay uses the library lookup above; the fallback draws the ring with **✈** (the country code is no longer printed in the middle).
+- Fargo still letters the ring itself (place · country on top, month at the bottom) — the art leaves the ring blank.
 
-- The stamp overlay looks up the trip's place in `place_stamps`:
-  - **ready** → the stamp art, with Fargo's lettering around the ring
-  - **pending / making** → drawn ring + country code; the Share trip sheet adds a small note: *"Your Ho Chi Minh City stamp is being made — check back soon."*
-  - **failed / none** → drawn ring + country code, no note
-- `lib/stamp-art.ts` (today a hard-coded list) is replaced by this lookup.
+## Batch 1 — Asia (proposed, owner to edit)
 
-### 5. Fixing a bad stamp
+| Country | City stamps (up to 6) | + 2 country stamps |
+|---|---|---|
+| Malaysia | Kuala Lumpur · George Town (Penang) · Langkawi · Melaka · Kota Kinabalu · Ipoh | ✓ |
+| Singapore | — (city-state) | ✓ |
+| Thailand | Bangkok · Phuket · Chiang Mai · Krabi · Pattaya · Koh Samui | ✓ |
+| Indonesia | Bali · Jakarta · Yogyakarta · Bandung · Lombok · Labuan Bajo | ✓ |
+| Vietnam | Ho Chi Minh City (hand-made, kept) · Hanoi · Da Nang · Hoi An · Nha Trang · Ha Long | ✓ |
+| Philippines | Manila · Cebu · Boracay · El Nido (Palawan) · Bohol · Siargao | ✓ |
+| Cambodia | Siem Reap · Phnom Penh | ✓ |
+| Japan | Tokyo · Osaka · Kyoto · Sapporo (Hokkaido) · Fukuoka · Okinawa | ✓ |
+| South Korea | Seoul · Busan · Jeju · Gyeongju · Incheon · Gangneung | ✓ |
+| Taiwan | Taipei · Taichung · Tainan · Kaohsiung · Hualien · Jiufen | ✓ |
+| Hong Kong | — (city) | ✓ |
+| China | Beijing · Shanghai · Chengdu · Chongqing · Xi'an · Guilin | ✓ |
+| India | Delhi · Mumbai · Jaipur · Agra · Goa · Kochi (Kerala) | ✓ |
 
-- One SQL command resets a place to `pending` (and removes its image); the generator remakes it on its next run. A button for this can come later.
+≈ 63 city + 26 country stamps ≈ **89 stamps** (88 new). Possible additions: Macau, Maldives, Sri Lanka, Nepal, Myanmar, Laos.
+
+## Batch 2 — further away (later)
+
+Popular long-haul destinations, e.g. Australia, New Zealand, United Kingdom, France, Italy, Spain, Switzerland, Turkey, the US, the UAE. List to be agreed after batch 1 ships.
 
 ## Prompt (house template)
 
@@ -85,19 +94,22 @@ Negative / avoid: `text, letters, numbers, words, multiple colours, gradients, 3
 - The ring is left blank on purpose: image models misspell text. Fargo letters the ring itself (place · country on top, month at the bottom).
 - The ink colour doesn't matter for the final look (the clean-up re-inks it cream); one dark colour on white keeps the clean-up reliable.
 
+**Country stamp variant:** same template, but the centre shows *"one simple, widely recognised national symbol or landmark of {COUNTRY}"*; the two designs use different symbols (e.g. Japan: Mount Fuji · torii gate). Symbols are agreed in the review sheet.
+
 ## Cost
 
-About **US$0.03–0.04 per place, once** (Gemini ≈ US$0.034; OpenAI price confirmed during the style check). At most 10 a day → at most ≈ US$12 a month even at full cap; in practice far less, since each place is made only once.
+About **US$0.03–0.04 per image**. Batch 1 (≈ 88 stamps, allowing redos) ≈ **US$5–8**, paid once. The style check is well under US$1. Nothing is spent while people use Fargo.
 
 ## Rollout
 
-1. **Style check:** generate the 5 test stamps with the template on **both Gemini and OpenAI**, run each through the same clean-up, and show a grid (place × provider, raw and cleaned). Owner picks the provider and approves (adjust the template if needed).
-   - **Waiting on owner:** add `GEMINI_API_KEY` and `OPENAI_API_KEY` to `app/.env.local` (gitignored; never paste keys in chat). Gemini needs billing enabled; OpenAI needs credit/billing and may ask to verify the organisation before image models work. Either key alone is enough to start.
-   - Run as a local script (scratchpad), not app code; costs well under US$1 for both.
-2. **Owner:** add the chosen provider's API key as a Supabase function secret; run the SQL (table, bucket, policies, `pg_cron` jobs); deploy the Edge Function (or sign the Supabase CLI in so Claude can).
-3. **Claude:** SQL + undo script, Edge Function, app lookup + pending note, seed Ho Chi Minh City; test on the Test trip.
-4. Release (next version after v0.5.7).
+1. **Style check:** 5 test stamps — Penang, Bangkok, Tokyo, Seoul, Bali — on **both Gemini and OpenAI**, same clean-up, shown side by side. Owner picks the provider and approves the template.
+   - **Waiting on owner:** `GEMINI_API_KEY` and `OPENAI_API_KEY` in `app/.env.local` (never paste keys in chat). Gemini needs billing enabled; OpenAI needs credit and may ask to verify the organisation. Either key alone is enough to start.
+2. **Owner:** confirm the batch 1 list (cities + country symbols).
+3. **Claude:** generation script + clean-up + review sheet; run batch 1.
+4. **Owner:** review; redo where needed.
+5. **Claude:** library manifest + lookup (coordinates, names, country stamp by trip id), ✈ fallback; add the approved stamps; test on the Test trip.
+6. Release (v0.5.16).
 
 ## Not affected
 
-The native app, the Passport tab (could use the art later), trip pass and photo ticket overlays, and all existing trip data.
+The native app, the Passport tab (could use the art later), trip pass and photo ticket overlays, all trip data. **No database or Supabase changes** at all.
