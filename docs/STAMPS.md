@@ -8,7 +8,7 @@
 |---|---|
 | 1 | **Pre-made library, not generated on demand.** Batches are made separately, reviewed, then added — no processing or waiting when a trip is created or shared. |
 | 2 | **Per country: up to 6 city stamps + 2 generic country stamps.** (Fewer cities where a country has fewer destinations; city-states get the 2 country stamps only.) |
-| 3 | **Which stamp a trip gets:** its Base city's stamp if the library has one → otherwise one of the country's **2 country stamps** (also used when no Base city is set) → otherwise the **fallback**. |
+| 3 | **Which stamp a trip gets:** the stamp whose area contains the Base city, if any (never a neighbouring place's stamp) → otherwise one of the country's **2 country stamps** (also used when no Base city is set) → otherwise the **fallback**. |
 | 4 | **Two country stamps = two designs.** Each trip always gets the same one (picked from the trip id), so different trips vary but a trip's card never changes. |
 | 5 | **Fallback:** today's drawn ring with **✈** in the middle — no country code. |
 | 6 | **Batch 1 = Asia, including China and India. Batch 2 = popular countries further away.** |
@@ -42,7 +42,7 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 | `lat`, `lng`, `radiusKm` | Centre and reach, e.g. 50 km for a city, larger for islands/regions (Bali, Hokkaido) |
 | `file` | Path to the PNG |
 
-- **Matching:** trips already store the Base city's coordinates (`base_lat`, `base_lng`). Fargo picks the **nearest city stamp in the same country within its radius**; if there are no coordinates, it tries the name and aliases. No database change.
+- **Matching:** trips already store the Base city's coordinates (`base_lat`, `base_lng`). A city stamp is used **only if the Base city is inside that stamp's own area** (its radius); if two areas overlap, the closer centre wins. **A stamp never stands in for a different place** — e.g. a trip in Sabah with no Sabah stamp gets the **Malaysia country stamp**, never Sarawak's. If there are no coordinates, it tries the name and aliases. No database change.
 - **Why in the app, not Supabase storage:** simplest (no table, bucket or policies), and stamps ship with normal releases. ~100 stamps ≈ 12–15 MB, fine for the server bundle. Move to storage only if the library passes ~200 stamps.
 
 ### 2. Making a batch (owner's machine)
