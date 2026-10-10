@@ -1,0 +1,519 @@
+[
+  {
+    "id": "TH-bangkok",
+    "kind": "place",
+    "name": "Bangkok",
+    "country": "Thailand",
+    "subject": "a Thai long-tail boat on the Chao Phraya river and the spires of Wat Arun",
+    "shape": "tall arch",
+    "composition": "the boat big in the foreground, the temple small in the distance",
+    "text": [
+      "BANGKOK",
+      "THAILAND"
+    ],
+    "placement": "curved along the inside of the arch top, following its curve",
+    "placementName": "Curved"
+  },
+  {
+    "id": "TH-phuket",
+    "kind": "place",
+    "name": "Phuket",
+    "country": "Thailand",
+    "subject": "Phuket Old Town's pastel Sino-Portuguese shophouses with a tuk-tuk",
+    "shape": "hexagon",
+    "composition": "a street in perspective, the tuk-tuk in front",
+    "text": [
+      "PHUKET"
+    ],
+    "placement": "in one ribbon banner across the top edge; no other ribbons or banners",
+    "placementName": "Ribbon"
+  },
+  {
+    "id": "TH-chiang-mai",
+    "kind": "place",
+    "name": "Chiang Mai",
+    "country": "Thailand",
+    "subject": "the golden chedi of Wat Phra That Doi Suthep with floating paper lanterns",
+    "shape": "wide horizontal oval",
+    "composition": "the chedi centred low, lanterns drifting up around it",
+    "text": [
+      "CHIANG MAI",
+      "THAILAND"
+    ],
+    "placement": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters (any second line small underneath)",
+    "placementName": "Big letters"
+  },
+  {
+    "id": "TH-krabi",
+    "kind": "place",
+    "name": "Krabi",
+    "country": "Thailand",
+    "subject": "Railay's limestone cliffs over a beach with a rock climber",
+    "shape": "tall rectangle",
+    "composition": "a tall cliff on one side, the climber small on its face, the beach below",
+    "text": [
+      "KRABI"
+    ],
+    "placement": "set vertically down the left edge, one upright letter under another, inside a narrow vertical strip of the border",
+    "placementName": "Vertical"
+  },
+  {
+    "id": "TH-pattaya",
+    "kind": "place",
+    "name": "Pattaya",
+    "country": "Thailand",
+    "subject": "the carved wooden Sanctuary of Truth on the seafront",
+    "shape": "dome (flat bottom edge, semicircular top)",
+    "composition": "the temple from a low angle, waves in the foreground",
+    "text": [
+      "PATTAYA",
+      "THAILAND"
+    ],
+    "placement": "curved along the inside of the dome's round top (any second line in a straight band along the flat bottom edge)",
+    "placementName": "Curved"
+  },
+  {
+    "id": "TH-koh-samui",
+    "kind": "place",
+    "name": "Koh Samui",
+    "country": "Thailand",
+    "subject": "the Big Buddha temple of Koh Samui with coconut palms and the sea",
+    "shape": "square with a perforated postage-stamp edge",
+    "composition": "palm trunks framing the view, the Big Buddha in the middle distance",
+    "text": [
+      "KOH SAMUI"
+    ],
+    "placement": "on a BIG luggage tag, about one third of the stamp's width and clearly a major element of the design, hanging from the lower right corner of the border by a short loop of string and overlapping the corner, with the lettering in large bold capitals that fill the tag",
+    "placementName": "Hanging tag"
+  },
+  {
+    "id": "TH-country-1",
+    "kind": "country",
+    "name": "Thailand",
+    "country": "Thailand",
+    "subject": "an ornate Thai temple roof with a tuk-tuk in front",
+    "shape": "circle",
+    "composition": "the roof's layered gables filling the top, the tuk-tuk at the bottom",
+    "text": [
+      "THAILAND"
+    ],
+    "placement": "curved along the top arc of the circle between two concentric border lines, like a classic round passport stamp; the bottom of the border has no lettering",
+    "placementName": "Curved"
+  },
+  {
+    "id": "TH-country-2",
+    "kind": "country",
+    "name": "Thailand",
+    "country": "Thailand",
+    "subject": "a Thai elephant beside a floating market boat piled with fruit",
+    "shape": "rounded square",
+    "composition": "the elephant on the left, the boat on the right",
+    "text": [
+      "THAILAND"
+    ],
+    "placement": "in a solid straight header bar across the top, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  },
+  {
+    "id": "ID-bali",
+    "kind": "place",
+    "name": "Bali",
+    "country": "Indonesia",
+    "subject": "Balinese rice terraces with a split temple gate and palm trees",
+    "shape": "tall arch",
+    "composition": "a sweeping panorama of curving terraces, the gate small on one side",
+    "text": [
+      "BALI",
+      "INDONESIA"
+    ],
+    "placement": "curved along the inside of the arch top, following its curve",
+    "placementName": "Curved"
+  },
+  {
+    "id": "ID-jakarta",
+    "kind": "place",
+    "name": "Jakarta",
+    "country": "Indonesia",
+    "subject": "the National Monument (Monas) with its flame top",
+    "shape": "hexagon",
+    "composition": "the monument tall in the centre, a park path leading to it",
+    "text": [
+      "JAKARTA"
+    ],
+    "placement": "in one ribbon banner across the top edge; no other ribbons or banners",
+    "placementName": "Ribbon"
+  },
+  {
+    "id": "ID-yogyakarta",
+    "kind": "place",
+    "name": "Yogyakarta",
+    "country": "Indonesia",
+    "subject": "the Prambanan temple spires",
+    "shape": "wide horizontal oval",
+    "composition": "the cluster of spires from a low angle, a lone figure at the base for scale",
+    "text": [
+      "YOGYAKARTA",
+      "INDONESIA"
+    ],
+    "placement": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters (any second line small underneath)",
+    "placementName": "Big letters"
+  },
+  {
+    "id": "ID-bandung",
+    "kind": "place",
+    "name": "Bandung",
+    "country": "Indonesia",
+    "subject": "tea plantation rows rolling toward the Tangkuban Perahu volcano",
+    "shape": "tall rectangle",
+    "composition": "tea rows curving in the foreground, the volcano behind",
+    "text": [
+      "BANDUNG"
+    ],
+    "placement": "set vertically down the left edge, one upright letter under another, inside a narrow vertical strip of the border",
+    "placementName": "Vertical"
+  },
+  {
+    "id": "ID-lombok",
+    "kind": "place",
+    "name": "Lombok",
+    "country": "Indonesia",
+    "subject": "a white beach with outrigger boats and Mount Rinjani behind",
+    "shape": "dome (flat bottom edge, semicircular top)",
+    "composition": "the boats pulled up on the sand in front, the mountain across the back",
+    "text": [
+      "LOMBOK",
+      "INDONESIA"
+    ],
+    "placement": "curved along the inside of the dome's round top (any second line in a straight band along the flat bottom edge)",
+    "placementName": "Curved"
+  },
+  {
+    "id": "ID-komodo",
+    "kind": "place",
+    "name": "Komodo",
+    "country": "Indonesia",
+    "subject": "a Komodo dragon on a beach with island hills behind",
+    "shape": "square with a perforated postage-stamp edge",
+    "composition": "the dragon big and low across the foreground",
+    "text": [
+      "KOMODO"
+    ],
+    "placement": "in a solid straight header bar across the bottom, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  },
+  {
+    "id": "ID-country-1",
+    "kind": "country",
+    "name": "Indonesia",
+    "country": "Indonesia",
+    "subject": "the stupas of Borobudur temple",
+    "shape": "circle",
+    "composition": "rows of bell-shaped stupas in perspective, the main stupa at the top",
+    "text": [
+      "INDONESIA"
+    ],
+    "placement": "curved along the top arc of the circle between two concentric border lines, like a classic round passport stamp; the bottom of the border has no lettering",
+    "placementName": "Curved"
+  },
+  {
+    "id": "ID-country-2",
+    "kind": "country",
+    "name": "Indonesia",
+    "country": "Indonesia",
+    "subject": "a wayang kulit shadow puppet with frangipani flowers",
+    "shape": "rounded square",
+    "composition": "the puppet tall in the middle, flowers in the corners",
+    "text": [
+      "INDONESIA"
+    ],
+    "placement": "in a solid straight header bar across the top, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  },
+  {
+    "id": "VN-ho-chi-minh-city",
+    "kind": "place",
+    "name": "Ho Chi Minh City",
+    "country": "Vietnam",
+    "subject": "the Saigon Central Post Office facade with motorbikes",
+    "shape": "tall arch",
+    "composition": "the arched facade across the back, motorbikes passing in front",
+    "text": [
+      "HO CHI MINH CITY",
+      "VIETNAM"
+    ],
+    "placement": "on a BIG luggage tag, about one third of the stamp's width and clearly a major element of the design, hanging from the lower right corner of the border by a short loop of string and overlapping the corner, with the lettering in large bold capitals that fill the tag",
+    "placementName": "Hanging tag"
+  },
+  {
+    "id": "VN-hanoi",
+    "kind": "place",
+    "name": "Hanoi",
+    "country": "Vietnam",
+    "subject": "the red Huc Bridge over Hoan Kiem Lake with the Turtle Tower",
+    "shape": "hexagon",
+    "composition": "the arched bridge across the foreground, the tower on its islet behind",
+    "text": [
+      "HANOI"
+    ],
+    "placement": "in one ribbon banner across the top edge; no other ribbons or banners",
+    "placementName": "Ribbon"
+  },
+  {
+    "id": "VN-da-nang",
+    "kind": "place",
+    "name": "Da Nang",
+    "country": "Vietnam",
+    "subject": "the Golden Bridge held up by two giant stone hands in the mountains",
+    "shape": "wide horizontal oval",
+    "composition": "the hands large in the foreground, the bridge curving across",
+    "text": [
+      "DA NANG",
+      "VIETNAM"
+    ],
+    "placement": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters (any second line small underneath)",
+    "placementName": "Big letters"
+  },
+  {
+    "id": "VN-hoi-an",
+    "kind": "place",
+    "name": "Hoi An",
+    "country": "Vietnam",
+    "subject": "the Japanese Covered Bridge with silk lanterns and a river boat",
+    "shape": "tall rectangle",
+    "composition": "lanterns hanging across the top, the bridge in the middle, the boat below",
+    "text": [
+      "HOI AN"
+    ],
+    "placement": "set vertically down the left edge, one upright letter under another, inside a narrow vertical strip of the border",
+    "placementName": "Vertical"
+  },
+  {
+    "id": "VN-nha-trang",
+    "kind": "place",
+    "name": "Nha Trang",
+    "country": "Vietnam",
+    "subject": "the Po Nagar Cham towers above round basket boats",
+    "shape": "dome (flat bottom edge, semicircular top)",
+    "composition": "the towers on a hill, basket boats on the water in front",
+    "text": [
+      "NHA TRANG",
+      "VIETNAM"
+    ],
+    "placement": "curved along the inside of the dome's round top (any second line in a straight band along the flat bottom edge)",
+    "placementName": "Curved"
+  },
+  {
+    "id": "VN-ha-long-bay",
+    "kind": "place",
+    "name": "Ha Long Bay",
+    "country": "Vietnam",
+    "subject": "limestone islands rising from the water with a traditional junk boat",
+    "shape": "square with a perforated postage-stamp edge",
+    "composition": "islands layered into the distance, the junk sailing in front",
+    "text": [
+      "HA LONG BAY"
+    ],
+    "placement": "in a solid straight header bar across the bottom, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  },
+  {
+    "id": "VN-country-1",
+    "kind": "country",
+    "name": "Vietnam",
+    "country": "Vietnam",
+    "subject": "a woman in a conical hat carrying baskets on a bamboo pole through rice fields",
+    "shape": "circle",
+    "composition": "the figure on the right, the rice field stretching left",
+    "text": [
+      "VIETNAM"
+    ],
+    "placement": "curved along the top arc of the circle between two concentric border lines, like a classic round passport stamp; the bottom of the border has no lettering",
+    "placementName": "Curved"
+  },
+  {
+    "id": "VN-country-2",
+    "kind": "country",
+    "name": "Vietnam",
+    "country": "Vietnam",
+    "subject": "a Vietnamese phin coffee filter dripping into a glass, with lotus flowers",
+    "shape": "rounded square",
+    "composition": "the filter and glass large in the middle, lotus around the base",
+    "text": [
+      "VIETNAM"
+    ],
+    "placement": "in a solid straight header bar across the top, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  },
+  {
+    "id": "PH-manila",
+    "kind": "place",
+    "name": "Manila",
+    "country": "Philippines",
+    "subject": "the stone gate of Fort Santiago in Intramuros with a kalesa horse carriage",
+    "shape": "tall arch",
+    "composition": "looking through the gate, the carriage passing",
+    "text": [
+      "MANILA",
+      "PHILIPPINES"
+    ],
+    "placement": "curved along the inside of the arch top, following its curve",
+    "placementName": "Curved"
+  },
+  {
+    "id": "PH-cebu",
+    "kind": "place",
+    "name": "Cebu",
+    "country": "Philippines",
+    "subject": "the pavilion of Magellan's Cross with a painted ceiling",
+    "shape": "hexagon",
+    "composition": "the octagonal pavilion centred, people small at its base",
+    "text": [
+      "CEBU"
+    ],
+    "placement": "in one ribbon banner across the top edge; no other ribbons or banners",
+    "placementName": "Ribbon"
+  },
+  {
+    "id": "PH-boracay",
+    "kind": "place",
+    "name": "Boracay",
+    "country": "Philippines",
+    "subject": "White Beach with paraw sailboats and palm trees",
+    "shape": "wide horizontal oval",
+    "composition": "sailboats on the water in front, palms along the shore",
+    "text": [
+      "BORACAY",
+      "PHILIPPINES"
+    ],
+    "placement": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters (any second line small underneath)",
+    "placementName": "Big letters"
+  },
+  {
+    "id": "PH-palawan",
+    "kind": "place",
+    "name": "Palawan",
+    "country": "Philippines",
+    "subject": "a hidden lagoon among limestone cliffs with a kayak",
+    "shape": "tall rectangle",
+    "composition": "cliffs on both sides, the kayak small in the middle",
+    "text": [
+      "PALAWAN"
+    ],
+    "placement": "on a BIG luggage tag, about one third of the stamp's width and clearly a major element of the design, hanging from the lower right corner of the border by a short loop of string and overlapping the corner, with the lettering in large bold capitals that fill the tag",
+    "placementName": "Hanging tag"
+  },
+  {
+    "id": "PH-bohol",
+    "kind": "place",
+    "name": "Bohol",
+    "country": "Philippines",
+    "subject": "the Chocolate Hills with a tarsier on a branch",
+    "shape": "dome (flat bottom edge, semicircular top)",
+    "composition": "the tarsier close up in the foreground, the round hills behind",
+    "text": [
+      "BOHOL",
+      "PHILIPPINES"
+    ],
+    "placement": "curved along the inside of the dome's round top (any second line in a straight band along the flat bottom edge)",
+    "placementName": "Curved"
+  },
+  {
+    "id": "PH-siargao",
+    "kind": "place",
+    "name": "Siargao",
+    "country": "Philippines",
+    "subject": "a surfer riding a wave beside a palm-lined boardwalk",
+    "shape": "square with a perforated postage-stamp edge",
+    "composition": "the wave curling across, the boardwalk at the side",
+    "text": [
+      "SIARGAO"
+    ],
+    "placement": "in a solid straight header bar across the bottom, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  },
+  {
+    "id": "PH-country-1",
+    "kind": "country",
+    "name": "Philippines",
+    "country": "Philippines",
+    "subject": "a decorated jeepney",
+    "shape": "circle",
+    "composition": "the jeepney in three-quarter view filling the frame",
+    "text": [
+      "PHILIPPINES"
+    ],
+    "placement": "curved along the top arc of the circle between two concentric border lines, like a classic round passport stamp; the bottom of the border has no lettering",
+    "placementName": "Curved"
+  },
+  {
+    "id": "PH-country-2",
+    "kind": "country",
+    "name": "Philippines",
+    "country": "Philippines",
+    "subject": "a bangka outrigger boat with the cone of Mayon Volcano behind",
+    "shape": "rounded square",
+    "composition": "the boat in front, the perfect cone behind",
+    "text": [
+      "PHILIPPINES"
+    ],
+    "placement": "in a solid straight header bar across the top, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  },
+  {
+    "id": "KH-siem-reap",
+    "kind": "place",
+    "name": "Siem Reap",
+    "country": "Cambodia",
+    "subject": "the towers of Angkor Wat reflected in the moat",
+    "shape": "tall arch",
+    "composition": "towers across the middle, their reflection below",
+    "text": [
+      "SIEM REAP",
+      "CAMBODIA"
+    ],
+    "placement": "curved along the inside of the arch top, following its curve",
+    "placementName": "Curved"
+  },
+  {
+    "id": "KH-phnom-penh",
+    "kind": "place",
+    "name": "Phnom Penh",
+    "country": "Cambodia",
+    "subject": "the Royal Palace throne hall roof with a cyclo",
+    "shape": "hexagon",
+    "composition": "the roof filling the top, the cyclo in front",
+    "text": [
+      "PHNOM PENH"
+    ],
+    "placement": "in one ribbon banner across the top edge; no other ribbons or banners",
+    "placementName": "Ribbon"
+  },
+  {
+    "id": "KH-country-1",
+    "kind": "country",
+    "name": "Cambodia",
+    "country": "Cambodia",
+    "subject": "an Apsara dancer with lotus flowers",
+    "shape": "wide horizontal oval",
+    "composition": "the dancer centred, lotus at her feet",
+    "text": [
+      "CAMBODIA"
+    ],
+    "placement": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters",
+    "placementName": "Big letters"
+  },
+  {
+    "id": "KH-country-2",
+    "kind": "country",
+    "name": "Cambodia",
+    "country": "Cambodia",
+    "subject": "sugar palm trees over rice paddies with a wooden ox cart",
+    "shape": "tall rectangle",
+    "composition": "palms on the horizon, the cart in front",
+    "text": [
+      "CAMBODIA"
+    ],
+    "placement": "set vertically down the left edge, one upright letter under another, inside a narrow vertical strip of the border",
+    "placementName": "Vertical"
+  }
+]

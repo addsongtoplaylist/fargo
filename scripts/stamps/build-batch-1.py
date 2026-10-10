@@ -44,7 +44,7 @@ ONE_LINE = {
     "hexagon": "in one ribbon banner across the top edge; no other ribbons or banners",
     DOME: "curved along the inside of the dome's round top; the flat bottom edge has no lettering",
 }
-TAG = "on a large luggage tag — about a quarter of the stamp's width — hanging from the lower right corner of the border by a loop of string, the lettering big and easy to read on the tag"
+TAG = "on a BIG luggage tag, about one third of the stamp's width and clearly a major element of the design, hanging from the lower right corner of the border by a short loop of string and overlapping the corner, with the lettering in large bold capitals that fill the tag"
 
 # country code, country name, [(id, name, subject, composition)], [(country subject, composition) x2]
 COUNTRIES = [
