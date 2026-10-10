@@ -36,3 +36,25 @@ const a = new Set(Array.from({ length: 40 }, (_, i) => stampFor({ tripId: "trip-
 const same = stampFor({ tripId: "trip-7", country: "FR" })!.id === stampFor({ tripId: "trip-7", country: "FR" })!.id;
 console.log(`country stamps vary across trips: ${a.size === 2 ? "PASS" : "FAIL"} (${[...a].join(", ")}); same trip always same: ${same ? "PASS" : "FAIL"}`);
 console.log(fails ? `${fails} FAILED` : "ALL PASS");
+
+// Collecting (STAMPS.md v2.2, C3/C5): what you already have changes what you get
+const penang = { tripId: "a", country: "MY", lat: 5.414, lng: 100.329 };
+const C: [string, string, string[], string][] = [
+  ["First Penang trip", chooseStamp(penang, []), [], "MY-penang"],
+  ["Second Penang trip → a Malaysia stamp", chooseStamp(penang, ["MY-penang"]), [], "MY-country-"],
+  ["Third → the other Malaysia stamp", chooseStamp(penang, ["MY-penang", "MY-country-1"]), [], "MY-country-2"],
+  ["Have all three → Penang again (×2)", chooseStamp(penang, ["MY-penang", "MY-country-1", "MY-country-2"]), [], "MY-penang"],
+  ["Country trip, have its usual pick → the other", chooseStamp({ tripId: "a", country: "SG" }, [stampFor({ tripId: "a", country: "SG" })!.id]), [], "SG-country-"],
+  ["No library stamps (Peru) → ring", chooseStamp({ tripId: "a", country: "PE" }, []), [], "ring"],
+  ["No country at all → ring", chooseStamp({ tripId: "a", country: null }, []), [], "ring"],
+];
+let cBad = 0;
+for (const [name, got, , want] of C) {
+  const ok = got.startsWith(want);
+  if (!ok) cBad++;
+  console.log(`${ok ? "PASS" : "FAIL"}  ${name}: ${got}`);
+}
+const sgUsual = stampFor({ tripId: "a", country: "SG" })!.id;
+const sgNext = chooseStamp({ tripId: "a", country: "SG" }, [sgUsual]);
+console.log(`${sgNext !== sgUsual ? "PASS" : "FAIL"}  SG second stamp differs from the first (${sgUsual} → ${sgNext})`);
+if (cBad || sgNext === sgUsual) process.exit(1);

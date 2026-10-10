@@ -5,6 +5,8 @@ import { getTrip } from "@/lib/actions/trip";
 import { getOrCreateAccount } from "@/lib/account";
 import { OverviewPeople } from "@/components/people/overview-people";
 import { OverviewHeader } from "@/components/overview-header";
+import { CollectStamp } from "@/components/collect-stamp";
+import { getStampToCollect } from "@/lib/actions/stamps";
 import { CategoryIcon } from "@/components/ui/category-icon";
 import {
   format,
@@ -136,7 +138,12 @@ export default async function OverviewPage({
         todayForCountry(countryCode),
         tripStarted
       );
-  const temperature = weatherAt ? await getCurrentTemperature(weatherAt.lat, weatherAt.lng) : null;
+  // Collect stamp (v0.5.17): the day after the trip ends, for travellers on it with an account
+  const onTrip = !!myRole || (!!account && trip.planner_id === account.id);
+  const [temperature, stampToCollect] = await Promise.all([
+    weatherAt ? getCurrentTemperature(weatherAt.lat, weatherAt.lng) : Promise.resolve(null),
+    getStampToCollect(trip.id, onTrip),
+  ]);
 
   // Header subline: dates · Day X of Y / In N days / Trip ended
   const dateRange = `${format(startDate, "d MMM")} – ${format(endDate, "d MMM yyyy")}`;
@@ -162,6 +169,8 @@ export default async function OverviewPage({
       <OverviewHeader tripId={trip.id} name={trip.name} destination={trip.destination} subline={`${dateRange} · ${state}`} role={role} coverPath={trip.cover_path} coverPosition={trip.cover_position} />
 
       <Column className="pt-4 space-y-3">
+        {stampToCollect && <CollectStamp tripId={trip.id} preview={stampToCollect} variant="card" />}
+
         {/* Local time & temperature — before/during the trip, when the country is known */}
         {!tripEnded && localTime && (
           <div className="bg-surface rounded-card px-4 py-3.5 flex items-center">

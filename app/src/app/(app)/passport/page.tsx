@@ -6,6 +6,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { buttonClasses } from "@/components/ui/button";
 import { PassportStamp, NextStamp, PASSPORT_PAGE } from "@/components/passport-stamp";
 import { getPassport } from "@/lib/actions/passport";
+import { CollectStamp } from "@/components/collect-stamp";
 import type { PassportStats } from "@/lib/passport";
 
 /** Stamps shown before "See all": 3 per row, 2 rows */
@@ -28,7 +29,7 @@ function daysInYear(year: number) {
   return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0 ? 366 : 365;
 }
 
-/** Passport (v0.5.6): your trips as stamps, then your travel numbers. */
+/** Passport (v0.5.6): your trips as stamps, then your travel numbers. Stamps are collected when a trip ends (v0.5.17). */
 export default async function PassportPage() {
   const passport = await getPassport();
   const s = passport?.stats;
@@ -37,7 +38,7 @@ export default async function PassportPage() {
     <Column className="pt-12 pb-32">
       <h1 className="text-[30px] font-bold text-fg tracking-[-0.5px] mb-6">Passport</h1>
 
-      {!s || s.trips === 0 ? (
+      {!s || (s.trips === 0 && s.collected === 0) ? (
         <div className="space-y-3">
           <div className="bg-surface rounded-card">
             <Empty
@@ -46,8 +47,8 @@ export default async function PassportPage() {
               title="Your passport is empty"
               message={
                 s?.next
-                  ? `Your first stamp arrives when ${s.next.name} begins.`
-                  : "Every trip adds a stamp — plus your days away, countries and travel buddies."
+                  ? `Collect your first stamp when ${s.next.name} ends.`
+                  : "Collect a stamp from every trip — plus your days away, countries and travel buddies."
               }
               action={
                 !s?.next && (
@@ -63,11 +64,31 @@ export default async function PassportPage() {
         </div>
       ) : (
         <div className="space-y-2.5">
-          {/* Stamps — newest first */}
+          {/* Ended trips whose stamp you haven't collected yet */}
+          {s.toCollect.length > 0 && (
+            <section className="bg-surface rounded-card px-4 pt-3.5 pb-1">
+              <h2 className="text-[15px] font-semibold text-fg">
+                {s.toCollect.length === 1 ? "You have a stamp to collect" : `You have ${s.toCollect.length} stamps to collect`}
+              </h2>
+              <div className="divide-y divide-line">
+                {s.toCollect.map((r) => (
+                  <CollectStamp
+                    key={r.tripId}
+                    tripId={r.tripId}
+                    tripName={r.name}
+                    preview={{ stampId: "", file: r.file, place: r.place, month: r.month }}
+                    variant="row"
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Stamps — to collect and in progress, then collected (newest first), then upcoming */}
           <section className={`${PASSPORT_PAGE} p-3.5`}>
             <div className="flex items-baseline justify-between mx-0.5 mb-3">
               <h2 className="text-[15px] font-semibold text-[#5b4a2e]">
-                Stamps <span className="font-normal text-[#8a7655]">· {s.stamps.length}</span>
+                Stamps <span className="font-normal text-[#8a7655]">· {s.collected}</span>
               </h2>
               <Link href="/passport/stamps" className="text-[13px] font-semibold text-brand">
                 See all
@@ -76,9 +97,9 @@ export default async function PassportPage() {
             {/* 3 per row, 2 rows max — the rest are on See all. "+ next" fills a spare spot. */}
             <div className="grid grid-cols-[repeat(3,76px)] justify-center gap-x-4 gap-y-3 py-2">
               {s.stamps.slice(0, RECENT_STAMPS).map((stamp) => (
-                <PassportStamp key={stamp.tripId} stamp={stamp} />
+                <PassportStamp key={stamp.key} stamp={stamp} />
               ))}
-              {s.stamps.length < RECENT_STAMPS && <NextStamp />}
+              {s.stamps.length < RECENT_STAMPS && !s.stamps.some((x) => x.state === "upcoming") && <NextStamp />}
             </div>
           </section>
 

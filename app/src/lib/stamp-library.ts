@@ -4,8 +4,10 @@
  *   1. the place stamp whose area contains the trip's Base city (closest centre wins if areas
  *      overlap) — never a neighbouring place's stamp;
  *   2. otherwise one of the country's 2 country stamps, the same one every time for a trip;
- *   3. otherwise null → the share card draws the plain ✈ ring.
- * Stamp ids are permanent (users will collect them later) — never rename or reuse one.
+ *   3. otherwise null → the plain ✈ ring.
+ * Collecting (STAMPS.md v2.2) adds `chooseStamp()` on top: a stamp you already have gives way to a
+ * country stamp you don't have yet. Stamp ids are permanent (they're saved in collected_stamps) —
+ * never rename or reuse one.
  */
 import { STAMPS } from "./stamp-library-data";
 
@@ -66,4 +68,34 @@ export function stampFor(trip: {
   if (country.length === 0) return null;
   const s = country[pick(trip.tripId, country.length)];
   return { id: s.id, file: s.file };
+}
+
+/** The ✈ ring stamp's id — for a country without library stamps (C5). */
+export const RING = "ring";
+
+/** Image path for a stamp id ("/stamps/MY/penang.png"), or null for the ring / an unknown id. */
+export function stampFile(id: string): string | null {
+  return STAMPS.find((s) => s.id === id)?.file ?? null;
+}
+
+/**
+ * The stamp a traveller collects for a trip (C3, C5), given the stamp ids they already have:
+ * the trip's own stamp if new → else one of the country's stamps they don't have yet (this trip's
+ * usual pick first) → else the trip's own stamp again (a duplicate, shown ×2). No library stamp
+ * for the country → the ring.
+ */
+export function chooseStamp(trip: Parameters<typeof stampFor>[0], owned: Iterable<string>): string {
+  const own = stampFor(trip);
+  if (!own) return RING;
+  const have = new Set(owned);
+  if (!have.has(own.id)) return own.id;
+
+  const cc = trip.country!.toUpperCase();
+  const country = STAMPS.filter((s) => s.country === cc && s.kind === "country").sort((a, b) => a.id.localeCompare(b.id));
+  const start = country.length ? pick(trip.tripId, country.length) : 0;
+  for (let i = 0; i < country.length; i++) {
+    const s = country[(start + i) % country.length];
+    if (!have.has(s.id)) return s.id;
+  }
+  return own.id;
 }

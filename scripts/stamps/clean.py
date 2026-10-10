@@ -1,6 +1,6 @@
 """Stamp clean-up (docs/STAMPS.md v2.1) for the white share card.
 
-    python3 scripts/stamps/clean.py <review-folder> [<review-folder> ...] [--out app/src/assets/stamps]
+    python3 scripts/stamps/clean.py <review-folder> [<review-folder> ...] [--out app/public/stamps]
 
 Reads stamps-review/<folder>/raw/<id>.png and writes <out>/<CC>/<slug>.png (id "MY-penang" ->
 MY/penang.png): white paper becomes transparent, every stamp is re-inked in one exact Fargo teal
@@ -19,7 +19,7 @@ FLOOR = 18  # paper speckle below this darkness is dropped
 
 root = Path(__file__).resolve().parents[2]
 args = sys.argv[1:]
-out = root / (args[args.index("--out") + 1] if "--out" in args else "app/src/assets/stamps")
+out = root / (args[args.index("--out") + 1] if "--out" in args else "app/public/stamps")
 folders = [a for i, a in enumerate(args) if not a.startswith("--") and (i == 0 or args[i - 1] != "--out")]
 
 made = 0

@@ -126,6 +126,39 @@ body {
   animation: slide-down 0.2s ease-out;
 }
 
+/* Collecting a stamp (STAMPS.md v2.2): pressed down onto the page, then a small wobble.
+   --tilt is the stamp's resting angle. */
+@keyframes stamp-press {
+  0% {
+    opacity: 0;
+    transform: scale(1.8) rotate(calc(var(--tilt, 0deg) - 14deg));
+  }
+  45% {
+    opacity: 1;
+    transform: scale(0.92) rotate(var(--tilt, 0deg));
+  }
+  65% {
+    transform: scale(1.05) rotate(calc(var(--tilt, 0deg) + 3deg));
+  }
+  82% {
+    transform: scale(0.99) rotate(calc(var(--tilt, 0deg) - 1.5deg));
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(var(--tilt, 0deg));
+  }
+}
+
+.animate-stamp-press {
+  animation: stamp-press 0.7s cubic-bezier(0.3, 0.7, 0.4, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-stamp-press {
+    animation: none;
+  }
+}
+
 /* Prevent date inputs from overflowing their grid cell on mobile */
 input[type="date"] {
   min-width: 0;

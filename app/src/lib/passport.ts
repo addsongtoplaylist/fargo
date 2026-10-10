@@ -1,5 +1,6 @@
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { COUNTRY_TIMEZONE } from "@/lib/dates";
+import { chooseStamp, stampFile } from "@/lib/stamp-library";
 
 /**
  * Passport — travel stats from the trips you're on (v0.5.6). Pure maths, no
@@ -16,25 +17,55 @@ export type PassportTrip = {
   baseCity: string | null;
   lat: number | null;
   lng: number | null;
+  /** Base city coordinates — the only location stamps are matched on (STAMPS.md) */
+  baseLat: number | null;
+  baseLng: number | null;
   start_date: string;
   end_date: string;
   travellers: { display_name: string; account_id: string | null }[];
 };
 
-/** One stamp per trip that has started — like a passport stamp at every entry. */
+/** A stamp you've collected (a row of collected_stamps, read under "your own only"). */
+export type CollectedRow = {
+  stamp_id: string;
+  trip_id: string | null;
+  place: string;
+  country_code: string | null;
+  month: string;
+  collected_at: string;
+};
+
+/**
+ * One spot on the Passport page (STAMPS.md v2.2): a collected stamp (library art, or the ✈ ring),
+ * or a dashed placeholder for a trip you haven't collected yet — upcoming, in progress, or ended
+ * and ready to collect.
+ */
 export type PassportStamp = {
-  tripId: string;
+  key: string;
+  tripId: string | null;
+  state: "collected" | "ready" | "active" | "upcoming";
   /** City when the trip has a base city, else the country */
   place: string;
-  /** Country under the city name (null when `place` is already the country) */
-  country: string | null;
   countryCode: string | null;
   /** "SEP 2026" */
   month: string;
+  /** Collected: the library stamp id ("MY-penang") or "ring"; ready: the stamp you'd get */
+  stampId: string | null;
+  /** Image for stampId, null for the ring */
+  file: string | null;
+  /** Collected: how many times you have this stamp (×2) */
+  count: number;
 };
 
+/** A trip that has ended and whose stamp you haven't collected yet. */
+export type ReadyStamp = { tripId: string; name: string; place: string; month: string; file: string | null };
+
 export type PassportStats = {
+  /** Ready, in progress and collected stamps, then upcoming placeholders */
   stamps: PassportStamp[];
+  /** Stamps collected, duplicates included */
+  collected: number;
+  toCollect: ReadyStamp[];
   /** Countries abroad only — your home country doesn't count (owner decision 2026-10-09) */
   countries: { code: string; name: string }[];
   trips: number;
@@ -137,27 +168,57 @@ export function countryName(code: string): string {
 
 export function computePassport(
   trips: PassportTrip[],
-  me: { accountId: string; homeCountryCode: string | null },
+  me: { accountId: string; homeCountryCode: string | null; collected: CollectedRow[] },
   today: string
 ): PassportStats {
   const started = trips.filter((t) => t.start_date <= today);
   const year = Number(today.slice(0, 4));
 
-  // Stamps — newest first
-  const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-  const stamps: PassportStamp[] = [...started]
+  // Stamps (STAMPS.md v2.2) — collected ones are saved rows, so they stay after leaving a trip
+  const groups = new Map<string, PassportStamp>();
+  for (const r of [...me.collected].sort((a, b) => b.collected_at.localeCompare(a.collected_at))) {
+    const key = r.stamp_id === "ring" ? `ring:${r.place}` : r.stamp_id;
+    const g = groups.get(key);
+    if (g) g.count += 1;
+    else
+      groups.set(key, {
+        key,
+        tripId: r.trip_id,
+        state: "collected",
+        place: r.place,
+        countryCode: r.country_code,
+        month: r.month,
+        stampId: r.stamp_id,
+        file: stampFile(r.stamp_id),
+        count: 1,
+      });
+  }
+  const collectedTrips = new Set(me.collected.map((r) => r.trip_id));
+  const owned = me.collected.map((r) => r.stamp_id);
+  const open = trips
+    .filter((t) => !collectedTrips.has(t.id))
     .sort((a, b) => b.start_date.localeCompare(a.start_date))
-    .map((t) => {
-      const countryLabel = t.countryCode ? countryName(t.countryCode) : t.destination;
-      const city = t.baseCity?.split(",")[0].trim() || null;
-      return {
-        tripId: t.id,
-        place: city ?? countryLabel,
-        country: city ? countryLabel : null,
-        countryCode: t.countryCode,
-        month: `${MONTHS[Number(t.start_date.slice(5, 7)) - 1]} ${t.start_date.slice(0, 4)}`,
-      };
+    .map((t): PassportStamp => {
+      const state = t.end_date < today ? "ready" : t.start_date <= today ? "active" : "upcoming";
+      const label = stampLabel(t);
+      // Preview of what you'd get; oldest ready trip first so two trips to one place differ
+      return { key: t.id, tripId: t.id, state, ...label, stampId: null, file: null, count: 0 };
     });
+  for (const st of [...open].reverse()) {
+    if (st.state !== "ready") continue;
+    const t = trips.find((x) => x.id === st.tripId)!;
+    st.stampId = chooseStamp(stampTrip(t), owned);
+    st.file = stampFile(st.stampId);
+    owned.push(st.stampId);
+  }
+  const stamps: PassportStamp[] = [
+    ...open.filter((x) => x.state === "ready" || x.state === "active"),
+    ...groups.values(),
+    ...open.filter((x) => x.state === "upcoming").reverse(), // soonest first
+  ];
+  const toCollect: ReadyStamp[] = open
+    .filter((x) => x.state === "ready")
+    .map((x) => ({ tripId: x.tripId!, name: trips.find((t) => t.id === x.tripId)!.name, place: x.place, month: x.month, file: x.file }));
 
   // Countries — one per trip (its destination country), abroad only
   const codes = [
@@ -227,6 +288,8 @@ export function computePassport(
 
   return {
     stamps,
+    collected: me.collected.length,
+    toCollect,
     countries,
     trips: started.length,
     daysAway,
@@ -242,4 +305,21 @@ export function computePassport(
     next: nextTrip ? { name: nextTrip.name, inDays: differenceInCalendarDays(parseISO(nextTrip.start_date), parseISO(today)) } : null,
     last: lastTrip ? { name: lastTrip.name, daysAgo: differenceInCalendarDays(parseISO(today), parseISO(lastTrip.end_date)) } : null,
   };
+}
+
+const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+
+/** What a trip's stamp says: base city (else the country, else the destination) and start month. */
+export function stampLabel(t: { destination: string; countryCode: string | null; baseCity: string | null; start_date: string }) {
+  const city = t.baseCity?.split(",")[0].trim() || null;
+  return {
+    place: city ?? (t.countryCode ? countryName(t.countryCode) : t.destination),
+    countryCode: t.countryCode,
+    month: `${MONTHS[Number(t.start_date.slice(5, 7)) - 1]} ${t.start_date.slice(0, 4)}`,
+  };
+}
+
+/** A trip as the stamp library wants it — Base city coordinates only, never the destination point. */
+export function stampTrip(t: { id: string; countryCode: string | null; baseLat: number | null; baseLng: number | null; baseCity: string | null }) {
+  return { tripId: t.id, country: t.countryCode, lat: t.baseLat, lng: t.baseLng, place: t.baseCity?.split(",")[0].trim() || null };
 }
