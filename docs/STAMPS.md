@@ -116,7 +116,7 @@ Elapsed time is mostly the owner's review; Claude's work is about three sessions
 | # | Step | Who | Effort | Target |
 |---|---|---|---|---|
 | 0 | Add `GEMINI_API_KEY` and/or `OPENAI_API_KEY` to `app/.env.local` (billing on; never paste in chat) | Owner | 15 min | Sat 11 Oct |
-| 1 | **Style check:** script + clean-up; **10 stamps** × 2 providers = 20 images, raw + cleaned, side by side — Penang · Bangkok · Tokyo · Seoul · Bali · Beijing · Agra · Hokkaido · Sarawak · Malaysia (country stamp), covering buildings, fine detail, nature/regions and the country style | Claude | 1 session, ≈ US$1–1.5 | Sat 11 Oct |
+| 1 | **Style check:** script + clean-up; **10 stamps** × 2 providers = 20 images, raw + cleaned, side by side — 7 place stamps (Penang · Bangkok · Tokyo · Bali · Agra · Hokkaido · Sarawak) + 3 country stamps (Malaysia · Japan · China), covering buildings, fine detail, nature/regions and the country style | Claude | 1 session, ≈ US$1–1.5 | Sat 11 Oct |
 | 2 | Pick provider, approve or tweak the template | Owner | 30 min | Sun 12 Oct |
 | 3 | Confirm batch 1 list + the 2 country symbols per country (Claude proposes the symbols) | Owner | 30 min | Sun 12 Oct |
 | 4 | **Generate batch 1** (≈ 88 stamps, ≈ 30–45 min run) + review sheet | Claude | 1 session, ≈ US$4 | Mon 13 Oct |
