@@ -11,7 +11,7 @@
 - **Screens and photos:** real screenshots from a demo trip ("Singapore long weekend") and free Unsplash photos.
 - **Placeholders:** Privacy and Terms pages, frog illustrations, and a plain panel behind Shared costs until a photo is picked.
 - **In the app:** a one-time **"Add Fargo to your phone"** sheet on phones (Android: one-tap install; iPhone: Share steps). The Home Screen app now opens on My trips.
-- **Vercel Web Analytics** (page views). Turn it on in the Vercel project.
+- **Vercel Web Analytics** (page views), switched on in the Vercel project. The sign-in check now skips `/_vercel/…`, so the tracking script loads for signed-out visitors.
 - No database changes.
 
 ---
