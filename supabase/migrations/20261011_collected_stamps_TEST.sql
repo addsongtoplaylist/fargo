@@ -10,17 +10,18 @@ DECLARE
   v_json json; v_n int; v_out text := '';
   v_today date := (now() AT TIME ZONE 'utc')::date;
 BEGIN
-  SELECT tr.trip_id, a.auth_id, a.id INTO v_trip, v_auth, v_acc
-  FROM travellers tr
-  JOIN trips t ON t.id = tr.trip_id
-  JOIN accounts a ON a.id = tr.account_id
-  ORDER BY (t.name ILIKE 'test trip%') DESC, t.created_at
-  LIMIT 1;
-  SELECT a.auth_id INTO v_stranger_auth FROM accounts a
-  WHERE NOT EXISTS (SELECT 1 FROM travellers tr WHERE tr.trip_id = v_trip AND tr.account_id = a.id)
-    AND NOT EXISTS (SELECT 1 FROM trips t WHERE t.id = v_trip AND t.planner_id = a.id)
-  LIMIT 1;
-  IF v_trip IS NULL THEN
+  -- Plain assignments on purpose (the Supabase SQL Editor misreads the query-into-variable form)
+  v_trip := (SELECT tr.trip_id FROM travellers tr JOIN trips t ON t.id = tr.trip_id
+             WHERE tr.account_id IS NOT NULL
+             ORDER BY (t.name ILIKE 'test trip%') DESC, t.created_at LIMIT 1);
+  v_acc := (SELECT tr.account_id FROM travellers tr
+            WHERE tr.trip_id = v_trip AND tr.account_id IS NOT NULL ORDER BY tr.created_at LIMIT 1);
+  v_auth := (SELECT auth_id FROM accounts WHERE id = v_acc);
+  v_stranger_auth := (SELECT a.auth_id FROM accounts a
+    WHERE NOT EXISTS (SELECT 1 FROM travellers tr WHERE tr.trip_id = v_trip AND tr.account_id = a.id)
+      AND NOT EXISTS (SELECT 1 FROM trips t WHERE t.id = v_trip AND t.planner_id = a.id)
+    LIMIT 1);
+  IF v_trip IS NULL OR v_auth IS NULL THEN
     RAISE EXCEPTION 'RESULTS: needs a trip with a traveller who has an account';
   END IF;
 
@@ -64,7 +65,7 @@ BEGIN
 
   BEGIN  -- T4: collecting again keeps the first stamp, no second row
     v_json := collect_stamp(v_trip, 'MY-country-1', 'Malaysia', 'MY', 'OCT 2026');
-    SELECT count(*) INTO v_n FROM collected_stamps WHERE trip_id = v_trip;
+    v_n := (SELECT count(*) FROM collected_stamps WHERE trip_id = v_trip);
     v_out := v_out || CASE WHEN v_json->>'stamp_id' = 'MY-penang' AND v_n = 1
                            THEN ' | T4 PASS second tap changes nothing' ELSE ' | T4 FAIL ' || v_n || ' rows, ' || v_json::text END;
   EXCEPTION WHEN OTHERS THEN
@@ -91,7 +92,7 @@ BEGIN
       v_out := v_out || CASE WHEN SQLERRM = 'Not on this trip' THEN ' | T6 PASS stranger blocked' ELSE ' | T6 ? ' || SQLERRM END;
     END;
     -- T7: and can't see the traveller's stamp
-    SELECT count(*) INTO v_n FROM collected_stamps WHERE trip_id = v_trip;
+    v_n := (SELECT count(*) FROM collected_stamps WHERE trip_id = v_trip);
     v_out := v_out || CASE WHEN v_n = 0 THEN ' | T7 PASS others'' stamps hidden' ELSE ' | T7 FAIL stranger sees ' || v_n END;
     RESET ROLE;
   END IF;

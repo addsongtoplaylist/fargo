@@ -54,9 +54,11 @@ AS $$
 DECLARE
   v_account uuid;
   v_end     date;
-  v_row     collected_stamps;
+  v_mine    json;
 BEGIN
-  SELECT id INTO v_account FROM accounts WHERE auth_id = auth.uid();
+  -- Plain assignments on purpose: the Supabase SQL Editor misreads the
+  -- query-into-variable form as a new table and splices an RLS line in here.
+  v_account := (SELECT id FROM accounts WHERE auth_id = auth.uid());
   IF v_account IS NULL THEN
     RAISE EXCEPTION 'Not signed in';
   END IF;
@@ -70,15 +72,15 @@ BEGIN
   -- Ended: the app shows Collect the day after the last day (traveller's local
   -- date). Local dates are at most one day ahead of UTC, so "last day is today
   -- or earlier in UTC" never blocks a traveller anywhere.
-  SELECT end_date INTO v_end FROM trips WHERE id = p_trip_id;
+  v_end := (SELECT end_date FROM trips WHERE id = p_trip_id);
   IF v_end IS NULL OR v_end > (now() AT TIME ZONE 'utc')::date THEN
     RAISE EXCEPTION 'This trip hasn''t ended yet';
   END IF;
 
   -- Already collected → return it unchanged
-  SELECT * INTO v_row FROM collected_stamps WHERE account_id = v_account AND trip_id = p_trip_id;
-  IF FOUND THEN
-    RETURN row_to_json(v_row);
+  v_mine := (SELECT row_to_json(c) FROM collected_stamps c WHERE c.account_id = v_account AND c.trip_id = p_trip_id);
+  IF v_mine IS NOT NULL THEN
+    RETURN v_mine;
   END IF;
 
   -- Shape checks (the label is only ever shown to you)
@@ -97,12 +99,9 @@ BEGIN
 
   INSERT INTO collected_stamps (account_id, trip_id, stamp_id, place, country_code, month)
   VALUES (v_account, p_trip_id, p_stamp_id, btrim(p_place), p_country_code, p_month)
-  ON CONFLICT (account_id, trip_id) DO NOTHING
-  RETURNING * INTO v_row;
-  IF NOT FOUND THEN  -- two taps at once: return the one that won
-    SELECT * INTO v_row FROM collected_stamps WHERE account_id = v_account AND trip_id = p_trip_id;
-  END IF;
-  RETURN row_to_json(v_row);
+  ON CONFLICT (account_id, trip_id) DO NOTHING;  -- two taps at once: the first one wins
+
+  RETURN (SELECT row_to_json(c) FROM collected_stamps c WHERE c.account_id = v_account AND c.trip_id = p_trip_id);
 END;
 $$;
 REVOKE EXECUTE ON FUNCTION collect_stamp(uuid, text, text, text, text) FROM PUBLIC, anon;
