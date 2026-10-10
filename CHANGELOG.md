@@ -18,7 +18,7 @@
 
 ### App
 
-- **New browser-tab icon (favicon):** the v2 frog logo on a white rounded square, so it shows clearly in light and dark tabs. The Home Screen app icon is unchanged.
+- **New browser-tab icon (favicon):** the v2 frog logo on a transparent background. The Home Screen app icon is unchanged.
 
 ---
 
