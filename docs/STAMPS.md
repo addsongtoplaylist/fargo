@@ -7,14 +7,15 @@
 | # | Decision |
 |---|---|
 | 1 | **Pre-made library, not generated on demand.** Batches are made separately, reviewed, then added — no processing or waiting when a trip is created or shared. |
-| 2 | **Per country: up to 6 city stamps + 2 generic country stamps.** (Fewer cities where a country has fewer destinations; city-states get the 2 country stamps only.) |
+| 2 | **Per country: up to 6 city stamps + 2 generic country stamps** — **Malaysia (home market) up to 8**. (Fewer cities where a country has fewer destinations; city-states get the 2 country stamps only.) |
 | 3 | **Which stamp a trip gets:** the stamp whose area contains the Base city, if any (never a neighbouring place's stamp) → otherwise one of the country's **2 country stamps** (also used when no Base city is set) → otherwise the **fallback**. |
 | 4 | **Two country stamps = two designs.** Each trip always gets the same one (picked from the trip id), so different trips vary but a trip's card never changes. |
 | 5 | **Fallback:** today's drawn ring with **✈** in the middle — no country code. |
 | 6 | **Batch 1 = Asia, including China and India. Batch 2 = popular countries further away.** |
 | 7 | **Owner reviews every stamp** before it's added. Nothing is published automatically. |
 | 8 | **Stamp names use the state or region name where that's what travellers say** (Penang, not George Town; Hokkaido, Kerala, Palawan). Where the city itself is the destination, the city name stays (Osaka, Bangkok). Matching is by map location, so a trip to George Town or Batu Ferringhi still gets the Penang stamp; the ring lettering keeps the trip's own place name. |
-| 9 | **Style check first:** 5 test stamps on **Gemini and OpenAI** side by side; the owner picks the provider. (Gemini "Nano Banana" ≈ US$0.034/image; the Ho Chi Minh City sample was made with it.) |
+| 9 | **Collecting comes later.** The owner wants users to **collect stamps** eventually (e.g. in the Passport tab). Not part of v0.5.16, but the library is built for it: every stamp has a **permanent id** that never changes or gets reused, and both country designs are distinct stamps (a second trip to a country can earn the other one). |
+| 10 | **Style check first:** 5 test stamps on **Gemini and OpenAI** side by side; the owner picks the provider. (Gemini "Nano Banana" ≈ US$0.034/image; the Ho Chi Minh City sample was made with it.) |
 
 Claude can't generate images; it writes the prompts and the scripts around the image model.
 
@@ -36,6 +37,7 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 
 | Field | What |
 |---|---|
+| `id` | **Permanent** id, e.g. `MY-penang`, `MY-country-1` — never renamed or reused (collections will point to it) |
 | `country` | ISO code, e.g. `MY` |
 | `kind` | `city` or `country` |
 | `name`, `aliases` | e.g. "Penang" · ["George Town", "Pulau Pinang", "Batu Ferringhi"] — for review and as a name match (the ring lettering uses the trip's own place name) |
@@ -64,7 +66,7 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 
 | Country | City stamps (up to 6) | + 2 country stamps |
 |---|---|---|
-| Malaysia | Kuala Lumpur · Penang · Langkawi · Melaka · Kota Kinabalu · Ipoh | ✓ |
+| Malaysia (up to 8) | Kuala Lumpur · Penang · Langkawi · Melaka · Sabah · Sarawak · Ipoh · *(8th slot open, e.g. Cameron Highlands or Johor Bahru)* | ✓ |
 | Singapore | — (city-state) | ✓ |
 | Thailand | Bangkok · Phuket · Chiang Mai · Krabi · Pattaya · Koh Samui | ✓ |
 | Indonesia | Bali · Jakarta · Yogyakarta · Bandung · Lombok · Komodo (Labuan Bajo) | ✓ |
@@ -78,7 +80,13 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 | China | Beijing · Shanghai · Chengdu · Chongqing · Xi'an · Guilin | ✓ |
 | India | Delhi · Mumbai · Jaipur · Agra · Goa · Kerala | ✓ |
 
-≈ 63 city + 26 country stamps ≈ **89 stamps** (88 new). Possible additions: Macau, Maldives, Sri Lanka, Nepal, Myanmar, Laos.
+≈ 64 city + 26 country stamps ≈ **90 stamps** (89 new; 90 with an 8th Malaysian place). Possible additions: Macau, Maldives, Sri Lanka, Nepal, Myanmar, Laos.
+
+## Later — collecting stamps (not in v0.5.16)
+
+- A traveller "earns" a stamp from a trip they were on (planner or member), probably once the trip has ended.
+- To decide when we build it: **work it out from trips each time** (simple, no new data, but changing a stamp's area could change what someone has) **or save each stamp when earned** (a small table; collections never change). Leaning: save when earned.
+- Ideas: a stamp book in Passport, "7 of 8 Malaysia stamps", sharing a page of stamps.
 
 ## Batch 2 — further away (later)
 
