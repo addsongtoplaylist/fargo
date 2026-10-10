@@ -2,14 +2,15 @@
 /**
  * Stamp generator (docs/STAMPS.md v2). Runs on the owner's machine only.
  *
- *   node scripts/stamps/generate.mjs <list.json> --provider openai [--set v2] [--model gpt-image-2] [--quality medium] [--force]
+ *   node scripts/stamps/generate.mjs <list.json> --provider openai [--set v2] [--model gpt-image-2.5-flare] [--quality medium] [--force]
+ *   node scripts/stamps/generate.mjs <list.json> --dry-run [--only MY-penang,MY-ipoh]   (print prompts, no API call)
  *
  * Reads the API key from app/.env.local (never printed), calls the image model once
  * per entry and saves raw PNGs to stamps-review/<provider>/raw/<id>.png. Existing
  * files are skipped unless --force (--set keeps rounds apart: stamps-review/<provider>-<set>/), so a re-run only makes what's missing.
  * Clean-up and the review sheet are separate steps (clean.py, sheet.py).
  */
-import { readFile, writeFile, mkdir, access } from "node:fs/promises";
+import { readFile, writeFile, mkdir, access, appendFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,10 +22,12 @@ const flag = (name, fallback) => {
 };
 const listPath = args.find((a) => a.endsWith(".json"));
 const provider = flag("provider", "openai");
-const model = flag("model", provider === "openai" ? "gpt-image-2" : "");
+// gpt-image-2.5-flare (owner, 2026-10-11): ~4x fewer output tokens than gpt-image-2 (≈ US$0.014 vs 0.054 a stamp), faster, preferred look
+const model = flag("model", provider === "openai" ? "gpt-image-2.5-flare" : "");
 const quality = flag("quality", "medium");
 const force = args.includes("--force");
 const set = flag("set", "");
+const only = flag("only", "")?.split(",").filter(Boolean) ?? [];
 if (!listPath) throw new Error("Usage: generate.mjs <list.json> --provider openai");
 
 // House template (STAMPS.md v2, round 2): one shared style, a different shape and
@@ -60,10 +63,16 @@ async function openai(e, key) {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error?.message ?? `HTTP ${res.status}`);
+  // Token usage per image, for cost tracking (stamps-review/usage.jsonl)
+  await appendFile(join(root, "stamps-review", "usage.jsonl"), JSON.stringify({ at: new Date().toISOString(), id: e.id, model, quality, usage: data.usage ?? null }) + "\n");
   return Buffer.from(data.data[0].b64_json, "base64");
 }
 
-const entries = JSON.parse(await readFile(listPath, "utf8"));
+const entries = JSON.parse(await readFile(listPath, "utf8")).filter((e) => !only.length || only.includes(e.id));
+if (args.includes("--dry-run")) {
+  for (const e of entries) console.log(`\n── ${e.id} (${model}, ${quality}, 1024x1024)\n${prompt(e)}`);
+  process.exit(0);
+}
 const outDir = join(root, "stamps-review", set ? `${provider}-${set}` : provider, "raw");
 await mkdir(outDir, { recursive: true });
 const key = await envKey(provider === "openai" ? "OPENAI_API_KEY" : "GEMINI_API_KEY");

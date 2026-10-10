@@ -15,7 +15,7 @@
 | 7 | **Owner reviews every stamp** before it's added. Nothing is published automatically. |
 | 8 | **Stamp names use the state or region name where that's what travellers say** (Penang, not George Town; Hokkaido, Kerala, Palawan). Where the city itself is the destination, the city name stays (Osaka, Bangkok). Matching is by map location, so a trip to George Town or Batu Ferringhi still gets the Penang stamp; the ring lettering keeps the trip's own place name. |
 | 9 | **Collecting comes later.** The owner wants users to **collect stamps** eventually (e.g. in the Passport tab). Not part of v0.5.16, but the library is built for it: every stamp has a **permanent id** that never changes or gets reused, and both country designs are distinct stamps (a second trip to a country can earn the other one). |
-| 10 | ~~Style check on Gemini and OpenAI~~ **Done 2026-10-11: OpenAI `gpt-image-2` (medium quality). Gemini dropped.** Three rounds: round 1 (all round, all with a sun, similar layouts), round 2 (owner feedback below), lettering tests. |
+| 10 | ~~Style check on Gemini and OpenAI~~ **Done 2026-10-11: OpenAI `gpt-image-2.5-flare` (medium quality). Gemini dropped.** Flare was picked over `gpt-image-2` after a same-prompt comparison: the owner preferred its look, and it uses **~4× fewer output tokens** (439 vs 1,756 per 1024² stamp at the same US$30 per 1M) → ≈ **US$0.014 vs 0.054 a stamp**, and ~14 s vs ~35 s. Risk: the codename suggests a preview model — stamps already made are kept for good, but batch 2 could look slightly different if it's withdrawn. Three rounds: round 1 (all round, all with a sun, similar layouts), round 2 (owner feedback below), lettering tests. |
 | 11 | **Style (owner, 2026-10-11):** one teal rubber-stamp ink style for the whole set; **no sun or moon**; a **different shape** per stamp (circle, rounded square, tall arch, hexagon, wide oval, tall rectangle, shield, octagon, triangle, postage stamp), rotating so neighbours never repeat; a **different composition** per stamp (close-ups, views through arches, panoramas, steep perspective — not the same landmark-in-the-middle layout). |
 | 12 | **Lettering in the art** (gpt-image-2 spelled every test correctly): city stamps alternate **city + country** and **city only**; country stamps show the **country**. Placement follows the shape: **curved** along round borders, **header bar** on squares, **vertical** on tall rectangles, **big postcard letters** on wide ovals, **ribbon** or **band** on the rest, and a **hanging luggage tag** on about 1 in 10. "Part of the scene" was tried and dropped (too small to read). |
 | 13 | **No date** anywhere — not in the art, not on the card. |
@@ -110,11 +110,11 @@ No sun, no moon. Lettering: the text "{LINE 1}" and "{LINE 2}" in bold capital l
 given, {PLACEMENT}, in the same ink. No other text, letters or numbers.
 ```
 
-Per-stamp fields live in `scripts/stamps/batch-1.json`, built by `build-batch-1.py` (shape rotation, lettering alternation, placement by shape, hanging tag ≈ 1 in 10). Review table: `docs/STAMPS-BATCH1.md`.
+Preview any prompt without calling OpenAI: `node scripts/stamps/generate.mjs scripts/stamps/batch-1.json --dry-run --only MY-penang`. Per-stamp fields live in `scripts/stamps/batch-1.json`, built by `build-batch-1.py` (shape rotation, lettering alternation, placement by shape, hanging tag ≈ 1 in 10). Review table: `docs/STAMPS-BATCH1.md`.
 
 ## Cost
 
-A few US cents per image (`gpt-image-2`, medium). The style check used 30 images. Batch 1 (89 stamps, allowing redos) ≈ **US$5–8**, paid once — OpenAI's usage page shows the exact amount. Nothing is spent while people use Fargo.
+≈ **US$0.014 per stamp** (`gpt-image-2.5-flare`, medium: ~230 prompt tokens + ~440 image tokens). Batch 1 (89 stamps + ~30 % redos ≈ 115 images) ≈ **US$1.60**, paid once. Every call's token usage is logged to `stamps-review/usage.jsonl`. Nothing is spent while people use Fargo.
 
 ## Rollout and timeline
 
@@ -126,7 +126,7 @@ Elapsed time is mostly the owner's review; Claude's work is about three sessions
 | 1 | ✅ **Style check (done 2026-10-11, OpenAI):** script + clean-up; **10 stamps** × 2 providers = 20 images, raw + cleaned, side by side — 7 place stamps (Penang · Bangkok · Tokyo · Bali · Agra · Hokkaido · Sarawak) + 3 country stamps (Malaysia · Japan · China), covering buildings, fine detail, nature/regions and the country style | Claude | 1 session, ≈ US$1–1.5 | Sat 11 Oct |
 | 2 | Pick provider, approve or tweak the template | Owner | 30 min | Sun 12 Oct |
 | 3 | Confirm batch 1 list + the 2 country symbols per country (Claude proposes the symbols) | Owner | 30 min | Sun 12 Oct |
-| 4 | **Generate batch 1** (≈ 88 stamps, ≈ 30–45 min run) + review sheet | Claude | 1 session, ≈ US$4 | Mon 13 Oct |
+| 4 | **Generate batch 1 in 4 review rounds**, so feedback from each round improves the next: **A** Malaysia + Singapore (11) → **B** Thailand, Indonesia, Vietnam, Philippines, Cambodia (32) → **C** Japan, South Korea, Taiwan, Hong Kong (24) → **D** China + India (22). One review sheet per round | Claude | ≈ 30 min run in total, ≈ US$1.60 | Mon 13 Oct |
 | 5 | Review: approve or mark redo; 1–2 redo rounds | Owner + Claude | 1–2 days | Tue 14 – Wed 15 Oct |
 | 6 | **Build in the app:** library manifest, nearest-stamp matching, country stamp by trip id, ✈ fallback; test every country on the Test trip with a local production build | Claude | 1 session | Wed 15 Oct |
 | 7 | Owner looks at the Share trip overlays; **release v0.5.16** | Owner + Claude | 30 min | Thu 16 Oct |

@@ -29,7 +29,7 @@ PLACEMENT = {
     "shield": "in a ribbon banner across the upper part of the shield",
     "upward-pointing triangle": "in a straight band along the wide base of the triangle",
 }
-TAG = "on a small luggage tag hanging from the lower right corner of the border by a little loop of string, the tag drawn in the same ink"
+TAG = "on a small luggage tag hanging from the lower right corner of the border by a little loop of string"
 
 # country code, country name, [(id, name, subject, composition)], [(country subject, composition) x2]
 COUNTRIES = [
