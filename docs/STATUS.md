@@ -4,6 +4,14 @@
 
 ---
 
+**2026-10-10 — Security check-up (v0.5.11)**
+
+Batch E (`REVIEW.md` E1–E6). Reviewed migrations since the Sept audit plus a live export of policies, grants, functions and buckets (`supabase/audits/20261010_security_check.sql`, read-only). Findings: planner could link any account to their trip (E5, trigger), invite preview leaked account ids (E2), unused `DATABASE_URL` (E1), `Math.random` codes (E3), old redirect URL (E6), leftover backup table (E4, optional). Mapbox token now URL-restricted (SEC-6). Code: secure codes, `src/db/index.ts` removed.
+
+**Owner:** run `20261010_security_e.sql` on staging → `…_TEST.sql` (all PASS) → production → TEST again; delete `DATABASE_URL` in Vercel; remove the `fargo-git-redesign-…` redirect URL in Supabase; decide on E4. **Next:** report-only CSP. Stamp work is now **v0.5.12**.
+
+---
+
 **2026-10-10 — Google key kept private (v0.5.10)**
 
 Security Batch C (`REVIEW.md` SEC-5). New "Fargo server" key (Places API (New) only) in Vercel + `.env.local`. A website-restricted "Fargo web" key was tried first, but Google doesn't enforce website restrictions on Places (New) calls (it still worked from example.com), so every Places call moved server-side: `lib/actions/places.ts` (`searchPlaces`, `getPlaceLocation`, signed-in only) used by `location-search` and `location-picker`; Discover photos resolved server-side to key-free links. Production build has no Google key in browser code. Tested locally: Discover location search + 15 spots with photos, Add activity place search (not saved).

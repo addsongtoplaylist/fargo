@@ -710,11 +710,8 @@ export async function cloneTrip(
 
 function generateCode(): string {
   const chars = "abcdefghijkmnpqrstuvwxyz23456789"; // no confusing chars (0/o, 1/l)
-  let code = "";
-  for (let i = 0; i < 8; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return code;
+  // Secure random (share/invite links must not be predictable). 32 chars divide 256 evenly, so no bias.
+  return Array.from(crypto.getRandomValues(new Uint8Array(8)), (b) => chars[b % chars.length]).join("");
 }
 
 // ── Travellers without an account (Phase 5, D17 / D38–D42) ──────

@@ -4,6 +4,17 @@
 
 ---
 
+## v0.5.11 — 2026-10-10 · Security check-up
+
+- **Only you can add yourself to a trip.** A planner could previously put someone else's account on their trip directly, without an invite. Now other people only join through an invite link or by claiming their name (needs the SQL below).
+- **Invite links no longer reveal account details.** The invite preview only shows your own account, not other travellers' (needs the SQL below).
+- **Share and invite links use secure random codes.**
+- Removed an unused direct database connection from the code.
+- **SQL:** `supabase/migrations/20261010_security_e.sql` (undo `…_UNDO.sql`, test `…_TEST.sql`). Run on staging first, then production. The app works before and after, so order doesn't matter.
+- From the security review (`docs/REVIEW.md`, Batch E).
+
+---
+
 ## v0.5.10 — 2026-10-10 · Google key kept private
 
 - **Place search now goes through Fargo's server.** Add activity's place search, Discover's location picker and Discover's photos all ask Fargo's server, which calls Google with a private key. The Google key is no longer in the app's code on anyone's phone, so it can't be copied and used elsewhere.
