@@ -8,6 +8,8 @@
 
 Owner chose to enforce straight after v0.5.12. `Content-Security-Policy` now enforced (same list + `frame-ancestors 'none'`). Re-tested on a local production build: map + 4 pins, Discover 15 spots + 5 photos, 3 Share overlays, 2 cover photos, landing (0 broken images, font loaded); `fetch('https://example.com')` blocked. Security review items all closed except owner clean-ups (Google "Fargo web" key, old Maps key APIs, `DATABASE_URL`, old redirect URL, optional backup table).
 
+Owner clean-ups done and tested: "Fargo web" key deleted, old Maps key limited to Maps SDK iOS/Android (Places + Geocoding denied), `DATABASE_URL` + `NEXT_PUBLIC_GOOGLE_PLACES_KEY` gone from Vercel, old redirect URL removed; backup table kept (owner). **Native app note:** its place search needs a new iOS-restricted key when it resumes.
+
 **Next:** stamp work **v0.5.14** once the API keys are in.
 
 ---
