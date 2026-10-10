@@ -1,0 +1,174 @@
+[
+  {
+    "id": "MY-kuala-lumpur",
+    "kind": "place",
+    "name": "Kuala Lumpur",
+    "country": "Malaysia",
+    "subject": "the Sultan Abdul Samad Building clock tower and its domes facing Merdeka Square",
+    "shape": "circle",
+    "composition": "the clock tower tall on the left, the domed arcade stretching to the right, the square in front",
+    "text": [
+      "KUALA LUMPUR",
+      "MALAYSIA"
+    ],
+    "placement": "curved around the circle between two concentric border lines, like a classic round passport stamp (top arc, and the bottom arc if there is a second line)",
+    "placementName": "Curved"
+  },
+  {
+    "id": "MY-penang",
+    "kind": "place",
+    "name": "Penang",
+    "country": "Malaysia",
+    "subject": "a Penang trishaw and the clan jetty wooden stilt houses over the sea",
+    "shape": "rounded square",
+    "composition": "the trishaw large in the foreground on the left, the stilt houses small behind on the right",
+    "text": [
+      "PENANG"
+    ],
+    "placement": "in a solid straight header bar across the top, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  },
+  {
+    "id": "MY-langkawi",
+    "kind": "place",
+    "name": "Langkawi",
+    "country": "Malaysia",
+    "subject": "the Langkawi Sky Bridge curving over jungle-covered peaks, with a sea eagle",
+    "shape": "tall arch",
+    "composition": "the curved bridge sweeping across the middle, peaks below, the eagle above",
+    "text": [
+      "LANGKAWI",
+      "MALAYSIA"
+    ],
+    "placement": "curved along the inside of the arch top, following its curve",
+    "placementName": "Curved"
+  },
+  {
+    "id": "MY-melaka",
+    "kind": "place",
+    "name": "Melaka",
+    "country": "Malaysia",
+    "subject": "the red Christ Church and Stadthuys of Melaka with a decorated trishaw",
+    "shape": "hexagon",
+    "composition": "the church front-on in the middle, the trishaw parked in the lower right",
+    "text": [
+      "MELAKA"
+    ],
+    "placement": "in one ribbon banner across the top edge; no other ribbons or banners",
+    "placementName": "Ribbon"
+  },
+  {
+    "id": "MY-sabah",
+    "kind": "place",
+    "name": "Sabah",
+    "country": "Malaysia",
+    "subject": "Mount Kinabalu's jagged granite peaks above rainforest, with an orangutan on a branch",
+    "shape": "wide horizontal oval",
+    "composition": "the orangutan close up on a branch in the foreground, the mountain behind",
+    "text": [
+      "SABAH",
+      "MALAYSIA"
+    ],
+    "placement": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters (any second line small underneath)",
+    "placementName": "Big letters"
+  },
+  {
+    "id": "MY-sarawak",
+    "kind": "place",
+    "name": "Sarawak",
+    "country": "Malaysia",
+    "subject": "a rhinoceros hornbill and a traditional longhouse on stilts by a river",
+    "shape": "tall rectangle",
+    "composition": "a close-up of the hornbill's head and casque in the upper half, the longhouse small below",
+    "text": [
+      "SARAWAK"
+    ],
+    "placement": "set vertically down the left edge, one upright letter under another, inside a narrow vertical strip of the border",
+    "placementName": "Vertical"
+  },
+  {
+    "id": "MY-ipoh",
+    "kind": "place",
+    "name": "Ipoh",
+    "country": "Malaysia",
+    "subject": "the colonial Ipoh railway station with limestone hills behind",
+    "shape": "shield",
+    "composition": "a wide view of the long station facade, the limestone hills rising behind",
+    "text": [
+      "IPOH",
+      "MALAYSIA"
+    ],
+    "placement": "on a small luggage tag hanging from the lower right corner of the border by a little loop of string",
+    "placementName": "Hanging tag"
+  },
+  {
+    "id": "MY-johor-bahru",
+    "kind": "place",
+    "name": "Johor Bahru",
+    "country": "Malaysia",
+    "subject": "the Sultan Abu Bakar State Mosque on its hill above the Straits of Johor, with the Causeway",
+    "shape": "octagon",
+    "composition": "the mosque on the hill on the right, the water and the long Causeway across the bottom",
+    "text": [
+      "JOHOR BAHRU"
+    ],
+    "placement": "in a ribbon banner across the bottom edge",
+    "placementName": "Ribbon"
+  },
+  {
+    "id": "MY-country-1",
+    "kind": "country",
+    "name": "Malaysia",
+    "country": "Malaysia",
+    "subject": "the Petronas Twin Towers with the KL Tower and city skyline behind, clouds, hibiscus flowers and palm fronds",
+    "shape": "upward-pointing triangle",
+    "composition": "layered depth: hibiscus and palm fronds in the foreground corners, the twin towers in the middle, skyline and clouds behind",
+    "text": [
+      "MALAYSIA"
+    ],
+    "placement": "in a straight band along the wide base of the triangle",
+    "placementName": "Band"
+  },
+  {
+    "id": "MY-country-2",
+    "kind": "country",
+    "name": "Malaysia",
+    "country": "Malaysia",
+    "subject": "a traditional Malay kampung house on stilts with coconut palms and a wau kite flying above",
+    "shape": "square with a perforated postage-stamp edge",
+    "composition": "the house on the right, palms on the left, the kite high in the sky",
+    "text": [
+      "MALAYSIA"
+    ],
+    "placement": "in a solid straight header bar across the bottom, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  },
+  {
+    "id": "SG-country-1",
+    "kind": "country",
+    "name": "Singapore",
+    "country": "Singapore",
+    "subject": "the Merlion fountain with Marina Bay Sands and the Supertrees behind",
+    "shape": "circle",
+    "composition": "the Merlion on the left spouting water, the skyline across the back",
+    "text": [
+      "SINGAPORE"
+    ],
+    "placement": "curved along the top arc of the circle between two concentric border lines, like a classic round passport stamp; the bottom of the border has no lettering",
+    "placementName": "Curved"
+  },
+  {
+    "id": "SG-country-2",
+    "kind": "country",
+    "name": "Singapore",
+    "country": "Singapore",
+    "subject": "the Supertrees of Gardens by the Bay with the Singapore Flyer wheel",
+    "shape": "rounded square",
+    "composition": "looking up at the Supertrees from below, the Flyer behind on the right",
+    "text": [
+      "SINGAPORE"
+    ],
+    "placement": "in a solid straight header bar across the top, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  }
+]

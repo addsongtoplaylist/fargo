@@ -29,6 +29,12 @@ PLACEMENT = {
     "shield": "in a ribbon banner across the upper part of the shield",
     "upward-pointing triangle": "in a straight band along the wide base of the triangle",
 }
+ONE_LINE = {
+    "circle": "curved along the top arc of the circle between two concentric border lines, like a classic round passport stamp; the bottom of the border has no lettering",
+    "wide horizontal oval": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters",
+    "tall rectangle": "set vertically down the left edge, one upright letter under another, inside a narrow vertical strip of the border",
+    "hexagon": "in one ribbon banner across the top edge; no other ribbons or banners",
+}
 TAG = "on a small luggage tag hanging from the lower right corner of the border by a little loop of string"
 
 # country code, country name, [(id, name, subject, composition)], [(country subject, composition) x2]
@@ -41,6 +47,7 @@ COUNTRIES = [
         ("sabah", "Sabah", "Mount Kinabalu's jagged granite peaks above rainforest, with an orangutan on a branch", "the orangutan close up on a branch in the foreground, the mountain behind"),
         ("sarawak", "Sarawak", "a rhinoceros hornbill and a traditional longhouse on stilts by a river", "a close-up of the hornbill's head and casque in the upper half, the longhouse small below"),
         ("ipoh", "Ipoh", "the colonial Ipoh railway station with limestone hills behind", "a wide view of the long station facade, the limestone hills rising behind"),
+        ("johor-bahru", "Johor Bahru", "the Sultan Abu Bakar State Mosque on its hill above the Straits of Johor, with the Causeway", "the mosque on the hill on the right, the water and the long Causeway across the bottom"),
     ], [
         ("the Petronas Twin Towers with the KL Tower and city skyline behind, clouds, hibiscus flowers and palm fronds", "layered depth: hibiscus and palm fronds in the foreground corners, the twin towers in the middle, skyline and clouds behind"),
         ("a traditional Malay kampung house on stilts with coconut palms and a wau kite flying above", "the house on the right, palms on the left, the kite high in the sky"),
@@ -176,7 +183,7 @@ for cc, country, cities, symbols in COUNTRIES:
             "id": f"{cc}-{slug}", "kind": "place" if kind == "city" else "country",
             "name": name, "country": country, "subject": subject, "shape": shape,
             "composition": comp, "text": text,
-            "placement": TAG if tag else PLACEMENT[shape],
+            "placement": TAG if tag else (ONE_LINE.get(shape, PLACEMENT[shape]) if len(text) == 1 else PLACEMENT[shape]),
         })
 
 def placement_label(e):
