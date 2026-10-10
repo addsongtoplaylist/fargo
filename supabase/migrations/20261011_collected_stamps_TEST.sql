@@ -1,5 +1,5 @@
 -- Test for 20261011_collected_stamps.sql — SAVES NOTHING.
--- Uses a trip (prefers "Test trip") and one of its travellers with an account,
+-- Uses a trip (prefers "Test trip") and its planner,
 -- moves the trip's dates inside the test, collects as that traveller and as a
 -- stranger, then always ends with an error whose message is the result, which
 -- undoes every test change (dates and stamps). Expected: all PASS.
@@ -11,18 +11,17 @@ DECLARE
   v_today date := (now() AT TIME ZONE 'utc')::date;
 BEGIN
   -- Plain assignments on purpose (the Supabase SQL Editor misreads the query-into-variable form)
-  v_trip := (SELECT tr.trip_id FROM travellers tr JOIN trips t ON t.id = tr.trip_id
-             WHERE tr.account_id IS NOT NULL
+  -- Collector = the trip's planner (every trip has one; staging may have no linked members)
+  v_trip := (SELECT t.id FROM trips t JOIN accounts a ON a.id = t.planner_id
              ORDER BY (t.name ILIKE 'test trip%') DESC, t.created_at LIMIT 1);
-  v_acc := (SELECT tr.account_id FROM travellers tr
-            WHERE tr.trip_id = v_trip AND tr.account_id IS NOT NULL ORDER BY tr.created_at LIMIT 1);
+  v_acc := (SELECT planner_id FROM trips WHERE id = v_trip);
   v_auth := (SELECT auth_id FROM accounts WHERE id = v_acc);
   v_stranger_auth := (SELECT a.auth_id FROM accounts a
     WHERE NOT EXISTS (SELECT 1 FROM travellers tr WHERE tr.trip_id = v_trip AND tr.account_id = a.id)
       AND NOT EXISTS (SELECT 1 FROM trips t WHERE t.id = v_trip AND t.planner_id = a.id)
     LIMIT 1);
   IF v_trip IS NULL OR v_auth IS NULL THEN
-    RAISE EXCEPTION 'RESULTS: needs a trip with a traveller who has an account';
+    RAISE EXCEPTION 'RESULTS: needs a trip whose planner has an account';
   END IF;
 
   -- T0: installed, rules on, stamps kept when a trip is deleted
