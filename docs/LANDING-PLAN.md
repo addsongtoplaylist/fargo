@@ -156,6 +156,11 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 - **No app version bump** (owner, 2026-10-10): CHANGELOG entry "Landing page v0.1"; the app stays 0.5.7 and stamps keep v0.5.8.
 - Commit; **push only when the owner says so.**
 
+**After batch 6 (2026-10-10):** the owner wants signed-in people to reach the landing page too.
+- **`/home`** serves the same page to anyone, linked from **Profile → About Fargo**, and is not indexed.
+- **`/` still sends signed-in people to /trips.**
+- **Header and footer:** section links stay on the current page, and show **My trips →** when signed in.
+
 ## Testing summary
 
 | Area | How |

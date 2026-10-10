@@ -5,7 +5,7 @@ import { ProfileSettings } from "@/components/profile-settings";
 import { DiningPreferences } from "@/components/dining-preferences";
 import { Eyebrow } from "@/components/ui/card";
 import Link from "next/link";
-import { ListChecks } from "lucide-react";
+import { Info, ListChecks } from "lucide-react";
 import { ProfileRow } from "@/components/profile-row";
 import { getMyDefaultChecklists } from "@/lib/actions/checklist";
 import pkg from "../../../../package.json";
@@ -47,6 +47,11 @@ export default async function ProfilePage() {
       />
 
       {/* "Recently viewed" hidden until it's built (Tier 3 decision) */}
+
+      <Eyebrow className="mx-1 mt-6 mb-2">About</Eyebrow>
+      <Link href="/home" className="block bg-surface rounded-card">
+        <ProfileRow icon={Info} label="About Fargo" chevron />
+      </Link>
 
       <div className="mt-6">
         <SignOutButton />

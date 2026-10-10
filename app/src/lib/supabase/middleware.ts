@@ -39,6 +39,7 @@ export async function updateSession(request: NextRequest) {
   // Public routes that don't need auth
   const isPublicRoute =
     pathname === "/" || // landing page (signed out)
+    pathname === "/home" || // landing page for anyone (Profile → About Fargo)
     pathname === "/privacy" ||
     pathname === "/terms" ||
     pathname.startsWith("/sign-in") ||

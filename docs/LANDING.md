@@ -28,6 +28,9 @@
              → "Add an activity in 3 steps"
              → closing: app icon + wordmark, "Every trip starts here.", Start planning
              → #install → #faq → footer (no contact)
+/home        Same page for anyone, incl. signed in (Profile → About Fargo); header shows "My trips →"; not indexed
+/privacy     Privacy policy (placeholder)
+/terms       Terms of use (placeholder)
 ```
 
 - **Header:** logo · Features (#features) · Add to phone (#install) · FAQ (#faq) · Sign in · **Start planning**. On phones: logo · Start planning · ☰.

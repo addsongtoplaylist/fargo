@@ -1,10 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import logoWhite from "@/assets/logo-white.png";
+import { useLandingBase, useSignedIn } from "./use-marketing";
 
 /** Marketing footer (LANDING.md): frog + white wordmark, section links, legal. No contact line yet. */
 export function MarketingFooter() {
   const link = "text-[#c9cfda] hover:text-white";
+  const base = useLandingBase();
+  const signedIn = useSignedIn();
   return (
     <footer className="bg-fg text-[#c9cfda] pt-12 pb-8">
       <div className="mx-auto max-w-[1120px] px-4 sm:px-6 flex flex-col gap-8">
@@ -18,14 +23,20 @@ export function MarketingFooter() {
           </div>
           <nav aria-label="Fargo" className="flex flex-col gap-2 text-sm">
             <b className="text-white">Fargo</b>
-            <Link href="/#features" className={link}>Features</Link>
-            <Link href="/#install" className={link}>Add to Home Screen</Link>
-            <Link href="/#faq" className={link}>FAQ</Link>
+            <Link href={`${base}#features`} className={link}>Features</Link>
+            <Link href={`${base}#install`} className={link}>Add to Home Screen</Link>
+            <Link href={`${base}#faq`} className={link}>FAQ</Link>
           </nav>
           <nav aria-label="Account" className="flex flex-col gap-2 text-sm">
             <b className="text-white">Account</b>
-            <Link href="/sign-in" className={link}>Sign in</Link>
-            <Link href="/sign-in" className={link}>Start planning</Link>
+            {signedIn ? (
+              <Link href="/trips" className={link}>My trips</Link>
+            ) : (
+              <>
+                <Link href="/sign-in" className={link}>Sign in</Link>
+                <Link href="/sign-in" className={link}>Start planning</Link>
+              </>
+            )}
           </nav>
           <nav aria-label="Legal" className="flex flex-col gap-2 text-sm">
             <b className="text-white">Legal</b>

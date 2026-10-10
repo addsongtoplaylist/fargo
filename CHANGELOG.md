@@ -6,7 +6,7 @@
 
 *Marketing site, versioned on its own. The app stays at v0.5.7.*
 
-- **New landing page** at `fargotravel.vercel.app` for visitors who aren't signed in. Signed-in people still go straight to My trips.
+- **New landing page** at `fargotravel.vercel.app` for visitors who aren't signed in. Signed-in people still go straight to My trips, and can open the same page from **Profile → About Fargo** (`/home`), where the header shows **My trips →**.
 - **What's on it:** "Every trip starts here." with a phone in hand showing a real Fargo schedule; "Your trip, your way" (Planner · Travel buddies · Shared costs · Passport, each with Try it out); "One trip, start to finish"; "Add an activity in 3 steps"; Add to Home Screen steps; FAQ. Copy follows `BRAND.md`.
 - **Screens and photos:** real screenshots from a demo trip ("Singapore long weekend") and free Unsplash photos.
 - **Placeholders:** Privacy and Terms pages, frog illustrations, and a plain panel behind Shared costs until a photo is picked.

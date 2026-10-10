@@ -41,6 +41,7 @@ WanderNote/
 app/src/app/
 ├── (marketing)/                    # Signed-out marketing site (LANDING.md); own header + footer
 │   ├── page.tsx                    # Landing page at / (signed-in visitors are redirected to /trips)
+│   ├── home/page.tsx               # Same page for anyone, incl. signed in (Profile → About Fargo); not indexed
 │   ├── privacy/page.tsx            # Placeholder until the owner supplies text
 │   └── terms/page.tsx              # Placeholder until the owner supplies text
 ├── (auth)/
@@ -61,9 +62,9 @@ app/src/app/
     └── profile/page.tsx
 ```
 
-`middleware.ts` (Next 16 calls this "Proxy"; renaming to `proxy.ts` is a separate clean-up) refreshes the Supabase session and redirects signed-out users to `/sign-in`, except for `/` (landing), `/privacy`, `/terms`, `/sign-in`, `/auth`, `/s/` and `/invite/`. Signed-in visitors to `/` or `/sign-in` go to `/trips`.
+`middleware.ts` (Next 16 calls this "Proxy"; renaming to `proxy.ts` is a separate clean-up) refreshes the Supabase session and redirects signed-out users to `/sign-in`, except for `/` (landing), `/home` (landing for anyone), `/privacy`, `/terms`, `/sign-in`, `/auth`, `/s/` and `/invite/`. Signed-in visitors to `/` or `/sign-in` go to `/trips`.
 
-The PWA manifest's `start_url` is `/trips`, so the Home Screen app never opens on the marketing page. `components/install-prompt.tsx` (mounted in the `(app)` layout) shows a one-time "Add Fargo to your phone" sheet on phones that aren't running the installed app ("Not now" = 7-day snooze, stored in `localStorage`). Landing components live in `components/marketing/`; screenshots and photos in `public/marketing/` (sources in `LANDING-PLAN.md`).
+The PWA manifest's `start_url` is `/trips`, so the Home Screen app never opens on the marketing page. `components/install-prompt.tsx` (mounted in the `(app)` layout) shows a one-time "Add Fargo to your phone" sheet on phones that aren't running the installed app ("Not now" = 7-day snooze, stored in `localStorage`). Landing components live in `components/marketing/`. The header and footer keep section links on the current page (`/home#faq` vs `/#faq`) and show **My trips** when a session exists; screenshots and photos in `public/marketing/` (sources in `LANDING-PLAN.md`).
 
 ---
 
