@@ -94,7 +94,11 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 
 ## Batch 2 — further away (later)
 
-Popular long-haul destinations, e.g. Australia, New Zealand, United Kingdom, France, Italy, Spain, Switzerland, the US, the UAE. List to be agreed after batch 1 ships.
+**Agreed 2026-10-11: 19 countries, 2 country stamps each (no city stamps) = 38 stamps.** Review table: `STAMPS-BATCH2.md` (built by `build-batch-2.py`).
+
+- **Round E — Asia + Oceania:** Maldives · Brunei · Macau · Sri Lanka · Australia · New Zealand
+- **Round F — Europe, Americas, Africa:** United Kingdom · France · Italy · Switzerland · Spain · Netherlands · Greece · Germany (castle + cuckoo clock, no alcohol imagery) · Iceland · United States · Canada · Egypt · Morocco
+- **Not included (owner):** India, Kazakhstan, Uzbekistan, Saudi Arabia, UAE, Nepal, Jordan.
 
 ## Prompt (house template, `scripts/stamps/generate.mjs`)
 

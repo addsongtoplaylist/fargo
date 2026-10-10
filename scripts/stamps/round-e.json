@@ -1,0 +1,182 @@
+[
+  {
+    "id": "MV-country-1",
+    "kind": "country",
+    "round": "E",
+    "name": "Maldives",
+    "country": "Maldives",
+    "subject": "overwater villas on stilts above a calm lagoon with a palm tree",
+    "shape": "hexagon",
+    "composition": "the villas curving out across the water from one side",
+    "text": [
+      "MALDIVES"
+    ],
+    "placement": "in one ribbon banner across the top edge; no other ribbons or banners",
+    "placementName": "Ribbon"
+  },
+  {
+    "id": "MV-country-2",
+    "kind": "country",
+    "round": "E",
+    "name": "Maldives",
+    "country": "Maldives",
+    "subject": "a sea turtle swimming over coral and small fish",
+    "shape": "wide horizontal oval",
+    "composition": "the turtle large and diagonal across the frame",
+    "text": [
+      "MALDIVES"
+    ],
+    "placement": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters",
+    "placementName": "Big letters"
+  },
+  {
+    "id": "BN-country-1",
+    "kind": "country",
+    "round": "E",
+    "name": "Brunei",
+    "country": "Brunei",
+    "subject": "the Sultan Omar Ali Saifuddien Mosque with its golden dome reflected in the lagoon",
+    "shape": "tall rectangle",
+    "composition": "the mosque across the middle, its reflection below",
+    "text": [
+      "BRUNEI"
+    ],
+    "placement": "set vertically down the left edge, one upright letter under another, inside a narrow vertical strip of the border",
+    "placementName": "Vertical"
+  },
+  {
+    "id": "BN-country-2",
+    "kind": "country",
+    "round": "E",
+    "name": "Brunei",
+    "country": "Brunei",
+    "subject": "Kampong Ayer water village houses on stilts with a water taxi",
+    "shape": "dome (flat bottom edge, semicircular top)",
+    "composition": "houses along the back on stilts, the boat in front",
+    "text": [
+      "BRUNEI"
+    ],
+    "placement": "curved along the inside of the dome's round top; the flat bottom edge has no lettering",
+    "placementName": "Curved"
+  },
+  {
+    "id": "MO-country-1",
+    "kind": "country",
+    "round": "E",
+    "name": "Macau",
+    "country": "Macau",
+    "subject": "the stone facade of the Ruins of St. Paul's at the top of its steps",
+    "shape": "square with a perforated postage-stamp edge",
+    "composition": "the facade front-on, the steps leading up from the bottom",
+    "text": [
+      "MACAU"
+    ],
+    "placement": "in a solid straight header bar across the bottom, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  },
+  {
+    "id": "MO-country-2",
+    "kind": "country",
+    "round": "E",
+    "name": "Macau",
+    "country": "Macau",
+    "subject": "wavy Portuguese pavement in Senado Square with pastel colonial buildings",
+    "shape": "circle",
+    "composition": "the wave-patterned pavement filling the foreground, the buildings behind",
+    "text": [
+      "MACAU"
+    ],
+    "placement": "on a BIG luggage tag, about one third of the stamp's width and clearly a major element of the design, hanging from the lower right corner of the border by a short loop of string and overlapping the corner, with the lettering in large bold capitals that fill the tag",
+    "placementName": "Hanging tag"
+  },
+  {
+    "id": "LK-country-1",
+    "kind": "country",
+    "round": "E",
+    "name": "Sri Lanka",
+    "country": "Sri Lanka",
+    "subject": "the Sigiriya rock fortress rising above the jungle",
+    "shape": "rounded square",
+    "composition": "the huge rock in the centre, jungle canopy around its base",
+    "text": [
+      "SRI LANKA"
+    ],
+    "placement": "in a solid straight header bar across the top, the letters reversed out (paper colour) inside the inked bar",
+    "placementName": "Header bar"
+  },
+  {
+    "id": "LK-country-2",
+    "kind": "country",
+    "round": "E",
+    "name": "Sri Lanka",
+    "country": "Sri Lanka",
+    "subject": "a blue train crossing the Nine Arch Bridge in green tea hills",
+    "shape": "tall arch",
+    "composition": "the arched bridge across the frame, the train on top",
+    "text": [
+      "SRI LANKA"
+    ],
+    "placement": "curved along the inside of the arch top, following its curve",
+    "placementName": "Curved"
+  },
+  {
+    "id": "AU-country-1",
+    "kind": "country",
+    "round": "E",
+    "name": "Australia",
+    "country": "Australia",
+    "subject": "the Sydney Opera House sails with the Harbour Bridge behind",
+    "shape": "hexagon",
+    "composition": "the Opera House in front, the bridge arching behind",
+    "text": [
+      "AUSTRALIA"
+    ],
+    "placement": "in one ribbon banner across the top edge; no other ribbons or banners",
+    "placementName": "Ribbon"
+  },
+  {
+    "id": "AU-country-2",
+    "kind": "country",
+    "round": "E",
+    "name": "Australia",
+    "country": "Australia",
+    "subject": "a kangaroo in the outback with Uluru on the horizon",
+    "shape": "wide horizontal oval",
+    "composition": "the kangaroo large in the foreground, Uluru low behind",
+    "text": [
+      "AUSTRALIA"
+    ],
+    "placement": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters",
+    "placementName": "Big letters"
+  },
+  {
+    "id": "NZ-country-1",
+    "kind": "country",
+    "round": "E",
+    "name": "New Zealand",
+    "country": "New Zealand",
+    "subject": "Milford Sound's steep mountains rising from the fjord with a small boat",
+    "shape": "tall rectangle",
+    "composition": "the peak on one side, the water in front, the boat small",
+    "text": [
+      "NEW ZEALAND"
+    ],
+    "placement": "set vertically down the left edge, one upright letter under another, inside a narrow vertical strip of the border",
+    "placementName": "Vertical"
+  },
+  {
+    "id": "NZ-country-2",
+    "kind": "country",
+    "round": "E",
+    "name": "New Zealand",
+    "country": "New Zealand",
+    "subject": "a kiwi bird among silver fern fronds",
+    "shape": "dome (flat bottom edge, semicircular top)",
+    "composition": "the kiwi in profile, ferns curling around it",
+    "text": [
+      "NEW ZEALAND"
+    ],
+    "placement": "curved along the inside of the dome's round top; the flat bottom edge has no lettering",
+    "placementName": "Curved"
+  }
+]
