@@ -4,6 +4,14 @@
 
 ---
 
+**2026-10-10 — CSP report-only (v0.5.12) · Batch E SQL done**
+
+Owner ran `20261010_security_e.sql` + TEST on production: T0–T6 all PASS. CSP added as `Content-Security-Policy-Report-Only` (`next.config.ts`). Tested on a local production build (`fargo-prod` in `.claude/launch.json`, port 3000 so the URL-restricted Mapbox token works): landing, My trips (covers via `/_next/image`), Overview, Schedule + map, Money, Prep, Discover search + photos, Passport, Profile, new-trip destination search, Share trip overlays — 0 violations. Not testable signed-in: Google sign-in button (a page navigation, not covered by CSP).
+
+**Next:** v0.5.13 switches the CSP to enforce. Stamp work is now **v0.5.14**.
+
+---
+
 **2026-10-10 — Security check-up (v0.5.11)**
 
 Batch E (`REVIEW.md` E1–E6). Reviewed migrations since the Sept audit plus a live export of policies, grants, functions and buckets (`supabase/audits/20261010_security_check.sql`, read-only). Findings: planner could link any account to their trip (E5, trigger), invite preview leaked account ids (E2), unused `DATABASE_URL` (E1), `Math.random` codes (E3), old redirect URL (E6), leftover backup table (E4, optional). Mapbox token now URL-restricted (SEC-6). Code: secure codes, `src/db/index.ts` removed.

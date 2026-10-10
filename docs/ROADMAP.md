@@ -30,10 +30,11 @@
 | Sign-out clears saved offline pages | v0.5.9 · Oct 10 |
 | Google key kept private (place search via the server) | v0.5.10 · Oct 10 |
 | Security check-up: only you can add yourself to a trip, invite links hide account details | v0.5.11 · Oct 10 |
+| Content Security Policy, report-only | v0.5.12 · Oct 10 |
 
 ## In progress 🟡
 
-- **AI stamp art per place** (`STAMPS.md`), v0.5.12. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
+- **AI stamp art per place** (`STAMPS.md`), v0.5.14. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
 - **Phase 4 — Real travellers.** Invite, join, leave, read-only members and the RLS audit are done. **Remaining:** upgrade a name-only traveller to an account, keeping their history.
 
 ## Parked ⏸

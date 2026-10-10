@@ -4,7 +4,23 @@
     {
       "name": "fargo-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "app"],
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--prefix",
+        "app"
+      ],
+      "port": 3000
+    },
+    {
+      "name": "fargo-prod",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "start",
+        "--prefix",
+        "app"
+      ],
       "port": 3000
     }
   ]

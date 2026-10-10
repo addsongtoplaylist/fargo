@@ -4,6 +4,14 @@
 
 ---
 
+## v0.5.12 — 2026-10-10 · Content Security Policy (report-only)
+
+- **New rule list for the browser** of which sites Fargo may load code, images and data from: Fargo itself, Supabase, Mapbox and Google's photo server. For now it's **report-only**: the browser only notes anything outside the list, nothing is blocked.
+- Tested on the production build: landing page, My trips, Overview, Schedule + map, Money, Prep, Discover (search + photos), Passport, Profile, new-trip destination search and Share trip images — no warnings.
+- Next release switches it on for real. No database changes.
+
+---
+
 ## v0.5.11 — 2026-10-10 · Security check-up
 
 - **Only you can add yourself to a trip.** A planner could previously put someone else's account on their trip directly, without an invite. Now other people only join through an invite link or by claiming their name (needs the SQL below).
