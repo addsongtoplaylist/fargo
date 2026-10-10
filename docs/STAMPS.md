@@ -38,7 +38,7 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 |---|---|
 | `country` | ISO code, e.g. `MY` |
 | `kind` | `city` or `country` |
-| `name`, `aliases` | e.g. "Penang" · ["George Town", "Pulau Pinang", "Batu Ferringhi"] — used for the ring lettering and as a name match |
+| `name`, `aliases` | e.g. "Penang" · ["George Town", "Pulau Pinang", "Batu Ferringhi"] — for review and as a name match (the ring lettering uses the trip's own place name) |
 | `lat`, `lng`, `radiusKm` | Centre and reach, e.g. 50 km for a city, larger for islands/regions (Bali, Hokkaido) |
 | `file` | Path to the PNG |
 
