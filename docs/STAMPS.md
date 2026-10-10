@@ -143,7 +143,7 @@ When a trip ends, each traveller **collects** its stamp themselves. They see a "
 
 | # | Step | Who | Effort |
 |---|---|---|---|
-| 1 | Migration + TEST + UNDO; owner runs on **staging**, then production | Claude → owner | 1 session + 15 min |
+| 1 | ✅ **Done 2026-10-11:** `20261011_collected_stamps.sql` run on staging and **production**; TEST T0–T8 all PASS on production (staging has no trips with an account, so the test can't run there) | Claude → owner | 1 session + 15 min |
 | 2 | Pick-stamp logic (C3 + C5) with tests, next to `stamp-library.ts` | Claude | small |
 | 3 | `getPassport`: read collected stamps + Base city coordinates; work out which ended trips can be collected | Claude | small |
 | 4 | Collect card on the trip overview + press animation | Claude | medium |
