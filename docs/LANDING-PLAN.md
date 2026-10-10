@@ -8,7 +8,7 @@
 2. **Passport screenshot:** the owner's real stats are fine to show.
 3. **Analytics:** add Vercel Web Analytics.
 4. **Frog spots:** show the dashed placeholders at launch.
-5. **Order:** ship **before** the stamp work. Landing page = **v0.5.8**; stamps move to v0.5.9.
+5. **Order:** ship **before** the stamp work. *(Updated 2026-10-10: the landing page is versioned on its own as **Landing page v0.1**; the app stays at v0.5.7 and stamps keep v0.5.8.)*
 
 ## What changes for people
 
@@ -77,6 +77,8 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 
 ## Batch 3: Demo trip, screenshots, photos (medium; needs the owner)
 
+> **Demo trip created 2026-10-09** (by Claude, owner-approved): "Singapore long weekend", 13–16 Nov 2026, SGD (1 MYR = 0.30), City break, id `b370518d-e93d-414f-9c25-610c48bcc22f`. Kept for future screenshots; future dates, so it doesn't count in Passport stats.
+
 1. **The owner signs in** in the browser pane and creates **"Singapore long weekend"** (Singapore · S$ · 4 days) as a kept demo trip. This is the agreed exception to "Test trip only".
 2. **I fill it in:**
    - **Schedule:**
@@ -94,6 +96,21 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 
 **Done when:** no drawn phones remain, and every image has alt text and a fixed size (no layout jump while loading).
 
+**Batch 3 status (2026-10-10):**
+- **Demo trip filled in:** 4 travellers, 14 activities with places, Packing list, 2 ideas, 11 costs.
+- **Screenshots** (`public/marketing/screen-*.webp`): schedule, prep, money, passport. The Passport capture hid two rows showing test names (on screen only).
+- **Photos** (Unsplash licence, no credit required), in `public/marketing/`:
+
+| File | Source |
+|---|---|
+| `hero-hand.webp` | the schedule screenshot composited onto [Lorin Both's hand + phone](https://unsplash.com/photos/a-hand-holds-up-a-smartphone--IeDL7Ud_e8) |
+| `photo-planner.webp` | [Hanna Lazar, Supertrees](https://unsplash.com/photos/supertrees-at-gardens-by-the-bay-in-singapore-f-Wzz9Oq5A4) |
+| `photo-buddies.webp` | [Annie Hatuanh, hawker centre](https://unsplash.com/photos/a-group-of-people-sitting-at-tables-in-a-restaurant-KDPchZyOhmk) |
+| `photo-passport.webp` | [passport with stamps](https://unsplash.com/photos/passport-with-multiple-ink-stamps-htQznS-Rx7w) |
+| `photo-closing.webp` | [friends watching the sunset](https://unsplash.com/photos/friends-watch-the-sunset-together-gDdSNJaBtV0) |
+
+- **Shared costs:** both dinner-table picks (5jf7kzLBILE, 7wx1WznXcow) refused download (likely Unsplash+, paid). It shows a plain green panel until the owner picks another photo.
+
 ## Batch 4: "Add to Home Screen" prompt after sign-up (small)
 
 1. `components/install-prompt.tsx` (client), shown on **My trips**:
@@ -106,6 +123,12 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 
 **Done when:** the prompt shows once in a normal browser tab, never in the installed app, and never again after "Don't show again".
 
+**Batch 4 status (2026-10-10):** done. `components/install-prompt.tsx` is mounted in `app/(app)/layout.tsx`, so it shows on whichever app screen loads first, not only My trips (returning users with an active trip skip My trips).
+- **When it shows:** phones only, after 2 s, never in standalone mode.
+- **Buttons:** "Not now" = 7-day snooze; "Don't show again" / "Got it" = never again.
+- **Android:** an Install button when `beforeinstallprompt` fires.
+- **Tested:** phone (Android user agent) shows it; Not now hides it on reload; desktop doesn't show it. The iPhone steps are code-reviewed only (the pane can't emulate iOS Safari).
+
 ## Batch 5: Analytics (small)
 
 1. `npm i @vercel/analytics`; add `<Analytics />` to the **root** layout.
@@ -117,11 +140,20 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 
 **Done when:** events show up in the Vercel Analytics dashboard after a test on the deployed site.
 
+**Batch 5 status (2026-10-10):** done, **with a change**. Vercel's Hobby plan doesn't include custom events (Pro only), so:
+- `@vercel/analytics` sends **page views only** (`<Analytics />` in the root layout; Hobby includes 50k events a month). No custom `track()` calls, since they'd do nothing on Hobby.
+- **Sign-ups** are counted from the database: every first sign-in creates an `accounts` row. In the Supabase SQL editor (read-only):
+  ```sql
+  select date_trunc('day', created_at)::date as day, count(*) as sign_ups
+  from accounts group by 1 order by 1 desc;
+  ```
+- **Conversion** ≈ sign-ups per day ÷ landing (`/`) visits per day in Vercel Analytics.
+- **Owner:** turn on Web Analytics in the Vercel project (Analytics tab → Enable).
+
 ## Batch 6: Docs and release (small)
 
 - `TECHNICAL.md` (marketing route group, public paths, manifest), `ROADMAP.md`, `STATUS.md`, `CHANGELOG.md`.
-- Bump `app/package.json` to **0.5.8**.
-- `STAMPS.md`, `STATUS.md`: stamps move to **v0.5.9**.
+- **No app version bump** (owner, 2026-10-10): CHANGELOG entry "Landing page v0.1"; the app stays 0.5.7 and stamps keep v0.5.8.
 - Commit; **push only when the owner says so.**
 
 ## Testing summary

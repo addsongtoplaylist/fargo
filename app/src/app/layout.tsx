@@ -3,6 +3,7 @@ import { Sora } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegistrar } from "@/components/sw-registrar";
 import { ToastProvider } from "@/components/toast";
+import { Analytics } from "@vercel/analytics/next";
 
 const sora = Sora({
   subsets: ["latin"],
@@ -60,6 +61,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
         </ToastProvider>
         <ServiceWorkerRegistrar />
+        {/* Vercel Web Analytics: page views only (custom events need the Pro plan). */}
+        <Analytics />
       </body>
     </html>
   );

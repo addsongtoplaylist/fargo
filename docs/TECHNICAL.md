@@ -39,7 +39,10 @@ WanderNote/
 
 ```
 app/src/app/
-├── page.tsx                        # → redirects into the app
+├── (marketing)/                    # Signed-out marketing site (LANDING.md); own header + footer
+│   ├── page.tsx                    # Landing page at / (signed-in visitors are redirected to /trips)
+│   ├── privacy/page.tsx            # Placeholder until the owner supplies text
+│   └── terms/page.tsx              # Placeholder until the owner supplies text
 ├── (auth)/
 │   ├── sign-in/page.tsx            # Google sign-in
 │   ├── auth/callback/route.ts      # OAuth callback (redirects to same-site paths only)
@@ -58,7 +61,9 @@ app/src/app/
     └── profile/page.tsx
 ```
 
-`middleware.ts` refreshes the Supabase session and redirects signed-out users to `/sign-in`, except for `/sign-in`, `/auth`, `/s/` and `/invite/`.
+`middleware.ts` (Next 16 calls this "Proxy"; renaming to `proxy.ts` is a separate clean-up) refreshes the Supabase session and redirects signed-out users to `/sign-in`, except for `/` (landing), `/privacy`, `/terms`, `/sign-in`, `/auth`, `/s/` and `/invite/`. Signed-in visitors to `/` or `/sign-in` go to `/trips`.
+
+The PWA manifest's `start_url` is `/trips`, so the Home Screen app never opens on the marketing page. `components/install-prompt.tsx` (mounted in the `(app)` layout) shows a one-time "Add Fargo to your phone" sheet on phones that aren't running the installed app ("Not now" = 7-day snooze, stored in `localStorage`). Landing components live in `components/marketing/`; screenshots and photos in `public/marketing/` (sources in `LANDING-PLAN.md`).
 
 ---
 
@@ -176,6 +181,7 @@ Tailwind v4 with tokens declared in `app/src/app/globals.css` (`@theme inline`) 
 | Maps | `mapbox-gl` |
 | Icons | `lucide-react` |
 | Schema reference | `drizzle-orm`, `drizzle-kit`, `postgres` (not used at runtime) |
+| Analytics | `@vercel/analytics` (page views only; Hobby has no custom events) |
 
 ---
 

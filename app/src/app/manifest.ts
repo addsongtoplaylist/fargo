@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Fargo",
     short_name: "Fargo",
     description: "Every trip starts here",
-    start_url: "/",
+    start_url: "/trips",
     display: "standalone",
     background_color: "#eff2fa",
     theme_color: "#0085d9",

@@ -34,12 +34,17 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const { pathname } = request.nextUrl;
+
   // Public routes that don't need auth
   const isPublicRoute =
-    request.nextUrl.pathname.startsWith("/sign-in") ||
-    request.nextUrl.pathname.startsWith("/auth") ||
-    request.nextUrl.pathname.startsWith("/s/") || // shared trip view
-    request.nextUrl.pathname.startsWith("/invite/"); // invite link (handles its own auth)
+    pathname === "/" || // landing page (signed out)
+    pathname === "/privacy" ||
+    pathname === "/terms" ||
+    pathname.startsWith("/sign-in") ||
+    pathname.startsWith("/auth") ||
+    pathname.startsWith("/s/") || // shared trip view
+    pathname.startsWith("/invite/"); // invite link (handles its own auth)
 
   if (!user && !isPublicRoute) {
     const url = request.nextUrl.clone();
@@ -47,8 +52,8 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // If signed in and trying to access sign-in, redirect to trips
-  if (user && request.nextUrl.pathname === "/sign-in") {
+  // If signed in and opening the landing page or sign-in, go to trips
+  if (user && (pathname === "/" || pathname === "/sign-in")) {
     const url = request.nextUrl.clone();
     url.pathname = "/trips";
     return NextResponse.redirect(url);

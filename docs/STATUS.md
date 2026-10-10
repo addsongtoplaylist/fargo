@@ -4,6 +4,16 @@
 
 ---
 
+**2026-10-10 — Landing page v0.1 (app stays v0.5.7)**
+
+Marketing site at `/` for signed-out visitors (`LANDING.md` v5 + reviews, `BRAND.md` voice, plan `LANDING-PLAN.md`): middleware public paths + signed-in redirect, `(marketing)` route group, Privacy/Terms placeholders, `start_url: /trips`, install prompt in the app, `@vercel/analytics` (page views; sign-ups counted from `accounts`). Demo trip "Singapore long weekend" created in the owner's account for screenshots. No SQL.
+
+**Owner to-dos:** turn on Web Analytics in Vercel; real Privacy/Terms text; contact email; a free photo for Shared costs; frog illustrations; test the install prompt on an iPhone after deploy.
+
+**Next:** stamp work (v0.5.8) once the API keys are in.
+
+---
+
 **2026-10-09 — Explore specced, then shelved (no release)**
 
 Full spec `docs/EXPLORE.md` (decisions E1–E20: publish a cleaned copy after the trip, Card D, $/$$/$$$ per person per day without flights, copy place / day / trip with one-at-a-time clash flow, same-country only, reports hidden at 3), `PERMISSIONS.md` v3 draft rows, Mobbin study `docs/EXPLORE-REFERENCES.md`, build plan `docs/EXPLORE-PLAN.md` (approved, 5 batches, v0.6.0). Lo-fi wireframes: https://claude.ai/artifact/JLvWhnwi4PaEJ9z3dqqcXV. **Shelved by owner:** too few users for Explore today. Nav tab stays with its placeholder.

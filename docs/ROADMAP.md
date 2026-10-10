@@ -26,6 +26,7 @@
 | Cover position, invite cover, Discover for members | v0.5.5 |
 | **Passport** tab with travel stats | v0.5.6 |
 | **Share trip overlays:** trip pass, stamp, photo ticket | v0.5.7 · Oct 9 |
+| **Landing page v0.1** (marketing site at `/`, install prompt, analytics; `LANDING.md`) | Oct 10 |
 
 ## In progress 🟡
 
