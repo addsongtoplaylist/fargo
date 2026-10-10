@@ -4,3 +4,4 @@ supabase/.temp/
 
 # Stamp batches before review (STAMPS.md)
 stamps-review/
+__pycache__/
