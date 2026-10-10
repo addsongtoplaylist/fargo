@@ -164,16 +164,12 @@ COUNTRIES = [
         ("the Great Wall of China with watchtowers over mountain ridges", "the wall zig-zagging diagonally across the frame"),
         ("a dragon dance under hanging red lanterns", "the dragon's body curving through the frame, lanterns at the top"),
     ]),
-    ("IN", "India", [
-        ("delhi", "Delhi", "India Gate with its lawns and a cycle rickshaw", "the arch centred, the rickshaw small in front"),
-        ("mumbai", "Mumbai", "the Gateway of India with boats in the harbour", "the gateway on the right, boats on the left"),
-        ("jaipur", "Jaipur", "the honeycomb facade of the Hawa Mahal", "the facade filling the frame front-on"),
-        ("agra", "Agra", "the Taj Mahal", "the Taj Mahal seen through a carved Mughal archway in the foreground"),
-        ("goa", "Goa", "a whitewashed Portuguese church above a beach with fishing boats", "the church on the hill, boats on the sand"),
-        ("kerala", "Kerala", "a houseboat on the backwaters with coconut palms", "the houseboat across the middle, palms leaning over"),
+    ("TR", "Turkey", [
+        ("istanbul", "Istanbul", "the domes and minarets of the Blue Mosque with a ferry and seagulls on the Bosphorus", "the ferry and gulls in the foreground, the mosque skyline across the back"),
+        ("cappadocia", "Cappadocia", "hot-air balloons over the fairy chimney rock formations of Cappadocia", "balloons of different sizes filling the sky, the fairy chimneys along the bottom"),
     ], [
-        ("a decorated Indian elephant with lotus flowers", "the elephant in profile, lotus at the bottom"),
-        ("an auto-rickshaw draped with marigold garlands", "the rickshaw in three-quarter view filling the frame"),
+        ("Turkish tea in a tulip-shaped glass with an evil-eye charm and hanging mosaic lamps", "the tea glass large in front, lamps hanging from the top, the charm at the side"),
+        ("the white travertine terraces and turquoise pools of Pamukkale", "the stepped terraces cascading down the frame, a few tiny figures for scale"),
     ]),
 ]
 

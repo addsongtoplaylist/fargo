@@ -1,6 +1,6 @@
 # Stamp library — batch 1 (Asia) for review
 
-> Generated from `scripts/stamps/build-batch-1.py` → `scripts/stamps/batch-1.json`. **90 stamps** (64 places + 26 country). Edit anything here (place, subject, shape, lettering) before generating. Rules: `STAMPS.md` v2.
+> Generated from `scripts/stamps/build-batch-1.py` → `scripts/stamps/batch-1.json`. **86 stamps** (60 places + 26 country). Edit anything here (place, subject, shape, lettering) before generating. Rules: `STAMPS.md` v2.
 
 ## Malaysia
 
@@ -144,15 +144,11 @@
 | 7 | China *(country)* | CHINA | dome | Curved | the Great Wall of China with watchtowers over mountain ridges — the wall zig-zagging diagonally across the frame |
 | 8 | China *(country)* | CHINA | postage stamp | Header bar | a dragon dance under hanging red lanterns — the dragon's body curving through the frame, lanterns at the top |
 
-## India
+## Turkey
 
 | # | Stamp | Lettering | Shape | Placement | Picture |
 |---|---|---|---|---|---|
-| 1 | Delhi | DELHI · INDIA | circle | Curved | India Gate with its lawns and a cycle rickshaw — the arch centred, the rickshaw small in front |
-| 2 | Mumbai | MUMBAI | rounded square | Hanging tag | the Gateway of India with boats in the harbour — the gateway on the right, boats on the left |
-| 3 | Jaipur | JAIPUR · INDIA | tall arch | Curved | the honeycomb facade of the Hawa Mahal — the facade filling the frame front-on |
-| 4 | Agra | AGRA | hexagon | Ribbon | the Taj Mahal — the Taj Mahal seen through a carved Mughal archway in the foreground |
-| 5 | Goa | GOA · INDIA | wide oval | Big letters | a whitewashed Portuguese church above a beach with fishing boats — the church on the hill, boats on the sand |
-| 6 | Kerala | KERALA | tall rectangle | Vertical | a houseboat on the backwaters with coconut palms — the houseboat across the middle, palms leaning over |
-| 7 | India *(country)* | INDIA | dome | Curved | a decorated Indian elephant with lotus flowers — the elephant in profile, lotus at the bottom |
-| 8 | India *(country)* | INDIA | postage stamp | Header bar | an auto-rickshaw draped with marigold garlands — the rickshaw in three-quarter view filling the frame |
+| 1 | Istanbul | ISTANBUL · TURKEY | circle | Curved | the domes and minarets of the Blue Mosque with a ferry and seagulls on the Bosphorus — the ferry and gulls in the foreground, the mosque skyline across the back |
+| 2 | Cappadocia | CAPPADOCIA | rounded square | Hanging tag | hot-air balloons over the fairy chimney rock formations of Cappadocia — balloons of different sizes filling the sky, the fairy chimneys along the bottom |
+| 3 | Turkey *(country)* | TURKEY | tall arch | Curved | Turkish tea in a tulip-shaped glass with an evil-eye charm and hanging mosaic lamps — the tea glass large in front, lamps hanging from the top, the charm at the side |
+| 4 | Turkey *(country)* | TURKEY | hexagon | Ribbon | the white travertine terraces and turquoise pools of Pamukkale — the stepped terraces cascading down the frame, a few tiny figures for scale |

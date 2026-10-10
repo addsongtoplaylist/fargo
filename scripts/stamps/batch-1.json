@@ -1177,118 +1177,60 @@
     "placementName": "Header bar"
   },
   {
-    "id": "IN-delhi",
+    "id": "TR-istanbul",
     "kind": "place",
-    "name": "Delhi",
-    "country": "India",
-    "subject": "India Gate with its lawns and a cycle rickshaw",
+    "name": "Istanbul",
+    "country": "Turkey",
+    "subject": "the domes and minarets of the Blue Mosque with a ferry and seagulls on the Bosphorus",
     "shape": "circle",
-    "composition": "the arch centred, the rickshaw small in front",
+    "composition": "the ferry and gulls in the foreground, the mosque skyline across the back",
     "text": [
-      "DELHI",
-      "INDIA"
+      "ISTANBUL",
+      "TURKEY"
     ],
     "placement": "curved around the circle between two concentric border lines, like a classic round passport stamp (top arc, and the bottom arc if there is a second line)",
     "placementName": "Curved"
   },
   {
-    "id": "IN-mumbai",
+    "id": "TR-cappadocia",
     "kind": "place",
-    "name": "Mumbai",
-    "country": "India",
-    "subject": "the Gateway of India with boats in the harbour",
+    "name": "Cappadocia",
+    "country": "Turkey",
+    "subject": "hot-air balloons over the fairy chimney rock formations of Cappadocia",
     "shape": "rounded square",
-    "composition": "the gateway on the right, boats on the left",
+    "composition": "balloons of different sizes filling the sky, the fairy chimneys along the bottom",
     "text": [
-      "MUMBAI"
+      "CAPPADOCIA"
     ],
     "placement": "on a BIG luggage tag, about one third of the stamp's width and clearly a major element of the design, hanging from the lower right corner of the border by a short loop of string and overlapping the corner, with the lettering in large bold capitals that fill the tag",
     "placementName": "Hanging tag"
   },
   {
-    "id": "IN-jaipur",
-    "kind": "place",
-    "name": "Jaipur",
-    "country": "India",
-    "subject": "the honeycomb facade of the Hawa Mahal",
+    "id": "TR-country-1",
+    "kind": "country",
+    "name": "Turkey",
+    "country": "Turkey",
+    "subject": "Turkish tea in a tulip-shaped glass with an evil-eye charm and hanging mosaic lamps",
     "shape": "tall arch",
-    "composition": "the facade filling the frame front-on",
+    "composition": "the tea glass large in front, lamps hanging from the top, the charm at the side",
     "text": [
-      "JAIPUR",
-      "INDIA"
+      "TURKEY"
     ],
     "placement": "curved along the inside of the arch top, following its curve",
     "placementName": "Curved"
   },
   {
-    "id": "IN-agra",
-    "kind": "place",
-    "name": "Agra",
-    "country": "India",
-    "subject": "the Taj Mahal",
+    "id": "TR-country-2",
+    "kind": "country",
+    "name": "Turkey",
+    "country": "Turkey",
+    "subject": "the white travertine terraces and turquoise pools of Pamukkale",
     "shape": "hexagon",
-    "composition": "the Taj Mahal seen through a carved Mughal archway in the foreground",
+    "composition": "the stepped terraces cascading down the frame, a few tiny figures for scale",
     "text": [
-      "AGRA"
+      "TURKEY"
     ],
     "placement": "in one ribbon banner across the top edge; no other ribbons or banners",
     "placementName": "Ribbon"
-  },
-  {
-    "id": "IN-goa",
-    "kind": "place",
-    "name": "Goa",
-    "country": "India",
-    "subject": "a whitewashed Portuguese church above a beach with fishing boats",
-    "shape": "wide horizontal oval",
-    "composition": "the church on the hill, boats on the sand",
-    "text": [
-      "GOA",
-      "INDIA"
-    ],
-    "placement": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters (any second line small underneath)",
-    "placementName": "Big letters"
-  },
-  {
-    "id": "IN-kerala",
-    "kind": "place",
-    "name": "Kerala",
-    "country": "India",
-    "subject": "a houseboat on the backwaters with coconut palms",
-    "shape": "tall rectangle",
-    "composition": "the houseboat across the middle, palms leaning over",
-    "text": [
-      "KERALA"
-    ],
-    "placement": "set vertically down the left edge, one upright letter under another, inside a narrow vertical strip of the border",
-    "placementName": "Vertical"
-  },
-  {
-    "id": "IN-country-1",
-    "kind": "country",
-    "name": "India",
-    "country": "India",
-    "subject": "a decorated Indian elephant with lotus flowers",
-    "shape": "dome (flat bottom edge, semicircular top)",
-    "composition": "the elephant in profile, lotus at the bottom",
-    "text": [
-      "INDIA"
-    ],
-    "placement": "curved along the inside of the dome's round top; the flat bottom edge has no lettering",
-    "placementName": "Curved"
-  },
-  {
-    "id": "IN-country-2",
-    "kind": "country",
-    "name": "India",
-    "country": "India",
-    "subject": "an auto-rickshaw draped with marigold garlands",
-    "shape": "square with a perforated postage-stamp edge",
-    "composition": "the rickshaw in three-quarter view filling the frame",
-    "text": [
-      "INDIA"
-    ],
-    "placement": "in a solid straight header bar across the bottom, the letters reversed out (paper colour) inside the inked bar",
-    "placementName": "Header bar"
   }
 ]

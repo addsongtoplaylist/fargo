@@ -11,7 +11,7 @@
 | 3 | **Which stamp a trip gets:** the stamp whose area contains the Base city, if any (never a neighbouring place's stamp) → otherwise one of the country's **2 country stamps** (also used when no Base city is set) → otherwise the **fallback**. |
 | 4 | **Two country stamps = two designs.** Each trip always gets the same one (picked from the trip id), so different trips vary but a trip's card never changes. |
 | 5 | **Fallback:** today's drawn ring with **✈** in the middle — no country code. |
-| 6 | **Batch 1 = Asia, including China and India. Batch 2 = popular countries further away.** |
+| 6 | **Batch 1 = Asia, including China, plus Turkey (2 places + 2 country stamps). India removed (owner, 2026-10-11).** Batch 2 = popular countries further away. |
 | 7 | **Owner reviews every stamp** before it's added. Nothing is published automatically. |
 | 8 | **Stamp names use the state or region name where that's what travellers say** (Penang, not George Town; Hokkaido, Kerala, Palawan). Where the city itself is the destination, the city name stays (Osaka, Bangkok). Matching is by map location, so a trip to George Town or Batu Ferringhi still gets the Penang stamp; the ring lettering keeps the trip's own place name. |
 | 9 | **Collecting comes later.** The owner wants users to **collect stamps** eventually (e.g. in the Passport tab). Not part of v0.5.16, but the library is built for it: every stamp has a **permanent id** that never changes or gets reused, and both country designs are distinct stamps (a second trip to a country can earn the other one). |
@@ -82,7 +82,7 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 | Taiwan | Taipei · Taichung · Tainan · Kaohsiung · Hualien · Jiufen | ✓ |
 | Hong Kong | — (city) | ✓ |
 | China | Beijing · Shanghai · Chengdu · Chongqing · Xi'an · Guilin | ✓ |
-| India | Delhi · Mumbai · Jaipur · Agra · Goa · Kerala | ✓ |
+| Turkey | Istanbul · Cappadocia | ✓ |
 
 ≈ 64 city + 26 country stamps ≈ **90 stamps** (89 new; 90 with an 8th Malaysian place). Possible additions: Macau, Maldives, Sri Lanka, Nepal, Myanmar, Laos.
 
