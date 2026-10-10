@@ -4,9 +4,17 @@
 
 ---
 
+**2026-10-10 — CSP enforced (v0.5.13)**
+
+Owner chose to enforce straight after v0.5.12. `Content-Security-Policy` now enforced (same list + `frame-ancestors 'none'`). Re-tested on a local production build: map + 4 pins, Discover 15 spots + 5 photos, 3 Share overlays, 2 cover photos, landing (0 broken images, font loaded); `fetch('https://example.com')` blocked. Security review items all closed except owner clean-ups (Google "Fargo web" key, old Maps key APIs, `DATABASE_URL`, old redirect URL, optional backup table).
+
+**Next:** stamp work **v0.5.14** once the API keys are in.
+
+---
+
 **2026-10-10 — CSP report-only (v0.5.12) · Batch E SQL done**
 
-Owner ran `20261010_security_e.sql` + TEST on production: T0–T6 all PASS. CSP added as `Content-Security-Policy-Report-Only` (`next.config.ts`). Tested on a local production build (`fargo-prod` in `.claude/launch.json`, port 3000 so the URL-restricted Mapbox token works): landing, My trips (covers via `/_next/image`), Overview, Schedule + map, Money, Prep, Discover search + photos, Passport, Profile, new-trip destination search, Share trip overlays — 0 violations. Not testable signed-in: Google sign-in button (a page navigation, not covered by CSP).
+Owner ran `20261010_security_e.sql` + TEST on production: T0–T6 all PASS. CSP added as `Content-Security-Policy-Report-Only` (`next.config.ts`). Tested on a local production build (`fargo-prod` in `.claude/launch.json`, port 3000 so the URL-restricted Mapbox token works): landing, My trips (covers straight from Supabase storage), Overview, Schedule + map, Money, Prep, Discover search + photos, Passport, Profile, new-trip destination search, Share trip overlays — 0 violations. Not testable signed-in: Google sign-in button (a page navigation, not covered by CSP).
 
 **Next:** v0.5.13 switches the CSP to enforce. Stamp work is now **v0.5.14**.
 

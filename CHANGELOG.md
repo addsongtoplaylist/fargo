@@ -4,6 +4,14 @@
 
 ---
 
+## v0.5.13 — 2026-10-10 · Content Security Policy switched on
+
+- **The browser now blocks anything outside Fargo's list** of allowed sources (Fargo itself, Supabase, Mapbox, Google's photo server). If someone ever managed to slip code into a page, it couldn't load scripts from elsewhere or send your data to another site.
+- Tested on the production build with the policy enforced: map with pins, Discover search with photos, Share trip images, cover photos, landing page — all work; a request to an outside site is blocked.
+- No database changes.
+
+---
+
 ## v0.5.12 — 2026-10-10 · Content Security Policy (report-only)
 
 - **New rule list for the browser** of which sites Fargo may load code, images and data from: Fargo itself, Supabase, Mapbox and Google's photo server. For now it's **report-only**: the browser only notes anything outside the list, nothing is blocked.

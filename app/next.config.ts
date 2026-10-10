@@ -4,9 +4,8 @@ const isDev = process.env.NODE_ENV === "development";
 const supabase = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "https://*.supabase.co";
 const supabaseWs = supabase.replace(/^https:/, "wss:");
 
-// Where the browser may load things from (REVIEW.md SEC-3). REPORT-ONLY for now:
-// the browser only logs "[Report Only]" warnings in the console, nothing is blocked.
-// Switch the header name to Content-Security-Policy once a release runs clean.
+// Where the browser may load things from (REVIEW.md SEC-3). Enforced since v0.5.13
+// (v0.5.12 ran it report-only). A new outside service must have its host added here.
 const contentSecurityPolicy = [
   "default-src 'self'",
   // Next.js needs inline scripts without nonces (nonces would make every page dynamic)
@@ -25,14 +24,15 @@ const contentSecurityPolicy = [
   "base-uri 'self'",
   "form-action 'self'",
   "manifest-src 'self'",
+  // No other site may show Fargo inside a frame (stops clickjacking)
+  "frame-ancestors 'none'",
 ].join("; ");
 
 // Protective headers on every response (security review 2026-10-10).
 const securityHeaders = [
-  { key: "Content-Security-Policy-Report-Only", value: contentSecurityPolicy },
-  // No other site may show Fargo inside a frame (stops clickjacking).
+  { key: "Content-Security-Policy", value: contentSecurityPolicy },
+  // Older browsers' version of frame-ancestors
   { key: "X-Frame-Options", value: "DENY" },
-  { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
   // Browsers must trust the declared file type, never guess it.
   { key: "X-Content-Type-Options", value: "nosniff" },
   // Links to other sites only reveal fargotravel.vercel.app, never the page path (trip ids, share codes).

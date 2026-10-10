@@ -30,7 +30,7 @@
 | Sign-out clears saved offline pages | v0.5.9 · Oct 10 |
 | Google key kept private (place search via the server) | v0.5.10 · Oct 10 |
 | Security check-up: only you can add yourself to a trip, invite links hide account details | v0.5.11 · Oct 10 |
-| Content Security Policy, report-only | v0.5.12 · Oct 10 |
+| Content Security Policy, report-only → enforced | v0.5.12–0.5.13 · Oct 10 |
 
 ## In progress 🟡
 
