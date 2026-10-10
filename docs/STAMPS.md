@@ -151,7 +151,7 @@ When a trip ends, each traveller **collects** its stamp themselves. They see a "
 | 6 | ✅ Tested on the Test trip and Test 123 with `fargo-prod`; test rows deleted | Claude + owner | 30 min |
 | 7 | ✅ **Released v0.5.17 (2026-10-11)**; `PERMISSIONS.md` v3.2 | Owner + Claude | 30 min |
 
-### Open for later
+### Open for later (future enhancements, noted in `ROADMAP.md` → Not scheduled)
 
 - Sharing a Passport page of stamps.
 - Collecting progress per country ("3 of 8").

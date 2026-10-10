@@ -53,6 +53,7 @@
 - **Proposals and approvals (old Phase 5)** — replaced 2026-09-26 by "members are read-only, the planner edits"; money is the exception.
 - **Illustrations** for empty states and no-photo covers — need an identity guideline and an illustration library first.
 - Co-planners · file attachments on bookings · duplicate a trip.
+- **Stamp collecting, more** (`STAMPS.md` → Open for later; owner, 2026-10-11): per-country progress ("Malaysia · 3 of 8"), share a page of your stamps, milestone badges (first trip abroad, 5 countries). Also: more batches of stamps for countries not in the library yet (they get the ✈ ring today).
 
 ---
 
