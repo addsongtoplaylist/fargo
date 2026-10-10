@@ -29,8 +29,8 @@
              → closing: app icon + wordmark, "Every trip starts here.", Start planning
              → #install → #faq → footer (no contact)
 /home        Same page for anyone, incl. signed in (Profile → About Fargo); header shows "My trips →"; not indexed
-/privacy     Privacy policy (placeholder)
-/terms       Terms of use (placeholder)
+/privacy     Privacy policy
+/terms       Terms of use
 ```
 
 - **Header:** logo · Features (#features) · Add to phone (#install) · FAQ (#faq) · Sign in · **Start planning**. On phones: logo · Start planning · ☰.
@@ -205,6 +205,6 @@ Photos give the travel feel, frog illustrations explain ideas, app snippets prov
 ## Owner decisions (2026-10-09)
 
 1. **Contact email:** a free Gmail later. Use a dummy (`hello@example.com`, marked as a placeholder) until the owner supplies it.
-2. **Privacy and Terms:** dummy placeholder pages for now; the owner supplies the text later.
+2. **Privacy and Terms:** ~~dummy placeholder pages for now~~ plain-English text written 2026-10-10 and approved by the owner. Where an email would go, they say it's coming soon until the owner sets one up.
 3. **Discover copy** ("filtered to your taste") is correct.
 4. **Demo trip:** separate kept demo trip "Singapore long weekend" in S$ (from the earlier answer). Creating it in the app still needs a go-ahead, and the "Mei suggested" shot needs a second account.

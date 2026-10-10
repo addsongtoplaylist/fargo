@@ -8,8 +8,9 @@
 
 - **New landing page** at `fargotravel.vercel.app` for visitors who aren't signed in. Signed-in people still go straight to My trips, and can open the same page from **Profile → About Fargo** (`/home`), where the header shows **My trips →**.
 - **What's on it:** "Every trip starts here." with a phone in hand showing a real Fargo schedule; "Your trip, your way" (Planner · Travel buddies · Shared costs · Passport, each with Try it out); "One trip, start to finish"; "Add an activity in 3 steps"; Add to Home Screen steps; FAQ. Copy follows `BRAND.md`.
-- **Screens and photos:** real screenshots from a demo trip ("Singapore long weekend") and free Unsplash photos.
-- **Placeholders:** Privacy and Terms pages, frog illustrations, and a plain panel behind Shared costs until a photo is picked.
+- **Screens and photos:** real screenshots from a demo trip ("Singapore long weekend") and free Unsplash photos, including friends sharing dishes behind Shared costs.
+- **Privacy policy and Terms of use** in plain English (the contact email is still to come).
+- **Placeholders:** frog illustrations in "One trip, start to finish".
 - **In the app:** a one-time **"Add Fargo to your phone"** sheet on phones (Android: one-tap install; iPhone: Share steps). The Home Screen app now opens on My trips.
 - **Vercel Web Analytics** (page views), switched on in the Vercel project. The sign-in check now skips `/_vercel/…`, so the tracking script loads for signed-out visitors.
 - No database changes.

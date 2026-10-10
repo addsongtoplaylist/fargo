@@ -109,7 +109,7 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 | `photo-passport.webp` | [passport with stamps](https://unsplash.com/photos/passport-with-multiple-ink-stamps-htQznS-Rx7w) |
 | `photo-closing.webp` | [friends watching the sunset](https://unsplash.com/photos/friends-watch-the-sunset-together-gDdSNJaBtV0) |
 
-- **Shared costs:** both dinner-table picks (5jf7kzLBILE, 7wx1WznXcow) refused download (likely Unsplash+, paid). It shows a plain green panel until the owner picks another photo.
+- **Shared costs:** both first dinner-table picks (5jf7kzLBILE, 7wx1WznXcow) refused download (Unsplash+, paid). Replaced 2026-10-10 by `photo-costs.webp`: [tommao wang, friends around a meal](https://unsplash.com/photos/MAFMkfevd7w) (free licence).
 
 ## Batch 4: "Add to Home Screen" prompt after sign-up (small)
 
@@ -182,5 +182,6 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 
 - Sign in in the browser pane for batch 1 (signed-in checks) and batch 3 (demo trip).
 - Approve the Unsplash shortlist.
-- Turn on Vercel Web Analytics.
-- Later: real Privacy/Terms text, contact email, frog illustrations.
+- ~~Turn on Vercel Web Analytics.~~ Done 2026-10-10 (Hobby). The middleware matcher had to skip `/_vercel` so the script loads for signed-out visitors.
+- ~~Real Privacy/Terms text.~~ Done 2026-10-10 (plain-English drafts approved by the owner; not legal advice).
+- Later: contact email (`CONTACT_EMAIL` in `components/marketing/legal-page.tsx`), frog illustrations.

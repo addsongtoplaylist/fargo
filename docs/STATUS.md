@@ -4,6 +4,14 @@
 
 ---
 
+**2026-10-10 — Landing page follow-ups**
+
+Vercel Web Analytics switched on (Hobby); the middleware matcher now skips `/_vercel`, which had been redirecting the tracking script to `/sign-in`. Verified: first visit counted in the dashboard. Privacy and Terms now have real plain-English text (`components/marketing/legal-page.tsx`, contact line says "coming soon" until `CONTACT_EMAIL` is set). Shared costs has its photo (`photo-costs.webp`).
+
+**Owner to-dos left:** contact email; frog illustrations; test the install prompt on an iPhone; tidy the test items in default checklists.
+
+---
+
 **2026-10-10 — Landing page v0.1 (app stays v0.5.7)**
 
 Marketing site at `/` for signed-out visitors (`LANDING.md` v5 + reviews, `BRAND.md` voice, plan `LANDING-PLAN.md`): middleware public paths + signed-in redirect, `(marketing)` route group, Privacy/Terms placeholders, `start_url: /trips`, install prompt in the app, `@vercel/analytics` (page views; sign-ups counted from `accounts`). Demo trip "Singapore long weekend" created in the owner's account for screenshots. No SQL.

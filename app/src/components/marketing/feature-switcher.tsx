@@ -27,12 +27,12 @@ const FEATURES = [
   },
   {
     title: "Shared costs",
-    photoSrc: undefined as string | undefined,
+    photoSrc: "/marketing/photo-costs.webp" as string | undefined,
     tint: "bg-money-ok-soft",
     body: "Everyone adds what they paid along the way. Fargo keeps it fair, with no awkward chat at the end.",
     screen: "Fargo Money with the group split",
     src: "/marketing/screen-money.webp",
-    photo: "a group around a dinner table",
+    photo: "Friends sharing dishes around a dinner table",
   },
   {
     title: "Passport",
