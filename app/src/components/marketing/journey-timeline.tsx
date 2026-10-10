@@ -2,14 +2,15 @@ import { CalendarDays, Clock, Home, Plane, Receipt, ArrowLeftRight, UserPlus, Ut
 import { IllustrationFrame } from "./frames";
 
 type Item = { icon: LucideIcon; title: string; body: string; tint: string; ink: string };
-type Stage = { when: string; title: string; icon: LucideIcon; illustration: string; done: boolean; items: Item[] };
+type Stage = { when: string; title: string; icon: LucideIcon; illustration: string; illustrationSrc: string; done: boolean; items: Item[] };
 
 const STAGES: Stage[] = [
   {
     when: "Before the trip",
     title: "Plan it together",
     icon: CalendarDays,
-    illustration: "the frog planning with a map",
+    illustration: "A desk with a calendar, suitcases, a laptop, a compass and a map pin",
+    illustrationSrc: "/marketing/illus-before.webp",
     done: true,
     items: [
       { icon: CalendarDays, title: "Plan the days", body: "Places and times, day by day.", tint: "bg-brand-soft", ink: "text-brand" },
@@ -20,7 +21,8 @@ const STAGES: Stage[] = [
     when: "During the trip",
     title: "Enjoy every day",
     icon: Plane,
-    illustration: "the frog with a camera, exploring",
+    illustration: "An open guidebook, a map with a pin, a backpack and a clock showing 14:30",
+    illustrationSrc: "/marketing/illus-during.webp",
     done: true,
     items: [
       { icon: Clock, title: "Follow today's schedule", body: "Opens on today: now and next.", tint: "bg-brand-soft", ink: "text-brand" },
@@ -31,7 +33,8 @@ const STAGES: Stage[] = [
     when: "After the trip",
     title: "Square it up",
     icon: Home,
-    illustration: "the frog home with its suitcase",
+    illustration: "A calculator, a suitcase and a piggy bank",
+    illustrationSrc: "/marketing/illus-after.webp",
     done: false,
     items: [
       { icon: Receipt, title: "Log the expenses", body: "Everyone adds what they paid.", tint: "bg-money-ok-soft", ink: "text-money-ok" },
@@ -64,7 +67,7 @@ export function JourneyTimeline() {
               </span>
               <div className="self-stretch rounded-[20px] bg-page p-5 flex flex-col gap-1.5">
                 <div className="mb-2.5">
-                  <IllustrationFrame label={s.illustration} />
+                  <IllustrationFrame label={s.illustration} src={s.illustrationSrc} />
                 </div>
                 <span className="text-[13px] font-semibold uppercase tracking-wide text-brand">{s.when}</span>
                 <b className="text-[22px] tracking-[-0.4px] text-fg">{s.title}</b>

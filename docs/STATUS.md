@@ -4,6 +4,12 @@
 
 ---
 
+**2026-10-10 — Landing page photos + illustrations (v0.5.14)**
+
+Owner-supplied illustrations in the journey timeline (`illus-before/during/after.webp`, transparent, trimmed; `IllustrationFrame` takes a `src`, fixed 170px height). New Unsplash photos for Travel buddies (UmV2wr-Vbq8) and Passport (GOZxrAlNIt4). The Shared costs pick (KbP0nALUBGo) is Unsplash+ (paid) — not used. Checked desktop + phone. Stamp work is now **v0.5.15**.
+
+---
+
 **2026-10-10 — CSP enforced (v0.5.13)**
 
 Owner chose to enforce straight after v0.5.12. `Content-Security-Policy` now enforced (same list + `frame-ancestors 'none'`). Re-tested on a local production build: map + 4 pins, Discover 15 spots + 5 photos, 3 Share overlays, 2 cover photos, landing (0 broken images, font loaded); `fetch('https://example.com')` blocked. Security review items all closed except owner clean-ups (Google "Fargo web" key, old Maps key APIs, `DATABASE_URL`, old redirect URL, optional backup table).

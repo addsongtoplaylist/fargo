@@ -4,6 +4,15 @@
 
 ---
 
+## v0.5.14 — 2026-10-10 · Landing page photos and illustrations
+
+### Landing page
+
+- **"One trip, start to finish" has its illustrations:** a planning desk (before), a guidebook, map and clock (during), and a calculator with a piggy bank (after), replacing the placeholders.
+- **New photos** behind the phone in "Your trip, your way": friends together outdoors (Travel buddies) and a camera, sunglasses and bag ready to go (Passport). Shared costs keeps its photo (the new pick is a paid Unsplash+ image).
+
+---
+
 ## v0.5.13 — 2026-10-10 · Content Security Policy switched on
 
 - **The browser now blocks anything outside Fargo's list** of allowed sources (Fargo itself, Supabase, Mapbox, Google's photo server). If someone ever managed to slip code into a page, it couldn't load scripts from elsewhere or send your data to another site.

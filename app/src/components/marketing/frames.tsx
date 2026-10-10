@@ -63,7 +63,15 @@ export function PhotoFrame({
   );
 }
 
-export function IllustrationFrame({ label }: { label: string }) {
+export function IllustrationFrame({ label, src }: { label: string; src?: string }) {
+  if (src) {
+    // Transparent illustration, fitted into the same height so the three cards line up
+    return (
+      <div className="relative h-[170px]">
+        <Image src={src} alt={label} fill sizes="(max-width: 768px) 90vw, 320px" className="object-contain" />
+      </div>
+    );
+  }
   return (
     <div className="h-[150px] rounded-[14px] border-2 border-dashed border-[#9db8d0] bg-brand-soft flex items-center justify-center gap-2 px-3 text-center text-xs font-semibold text-[#0b5c94]">
       <PencilLine size={18} aria-hidden className="shrink-0" />

@@ -197,7 +197,7 @@ Photos give the travel feel, frog illustrations explain ideas, app snippets prov
 | Hero | Photo: a hand holding the phone (app on screen) | Placeholder in mockup |
 | Your trip, your way | Photo behind the phone per feature: Gardens by the Bay · friends at a hawker centre · group around a dinner table · passport with stamps | Placeholder in mockup |
 | Closing band | Photo of friends on a trip, darkened behind the text | Placeholder in mockup |
-| One trip, start to finish | Frog illustrations per milestone (planning with a map · exploring with a camera · home with its suitcase) | Placeholder in mockup; art later via the AI image pipeline, in one locked style |
+| One trip, start to finish | Isometric object illustrations per milestone: desk with calendar and suitcases · open guidebook, map and clock · calculator and piggy bank | Done (owner-supplied, 2026-10-10) |
 | Add to Home Screen | Frog holding a phone | Later |
 
 **Photo source:** Unsplash (free commercial use), favouring Asian friend groups in Southeast Asian places. The DESIGN.md "no stock photos" rule applies to **trip covers** only, not marketing images.

@@ -23,7 +23,7 @@ const FEATURES = [
     body: "Invite your friends with one link. They suggest ideas, you decide what makes the schedule.",
     screen: "Fargo Prep with a packing list and ideas",
     src: "/marketing/screen-prep.webp",
-    photo: "friends at a hawker centre",
+    photo: "Friends having fun together outdoors",
   },
   {
     title: "Shared costs",
@@ -41,7 +41,7 @@ const FEATURES = [
     body: "Every trip earns a stamp. See your countries, trips and travel buddies add up, then share a trip card.",
     screen: "Fargo Passport with stamps and travel stats",
     src: "/marketing/screen-passport.webp",
-    photo: "passport with stamps, flat-lay",
+    photo: "A camera, sunglasses and a bag packed for a trip",
   },
 ];
 

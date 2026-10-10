@@ -34,7 +34,7 @@
 
 ## In progress 🟡
 
-- **AI stamp art per place** (`STAMPS.md`), v0.5.14. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
+- **AI stamp art per place** (`STAMPS.md`), v0.5.15. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
 - **Phase 4 — Real travellers.** Invite, join, leave, read-only members and the RLS audit are done. **Remaining:** upgrade a name-only traveller to an account, keeping their history.
 
 ## Parked ⏸

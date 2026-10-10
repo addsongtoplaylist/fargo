@@ -105,8 +105,9 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 |---|---|
 | `hero-hand.webp` | the schedule screenshot composited onto [Lorin Both's hand + phone](https://unsplash.com/photos/a-hand-holds-up-a-smartphone--IeDL7Ud_e8) |
 | `photo-planner.webp` | [Hanna Lazar, Supertrees](https://unsplash.com/photos/supertrees-at-gardens-by-the-bay-in-singapore-f-Wzz9Oq5A4) |
-| `photo-buddies.webp` | [Annie Hatuanh, hawker centre](https://unsplash.com/photos/a-group-of-people-sitting-at-tables-in-a-restaurant-KDPchZyOhmk) |
-| `photo-passport.webp` | [passport with stamps](https://unsplash.com/photos/passport-with-multiple-ink-stamps-htQznS-Rx7w) |
+| `photo-buddies.webp` | [Felix Rostig, friends outdoors](https://unsplash.com/photos/UmV2wr-Vbq8) (owner pick, 2026-10-10) |
+| `photo-passport.webp` | [Anete Lūsiņa, camera + sunglasses + bag](https://unsplash.com/photos/GOZxrAlNIt4) (owner pick, 2026-10-10) |
+| `illus-before/during/after.webp` | Owner-supplied isometric illustrations (desk / map + clock / calculator + piggy bank), transparent, for "One trip, start to finish" |
 | `photo-closing.webp` | [friends watching the sunset](https://unsplash.com/photos/friends-watch-the-sunset-together-gDdSNJaBtV0) |
 
 - **Shared costs:** both first dinner-table picks (5jf7kzLBILE, 7wx1WznXcow) refused download (Unsplash+, paid). Replaced 2026-10-10 by `photo-costs.webp`: [tommao wang, friends around a meal](https://unsplash.com/photos/MAFMkfevd7w) (free licence).
@@ -184,4 +185,5 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 - Approve the Unsplash shortlist.
 - ~~Turn on Vercel Web Analytics.~~ Done 2026-10-10 (Hobby). The middleware matcher had to skip `/_vercel` so the script loads for signed-out visitors.
 - ~~Real Privacy/Terms text.~~ Done 2026-10-10 (plain-English drafts approved by the owner; not legal advice).
-- Later: contact email (`CONTACT_EMAIL` in `components/marketing/legal-page.tsx`), frog illustrations.
+- ~~Frog illustrations~~ Done 2026-10-10: owner-supplied isometric illustrations in the journey timeline.
+- Later: contact email (`CONTACT_EMAIL` in `components/marketing/legal-page.tsx`). Owner's Shared costs pick KbP0nALUBGo is Unsplash+ (paid) — not used; `photo-costs.webp` stays.
