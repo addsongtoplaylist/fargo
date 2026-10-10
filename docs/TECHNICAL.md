@@ -151,7 +151,7 @@ Home currency is MYR throughout (`amount_myr`, `budget_total`); the trip's singl
 
 | Service | Used for | Where |
 |---|---|---|
-| Google Places API (New) | Activity/idea place search (autocomplete + details); Bites nearby search + photos | Client (`location-search`, `location-picker`) and server (`actions/bites.ts`). Key is `NEXT_PUBLIC_…` — **must be restricted by HTTP referrer and quota** in Google Cloud Console |
+| Google Places API (New) | Activity/idea place search (autocomplete + details); Bites nearby search + photos | Server only (`actions/places.ts` for autocomplete + details, `actions/bites.ts` for nearby search + photo links via `skipHttpRedirect`). Private key `GOOGLE_PLACES_SERVER_KEY` (Places API (New) only). Never put a Google key in `NEXT_PUBLIC_…`: Google doesn't enforce website restrictions on Places (New) |
 | Mapbox Geocoding | Destination (country) search on create/edit trip | Client (`destination-search`) |
 | Mapbox GL JS | Day map on Schedule | Client (`day-map`) |
 | Open-Meteo | Current temperature where you're staying — the current Stay, else the trip's base city (`weatherLocation`; free, no key, cached 30 min) | Server (`lib/weather.ts`, Overview) |
@@ -197,8 +197,8 @@ Vercel Hobby, `fargotravel.vercel.app`, functions in `sin1`. Pushing `main` depl
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-NEXT_PUBLIC_GOOGLE_PLACES_KEY=   # restrict by referrer + quota
-NEXT_PUBLIC_MAPBOX_TOKEN=
+GOOGLE_PLACES_SERVER_KEY=        # server only; Places API (New)
+NEXT_PUBLIC_MAPBOX_TOKEN=        # URL-restricted in Mapbox
 DATABASE_URL=                    # drizzle-kit only
 ```
 

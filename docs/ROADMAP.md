@@ -28,10 +28,11 @@
 | **Share trip overlays:** trip pass, stamp, photo ticket | v0.5.7 · Oct 9 |
 | **Landing page** (marketing site at `/`, install prompt, analytics; `LANDING.md`) + **security update** (Next.js 16.4.0, protective headers; `REVIEW.md`) | v0.5.8 · Oct 10 |
 | Sign-out clears saved offline pages | v0.5.9 · Oct 10 |
+| Google key kept private (place search via the server) | v0.5.10 · Oct 10 |
 
 ## In progress 🟡
 
-- **AI stamp art per place** (`STAMPS.md`), v0.5.10. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
+- **AI stamp art per place** (`STAMPS.md`), v0.5.11. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
 - **Phase 4 — Real travellers.** Invite, join, leave, read-only members and the RLS audit are done. **Remaining:** upgrade a name-only traveller to an account, keeping their history.
 
 ## Parked ⏸

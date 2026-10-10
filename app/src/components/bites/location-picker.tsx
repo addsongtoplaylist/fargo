@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { MapPin, Navigation, X, Loader2 } from "lucide-react";
+import { searchPlaces, getPlaceLocation, type PlaceSuggestion } from "@/lib/actions/places";
 
 type LocationMode = "near_me" | "custom";
 
@@ -17,22 +18,6 @@ type LocationPickerProps = {
   countryCode?: string | null;
 };
 
-type GoogleSuggestion = {
-  placePrediction?: {
-    placeId: string;
-    text: { text: string };
-    structuredFormat?: {
-      mainText: { text: string };
-      secondaryText?: { text: string };
-    };
-  };
-};
-
-type GooglePlace = {
-  displayName: { text: string };
-  location: { latitude: number; longitude: number };
-};
-
 export function LocationPicker({
   mode,
   customLocation,
@@ -43,12 +28,10 @@ export function LocationPicker({
 }: LocationPickerProps) {
   const [showSearch, setShowSearch] = useState(false);
   const [query, setQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<GoogleSuggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<PlaceSuggestion[]>([]);
   const [loading, setLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_KEY;
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -65,40 +48,23 @@ export function LocationPicker({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  // Google is called from the server (lib/actions/places.ts) so the key stays private
   const search = useCallback(
     async (text: string) => {
-      if (!text.trim() || !apiKey) {
+      if (!text.trim()) {
         setSuggestions([]);
         return;
       }
       setLoading(true);
       try {
-        const res = await fetch(
-          "https://places.googleapis.com/v1/places:autocomplete",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Goog-Api-Key": apiKey,
-            },
-            body: JSON.stringify({
-              input: text,
-              languageCode: "en",
-              ...(countryCode
-                ? { includedRegionCodes: [countryCode.toUpperCase()] }
-                : {}),
-            }),
-          }
-        );
-        const data = await res.json();
-        setSuggestions(data.suggestions ?? []);
+        setSuggestions(await searchPlaces({ input: text, countries: countryCode ? [countryCode] : undefined }));
       } catch {
         setSuggestions([]);
       } finally {
         setLoading(false);
       }
     },
-    [apiKey, countryCode]
+    [countryCode]
   );
 
   function handleInput(text: string) {
@@ -107,33 +73,14 @@ export function LocationPicker({
     debounceRef.current = setTimeout(() => search(text), 300);
   }
 
-  async function handleSelect(suggestion: GoogleSuggestion) {
-    const placeId = suggestion.placePrediction?.placeId;
-    if (!placeId || !apiKey) return;
-
+  async function handleSelect(suggestion: PlaceSuggestion) {
     setLoading(true);
     try {
-      const res = await fetch(
-        `https://places.googleapis.com/v1/places/${placeId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "X-Goog-Api-Key": apiKey,
-            "X-Goog-FieldMask": "displayName,location",
-          },
-        }
-      );
-      const place: GooglePlace = await res.json();
-
-      onModeChange("custom");
-      onCustomLocationChange({
-        name:
-          place.displayName?.text ??
-          suggestion.placePrediction?.structuredFormat?.mainText?.text ??
-          "",
-        lat: place.location.latitude,
-        lng: place.location.longitude,
-      });
+      const place = await getPlaceLocation(suggestion.placeId);
+      if (place) {
+        onModeChange("custom");
+        onCustomLocationChange({ ...place, name: place.name || suggestion.main });
+      }
     } catch {
       // ignore
     } finally {
@@ -222,15 +169,11 @@ export function LocationPicker({
       {/* Autocomplete dropdown */}
       {suggestions.length > 0 && (
         <div className="absolute left-0 right-0 top-full mt-1 bg-surface rounded-field shadow-float z-50 overflow-hidden">
-          {suggestions.map((s, i) => {
-            const pred = s.placePrediction;
-            if (!pred) return null;
-            const main =
-              pred.structuredFormat?.mainText?.text ?? pred.text.text;
-            const secondary = pred.structuredFormat?.secondaryText?.text;
+          {suggestions.map((s) => {
+            const { main, secondary } = s;
             return (
               <button
-                key={pred.placeId || i}
+                key={s.placeId}
                 onClick={() => handleSelect(s)}
                 className="w-full text-left px-3.5 py-2.5 text-sm text-fg hover:bg-brand-soft transition-colors flex items-start gap-2 border-b border-line last:border-b-0"
               >

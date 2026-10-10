@@ -4,6 +4,16 @@
 
 ---
 
+## v0.5.10 — 2026-10-10 · Google key kept private
+
+- **Place search now goes through Fargo's server.** Add activity's place search, Discover's location picker and Discover's photos all ask Fargo's server, which calls Google with a private key. The Google key is no longer in the app's code on anyone's phone, so it can't be copied and used elsewhere.
+- Place search only works for signed-in people.
+- Discover photos load from Google's image server through links that carry no key.
+- Same results as before; suggestions may take a fraction of a second longer.
+- Google Cloud: new **Fargo server** key (Places API (New) only). From the security review (`docs/REVIEW.md`, SEC-5). No database changes.
+
+---
+
 ## v0.5.9 — 2026-10-10 · Sign-out clears saved pages
 
 - **Signing out now removes the trip pages saved on the phone for offline use.** The next person on a shared phone can't open your trips, profile or passport offline. App files, icons and the offline page stay, since they hold nothing personal.

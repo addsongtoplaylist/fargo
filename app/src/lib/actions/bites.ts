@@ -164,6 +164,21 @@ function deduplicateByCuisine<T extends DiningSpot>(spots: T[]): T[] {
 // Main search action
 // ──────────────────────────────────────────
 
+/** Direct photo link (googleusercontent.com) for a Places photo resource name; null if it fails. */
+async function photoLink(photoName: string, apiKey: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://places.googleapis.com/v1/${photoName}/media?maxWidthPx=400&skipHttpRedirect=true`,
+      { headers: { "X-Goog-Api-Key": apiKey } }
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as { photoUri?: string };
+    return data.photoUri ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export async function searchDiningSpots(
   params: SearchParams
 ): Promise<BitesSearchResult> {
@@ -172,13 +187,9 @@ export async function searchDiningSpots(
     return { spots: [], total: 0, error: "Not signed in" };
   }
 
-  // Two Google keys (REVIEW.md SEC-5): the search runs here on the server with a private key
-  // (no website restriction possible, never sent to the browser). Photo links are loaded by the
-  // browser, so they use the public key, which Google limits to Fargo's own web addresses.
-  // Until GOOGLE_PLACES_SERVER_KEY is set in Vercel, the public key is used for both.
-  const browserKey = process.env.NEXT_PUBLIC_GOOGLE_PLACES_KEY;
-  const apiKey = process.env.GOOGLE_PLACES_SERVER_KEY ?? browserKey;
-  if (!apiKey || !browserKey) {
+  // Private server key: Google is only ever called from the server (REVIEW.md SEC-5)
+  const apiKey = process.env.GOOGLE_PLACES_SERVER_KEY;
+  if (!apiKey) {
     return { spots: [], total: 0, error: "Google Places API key not configured" };
   }
 
@@ -273,11 +284,8 @@ export async function searchDiningSpots(
 
         const dist = haversineDistance(lat, lng, loc.latitude, loc.longitude);
 
-        // Build photo URI (first photo, medium size)
-        let photoUri: string | null = null;
-        if (photos.length > 0) {
-          photoUri = `https://places.googleapis.com/v1/${photos[0].name}/media?maxWidthPx=400&key=${browserKey}`;
-        }
+        // First photo's resource name for now; swapped for a key-free link below
+        const photoUri: string | null = photos[0]?.name ?? null;
 
         return {
           id: place.id as string,
@@ -315,6 +323,11 @@ export async function searchDiningSpots(
     if (!isFiltered) {
       spots = deduplicateByCuisine(spots);
     }
+
+    // Only for the spots we show: ask Google for each photo's direct link, which carries no key
+    spots = await Promise.all(
+      spots.map(async (spot) => ({ ...spot, photoUri: spot.photoUri ? await photoLink(spot.photoUri, apiKey) : null }))
+    );
 
     return {
       spots,

@@ -4,6 +4,14 @@
 
 ---
 
+**2026-10-10 — Google key kept private (v0.5.10)**
+
+Security Batch C (`REVIEW.md` SEC-5). New "Fargo server" key (Places API (New) only) in Vercel + `.env.local`. A website-restricted "Fargo web" key was tried first, but Google doesn't enforce website restrictions on Places (New) calls (it still worked from example.com), so every Places call moved server-side: `lib/actions/places.ts` (`searchPlaces`, `getPlaceLocation`, signed-in only) used by `location-search` and `location-picker`; Discover photos resolved server-side to key-free links. Production build has no Google key in browser code. Tested locally: Discover location search + 15 spots with photos, Add activity place search (not saved).
+
+**Owner, after deploy:** delete `NEXT_PUBLIC_GOOGLE_PLACES_KEY` in Vercel and the "Fargo web" key in Google Cloud; cut the old "Maps Platform API Key" down to the APIs the native app uses; Mapbox token URL restrictions (SEC-6). **Next:** security Batch E (settings + RLS check since the Sept audit), then the report-only CSP. Stamp work is now **v0.5.11**.
+
+---
+
 **2026-10-10 — Sign-out clears saved pages (v0.5.9) · versioning**
 
 Security Batch B (`REVIEW.md` SEC-4): `lib/offline-cache.ts` `clearSavedPages()` runs after `signOut()` and deletes every cached request except `/_next/static`, icons and `/offline.html`; `sw.js` no longer caches redirected navigations; cache `fargo-v6` → `fargo-v7`. Tested: dry run on a real cache (49 trip/profile/passport pages would go, only app files kept) and a real delete on a test cache. Not tested end to end: an actual sign-out (Claude can't sign back in).
