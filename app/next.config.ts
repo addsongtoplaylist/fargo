@@ -42,10 +42,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  // The share-overlay image route reads fonts, logos and stamp art from disk
-  // by path at runtime — make sure they ship with the deployed function.
+  // The share-overlay image route reads fonts and logos from disk by path at
+  // runtime — make sure they ship with the deployed function.
   outputFileTracingIncludes: {
-    "/api/trips/**": ["./src/assets/**/*", "./public/logo.png"],
+    "/api/trips/**": ["./src/assets/fonts/*", "./src/assets/logo-white.png", "./public/logo.png"],
   },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

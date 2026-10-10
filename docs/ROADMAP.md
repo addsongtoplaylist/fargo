@@ -34,7 +34,7 @@
 
 ## In progress 🟡
 
-- **Stamp library** (`STAMPS.md` v2), v0.5.16: pre-made city + country stamps, batch 1 Asia. Waiting on the owner's Gemini / OpenAI keys → style check → batch → review. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
+- **Collecting stamps** (`STAMPS.md`): the 124-stamp library shipped in v0.5.16 (not shown yet). Next: a "Collect stamp" moment when a trip ends, adding it to Passport — being designed.
 - **Phase 4 — Real travellers.** Invite, join, leave, read-only members and the RLS audit are done. **Remaining:** upgrade a name-only traveller to an account, keeping their history.
 
 ## Parked ⏸

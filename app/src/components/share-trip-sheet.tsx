@@ -8,7 +8,6 @@ import { useToast } from "@/components/toast";
 
 const STYLES = [
   { key: "pass", label: "Trip pass", aspect: "aspect-[1080/860]" },
-  { key: "stamp", label: "Passport stamp", aspect: "aspect-[1180/700]" },
   { key: "photo", label: "Photo ticket", aspect: "aspect-[760/1224] max-h-[420px] mx-auto" },
 ] as const;
 type StyleKey = (typeof STYLES)[number]["key"];
@@ -24,7 +23,7 @@ const CHECKERBOARD = {
 
 /**
  * Share trip (v0.5.7): swipe between the trip pass (white text on a
- * transparent background) and the passport stamp card, then Save overlay (to Photos via the phone's share
+ * transparent background) and the photo ticket, then Save overlay (to Photos via the phone's share
  * sheet; download on a computer) or Copy image (paste onto a story). A web
  * app can't hand a sticker to another app directly, so the steps guide the
  * user; no other brand is named. Images are fetched when the sheet opens so

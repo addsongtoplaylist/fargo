@@ -4,6 +4,14 @@
 
 ---
 
+**2026-10-11 — Stamp library in the app; Share trip simplified (v0.5.16)**
+
+All 124 stamps generated (OpenAI `gpt-image-2.5-flare`), owner-approved, cleaned to one teal and shipped with map-based matching (`stampFor()`, 26 test places pass). The owner tried a boarding-pass share card with the stamp, then decided to **remove the Passport stamp card** entirely: Share trip is now Trip pass + Photo ticket. Stamps won't go on either; they're kept for collecting.
+
+**Next:** design **collecting stamps** — when a trip ends, a "Collect stamp" moment on the trip overview that adds it to Passport.
+
+---
+
 **2026-10-10 — Stamp plan v2: pre-made library (no release)**
 
 Owner decision: generate stamps in batches separately and ship them as a library, instead of generating per trip (`STAMPS.md` v2). Up to 6 city stamps + 2 country stamps per country; fallback ring with ✈. Batch 1 = Asia incl. China and India (≈ 88 stamps, ≈ US$5–8); batch 2 = further away. Confirmed nothing generation-related was ever built (no script, Edge Function or keys). Batch 1 list is a proposal for the owner to edit.

@@ -4,6 +4,15 @@
 
 ---
 
+## v0.5.16 — 2026-10-11 · Stamp library ready; simpler Share trip
+
+- **Share trip now has two overlays: Trip pass and Photo ticket.** The Passport stamp card is gone (owner decision after trying a redesign); old links to it get the Trip pass.
+- **Stamp library added to the app:** 124 owner-approved stamps (60 places + 64 country stamps across Asia, Turkey, Europe, the Americas, Africa and Oceania), one teal ink on transparent, with map-based matching (`STAMPS.md`). Not shown anywhere yet — they're kept for **collecting stamps in Passport**, coming next.
+- Clean-up: removed the old cream Ho Chi Minh City stamp, the curved-lettering code and the `opentype.js` library; the share-image function no longer bundles the stamp files.
+- No database changes.
+
+---
+
 ## v0.5.15 — 2026-10-10 · Sharper landing page
 
 ### Landing page
