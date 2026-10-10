@@ -94,7 +94,7 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 
 ## Batch 2 — further away (later)
 
-Popular long-haul destinations, e.g. Australia, New Zealand, United Kingdom, France, Italy, Spain, Switzerland, Turkey, the US, the UAE. List to be agreed after batch 1 ships.
+Popular long-haul destinations, e.g. Australia, New Zealand, United Kingdom, France, Italy, Spain, Switzerland, the US, the UAE. List to be agreed after batch 1 ships.
 
 ## Prompt (house template, `scripts/stamps/generate.mjs`)
 
