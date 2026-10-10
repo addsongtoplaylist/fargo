@@ -65,10 +65,11 @@ export function PhotoFrame({
 
 export function IllustrationFrame({ label, src }: { label: string; src?: string }) {
   if (src) {
-    // Transparent illustration, fitted into the same height so the three cards line up
+    // Transparent line art, fitted into the same height so the three cards line up.
+    // Served as-is (full-size, high-quality WebP): re-compressing blurs the fine outlines.
     return (
       <div className="relative h-[170px]">
-        <Image src={src} alt={label} fill sizes="(max-width: 768px) 90vw, 320px" className="object-contain" />
+        <Image src={src} alt={label} fill unoptimized className="object-contain" />
       </div>
     );
   }
