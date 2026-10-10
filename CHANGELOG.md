@@ -16,6 +16,10 @@
 - **"One trip, start to finish" timeline:** all three stages shown filled on one solid line — it no longer looks like you're halfway through a trip.
 - Changed photos have new file names so no cached old copy shows.
 
+### App
+
+- **New browser-tab icon (favicon):** the v2 frog logo on a white rounded square, so it shows clearly in light and dark tabs. The Home Screen app icon is unchanged.
+
 ---
 
 ## v0.5.14 — 2026-10-10 · Landing page photos and illustrations
