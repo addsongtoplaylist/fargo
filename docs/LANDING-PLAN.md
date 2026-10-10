@@ -105,7 +105,7 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 |---|---|
 | `hero-hand.webp` | the schedule screenshot composited onto [Lorin Both's hand + phone](https://unsplash.com/photos/a-hand-holds-up-a-smartphone--IeDL7Ud_e8) |
 | `photo-planner.webp` | [Hanna Lazar, Supertrees](https://unsplash.com/photos/supertrees-at-gardens-by-the-bay-in-singapore-f-Wzz9Oq5A4) |
-| `photo-buddies-2.webp` | [Felix Rostig, friends outdoors](https://unsplash.com/photos/UmV2wr-Vbq8) (owner pick, 2026-10-10) |
+| `photo-buddies-3.webp` | Owner-supplied photo: four friends laughing on a mountain hike (2026-10-10) |
 | `photo-passport-3.webp` | [Anete Lūsiņa, camera + sunglasses + bag](https://unsplash.com/photos/GOZxrAlNIt4) (owner pick, 2026-10-10) |
 | `illus-before/during/after.webp` | Owner-supplied isometric illustrations (desk / map + clock / calculator + piggy bank), transparent, full resolution, `unoptimized` |
 
@@ -188,4 +188,4 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 - ~~Turn on Vercel Web Analytics.~~ Done 2026-10-10 (Hobby). The middleware matcher had to skip `/_vercel` so the script loads for signed-out visitors.
 - ~~Real Privacy/Terms text.~~ Done 2026-10-10 (plain-English drafts approved by the owner; not legal advice).
 - ~~Frog illustrations~~ Done 2026-10-10: owner-supplied isometric illustrations in the journey timeline.
-- Later: contact email (`CONTACT_EMAIL` in `components/marketing/legal-page.tsx`). Owner's Shared costs pick KbP0nALUBGo is Unsplash+ (paid) — not used; `photo-costs-2.webp` (same tommao wang photo, re-cut sharper) stays.
+- Later: contact email (`CONTACT_EMAIL` in `components/marketing/legal-page.tsx`). Owner's Shared costs pick KbP0nALUBGo is Unsplash+ (paid) — not used; Replaced 2026-10-10 by an owner-supplied photo of friends sharing plates around a long table: `photo-costs-3.webp`.

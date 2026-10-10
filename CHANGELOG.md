@@ -11,6 +11,7 @@
 - **Sharper pictures.** The illustrations now load at full size without re-compression, and the photos behind the phone are cut to the panel's tall shape at higher resolution, so nothing is stretched on phone or retina screens.
 - **New closing photo:** the view from a plane window at golden hour (Eva Darron, Unsplash), with no dark overlay; a soft shadow keeps "Every trip starts here." readable.
 - "Your trip, your way" now says **"Fargo keeps the plan, the places and the people in one trip."**
+- **New photos for Travel buddies** (friends laughing on a mountain hike) **and Shared costs** (friends sharing plates around a long table).
 - **Passport photo** framed on the left side: camera, sunglasses and laptop instead of the open suitcase.
 - **"One trip, start to finish" timeline:** all three stages shown filled on one solid line — it no longer looks like you're halfway through a trip.
 - Changed photos have new file names so no cached old copy shows.
