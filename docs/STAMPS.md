@@ -15,7 +15,7 @@
 | 7 | **Owner reviews every stamp** before it's added. Nothing is published automatically. |
 | 8 | **Stamp names use the state or region name where that's what travellers say** (Penang, not George Town; Hokkaido, Kerala, Palawan). Where the city itself is the destination, the city name stays (Osaka, Bangkok). Matching is by map location, so a trip to George Town or Batu Ferringhi still gets the Penang stamp; the ring lettering keeps the trip's own place name. |
 | 9 | **Collecting comes later.** The owner wants users to **collect stamps** eventually (e.g. in the Passport tab). Not part of v0.5.16, but the library is built for it: every stamp has a **permanent id** that never changes or gets reused, and both country designs are distinct stamps (a second trip to a country can earn the other one). |
-| 10 | **Style check first:** 5 test stamps on **Gemini and OpenAI** side by side; the owner picks the provider. (Gemini "Nano Banana" ≈ US$0.034/image; the Ho Chi Minh City sample was made with it.) |
+| 10 | **Style check first:** 10 test stamps on **Gemini and OpenAI** side by side; the owner picks the provider. (Gemini "Nano Banana" ≈ US$0.034/image; the Ho Chi Minh City sample was made with it.) |
 
 Claude can't generate images; it writes the prompts and the scripts around the image model.
 
@@ -107,7 +107,7 @@ Negative / avoid: `text, letters, numbers, words, multiple colours, gradients, 3
 
 ## Cost
 
-About **US$0.03–0.04 per image**. Batch 1 (≈ 88 stamps, allowing redos) ≈ **US$5–8**, paid once. The style check is well under US$1. Nothing is spent while people use Fargo.
+About **US$0.03–0.04 per image**. Batch 1 (≈ 88 stamps, allowing redos) ≈ **US$5–8**, paid once. The style check (20 images) is ≈ US$1–1.5. Nothing is spent while people use Fargo.
 
 ## Rollout and timeline
 
@@ -116,7 +116,7 @@ Elapsed time is mostly the owner's review; Claude's work is about three sessions
 | # | Step | Who | Effort | Target |
 |---|---|---|---|---|
 | 0 | Add `GEMINI_API_KEY` and/or `OPENAI_API_KEY` to `app/.env.local` (billing on; never paste in chat) | Owner | 15 min | Sat 11 Oct |
-| 1 | **Style check:** script + clean-up; 5 places (Penang, Bangkok, Tokyo, Seoul, Bali) × 2 providers, raw + cleaned, side by side | Claude | 1 session, < US$1 | Sat 11 Oct |
+| 1 | **Style check:** script + clean-up; **10 stamps** × 2 providers = 20 images, raw + cleaned, side by side — Penang · Bangkok · Tokyo · Seoul · Bali · Beijing · Agra · Hokkaido · Sarawak · Malaysia (country stamp), covering buildings, fine detail, nature/regions and the country style | Claude | 1 session, ≈ US$1–1.5 | Sat 11 Oct |
 | 2 | Pick provider, approve or tweak the template | Owner | 30 min | Sun 12 Oct |
 | 3 | Confirm batch 1 list + the 2 country symbols per country (Claude proposes the symbols) | Owner | 30 min | Sun 12 Oct |
 | 4 | **Generate batch 1** (≈ 88 stamps, ≈ 30–45 min run) + review sheet | Claude | 1 session, ≈ US$4 | Mon 13 Oct |
