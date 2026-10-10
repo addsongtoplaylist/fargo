@@ -2,7 +2,7 @@ import { CalendarDays, Clock, Home, Plane, Receipt, ArrowLeftRight, UserPlus, Ut
 import { IllustrationFrame } from "./frames";
 
 type Item = { icon: LucideIcon; title: string; body: string; tint: string; ink: string };
-type Stage = { when: string; title: string; icon: LucideIcon; illustration: string; illustrationSrc: string; done: boolean; items: Item[] };
+type Stage = { when: string; title: string; icon: LucideIcon; illustration: string; illustrationSrc: string; items: Item[] };
 
 const STAGES: Stage[] = [
   {
@@ -11,7 +11,6 @@ const STAGES: Stage[] = [
     icon: CalendarDays,
     illustration: "A desk with a calendar, suitcases, a laptop, a compass and a map pin",
     illustrationSrc: "/marketing/illus-before.webp",
-    done: true,
     items: [
       { icon: CalendarDays, title: "Plan the days", body: "Places and times, day by day.", tint: "bg-brand-soft", ink: "text-brand" },
       { icon: UserPlus, title: "Share with buddies", body: "One invite link; friends suggest ideas.", tint: "bg-[#f6eedc]", ink: "text-[#7a5a12]" },
@@ -23,7 +22,6 @@ const STAGES: Stage[] = [
     icon: Plane,
     illustration: "An open guidebook, a map with a pin, a backpack and a clock showing 14:30",
     illustrationSrc: "/marketing/illus-during.webp",
-    done: true,
     items: [
       { icon: Clock, title: "Follow today's schedule", body: "Opens on today: now and next.", tint: "bg-brand-soft", ink: "text-brand" },
       { icon: Utensils, title: "Discover where to eat", body: "Good food near your stay.", tint: "bg-cat-food-soft", ink: "text-cat-food" },
@@ -35,7 +33,6 @@ const STAGES: Stage[] = [
     icon: Home,
     illustration: "A calculator, a suitcase and a piggy bank",
     illustrationSrc: "/marketing/illus-after.webp",
-    done: false,
     items: [
       { icon: Receipt, title: "Log the expenses", body: "Everyone adds what they paid.", tint: "bg-money-ok-soft", ink: "text-money-ok" },
       { icon: ArrowLeftRight, title: "Settle up", body: "See who pays who back.", tint: "bg-money-ok-soft", ink: "text-money-ok" },
@@ -54,14 +51,12 @@ export function JourneyTimeline() {
         </div>
 
         <ol className="relative grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-8 pl-16 md:pl-0">
-          {/* Track: vertical on phones, horizontal on desktop; filled up to "During" */}
-          <li aria-hidden className="absolute rounded-full bg-line left-[23px] top-6 bottom-6 w-1 md:left-[16.66%] md:right-[16.66%] md:bottom-auto md:top-[23px] md:w-auto md:h-1">
-            <span className="absolute left-0 top-0 rounded-full bg-brand w-full h-1/2 md:h-full md:w-1/2" />
-          </li>
+          {/* Track: vertical on phones, horizontal on desktop. Three equal stages, all filled (no fake "progress"). */}
+          <li aria-hidden className="absolute rounded-full bg-brand left-[23px] top-6 bottom-6 w-1 md:left-[16.66%] md:right-[16.66%] md:bottom-auto md:top-[23px] md:w-auto md:h-1" />
           {STAGES.map((s) => (
             <li key={s.when} className="relative flex flex-col md:items-center gap-5">
               <span
-                className={`absolute -left-16 top-0 md:static w-[50px] h-[50px] rounded-full border-[3px] border-brand flex items-center justify-center z-[1] ${s.done ? "bg-brand text-white" : "bg-surface text-brand"}`}
+                className="absolute -left-16 top-0 md:static w-[50px] h-[50px] rounded-full border-[3px] border-brand bg-brand text-white flex items-center justify-center z-[1]"
               >
                 <s.icon size={20} aria-hidden />
               </span>

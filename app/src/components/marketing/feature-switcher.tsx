@@ -36,7 +36,7 @@ const FEATURES = [
   },
   {
     title: "Passport",
-    photoSrc: "/marketing/photo-passport-2.webp" as string | undefined,
+    photoSrc: "/marketing/photo-passport-3.webp" as string | undefined,
     tint: "bg-cat-stay-soft",
     body: "Every trip earns a stamp. See your countries, trips and travel buddies add up, then share a trip card.",
     screen: "Fargo Passport with stamps and travel stats",

@@ -106,7 +106,7 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 | `hero-hand.webp` | the schedule screenshot composited onto [Lorin Both's hand + phone](https://unsplash.com/photos/a-hand-holds-up-a-smartphone--IeDL7Ud_e8) |
 | `photo-planner.webp` | [Hanna Lazar, Supertrees](https://unsplash.com/photos/supertrees-at-gardens-by-the-bay-in-singapore-f-Wzz9Oq5A4) |
 | `photo-buddies-2.webp` | [Felix Rostig, friends outdoors](https://unsplash.com/photos/UmV2wr-Vbq8) (owner pick, 2026-10-10) |
-| `photo-passport-2.webp` | [Anete Lūsiņa, camera + sunglasses + bag](https://unsplash.com/photos/GOZxrAlNIt4) (owner pick, 2026-10-10) |
+| `photo-passport-3.webp` | [Anete Lūsiņa, camera + sunglasses + bag](https://unsplash.com/photos/GOZxrAlNIt4) (owner pick, 2026-10-10) |
 | `illus-before/during/after.webp` | Owner-supplied isometric illustrations (desk / map + clock / calculator + piggy bank), transparent, full resolution, `unoptimized` |
 
 **Image rules (learned 2026-10-10):** feature-panel photos are cut to the panel's portrait shape (~0.81 wide:tall, ~1376×1700) so they aren't upscaled; full-width bands pass `sizes="100vw"` to `PhotoFrame`; line-art illustrations are served `unoptimized`; **give a replaced image a new file name** — the image optimiser caches by URL.
