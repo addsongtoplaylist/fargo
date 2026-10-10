@@ -29,7 +29,7 @@ WanderNote/
 │   ├── src/lib/              # Supabase clients, account helper, validations (zod), dates, categories
 │   ├── src/components/       # UI, grouped by tab
 │   ├── src/db/schema.ts      # Drizzle schema — reference only, not used at runtime
-│   ├── public/sw.js          # Service worker (offline page + icon pre-cache)
+│   ├── public/sw.js          # Service worker (offline page + icon pre-cache; saves visited pages, skips redirects; sign-out clears them via lib/offline-cache.ts)
 │   └── vercel.json           # Functions pinned to sin1 (Singapore)
 ├── supabase/migrations/      # All SQL migrations — applied by hand in the SQL Editor
 └── docs/

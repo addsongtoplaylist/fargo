@@ -1,20 +1,20 @@
 # Fargo — Changelog
 
----
-
-## v0.5.8 — 2026-10-10 · Security update
-
-*From the landing page code and security review (`docs/REVIEW.md`).*
-
-- **Next.js 16.3.1 → 16.4.0.** Fixes known security flaws, including one in the share-overlay images that could let an attacker run code on the server. Image libraries (`sharp`, `source-map-js`) updated too. `npm audit`: 0 vulnerabilities.
-- **Protective headers on every page:** no other site can show Fargo inside a frame (stops clickjacking); browsers never guess file types; links to other sites don't reveal the page you were on; camera, microphone, payment and USB access switched off. Location stays on for Discover.
-- No database changes. Stamp work moves to v0.5.9.
+> One version for everything that deploys together (app + landing page). Landing page changes go in the next app version under a **Landing page** heading.
 
 ---
 
-## Landing page v0.1 — 2026-10-10
+## v0.5.9 — 2026-10-10 · Sign-out clears saved pages
 
-*Marketing site, versioned on its own. The app stays at v0.5.7.*
+- **Signing out now removes the trip pages saved on the phone for offline use.** The next person on a shared phone can't open your trips, profile or passport offline. App files, icons and the offline page stay, since they hold nothing personal.
+- **Offline cache fix:** a page that redirects (like `/` → My trips) is no longer saved under the wrong address. Saved pages are reset once on every phone with this update.
+- From the security review (`docs/REVIEW.md`, SEC-4). No database changes.
+
+---
+
+## v0.5.8 — 2026-10-10 · Landing page + security update
+
+### Landing page
 
 - **New landing page** at `fargotravel.vercel.app` for visitors who aren't signed in. Signed-in people still go straight to My trips, and can open the same page from **Profile → About Fargo** (`/home`), where the header shows **My trips →**.
 - **What's on it:** "Every trip starts here." with a phone in hand showing a real Fargo schedule; "Your trip, your way" (Planner · Travel buddies · Shared costs · Passport, each with Try it out); "One trip, start to finish"; "Add an activity in 3 steps"; Add to Home Screen steps; FAQ. Copy follows `BRAND.md`.
@@ -22,8 +22,16 @@
 - **Privacy policy and Terms of use** in plain English (the contact email is still to come).
 - **Placeholders:** frog illustrations in "One trip, start to finish".
 - **In the app:** a one-time **"Add Fargo to your phone"** sheet on phones (Android: one-tap install; iPhone: Share steps). The Home Screen app now opens on My trips.
-- **Vercel Web Analytics** (page views), switched on in the Vercel project. The sign-in check now skips `/_vercel/…`, so the tracking script loads for signed-out visitors.
-- No database changes.
+- **Vercel Web Analytics** (page views), switched on in the Vercel project. The sign-in check skips `/_vercel/…`, so the tracking script loads for signed-out visitors.
+
+### Security update
+
+*From the landing page code and security review (`docs/REVIEW.md`).*
+
+- **Next.js 16.3.1 → 16.4.0.** Fixes known security flaws, including one in the share-overlay images that could let an attacker run code on the server. Image libraries (`sharp`, `source-map-js`) updated too. `npm audit`: 0 vulnerabilities.
+- **Protective headers on every page:** no other site can show Fargo inside a frame (stops clickjacking); browsers never guess file types; links to other sites don't reveal the page you were on; camera, microphone, payment and USB access switched off. Location stays on for Discover.
+
+No database changes. *(The landing page first went out the same day as "Landing page v0.1"; folded into v0.5.8 so the site and app share one version.)*
 
 ---
 

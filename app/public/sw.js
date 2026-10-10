@@ -1,4 +1,5 @@
-const CACHE_NAME = "fargo-v6";
+// v7: drops caches saved before redirect-skipping and clear-on-sign-out (v0.5.9)
+const CACHE_NAME = "fargo-v7";
 
 // App shell files to pre-cache
 const PRECACHE_URLS = [
@@ -44,8 +45,9 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Cache successful navigations so they work offline next time
-          if (response.ok) {
+          // Cache successful navigations so they work offline next time.
+          // Skip redirects: "/" → "/trips" would otherwise save a trip page under "/".
+          if (response.ok && !response.redirected) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           }

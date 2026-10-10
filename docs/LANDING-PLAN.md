@@ -8,7 +8,7 @@
 2. **Passport screenshot:** the owner's real stats are fine to show.
 3. **Analytics:** add Vercel Web Analytics.
 4. **Frog spots:** show the dashed placeholders at launch.
-5. **Order:** ship **before** the stamp work. *(Updated 2026-10-10: the landing page is versioned on its own as **Landing page v0.1**; the app stays at v0.5.7 and stamps keep v0.5.8.)*
+5. **Order:** ship **before** the stamp work. *(Updated 2026-10-10: first released as "Landing page v0.1", then folded into **v0.5.8**: the landing page and app share one version from now on.)*
 
 ## What changes for people
 
@@ -153,7 +153,7 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 ## Batch 6: Docs and release (small)
 
 - `TECHNICAL.md` (marketing route group, public paths, manifest), `ROADMAP.md`, `STATUS.md`, `CHANGELOG.md`.
-- **No app version bump** (owner, 2026-10-10): CHANGELOG entry "Landing page v0.1"; the app stays 0.5.7 and stamps keep v0.5.8.
+- **Versioning** (owner, 2026-10-10): one version for app + landing page. The "Landing page v0.1" entry was folded into **v0.5.8**; later landing changes ship in the next app version under a "Landing page" heading.
 - Commit; **push only when the owner says so.**
 
 **After batch 6 (2026-10-10):** the owner wants signed-in people to reach the landing page too.

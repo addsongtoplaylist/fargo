@@ -4,11 +4,19 @@
 
 ---
 
+**2026-10-10 — Sign-out clears saved pages (v0.5.9) · versioning**
+
+Security Batch B (`REVIEW.md` SEC-4): `lib/offline-cache.ts` `clearSavedPages()` runs after `signOut()` and deletes every cached request except `/_next/static`, icons and `/offline.html`; `sw.js` no longer caches redirected navigations; cache `fargo-v6` → `fargo-v7`. Tested: dry run on a real cache (49 trip/profile/passport pages would go, only app files kept) and a real delete on a test cache. Not tested end to end: an actual sign-out (Claude can't sign back in).
+
+**Versioning decision:** app and landing page share one version; the "Landing page v0.1" changelog entry is folded into v0.5.8. Stamp work is now **v0.5.10**.
+
+---
+
 **2026-10-10 — Security update (v0.5.8)**
 
 Landing page code and security review (`REVIEW.md` 2026-10-10). Batch A shipped: Next.js 16.4.0 + dependency fixes (`npm audit` 0), protective headers in `next.config.ts`, two stale comments. Verified locally: headers on every page, landing, schedule + map, money, prep, discover (location still allowed), overview, passport, profile, share overlays (all 3 PNGs). No SQL.
 
-**Next:** Batch B (clear offline cache on sign-out); later a report-only CSP. Stamp work moves to **v0.5.9**.
+**Next:** Batch B (clear offline cache on sign-out); later a report-only CSP. Stamp work moves to **v0.5.9** (later v0.5.10).
 
 ---
 

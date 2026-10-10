@@ -26,12 +26,12 @@
 | Cover position, invite cover, Discover for members | v0.5.5 |
 | **Passport** tab with travel stats | v0.5.6 |
 | **Share trip overlays:** trip pass, stamp, photo ticket | v0.5.7 · Oct 9 |
-| **Landing page v0.1** (marketing site at `/`, install prompt, analytics; `LANDING.md`) | Oct 10 |
-| **Security update:** Next.js 16.4.0, protective headers (`REVIEW.md`) | v0.5.8 · Oct 10 |
+| **Landing page** (marketing site at `/`, install prompt, analytics; `LANDING.md`) + **security update** (Next.js 16.4.0, protective headers; `REVIEW.md`) | v0.5.8 · Oct 10 |
+| Sign-out clears saved offline pages | v0.5.9 · Oct 10 |
 
 ## In progress 🟡
 
-- **AI stamp art per place** (`STAMPS.md`), v0.5.9. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
+- **AI stamp art per place** (`STAMPS.md`), v0.5.10. Waiting on the owner's Gemini / OpenAI API keys → style check → build.
 - **Phase 4 — Real travellers.** Invite, join, leave, read-only members and the RLS audit are done. **Remaining:** upgrade a name-only traveller to an account, keeping their history.
 
 ## Parked ⏸
@@ -113,6 +113,7 @@
 | 2026-10-01 | UI redesign (DESIGN.md v0.8) ships as **v0.5.0** — same features, no SQL; cover photo upload follows as v0.5.1 (P10, staging Supabase first). Then personal checklists → Discover price filter → Explore + travel stats |
 | 2026-10-09 | **Passport tab** (v0.5.6) and **Share trip overlays** (v0.5.7: trip pass, passport stamp card, photo ticket) — inspired by Strava, not a copy; save/copy flow because web apps can't post stickers to Instagram directly |
 | 2026-10-09 | **AI stamp art per place** (`docs/STAMPS.md`): one per Base city, only after a trip starts, auto-published, ≤ 10/day; Gemini vs OpenAI decided by a style check. Parked: Discover price filter (KIV), home currency per trip (money change, own release) |
+| 2026-10-10 | **One version for app + landing page.** They share one codebase and one deploy, so the landing page doesn't keep its own number; "Landing page v0.1" folded into v0.5.8. Separate numbers only if the marketing site ever moves to its own project |
 | 2026-10-09 | **Explore shelved** — spec (`EXPLORE.md`), wireframes, reference study and build plan done; not built. Reason: user base too small for Explore to work yet; launching it near-empty could backfire. Tab stays in the nav with its "on its way" placeholder |
 
 ### Open
