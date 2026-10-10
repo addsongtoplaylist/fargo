@@ -92,7 +92,7 @@
     "name": "Ipoh",
     "country": "Malaysia",
     "subject": "the colonial Ipoh railway station with limestone hills behind",
-    "shape": "shield",
+    "shape": "rounded square",
     "composition": "a wide view of the long station facade, the limestone hills rising behind",
     "text": [
       "IPOH",
@@ -107,13 +107,13 @@
     "name": "Johor Bahru",
     "country": "Malaysia",
     "subject": "the Sultan Abu Bakar State Mosque on its hill above the Straits of Johor, with the Causeway",
-    "shape": "octagon",
+    "shape": "dome (flat bottom edge, semicircular top)",
     "composition": "the mosque on the hill on the right, the water and the long Causeway across the bottom",
     "text": [
       "JOHOR BAHRU"
     ],
-    "placement": "in a ribbon banner across the bottom edge",
-    "placementName": "Ribbon"
+    "placement": "curved along the inside of the dome's round top; the flat bottom edge has no lettering",
+    "placementName": "Curved"
   },
   {
     "id": "MY-country-1",
@@ -121,12 +121,12 @@
     "name": "Malaysia",
     "country": "Malaysia",
     "subject": "the Petronas Twin Towers with the KL Tower and city skyline behind, clouds, hibiscus flowers and palm fronds",
-    "shape": "upward-pointing triangle",
+    "shape": "downward-pointing pennant (triangle with a flat top edge, point at the bottom)",
     "composition": "layered depth: hibiscus and palm fronds in the foreground corners, the twin towers in the middle, skyline and clouds behind",
     "text": [
       "MALAYSIA"
     ],
-    "placement": "in a straight band along the wide base of the triangle",
+    "placement": "in a straight band along the wide flat top edge of the pennant",
     "placementName": "Band"
   },
   {

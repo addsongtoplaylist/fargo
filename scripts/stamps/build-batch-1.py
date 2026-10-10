@@ -14,8 +14,18 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[2]
 
+# Friendly shapes only (owner, 2026-10-11): no shield (looks odd), no upward triangle (hazard sign),
+# no octagon (stop sign); ticket, scallop, cloud and pill were considered and declined.
 SHAPES = ["circle", "rounded square", "tall arch", "hexagon", "wide horizontal oval",
-          "tall rectangle", "shield", "octagon", "upward-pointing triangle", "square with a perforated postage-stamp edge"]
+          "tall rectangle", "downward-pointing pennant (triangle with a flat top edge, point at the bottom)",
+          "dome (flat bottom edge, semicircular top)", "square with a perforated postage-stamp edge"]
+# Round A (approved 2026-10-11) keeps its shapes; Ipoh, Johor Bahru and Malaysia 1 moved off dropped shapes.
+PINNED = {
+    "MY-kuala-lumpur": "circle", "MY-penang": "rounded square", "MY-langkawi": "tall arch",
+    "MY-melaka": "hexagon", "MY-sabah": "wide horizontal oval", "MY-sarawak": "tall rectangle",
+    "MY-ipoh": "rounded square", "MY-johor-bahru": SHAPES[7], "MY-country-1": SHAPES[6],
+    "MY-country-2": SHAPES[8], "SG-country-1": "circle", "SG-country-2": "rounded square",
+}
 
 PLACEMENT = {
     "circle": "curved around the circle between two concentric border lines, like a classic round passport stamp (top arc, and the bottom arc if there is a second line)",
@@ -25,15 +35,16 @@ PLACEMENT = {
     "rounded square": "in a solid straight header bar across the top, the letters reversed out (paper colour) inside the inked bar",
     "square with a perforated postage-stamp edge": "in a solid straight header bar across the bottom, the letters reversed out (paper colour) inside the inked bar",
     "hexagon": "in a ribbon banner across the top edge (any second line in a ribbon across the bottom edge)",
-    "octagon": "in a ribbon banner across the bottom edge",
-    "shield": "in a ribbon banner across the upper part of the shield",
-    "upward-pointing triangle": "in a straight band along the wide base of the triangle",
+    SHAPES[6]: "in a straight band along the wide flat top edge of the pennant (any second line small just below it)",
+    SHAPES[7]: "curved along the inside of the dome's round top (any second line in a straight band along the flat bottom edge)",
 }
 ONE_LINE = {
     "circle": "curved along the top arc of the circle between two concentric border lines, like a classic round passport stamp; the bottom of the border has no lettering",
     "wide horizontal oval": "as very large bold block letters across the middle like a vintage 'greetings from' postcard, the scene visible behind and inside the letters",
     "tall rectangle": "set vertically down the left edge, one upright letter under another, inside a narrow vertical strip of the border",
     "hexagon": "in one ribbon banner across the top edge; no other ribbons or banners",
+    SHAPES[6]: "in a straight band along the wide flat top edge of the pennant",
+    SHAPES[7]: "curved along the inside of the dome's round top; the flat bottom edge has no lettering",
 }
 TAG = "on a small luggage tag hanging from the lower right corner of the border by a little loop of string"
 
@@ -172,7 +183,8 @@ entries, n = [], 0
 for cc, country, cities, symbols in COUNTRIES:
     stamps = [("city", *c) for c in cities] + [("country", f"country-{i + 1}", country, s, comp) for i, (s, comp) in enumerate(symbols)]
     for j, (kind, slug, name, subject, comp) in enumerate(stamps):
-        shape = SHAPES[len(entries) % len(SHAPES)]  # one running rotation across the whole batch
+        rot = len(entries) - len(PINNED) if f"{cc}-{slug}" not in PINNED else 0
+        shape = PINNED.get(f"{cc}-{slug}") or SHAPES[(rot + 2) % len(SHAPES)]  # rotation continues after round A
         if kind == "city":
             text = [name.upper(), country.upper()] if j % 2 == 0 else [name.upper()]
         else:
@@ -201,7 +213,7 @@ for e in entries:
 
 (root / "scripts/stamps/batch-1.json").write_text(json.dumps(entries, indent=2, ensure_ascii=False) + "\n")
 
-short = lambda s: s.replace(" with a perforated postage-stamp edge", " (postage edge)").replace("upward-pointing ", "").replace("wide horizontal ", "wide ")
+short = lambda s: s.replace("square with a perforated postage-stamp edge", "postage stamp").split(" (")[0].replace("downward-pointing ", "").replace("wide horizontal ", "wide ")
 lines = ["# Stamp library — batch 1 (Asia) for review", "",
          f"> Generated from `scripts/stamps/build-batch-1.py` → `scripts/stamps/batch-1.json`. **{len(entries)} stamps** "
          f"({sum(e['kind'] == 'place' for e in entries)} places + {sum(e['kind'] == 'country' for e in entries)} country). "
