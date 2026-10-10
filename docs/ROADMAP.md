@@ -34,7 +34,7 @@
 
 ## In progress 🟡
 
-- **Collecting stamps** (`STAMPS.md`): the 124-stamp library shipped in v0.5.16 (not shown yet). Next: a "Collect stamp" moment when a trip ends, adding it to Passport — being designed.
+- **Collecting stamps** (`STAMPS.md` v2.2), v0.5.17: plan agreed 2026-10-11 — "Collect stamp" card on the trip overview when a trip ends, real stamp art in Passport, new `collected_stamps` table + `collect_stamp()`. Next: migration on staging.
 - **Phase 4 — Real travellers.** Invite, join, leave, read-only members and the RLS audit are done. **Remaining:** upgrade a name-only traveller to an account, keeping their history.
 
 ## Parked ⏸

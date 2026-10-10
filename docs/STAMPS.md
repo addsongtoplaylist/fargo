@@ -1,6 +1,6 @@
 # Fargo — Stamp library
 
-> **v2.1 — 2026-10-11. Style agreed (OpenAI); batch 1 list ready for owner review (`STAMPS-BATCH1.md`).** v2.0 — 2026-10-10: Passport-stamp artwork for the **Passport stamp** share overlay (v0.5.7). **v2 replaces v1's on-demand generator** (queue, Edge Function, daily cap) with a **pre-made library**: stamps are generated in batches on the owner's machine, reviewed, and shipped with the app. No AI calls while people use Fargo. Ho Chi Minh City has hand-made art today; everywhere else shows a drawn ring until the library ships.
+> **v2.2 — 2026-10-11. Library shipped in v0.5.16 (124 stamps, not shown yet); collecting plan agreed — see "Next — collecting stamps".** The Passport stamp share card was removed in v0.5.16. v2.1 — 2026-10-11: style agreed (OpenAI). v2.0 — 2026-10-10: **v2 replaces v1's on-demand generator** with a **pre-made library**: stamps are generated in batches on the owner's machine, reviewed, and shipped with the app. No AI calls while people use Fargo.
 
 ## Decisions (owner, 2026-10-10)
 
@@ -63,8 +63,8 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 
 ### 3. In the app
 
-- The stamp overlay uses the library lookup above on a **white** card; the fallback draws a plain ring with **✈** (no country code).
-- The place name is part of the artwork now, so Fargo no longer letters a ring around it; no month or year is shown.
+- **Not shown yet (v0.5.16).** The share-card overlay that was going to use it was removed. The library is used by **collecting stamps in Passport** (below), with the plain **✈** ring as the fallback.
+- The place name is part of the artwork, so Fargo never letters a ring around it.
 
 ## Batch 1 — Asia (proposed, owner to edit)
 
@@ -86,11 +86,76 @@ city list ─▶ prompt ─▶ image model ─▶ clean-up            share over
 
 ≈ 64 city + 26 country stamps ≈ **90 stamps** (89 new; 90 with an 8th Malaysian place). Possible additions: Macau, Maldives, Sri Lanka, Nepal, Myanmar, Laos.
 
-## Next — collecting stamps (after v0.5.16; being designed)
+## Next — collecting stamps (v0.5.17, plan agreed 2026-10-11)
 
-- A traveller "earns" a stamp from a trip they were on (planner or member), probably once the trip has ended.
-- To decide when we build it: **work it out from trips each time** (simple, no new data, but changing a stamp's area could change what someone has) **or save each stamp when earned** (a small table; collections never change). Leaning: save when earned.
-- Ideas: a stamp book in Passport, "7 of 8 Malaysia stamps", sharing a page of stamps.
+When a trip ends, each traveller **collects** its stamp themselves. They see a "Collect stamp" card on the trip overview, tap it, and the stamp is pressed into their Passport. Today's dashed placeholder stamps become the waiting state; collected stamps show the real library art.
+
+### Decisions (owner, 2026-10-11)
+
+| # | Decision |
+|---|---|
+| C1 | **Trips that already ended count too.** Passport shows "You have N stamps to collect", so past trips can be claimed. |
+| C2 | **Placeholders stay until collected.** Upcoming and in-progress trips show a faded dashed stamp (today's style); after the trip ends it gets a "Collect" label; once collected it becomes the real art. |
+| C3 | **Same place twice:** if you already have the place stamp (e.g. Penang), the next trip there gives you a **Malaysia country stamp you don't have yet**. Once you have both country stamps, you get a **duplicate** of the place stamp, shown as **×2**. A trip that gets a country stamp first works the same way: the other country design next, then a duplicate. |
+| C4 | **Saved when collected**, in a small new table, so someone's collection never changes if a stamp's area is adjusted later. |
+| C5 | **No stamp for the country** (not in the library yet): the traveller still collects the plain **✈ ring** stamp, so every trip counts. |
+| C6 | **Each traveller collects their own.** Anyone on the trip with an account (planner or member) gets the card. Travellers without an account don't collect. |
+
+### How it works
+
+- **When a trip counts as ended:** the day after its last day, by the traveller's local date (the same "today" rule as the rest of the app).
+- **Which stamp:** `stampFor()` with the trip's **Base city coordinates** (`base_lat` / `base_lng`) and destination country, then the C3 rule against what the traveller already has. `getPassport` must start reading `base_lat` / `base_lng`; today it only reads the destination point. The stamp is decided **at the moment of collecting** and saved; it never changes after that.
+- **Collect card** (trip overview, top): shown when the trip has ended and you haven't collected it. It shows the stamp faded or blurred, the line "Trip complete! You've earned a stamp from **{place}**." and a **Collect stamp** button. Tapping it plays a short "pressed" animation (the stamp drops in with a small wobble), then shows **View in Passport**. Afterwards the card is gone for you; nobody else on the trip is affected.
+- **Passport page:**
+  - Collected stamps show the library art (teal on the cream page); ✈ ring stamps are drawn as today.
+  - A "You have N stamps to collect" row appears when any ended trips are unclaimed, and each one can be collected right there.
+  - "Stamps · N" counts collected stamps only.
+  - "See all" lists everything collected, ×2 for duplicates.
+  - **Later:** progress per country, e.g. "Malaysia · 3 of 8".
+- **What the stamp keeps:** place name, country code and month are saved with it, so the stamp stays in your Passport even if you **leave the trip** or the trip is **deleted**.
+
+### Database (one migration, owner runs it; staging first)
+
+- **New table `collected_stamps`:**
+  - `id`
+  - `account_id`: the collector
+  - `trip_id`: set to empty if the trip is deleted
+  - `stamp_id`: a library id like `MY-penang`, or `ring`
+  - `place`, `country_code`, `month`: the saved label
+  - `collected_at`
+  - **One row per traveller per trip**, enforced by a unique (`account_id`, `trip_id`).
+- **RLS:** you can **read only your own** rows. There are no direct inserts, updates or deletes from the app.
+- **`collect_stamp(p_trip_id, p_stamp_id, p_place, p_country_code, p_month)`:** SECURITY DEFINER.
+  - It identifies the caller with `auth.uid()`.
+  - It checks the caller is a traveller on that trip with their own account and that the trip has ended. It allows one day of leeway so time zones never block a traveller.
+  - It checks `p_stamp_id` looks like a library id or `ring`.
+  - It inserts the row (a second tap does nothing).
+  - It sets `search_path = public` and `REVOKE EXECUTE … FROM PUBLIC, anon`.
+  - The stamp choice itself is made in the app (the library lives there). The worst a tampered call could do is put a different stamp in **your own** Passport, so that's acceptable.
+- **Files:**
+  - `supabase/migrations/2026xxxx_collected_stamps.sql`
+  - `…_TEST.sql`: try it on staging as a member, as a non-member, and on a trip that hasn't ended
+  - `…_UNDO.sql`
+- **Native app:** `fargo-app/packages/core/src` doesn't use stamps or Passport (checked 2026-10-11), so nothing there changes. It can read the same table when it resumes.
+- **Order:** run the SQL **before** pushing the app code; the new Passport and overview code calls `collect_stamp`.
+
+### Build steps
+
+| # | Step | Who | Effort |
+|---|---|---|---|
+| 1 | Migration + TEST + UNDO; owner runs on **staging**, then production | Claude → owner | 1 session + 15 min |
+| 2 | Pick-stamp logic (C3 + C5) with tests, next to `stamp-library.ts` | Claude | small |
+| 3 | `getPassport`: read collected stamps + Base city coordinates; work out which ended trips can be collected | Claude | small |
+| 4 | Collect card on the trip overview + press animation | Claude | medium |
+| 5 | Passport: real art, "to collect" row, ×2, See all | Claude | medium |
+| 6 | Test on the **Test trip** / demo trip with `fargo-prod` (end dates in the past), then delete the test rows | Claude + owner | 30 min |
+| 7 | Owner review → `PERMISSIONS.md` (who can collect) → **release v0.5.17** | Owner + Claude | 30 min |
+
+### Open for later
+
+- Sharing a Passport page of stamps.
+- Collecting progress per country ("3 of 8").
+- Badges for milestones (first trip abroad, 5 countries).
 
 ## Batch 2 — further away (later)
 
@@ -138,4 +203,4 @@ Elapsed time is mostly the owner's review; Claude's work is about three sessions
 
 ## Not affected
 
-The native app, the Passport tab (could use the art later), trip pass and photo ticket overlays, all trip data. **No database or Supabase changes** at all.
+The library itself (v0.5.16) needs no database change, and the Trip pass and Photo ticket overlays don't use stamps. **Collecting** adds one table and one function (see above). The native app doesn't use stamps.
