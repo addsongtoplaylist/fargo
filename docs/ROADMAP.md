@@ -38,7 +38,7 @@
 | **New landing page** (editorial redesign, hero montage) + stamps in three inks | v0.5.19 · Oct 12 |
 | Hero photo tickets frame each scene's subject | v0.5.20 · Oct 12 |
 | **UI review (Threads-inspired):** icon-only bottom bars, Explore off the home bar, two-line schedule titles; landing wordmark in logo cyan | v0.6.0 · Oct 12 |
-| Support email on Privacy and Terms (`fargotravelsupport@gmail.com`)| v0.6.1 · Oct 12 |
+| Support email on Privacy and Terms (`fargotravelsupport@gmail.com`) | v0.6.1 · Oct 12 |
 
 ## In progress 🟡
 
