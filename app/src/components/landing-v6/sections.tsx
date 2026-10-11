@@ -63,24 +63,36 @@ export function Statement() {
 
 type Floater = { src: string; alt: string; x: string; y: string; w: number; speed: number; stamp?: boolean };
 
-/** Photos and stamps scattered around the headline; each drifts at its own speed. */
+/**
+ * Photos and stamps scattered around the headline; each drifts at its own speed. Photos are
+ * Unsplash (free licence; ids in LANDING.md → Redesign v6) and never repeat the feature cards.
+ */
+const G = "/marketing/galaxy/";
 const FLOATERS: Floater[] = [
-  { src: "/marketing/photo-planner.webp", alt: "Gardens by the Bay, Singapore", x: "4%", y: "6%", w: 120, speed: 0.35 },
-  { src: "/stamps/JP/kyoto.png", alt: "Kyoto stamp", x: "30%", y: "2%", w: 96, speed: 0.15, stamp: true },
-  { src: "/marketing/photo-buddies-5.webp", alt: "Friends hiking above the sea", x: "62%", y: "4%", w: 110, speed: 0.5 },
-  { src: "/stamps/MY/penang.png", alt: "Penang stamp", x: "86%", y: "12%", w: 104, speed: 0.25, stamp: true },
-  { src: "/marketing/photo-costs-3.webp", alt: "Friends sharing plates around a table", x: "10%", y: "58%", w: 132, speed: -0.2 },
-  { src: "/stamps/KR/seoul.png", alt: "Seoul stamp", x: "2%", y: "34%", w: 84, speed: 0.45, stamp: true },
-  { src: "/marketing/photo-passport-3.webp", alt: "Camera, sunglasses and a bag packed for a trip", x: "78%", y: "52%", w: 128, speed: -0.3 },
-  { src: "/stamps/TH/bangkok.png", alt: "Bangkok stamp", x: "52%", y: "70%", w: 92, speed: -0.1, stamp: true },
-  { src: "/marketing/photo-closing-plane.webp", alt: "The view from a plane window", x: "30%", y: "80%", w: 150, speed: -0.4 },
-  { src: "/stamps/ID/bali.png", alt: "Bali stamp", x: "90%", y: "78%", w: 88, speed: 0.3, stamp: true },
-  { src: "/stamps/VN/hoi-an.png", alt: "Hoi An stamp", x: "70%", y: "28%", w: 80, speed: -0.25, stamp: true },
+  { src: `${G}hikers-trail.webp`, alt: "Friends with backpacks on a mountain trail", x: "3%", y: "6%", w: 130, speed: 0.35 },
+  { src: `${G}night-market.webp`, alt: "A night market", x: "23%", y: "0%", w: 105, speed: 0.2 },
+  { src: `${G}marina-bay-sands.webp`, alt: "Marina Bay Sands, Singapore", x: "45%", y: "3%", w: 120, speed: 0.45 },
+  { src: `${G}korean-dinner.webp`, alt: "Friends eating outside a Korean restaurant at night", x: "66%", y: "7%", w: 112, speed: 0.3 },
+  { src: `${G}fuji.webp`, alt: "Mount Fuji reflected in a lake", x: "84%", y: "2%", w: 135, speed: 0.5 },
+  { src: `${G}ao-dai.webp`, alt: "Two women in ao dai and conical hats, Vietnam", x: "1%", y: "38%", w: 108, speed: -0.15 },
+  { src: `${G}hong-kong.webp`, alt: "Hong Kong skyline over Victoria Harbour", x: "88%", y: "36%", w: 118, speed: 0.25 },
+  { src: `${G}lanterns.webp`, alt: "Lanterns in Hoi An at night", x: "6%", y: "70%", w: 125, speed: -0.3 },
+  { src: `${G}gyeongbokgung.webp`, alt: "Gyeongbokgung Palace, Seoul", x: "24%", y: "84%", w: 112, speed: -0.45 },
+  { src: `${G}ulun-danu.webp`, alt: "Pura Ulun Danu Bratan, Bali", x: "42%", y: "90%", w: 128, speed: -0.2 },
+  { src: `${G}hoi-an-bikes.webp`, alt: "Friends cycling through Hoi An", x: "62%", y: "80%", w: 118, speed: -0.35 },
+  { src: `${G}floating-market.webp`, alt: "A floating market boat from above, Thailand", x: "80%", y: "66%", w: 112, speed: -0.1 },
+  { src: `${G}kek-lok-si.webp`, alt: "Kek Lok Si temple, Penang", x: "90%", y: "88%", w: 110, speed: -0.4 },
+  { src: "/stamps/JP/kyoto.png", alt: "Kyoto stamp", x: "33%", y: "18%", w: 82, speed: 0.15, stamp: true },
+  { src: "/stamps/MY/penang.png", alt: "Penang stamp", x: "74%", y: "24%", w: 86, speed: 0.4, stamp: true },
+  { src: "/stamps/KR/seoul.png", alt: "Seoul stamp", x: "14%", y: "24%", w: 76, speed: -0.25, stamp: true },
+  { src: "/stamps/TH/bangkok.png", alt: "Bangkok stamp", x: "94%", y: "58%", w: 74, speed: 0.2, stamp: true },
+  { src: "/stamps/ID/bali.png", alt: "Bali stamp", x: "13%", y: "56%", w: 78, speed: 0.3, stamp: true },
+  { src: "/stamps/VN/hoi-an.png", alt: "Hoi An stamp", x: "53%", y: "70%", w: 70, speed: -0.25, stamp: true },
 ];
 
 export function Galaxy() {
   return (
-    <section id="features" className="relative overflow-hidden min-h-[clamp(640px,110vh,1080px)] flex items-center scroll-mt-16">
+    <section id="features" className="relative overflow-hidden min-h-[clamp(720px,125vh,1200px)] flex items-center scroll-mt-16">
       {FLOATERS.map((f) => (
         <Drift key={f.src} speed={f.speed} className="absolute" style={{ left: f.x, top: f.y, width: `clamp(${Math.round(f.w * 0.6)}px, ${(f.w / 12.8).toFixed(1)}vw, ${f.w}px)` }}>
           <Image

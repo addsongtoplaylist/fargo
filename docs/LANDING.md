@@ -226,3 +226,5 @@ Reference: wolverineworldwide.com. The page is built from giant, tightly set typ
 | R7 | **Routes on the overlays:** Japan from Singapore · Taman Negara (Malaysia) from Indonesia · Singapore from Japan · Korea from Thailand · **Vietnam (friends at a café, Ho Chi Minh City; replaced Hong Kong) from Malaysia** · Thailand from Malaysia |
 
 Next: owner shares the clips → Claude checks the phone crop and renders the 6 overlays as transparent PNGs → owner edits the montage in CapCut → mockup of the full page → build.
+
+**Galaxy photos (owner-picked 2026-10-12, Unsplash free licence, never repeated elsewhere on the page)** — `app/public/marketing/galaxy/`, 600×750 WebP: hikers-trail `vIluu0IH6Ps` · night-market `RGsP-cvyIoI` · korean-dinner `NUm7_yhVdZw` · ao-dai `8t4rXFJbLnM` · hoi-an-bikes `dpj0K1CEjAw` · marina-bay-sands `__cBlRzLSTg` · fuji `LSsUOd8oevk` · gyeongbokgung `RbaGeW_LbGs` · ulun-danu `Y0UUhY1V7Po` · hong-kong `4vf1KEkD7Gc` · lanterns `XGuZ4HlC5qU` · floating-market `zyXbRgPOW70` · kek-lok-si `Cs-vCRDsHho` (unsplash.com/photos/<id>).
