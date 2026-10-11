@@ -92,6 +92,10 @@ const FLOATERS: Floater[] = [
   { src: `${G}street-food-fire.webp`, alt: "A street food cook with flames", x: "93%", y: "58%", w: 90, speed: 0.2 },
   { src: `${G}ha-long-bay.webp`, alt: "Boats in Ha Long Bay, Vietnam", x: "12%", y: "54%", w: 94, speed: 0.3 },
   { src: `${G}beach-swim.webp`, alt: "Friends swimming at sunset", x: "74%", y: "94%", w: 100, speed: -0.25, far: true },
+  // Bottom-left depth: three more far-away photos (owner, 2026-10-12)
+  { src: `${G}airport-window.webp`, alt: "Friends at an airport window watching the planes", x: "1%", y: "88%", w: 100, speed: -0.3, far: true },
+  { src: `${G}angkor-path.webp`, alt: "The path to Angkor Wat, Cambodia", x: "15%", y: "97%", w: 92, speed: -0.2, far: true },
+  { src: `${G}sea-splash.webp`, alt: "Friends splashing in the sea", x: "31%", y: "78%", w: 86, speed: -0.35, far: true },
 ];
 
 export function Galaxy() {
@@ -251,9 +255,10 @@ export function Journey() {
 // ── 5. Passport (numbers + a few stamps) ───────────────────────
 
 /** Only a few real stamps — the rest of the library stays a surprise. */
+// In the three stamp inks — passport red, ochre, teal (owner, 2026-10-12)
 const PASSPORT_STAMPS = [
-  { file: "/stamps/MY/penang.png", alt: "Penang stamp", tilt: -8 },
-  { file: "/stamps/JP/kyoto.png", alt: "Kyoto stamp", tilt: 6 },
+  { file: "/marketing/stamps/penang-red.png", alt: "Penang stamp", tilt: -8 },
+  { file: "/marketing/stamps/kyoto-ochre.png", alt: "Kyoto stamp", tilt: 6 },
   { file: "/stamps/TH/bangkok.png", alt: "Bangkok stamp", tilt: -4 },
 ];
 
