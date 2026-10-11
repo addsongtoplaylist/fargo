@@ -4,6 +4,12 @@
 
 ---
 
+**2026-10-12 — Owner to-dos closed (no release)**
+
+Owner: the install prompt was tested on an iPhone ✅; Palawan's stamp is settled and stays as is ✅. **Still open:** contact email for Privacy/Terms; tidy the test items in default checklists. Next: landing page work.
+
+---
+
 **2026-10-11 — Collecting stamps (v0.5.17)**
 
 Built `STAMPS.md` v2.2 steps 1–7: `collected_stamps` + `collect_stamp()` (owner ran it on staging and production; TEST T0–T8 PASS on production), `chooseStamp()` (same place twice → a country stamp you don't have → ×2; ✈ ring when no library stamp), Collect card on the trip overview, "to collect" list and real art on Passport. Tested on the Test trip (end date moved to yesterday, then restored) and Test 123 with the local production build; test stamps deleted by the owner. Found and fixed: revalidating after collecting re-rendered the overview and removed the card before "Stamp collected!" showed. Supabase SQL Editor gotcha: it misreads `SELECT … INTO` in a function as creating a table and splices an RLS line in — use `:=` assignments.
