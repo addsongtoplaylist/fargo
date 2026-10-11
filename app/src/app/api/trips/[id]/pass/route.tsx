@@ -13,7 +13,7 @@ import { todayForCountry } from "@/lib/dates";
 /**
  * Share trip overlays (v0.5.7; the passport stamp card was removed in v0.5.16), PNG:
  * - `?style=pass` — boarding-pass layout in white text on a transparent
- *   background: FROM / TO codes and places, distance · temperature · trip days.
+ *   background: FROM / TO codes and places, then distance · weather · trip days ("4D 3N") as ruled rows.
  * - `?style=photo` — vertical ticket with a see-through photo window.
  * Only for people on the trip (getTrip reads under the normal trip rules).
  */
@@ -52,12 +52,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const days = differenceInCalendarDays(parseISO(end), parseISO(start)) + 1;
   const month = `${MONTHS[Number(start.slice(5, 7)) - 1]} ${start.slice(0, 4)}`;
 
-  const [temp, sora, mono, monoSemi] = await Promise.all([
+  const [temp, sora, soraRegular, mono, monoSemi] = await Promise.all([
     // A trip that has started: its days so far. Not started: the forecast for its dates.
     place
       ? getMeanTemperature(place[0], place[1], start, start <= today && end > today ? today : end, today)
       : Promise.resolve(null),
     asset("src/assets/fonts/Sora-Bold.woff"),
+    asset("src/assets/fonts/Sora-Regular.woff"),
     asset("src/assets/fonts/IBMPlexMono-Regular.woff"),
     asset("src/assets/fonts/IBMPlexMono-SemiBold.woff"),
   ]);
@@ -66,6 +67,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const fonts = [
     { name: "Sora", data: sora, weight: 700 as const, style: "normal" as const },
+    { name: "Sora", data: soraRegular, weight: 400 as const, style: "normal" as const },
     { name: "Plex", data: mono, weight: 400 as const, style: "normal" as const },
     { name: "Plex", data: monoSemi, weight: 600 as const, style: "normal" as const },
   ];
@@ -81,13 +83,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
   const logo = await asset("src/assets/logo-white.png");
   return new ImageResponse(
-    <TripPass from={from} to={to} km={kmText?.toLowerCase() ?? "—"} temp={tempText ?? "—"} days={days} logo={dataUri(logo)} />,
+    <TripPass from={from} to={to} km={km != null ? `${km.toLocaleString("en")}km` : "—"} temp={tempText ?? "—"} days={days} logo={dataUri(logo)} />,
     { width: 1080, height: 860, fonts, headers }
   );
 }
 
 // ── Trip pass ─────────────────────────────────────────────────
 
+/** Trip pass (v0.5.18 layout): FROM / TO codes, then distance · weather · trip days as ruled rows. */
 function TripPass({
   from,
   to,
@@ -106,24 +109,43 @@ function TripPass({
   const ink = WHITE;
   const label = { fontFamily: "Plex", fontSize: 40, letterSpacing: 4, color: ink };
   const strong = { ...label, fontWeight: 600 };
-  const code = { fontFamily: "Sora", fontSize: 172, lineHeight: 1, letterSpacing: -5, color: ink };
-  const col = { display: "flex", flexDirection: "column" as const, width: 380 };
-  const stat = { display: "flex", flexDirection: "column" as const, width: 296 };
-  const statLabel = { ...strong, fontSize: 32, letterSpacing: 2 };
-  const statValue = { ...label, fontSize: 56, letterSpacing: 1, marginTop: 16 };
+  const code = { fontFamily: "Sora", fontWeight: 700, fontSize: 172, lineHeight: 1, letterSpacing: -5, color: ink };
+  const col = { display: "flex", flexDirection: "column" as const, width: 400 };
+  const row = {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: 80,
+    borderTop: `3px solid ${ink}`,
+    fontFamily: "Sora",
+    fontWeight: 400,
+    fontSize: 38,
+    letterSpacing: -1,
+    color: ink,
+  };
+  const nights = days > 1 ? ` ${days - 1}N` : "";
+  // Place names stay on one line: long ones ("HO CHI MINH CITY") shrink to fit the 400px column
+  const placeStyle = (text: string) => ({
+    ...strong,
+    fontSize: Math.min(40, Math.floor(400 / (text.length * 0.66))),
+    letterSpacing: 3,
+    marginTop: 28,
+    lineHeight: 1.25,
+    whiteSpace: "nowrap" as const,
+  });
 
   return (
-    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", padding: "72px 96px 64px" }}>
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", padding: "72px 56px 56px 98px" }}>
       {/* FROM → TO */}
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div style={{ display: "flex", alignItems: "flex-start" }}>
         <div style={col}>
           <span style={label}>FROM</span>
-          <span style={{ ...code, marginTop: 24 }}>{from.code}</span>
-          <span style={{ ...strong, marginTop: 28, lineHeight: 1.25 }}>{from.label.toUpperCase()}</span>
+          <span style={{ ...code, marginTop: 20 }}>{from.code}</span>
+          <span style={placeStyle(from.label)}>{from.label.toUpperCase()}</span>
         </div>
         {/* Plane, pointing right */}
-        <div style={{ display: "flex", marginTop: 132 }}>
-          <svg width="76" height="76" viewBox="0 0 24 24" style={{ transform: "rotate(90deg)" }}>
+        <div style={{ display: "flex", width: 96, marginTop: 124 }}>
+          <svg width="64" height="64" viewBox="0 0 24 24" style={{ transform: "rotate(90deg)" }}>
             <path
               fill={ink}
               d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"
@@ -132,31 +154,31 @@ function TripPass({
         </div>
         <div style={col}>
           <span style={label}>TO</span>
-          <span style={{ ...code, marginTop: 24 }}>{to.code}</span>
-          <span style={{ ...strong, marginTop: 28, lineHeight: 1.25 }}>{to.label.toUpperCase()}</span>
+          <span style={{ ...code, marginTop: 20 }}>{to.code}</span>
+          <span style={placeStyle(to.label)}>{to.label.toUpperCase()}</span>
         </div>
       </div>
 
-      {/* DISTANCE · TEMPERATURE · TRIP DAYS */}
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 64 }}>
-        <div style={stat}>
-          <span style={statLabel}>DISTANCE</span>
-          <span style={statValue}>{km}</span>
+      {/* DISTANCE · WEATHER · TRIP DAYS */}
+      <div style={{ display: "flex", flexDirection: "column", marginTop: 40 }}>
+        <div style={row}>
+          <span>DISTANCE</span>
+          <span>{km}</span>
         </div>
-        <div style={stat}>
-          <span style={statLabel}>TEMPERATURE</span>
-          <span style={statValue}>{temp}</span>
+        <div style={row}>
+          <span>WEATHER</span>
+          <span>{temp}</span>
         </div>
-        <div style={stat}>
-          <span style={statLabel}>TRIP DAYS</span>
-          <span style={statValue}>{days}</span>
+        <div style={row}>
+          <span>TRIP DAYS</span>
+          <span>{`${days}D${nights}`}</span>
         </div>
       </div>
 
       {/* Wordmark */}
-      <div style={{ display: "flex", marginTop: "auto", paddingTop: 48 }}>
+      <div style={{ display: "flex", marginTop: "auto" }}>
         {/* eslint-disable-next-line @next/next/no-img-element -- rendered into the PNG, not the page */}
-        <img src={logo} width={204} height={76} alt="" />
+        <img src={logo} width={190} height={71} alt="" />
       </div>
     </div>
   );
@@ -220,8 +242,8 @@ function PhotoTicket({
 
       {/* From → to */}
       <div style={{ ...row, top: arrowY - 62 }}>
-        <span style={{ fontFamily: "Sora", fontSize: placeSize, color: dark }}>{from.label.toUpperCase()}</span>
-        <span style={{ fontFamily: "Sora", fontSize: placeSize, color: dark }}>{to.label.toUpperCase()}</span>
+        <span style={{ fontFamily: "Sora", fontWeight: 700, fontSize: placeSize, color: dark }}>{from.label.toUpperCase()}</span>
+        <span style={{ fontFamily: "Sora", fontWeight: 700, fontSize: placeSize, color: dark }}>{to.label.toUpperCase()}</span>
       </div>
       <div style={{ ...row, top: arrowY + 12 }}>
         <span style={{ fontFamily: "Plex", fontSize: 28, color: muted }}>{from.code}</span>
@@ -230,8 +252,8 @@ function PhotoTicket({
 
       {/* Month · distance */}
       <div style={{ ...row, top: 1132 }}>
-        <span style={{ fontFamily: "Sora", fontSize: 32, color: dark }}>{month}</span>
-        {km && <span style={{ fontFamily: "Sora", fontSize: 32, color: dark }}>{km}</span>}
+        <span style={{ fontFamily: "Sora", fontWeight: 700, fontSize: 32, color: dark }}>{month}</span>
+        {km && <span style={{ fontFamily: "Sora", fontWeight: 700, fontSize: 32, color: dark }}>{km}</span>}
       </div>
     </div>
   );
