@@ -13,8 +13,8 @@ export const config = {
      * - _next/image (image optimisation)
      * - _vercel (Web Analytics script + beacon)
      * - favicon.ico
-     * - public files (images, etc.)
+     * - public files (images, video, etc.)
      */
-    "/((?!_next/static|_next/image|_vercel|favicon.ico|sw\\.js|manifest\\.webmanifest|offline\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|_vercel|favicon.ico|sw\\.js|manifest\\.webmanifest|offline\\.html|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|webm)$).*)",
   ],
 };
