@@ -64,7 +64,8 @@ export function Statement() {
 
 // ── 2. Galaxy ──────────────────────────────────────────────────
 
-type Floater = { src: string; alt: string; x: string; y: string; w: number; speed: number; stamp?: boolean };
+/** far: further away — smaller, softly blurred and faded, drifting slower (depth of field). */
+type Floater = { src: string; alt: string; x: string; y: string; w: number; speed: number; stamp?: boolean; far?: boolean };
 
 /**
  * Photos scattered around the headline (no stamps — they stay a Passport surprise); each drifts at its own speed. Photos are
@@ -73,31 +74,36 @@ type Floater = { src: string; alt: string; x: string; y: string; w: number; spee
 const G = "/marketing/galaxy/";
 const FLOATERS: Floater[] = [
   { src: `${G}hikers-trail.webp`, alt: "Friends with backpacks on a mountain trail", x: "3%", y: "6%", w: 130, speed: 0.35 },
-  { src: `${G}night-market.webp`, alt: "A night market", x: "23%", y: "0%", w: 105, speed: 0.2 },
+  { src: `${G}night-market.webp`, alt: "A night market", x: "23%", y: "0%", w: 105, speed: 0.2, far: true },
   { src: `${G}marina-bay-sands.webp`, alt: "Marina Bay Sands, Singapore", x: "45%", y: "3%", w: 120, speed: 0.45 },
   { src: `${G}korean-dinner.webp`, alt: "Friends eating outside a Korean restaurant at night", x: "66%", y: "7%", w: 112, speed: 0.3 },
   { src: `${G}fuji.webp`, alt: "Mount Fuji reflected in a lake", x: "84%", y: "2%", w: 135, speed: 0.5 },
   { src: `${G}ao-dai.webp`, alt: "Two women in ao dai and conical hats, Vietnam", x: "1%", y: "38%", w: 108, speed: -0.15 },
-  { src: `${G}hong-kong.webp`, alt: "Hong Kong skyline over Victoria Harbour", x: "88%", y: "36%", w: 118, speed: 0.25 },
+  { src: `${G}hong-kong.webp`, alt: "Hong Kong skyline over Victoria Harbour", x: "88%", y: "36%", w: 118, speed: 0.25, far: true },
   { src: `${G}lanterns.webp`, alt: "Lanterns in Hoi An at night", x: "6%", y: "70%", w: 125, speed: -0.3 },
   { src: `${G}gyeongbokgung.webp`, alt: "Gyeongbokgung Palace, Seoul", x: "24%", y: "84%", w: 112, speed: -0.45 },
   { src: `${G}ulun-danu.webp`, alt: "Pura Ulun Danu Bratan, Bali", x: "42%", y: "90%", w: 128, speed: -0.2 },
   { src: `${G}hoi-an-bikes.webp`, alt: "Friends cycling through Hoi An", x: "62%", y: "80%", w: 118, speed: -0.35 },
   { src: `${G}floating-market.webp`, alt: "A floating market boat from above, Thailand", x: "80%", y: "66%", w: 112, speed: -0.1 },
-  { src: `${G}kek-lok-si.webp`, alt: "Kek Lok Si temple, Penang", x: "90%", y: "88%", w: 110, speed: -0.4 },
-  { src: `${G}taipei-street.webp`, alt: "A busy street in Taipei at night", x: "32%", y: "16%", w: 96, speed: 0.15 },
+  { src: `${G}kek-lok-si.webp`, alt: "Kek Lok Si temple, Penang", x: "90%", y: "88%", w: 110, speed: -0.4, far: true },
+  { src: `${G}taipei-street.webp`, alt: "A busy street in Taipei at night", x: "32%", y: "16%", w: 96, speed: 0.15, far: true },
   { src: `${G}tokyo-night.webp`, alt: "Tokyo at night from above", x: "74%", y: "22%", w: 100, speed: 0.4 },
   { src: `${G}friends-boat.webp`, alt: "Friends on a boat over turquoise water", x: "13%", y: "22%", w: 92, speed: -0.25 },
   { src: `${G}street-food-fire.webp`, alt: "A street food cook with flames", x: "93%", y: "58%", w: 90, speed: 0.2 },
   { src: `${G}ha-long-bay.webp`, alt: "Boats in Ha Long Bay, Vietnam", x: "12%", y: "54%", w: 94, speed: 0.3 },
-  { src: `${G}beach-swim.webp`, alt: "Friends swimming at sunset", x: "74%", y: "94%", w: 100, speed: -0.25 },
+  { src: `${G}beach-swim.webp`, alt: "Friends swimming at sunset", x: "74%", y: "94%", w: 100, speed: -0.25, far: true },
 ];
 
 export function Galaxy() {
   return (
     <section id="features" className="relative overflow-hidden min-h-[clamp(720px,125vh,1200px)] flex items-center scroll-mt-16">
       {FLOATERS.map((f) => (
-        <Drift key={f.src} speed={f.speed} className="absolute" style={{ left: f.x, top: f.y, width: `clamp(${Math.round(f.w * 0.6)}px, ${(f.w / 12.8).toFixed(1)}vw, ${f.w}px)` }}>
+        <Drift
+          key={f.src}
+          speed={f.far ? f.speed * 0.5 : f.speed}
+          className={`absolute ${f.far ? "opacity-60 blur-[2.5px]" : ""}`}
+          style={{ left: f.x, top: f.y, width: `clamp(${Math.round(f.w * (f.far ? 0.5 : 0.6))}px, ${((f.w * (f.far ? 0.82 : 1)) / 12.8).toFixed(1)}vw, ${Math.round(f.w * (f.far ? 0.82 : 1))}px)` }}
+        >
           <Image
             src={f.src}
             alt={f.alt}
