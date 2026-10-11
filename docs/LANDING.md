@@ -223,6 +223,6 @@ Reference: wolverineworldwide.com. The page is built from giant, tightly set typ
 | R4 | **Photos (galaxy and cards):** Unsplash only, free licence (not Unsplash+) |
 | R5 | **Hero:** a montage of free **stock video** (owner supplies the clips; Pexels / Pixabay / Mixkit / Coverr licence: commercial use, no attribution). Six scenes, each carrying a Fargo share overlay (trip pass or photo ticket) that the owner adds in CapCut. AI image-to-video was considered (OpenAI's Sora API shut down 2026-09-24; Veo / Runway / Kling ≈ US$3–10 for 6 clips) — only a fallback for scenes without good stock. |
 | R6 | **Two exports:** desktop 16:9 and phone 9:16. Every scene must survive the phone crop (subject and overlay inside the middle third). |
-| R7 | **Routes on the overlays:** Japan from Singapore · Taman Negara (Malaysia) from Indonesia · Singapore from Japan · Korea from Thailand · Hong Kong from Malaysia · Thailand from Malaysia |
+| R7 | **Routes on the overlays:** Japan from Singapore · Taman Negara (Malaysia) from Indonesia · Singapore from Japan · Korea from Thailand · **Vietnam (friends at a café, Ho Chi Minh City; replaced Hong Kong) from Malaysia** · Thailand from Malaysia |
 
 Next: owner shares the clips → Claude checks the phone crop and renders the 6 overlays as transparent PNGs → owner edits the montage in CapCut → mockup of the full page → build.
