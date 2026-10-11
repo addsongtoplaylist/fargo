@@ -36,8 +36,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   // ── Trip facts ────────────────────────────────────────────
   const destCode: string | null = trip.destination_country_code || codeFromName(trip.destination);
   const destCountry = destCode ? countryName(destCode) : trip.destination;
-  const from = homeEnd(account.home_country_code, account.home_country_code ? countryName(account.home_country_code) : "Home");
+  const homeName = account.home_country_code ? countryName(account.home_country_code) : "Home";
   const to = destinationEnd(trip.base_city, destCode, destCountry);
+  // Same level on both sides: a Base city → city to city (KUALA LUMPUR → HO CHI MINH CITY);
+  // none → country to country (MALAYSIA → VIETNAM). Codes stay airports either way.
+  const hasCity = !!trip.base_city?.split(",")[0].trim();
+  const homeAirport = homeEnd(account.home_country_code, homeName);
+  const from = hasCity ? homeAirport : { ...homeAirport, label: homeName };
 
   // Where the trip is: base city, else destination, else the country's centre
   const num = (v: unknown) => (v == null || v === "" ? null : Number(v));
@@ -51,6 +56,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const end = trip.end_date as string;
   const days = differenceInCalendarDays(parseISO(end), parseISO(start)) + 1;
   const month = `${MONTHS[Number(start.slice(5, 7)) - 1]} ${start.slice(0, 4)}`;
+  // Day first, as read in Malaysia / Singapore: "17.07 – 16.08"
+  const dates = `${start.slice(8, 10)}.${start.slice(5, 7)} – ${end.slice(8, 10)}.${end.slice(5, 7)}`;
 
   const [temp, sora, soraRegular, mono, monoSemi] = await Promise.all([
     // A trip that has started: its days so far. Not started: the forecast for its dates.
@@ -62,7 +69,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     asset("src/assets/fonts/IBMPlexMono-Regular.woff"),
     asset("src/assets/fonts/IBMPlexMono-SemiBold.woff"),
   ]);
-  const kmText = km != null ? `${km.toLocaleString("en")} KM` : null;
+  // Condensed font for the Photo ticket's place names (Oswald Medium, OFL; Latin + Vietnamese)
+  const condensed = await asset("src/assets/fonts/Oswald-Medium.woff");
   const tempText = temp != null ? `${temp}°C` : null;
 
   const fonts = [
@@ -70,13 +78,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     { name: "Sora", data: soraRegular, weight: 400 as const, style: "normal" as const },
     { name: "Plex", data: mono, weight: 400 as const, style: "normal" as const },
     { name: "Plex", data: monoSemi, weight: 600 as const, style: "normal" as const },
+    { name: "Condensed", data: condensed, weight: 500 as const, style: "normal" as const },
   ];
   const headers = { "Cache-Control": "private, max-age=60" };
 
   if (style === "photo") {
     const logo = await asset("public/logo.png");
     return new ImageResponse(
-      <PhotoTicket from={from} to={to} month={month} km={kmText} logo={dataUri(logo)} />,
+      <PhotoTicket from={from} to={to} dates={dates} month={month} logo={dataUri(logo)} />,
       { width: 760, height: 1224, fonts, headers }
     );
   }
@@ -189,19 +198,20 @@ function TripPass({
 /**
  * Vertical ticket with a see-through window: on a story, the user's own photo
  * or video shows through it. White frame; everything else transparent.
- * Window on top; below the tear line the route, then month · distance.
+ * Window on top; below the tear line the route (place names in a condensed font), then the
+ * dates ("17.07 – 16.08") and month.
  */
 function PhotoTicket({
   from,
   to,
+  dates,
   month,
-  km,
   logo,
 }: {
   from: { code: string; label: string };
   to: { code: string; label: string };
+  dates: string;
   month: string;
-  km: string | null;
   logo: string;
 }) {
   const W = 760;
@@ -212,7 +222,8 @@ function PhotoTicket({
   const arrowY = 1068;
   const dark = "#1b1b1b";
   const muted = "#7a7a7a";
-  const placeSize = Math.min(36, Math.floor((W - pad * 2 - 40) / ((from.label.length + to.label.length) * 0.64)));
+  // Condensed letters are about half as wide as they are tall, so names fit large
+  const placeSize = Math.min(54, Math.floor((W - pad * 2 - 40) / ((from.label.length + to.label.length) * 0.48)));
   const row = { position: "absolute" as const, left: pad, right: pad, display: "flex", justifyContent: "space-between", alignItems: "center" };
 
   return (
@@ -233,27 +244,27 @@ function PhotoTicket({
         <path d={`M${W - pad} ${arrowY} L${W - pad - 18} ${arrowY - 9} L${W - pad - 18} ${arrowY + 9} Z`} fill={dark} />
       </svg>
 
-      {/* Header: wordmark · TRIP PASS */}
+      {/* Header: wordmark · UNBOUND */}
       <div style={{ ...row, top: 30 }}>
         {/* eslint-disable-next-line @next/next/no-img-element -- rendered into the PNG, not the page */}
         <img src={logo} width={136} height={51} alt="" />
-        <span style={{ fontFamily: "Plex", fontSize: 30, fontWeight: 600, color: dark, letterSpacing: 2 }}>TRIP PASS</span>
+        <span style={{ fontFamily: "Plex", fontSize: 30, fontWeight: 600, color: dark, letterSpacing: 2 }}>UNBOUND</span>
       </div>
 
       {/* From → to */}
-      <div style={{ ...row, top: arrowY - 62 }}>
-        <span style={{ fontFamily: "Sora", fontWeight: 700, fontSize: placeSize, color: dark }}>{from.label.toUpperCase()}</span>
-        <span style={{ fontFamily: "Sora", fontWeight: 700, fontSize: placeSize, color: dark }}>{to.label.toUpperCase()}</span>
+      <div style={{ ...row, top: arrowY - 14 - placeSize }}>
+        <span style={{ fontFamily: "Condensed", fontWeight: 500, fontSize: placeSize, lineHeight: 1, letterSpacing: 0.5, color: dark }}>{from.label.toUpperCase()}</span>
+        <span style={{ fontFamily: "Condensed", fontWeight: 500, fontSize: placeSize, lineHeight: 1, letterSpacing: 0.5, color: dark }}>{to.label.toUpperCase()}</span>
       </div>
       <div style={{ ...row, top: arrowY + 12 }}>
         <span style={{ fontFamily: "Plex", fontSize: 28, color: muted }}>{from.code}</span>
         <span style={{ fontFamily: "Plex", fontSize: 28, color: muted }}>{to.code}</span>
       </div>
 
-      {/* Month · distance */}
-      <div style={{ ...row, top: 1132 }}>
+      {/* Dates · month (no line between) */}
+      <div style={{ ...row, top: 1130 }}>
+        <span style={{ fontFamily: "Sora", fontWeight: 700, fontSize: 32, color: dark }}>{dates}</span>
         <span style={{ fontFamily: "Sora", fontWeight: 700, fontSize: 32, color: dark }}>{month}</span>
-        {km && <span style={{ fontFamily: "Sora", fontWeight: 700, fontSize: 32, color: dark }}>{km}</span>}
       </div>
     </div>
   );
