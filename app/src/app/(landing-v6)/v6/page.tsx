@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** Hero placeholder until the owner's video montage is ready: dark frame, giant headline, stamp card. */
+/** Hero placeholder until the owner's video montage is ready: dark frame and the giant headline. */
 function HeroPlaceholder() {
   return (
     <section className="h-svh sm:px-2 sm:pt-2">
@@ -33,14 +33,6 @@ function HeroPlaceholder() {
           <h1 className="text-[clamp(64px,14vw,200px)] leading-[0.8] font-bold tracking-[-0.06em]">
             <RevealWords lines={["Every trip", "starts here."]} />
           </h1>
-          {/* Corner card (Wolverine's "Latest news"): the newest feature */}
-          <Link href="#cards" className="hidden md:flex shrink-0 w-[180px] flex-col rounded-[14px] bg-white/15 backdrop-blur-md p-1.5 hover:bg-white/25 transition-colors">
-            <span className="rounded-[10px] bg-[#f6efe2] aspect-[4/3] flex items-center justify-center p-3">
-              <Image src="/stamps/MY/penang.png" alt="Penang stamp" width={120} height={120} className="h-full w-auto" />
-            </span>
-            <span className={`${MONO} text-[10px] text-white/75 px-2 pt-3`}>New</span>
-            <span className="px-2 pb-2 pt-4 text-[20px] leading-[1.05] font-semibold tracking-[-0.03em]">Collect a stamp from every trip</span>
-          </Link>
         </div>
       </div>
     </section>

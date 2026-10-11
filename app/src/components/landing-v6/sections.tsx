@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import logoWhite from "@/assets/logo-white.png";
 import { Drift, FadeUp, RevealWords } from "./motion";
 import { PhoneFrame } from "@/components/marketing/frames";
 
@@ -28,16 +27,29 @@ export function Pill({ href, children, tone = "blue" }: { href: string; children
   );
 }
 
+/** The real Home Screen icon, rounded like a phone shows it. */
+export function AppIcon({ size = 64, label = false }: { size?: number; label?: boolean }) {
+  return (
+    <span className="inline-flex flex-col items-center gap-1.5">
+      <Image src="/icon-512x512.png" alt={label ? "" : "Fargo app icon"} width={size} height={size} className="shadow-[0_8px_20px_rgba(0,113,188,0.22)]" style={{ borderRadius: size * 0.225 }} />
+      {label && <span className="text-[12px] font-medium" style={{ color: INK }}>Fargo</span>}
+    </span>
+  );
+}
+
 // ── 1. Statement ───────────────────────────────────────────────
 
 export function Statement() {
   return (
     <section className={`${WRAP} py-[clamp(96px,14vw,200px)] grid md:grid-cols-2 gap-8`}>
-      <span className={`${MONO} text-xs ${MUTED}`}>Fargo · trip planner for friends</span>
+      <div className="flex flex-col items-start gap-4">
+        <AppIcon size={64} />
+        <span className={`${MONO} text-xs ${MUTED}`}>Fargo · trip planner for friends</span>
+      </div>
       <FadeUp className="flex flex-col gap-8">
         <p className="text-[clamp(24px,2.6vw,36px)] leading-[1.08] font-bold tracking-[-0.03em]" style={{ color: INK }}>
-          Fargo keeps the plan, the places and the people in one trip. Plan the days together, keep the costs fair, and
-          collect a stamp from every place you go.
+          Planning a group trip usually means you, a spreadsheet and a very busy group chat. Fargo puts the whole plan in one
+          place your friends can see, so you plan it once and everyone follows along.
         </p>
         <div>
           <Pill href="/sign-in">Start planning</Pill>
@@ -88,8 +100,7 @@ export function Galaxy() {
         {/* Who it's for: sold to the friend who plans (BRAND.md voice) */}
         <FadeUp className="max-w-[560px] text-center">
           <p className="text-[clamp(17px,1.5vw,20px)] leading-snug font-medium" style={{ color: INK }}>
-            For the friend who always ends up planning. Build the days, send one invite link, and everyone sees the same
-            plan. No more digging through 300 messages to find what time dinner is.
+            Made for the friend who always ends up planning.
           </p>
         </FadeUp>
         <div className="pointer-events-auto">
@@ -106,7 +117,7 @@ const FEATURES = [
   {
     n: "01",
     title: "Planner",
-    body: "A day-by-day itinerary built around what you want to do, not a tour package. During the trip it opens on today.",
+    body: "A day-by-day plan your whole group shares. Everyone sees the same schedule, what's on, where and when, so nobody's left asking.",
     photo: "/marketing/photo-planner.webp",
     photoAlt: "Gardens by the Bay, Singapore",
     screen: "/marketing/screen-schedule.webp",
@@ -176,7 +187,7 @@ export function FeatureCards() {
 
 const STAGES = [
   { label: "Before", title: "Plan it together", body: "Plan the days, places and times. Share one invite link; friends suggest ideas.", src: "/marketing/illus-before.webp", alt: "A desk with a calendar, suitcases and a map pin" },
-  { label: "During", title: "Enjoy every day", body: "Fargo opens on today: what's now and what's next, plus good food near your stay.", src: "/marketing/illus-during.webp", alt: "An open guidebook, a map and a clock" },
+  { label: "During", title: "Fargo comes along", body: "Today's plan in your pocket, plus good food near your stay.", src: "/marketing/illus-during.webp", alt: "An open guidebook, a map and a clock" },
   { label: "After", title: "Square it up", body: "Everyone adds what they paid. See who pays who back, then collect your stamp.", src: "/marketing/illus-after.webp", alt: "A calculator, a suitcase and a piggy bank" },
 ];
 
@@ -184,11 +195,14 @@ export function Journey() {
   return (
     <section className={`${WRAP} py-[clamp(96px,14vw,200px)] flex flex-col gap-14`}>
       <div className="grid md:grid-cols-2 gap-6">
-        <h2 className="text-[clamp(30px,4vw,52px)] leading-[0.95] font-bold tracking-[-0.04em]" style={{ color: INK }}>
-          One trip,
-          <br />
-          start to finish.
-        </h2>
+        <div className="flex items-center gap-5">
+          <AppIcon size={64} />
+          <h2 className="text-[clamp(30px,4vw,52px)] leading-[0.95] font-bold tracking-[-0.04em]" style={{ color: INK }}>
+            One trip,
+            <br />
+            start to finish.
+          </h2>
+        </div>
         <p className={`text-[clamp(18px,1.6vw,22px)] leading-snug font-medium ${MUTED} max-w-[480px]`}>
           Fargo is with you from the first idea to the last settle-up.
         </p>
@@ -222,63 +236,78 @@ const PASSPORT_STAMPS = [
   { file: "/stamps/TH/bangkok.png", alt: "Bangkok stamp", tilt: -4 },
 ];
 
-/** Wolverine's "Market Snapshot", as a sample traveller's Passport with their stamps. */
+/**
+ * A sample traveller's Passport, laid out like the app's Passport screen (cream stamp page, the
+ * days-away card with its progress bar, a highlight row) — three stamps only, no spoilers.
+ */
 export function PassportSection() {
-  const stats = [
-    { label: "Countries", value: "4" },
-    { label: "Trips", value: "6" },
-    { label: "Stamps", value: "6" },
-    { label: "Buddies", value: "5" },
-  ];
   return (
     <section className={`${WRAP} py-[clamp(48px,6vw,96px)]`}>
       <div className="border-y border-[#d9d9d9] grid md:grid-cols-2">
-        <div className="py-6 md:pr-8 flex flex-col justify-between gap-10 md:border-r border-[#d9d9d9]">
-          <div className="flex flex-col gap-4">
-            <h2 className="text-[clamp(30px,4vw,52px)] leading-[0.95] font-bold tracking-[-0.04em]" style={{ color: INK }}>
-              Collect a stamp
-              <br />
-              from every trip.
-            </h2>
-            <p className={`text-[17px] leading-snug ${MUTED} max-w-[400px]`}>
-              When a trip ends, its stamp goes into your Passport, with your days away, countries and buddies. Which stamp? You&apos;ll see when you get there.
-            </p>
-          </div>
-          <FadeUp className="flex items-end gap-3">
-            <span className="text-[clamp(96px,11vw,160px)] leading-[0.8] font-bold tracking-[-0.06em] tabular-nums" style={{ color: INK }}>
-              38
-            </span>
-            <span className={`${MONO} text-sm ${MUTED} pb-2`}>days away</span>
-          </FadeUp>
+        <div className="py-8 md:pr-8 flex flex-col gap-4 md:border-r border-[#d9d9d9]">
+          <h2 className="text-[clamp(30px,4vw,52px)] leading-[0.95] font-bold tracking-[-0.04em]" style={{ color: INK }}>
+            Collect a stamp
+            <br />
+            from every trip.
+          </h2>
+          <p className={`text-[17px] leading-snug ${MUTED} max-w-[400px]`}>
+            When a trip ends, its stamp goes into your Passport, with your days away, countries and buddies. Which stamp? You&apos;ll see when you get there.
+          </p>
         </div>
 
-        <div className="py-6 md:pl-8 flex flex-col gap-6">
-          <div className="flex justify-between text-[15px]" style={{ color: INK }}>
-            <span>Passport · a sample traveller</span>
-            <span>2026</span>
-          </div>
-          {/* The cream passport page: three stamps and a blank for the next trip */}
-          <div className="rounded-[20px] bg-[#f6efe2] p-5 sm:p-8 grid grid-cols-2 gap-5 sm:gap-8 place-items-center">
-            {PASSPORT_STAMPS.map((st, i) => (
-              <FadeUp key={st.file} delay={i * 150} className="w-full max-w-[200px]">
-                <Image src={st.file} alt={st.alt} width={400} height={400} sizes="200px" className="w-full h-auto" style={{ transform: `rotate(${st.tilt}deg)` }} />
-              </FadeUp>
-            ))}
-            <div className="w-full max-w-[200px] aspect-square rounded-[24px] border-2 border-dashed border-[#d2c4a8] flex flex-col items-center justify-center gap-2 rotate-3">
-              <span className="text-[44px] leading-none font-bold text-[#c2b292]">?</span>
-              <span className={`${MONO} text-[10px] text-[#a8977a]`}>Your next trip</span>
-            </div>
-          </div>
-          <dl className="grid grid-cols-4 border-t border-[#d9d9d9] pt-4">
-            {stats.map((st) => (
-              <div key={st.label} className="flex flex-col gap-1.5">
-                <dt className={`${MONO} text-[11px] ${MUTED}`}>{st.label}</dt>
-                <dd className="text-[17px] font-semibold tabular-nums" style={{ color: INK }}>
-                  {st.value}
-                </dd>
+        <div className="py-8 md:pl-8">
+          {/* The app's Passport screen, as cards on the app's page grey */}
+          <FadeUp className="rounded-[24px] bg-page p-3 sm:p-4 flex flex-col gap-2.5 max-w-[460px] mx-auto">
+            <span className="px-1 pt-1 text-[26px] font-bold tracking-[-0.5px] text-fg">Passport</span>
+
+            <div className="rounded-card bg-[#f6efe2] p-3.5">
+              <div className="flex items-baseline justify-between mx-0.5 mb-3">
+                <span className="text-[15px] font-semibold text-[#5b4a2e]">
+                  Stamps <span className="font-normal text-[#8a7655]">· 6</span>
+                </span>
+                <span className="text-[13px] font-semibold text-brand">See all</span>
               </div>
-            ))}
-          </dl>
+              <div className="grid grid-cols-4 gap-3 items-center py-1">
+                {PASSPORT_STAMPS.map((st) => (
+                  <Image key={st.file} src={st.file} alt={st.alt} width={160} height={160} sizes="90px" className="w-full h-auto" style={{ transform: `rotate(${st.tilt}deg)` }} />
+                ))}
+                <div className="aspect-square rounded-[16px] border-2 border-dashed border-[#d9cdb6] flex items-center justify-center text-[22px] font-bold text-[#b3a487] rotate-3" title="Your next trip">
+                  ?
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-card bg-surface p-4">
+              <p className="leading-none">
+                <span className="text-[40px] font-bold text-brand tabular-nums">38</span>
+                <span className="text-base font-semibold text-fg ml-2">days away</span>
+              </p>
+              <div className="mt-3.5 h-2 rounded-full bg-brand-soft overflow-hidden" aria-hidden>
+                <div className="h-full w-[10.4%] rounded-full bg-brand" />
+              </div>
+              <p className="text-xs text-fg-muted mt-1.5">38 of 365 days in 2026 spent travelling</p>
+              <div className="flex mt-4 pt-3.5 border-t border-line">
+                {[
+                  ["4", "countries"],
+                  ["6", "trips"],
+                  ["5", "buddies"],
+                ].map(([v, l], i) => (
+                  <div key={l} className={`flex-1 ${i ? "border-l border-line pl-4" : ""}`}>
+                    <p className="text-xl font-bold text-fg tabular-nums leading-none">{v}</p>
+                    <p className="text-xs text-fg-muted mt-1">{l}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-card bg-surface px-4 py-3 flex items-center gap-3">
+              <span className="w-[34px] h-[34px] rounded-full bg-brand-soft text-brand text-sm font-bold flex items-center justify-center">A</span>
+              <span className="flex flex-col">
+                <span className="text-sm font-semibold text-fg">Most trips with Ali</span>
+                <span className="text-xs text-fg-muted">2 trips together</span>
+              </span>
+            </div>
+          </FadeUp>
         </div>
       </div>
     </section>
@@ -305,7 +334,8 @@ export function InstallAndFaq() {
   return (
     <>
       <section id="install" className={`${WRAP} py-[clamp(96px,12vw,170px)] grid md:grid-cols-2 gap-10 scroll-mt-16`}>
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col items-start gap-4">
+          <AppIcon size={72} label />
           <h2 className="text-[clamp(30px,4vw,52px)] leading-[0.95] font-bold tracking-[-0.04em]" style={{ color: INK }}>
             Put Fargo on your Home Screen.
           </h2>
@@ -407,9 +437,9 @@ export function Footer() {
         <Link href="/privacy" className="hover:text-white">Privacy</Link>
         <Link href="/terms" className="hover:text-white">Terms</Link>
       </div>
-      {/* Giant wordmark: needs a large / vector logo to span the full width (only a 306px PNG today) */}
+      {/* Giant wordmark across the full width (vector, Branding/Logo-wordmark.svg trimmed to the letters) */}
       <div className={`${WRAP} pb-8`}>
-        <Image src={logoWhite} alt="Fargo" className="w-[min(100%,460px)] h-auto" sizes="460px" />
+        <Image src="/marketing/wordmark-white.svg" alt="Fargo" width={584} height={208} unoptimized className="w-full h-auto" />
       </div>
     </footer>
   );
