@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import logoWhite from "@/assets/logo-white.png";
 import { Drift, FadeUp, RevealWords } from "./motion";
+import { PhoneFrame } from "@/components/marketing/frames";
 
 /**
  * Landing page v6 (LANDING.md → Redesign v6, reference wolverineworldwide.com): giant tight
@@ -84,6 +85,13 @@ export function Galaxy() {
         <h2 className="text-[clamp(56px,11vw,160px)] leading-[0.82] font-bold tracking-[-0.055em] text-center" style={{ color: INK }}>
           <RevealWords lines={["Your trip,", "your way."]} />
         </h2>
+        {/* Who it's for: sold to the friend who plans (BRAND.md voice) */}
+        <FadeUp className="max-w-[560px] text-center">
+          <p className="text-[clamp(17px,1.5vw,20px)] leading-snug font-medium" style={{ color: INK }}>
+            For the friend who always ends up planning. Build the days, send one invite link, and everyone sees the same
+            plan. No more digging through 300 messages to find what time dinner is.
+          </p>
+        </FadeUp>
         <div className="pointer-events-auto">
           <Pill href="#cards" tone="grey">See what&apos;s inside</Pill>
         </div>
@@ -140,18 +148,20 @@ export function FeatureCards() {
       {FEATURES.map((f) => (
         <FadeUp key={f.n}>
           <article className="grid md:grid-cols-2 gap-4 md:gap-6 rounded-[20px] bg-[#0c0c0c] text-white p-1.5 sm:p-2">
-            <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[440px] rounded-[16px] overflow-hidden">
+            {/* Photo with the real app screen on top of it (like the v5 switcher) */}
+            <div className="relative rounded-[16px] overflow-hidden flex justify-center pt-10 pb-8 sm:pt-14 sm:pb-10 md:min-h-[600px] md:items-center">
               <Image src={f.photo} alt={f.photoAlt} fill sizes="(min-width: 768px) 640px, 100vw" className="object-cover" />
+              <PhoneFrame label={f.screenAlt} src={f.screen} className="relative !w-[210px] !h-[436px] sm:!w-[250px] sm:!h-[520px] !rounded-[34px] !p-1.5 [&>div]:!rounded-[28px] !shadow-[0_24px_60px_rgba(0,0,0,0.45)]" />
             </div>
             <div className="flex flex-col gap-6 p-4 sm:p-6 md:pl-0">
               <div className="flex items-baseline justify-between">
                 <h3 className="text-[clamp(32px,3.6vw,52px)] leading-[0.95] font-bold tracking-[-0.04em]">{f.title}</h3>
                 <span className={`${MONO} text-xs text-white/60`}>{f.n}</span>
               </div>
-              <div className="mt-auto grid grid-cols-[1fr_auto] gap-5 items-end">
-                <p className="text-[15px] leading-snug text-white/85 max-w-[300px]">{f.body}</p>
-                <div className="relative w-[118px] sm:w-[150px] aspect-[780/1100] rounded-[14px] overflow-hidden bg-[#1c1c1c]">
-                  <Image src={f.screen} alt={f.screenAlt} fill sizes="150px" className="object-cover object-top" />
+              <div className="mt-auto flex flex-col gap-6">
+                <p className="text-[clamp(16px,1.4vw,19px)] leading-snug text-white/85 max-w-[380px]">{f.body}</p>
+                <div>
+                  <Pill href="/sign-in" tone="white">Try it out</Pill>
                 </div>
               </div>
             </div>
@@ -203,10 +213,17 @@ export function Journey() {
   );
 }
 
-// ── 5. Passport in numbers ─────────────────────────────────────
+// ── 5. Passport (numbers + a few stamps) ───────────────────────
 
-/** Wolverine's "Market Snapshot", as a sample traveller's Passport. */
-export function PassportNumbers() {
+/** Only a few real stamps — the rest of the library stays a surprise. */
+const PASSPORT_STAMPS = [
+  { file: "/stamps/MY/penang.png", alt: "Penang stamp", tilt: -8 },
+  { file: "/stamps/JP/kyoto.png", alt: "Kyoto stamp", tilt: 6 },
+  { file: "/stamps/TH/bangkok.png", alt: "Bangkok stamp", tilt: -4 },
+];
+
+/** Wolverine's "Market Snapshot", as a sample traveller's Passport with their stamps. */
+export function PassportSection() {
   const stats = [
     { label: "Countries", value: "4" },
     { label: "Trips", value: "6" },
@@ -214,31 +231,50 @@ export function PassportNumbers() {
     { label: "Buddies", value: "5" },
   ];
   return (
-    <section className={WRAP}>
+    <section className={`${WRAP} py-[clamp(48px,6vw,96px)]`}>
       <div className="border-y border-[#d9d9d9] grid md:grid-cols-2">
-        <div className="py-6 md:pr-8 flex flex-col justify-between gap-8 md:border-r border-[#d9d9d9]">
-          <h2 className="text-[clamp(28px,3vw,40px)] leading-none font-bold tracking-[-0.04em]" style={{ color: INK }}>
-            Your Passport
-          </h2>
-          <p className={`text-[15px] leading-snug ${MUTED} max-w-[340px]`}>Every trip adds up: days away, countries, buddies and a stamp to keep.</p>
-        </div>
-        <div className="py-6 md:pl-8 flex flex-col gap-6">
-          <div className="flex justify-between text-[15px]" style={{ color: INK }}>
-            <span>A sample traveller</span>
-            <span>2026</span>
+        <div className="py-6 md:pr-8 flex flex-col justify-between gap-10 md:border-r border-[#d9d9d9]">
+          <div className="flex flex-col gap-4">
+            <h2 className="text-[clamp(30px,4vw,52px)] leading-[0.95] font-bold tracking-[-0.04em]" style={{ color: INK }}>
+              Collect a stamp
+              <br />
+              from every trip.
+            </h2>
+            <p className={`text-[17px] leading-snug ${MUTED} max-w-[400px]`}>
+              When a trip ends, its stamp goes into your Passport, with your days away, countries and buddies. Which stamp? You&apos;ll see when you get there.
+            </p>
           </div>
-          <FadeUp className="flex items-end justify-center gap-3 py-6">
-            <span className="text-[clamp(96px,12vw,170px)] leading-[0.8] font-bold tracking-[-0.06em] tabular-nums" style={{ color: INK }}>
+          <FadeUp className="flex items-end gap-3">
+            <span className="text-[clamp(96px,11vw,160px)] leading-[0.8] font-bold tracking-[-0.06em] tabular-nums" style={{ color: INK }}>
               38
             </span>
             <span className={`${MONO} text-sm ${MUTED} pb-2`}>days away</span>
           </FadeUp>
+        </div>
+
+        <div className="py-6 md:pl-8 flex flex-col gap-6">
+          <div className="flex justify-between text-[15px]" style={{ color: INK }}>
+            <span>Passport · a sample traveller</span>
+            <span>2026</span>
+          </div>
+          {/* The cream passport page: three stamps and a blank for the next trip */}
+          <div className="rounded-[20px] bg-[#f6efe2] p-5 sm:p-8 grid grid-cols-2 gap-5 sm:gap-8 place-items-center">
+            {PASSPORT_STAMPS.map((st, i) => (
+              <FadeUp key={st.file} delay={i * 150} className="w-full max-w-[200px]">
+                <Image src={st.file} alt={st.alt} width={400} height={400} sizes="200px" className="w-full h-auto" style={{ transform: `rotate(${st.tilt}deg)` }} />
+              </FadeUp>
+            ))}
+            <div className="w-full max-w-[200px] aspect-square rounded-[24px] border-2 border-dashed border-[#d2c4a8] flex flex-col items-center justify-center gap-2 rotate-3">
+              <span className="text-[44px] leading-none font-bold text-[#c2b292]">?</span>
+              <span className={`${MONO} text-[10px] text-[#a8977a]`}>Your next trip</span>
+            </div>
+          </div>
           <dl className="grid grid-cols-4 border-t border-[#d9d9d9] pt-4">
-            {stats.map((s) => (
-              <div key={s.label} className="flex flex-col gap-1.5">
-                <dt className={`${MONO} text-[11px] ${MUTED}`}>{s.label}</dt>
+            {stats.map((st) => (
+              <div key={st.label} className="flex flex-col gap-1.5">
+                <dt className={`${MONO} text-[11px] ${MUTED}`}>{st.label}</dt>
                 <dd className="text-[17px] font-semibold tabular-nums" style={{ color: INK }}>
-                  {s.value}
+                  {st.value}
                 </dd>
               </div>
             ))}

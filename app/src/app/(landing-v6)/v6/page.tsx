@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import logoWhite from "@/assets/logo-white.png";
-import { Closing, FeatureCards, Footer, Galaxy, InstallAndFaq, Journey, MONO, PassportNumbers, Statement } from "@/components/landing-v6/sections";
-import { StampCarousel } from "@/components/landing-v6/stamp-carousel";
+import { Closing, FeatureCards, Footer, Galaxy, InstallAndFaq, Journey, MONO, PassportSection, Statement } from "@/components/landing-v6/sections";
 import { RevealWords } from "@/components/landing-v6/motion";
 
 // Draft of the redesigned landing page — not linked anywhere, not indexed. Replaces / once approved.
@@ -56,8 +55,7 @@ export default function LandingV6() {
       <Galaxy />
       <FeatureCards />
       <Journey />
-      <PassportNumbers />
-      <StampCarousel />
+      <PassportSection />
       <InstallAndFaq />
       <Closing />
       <Footer />
