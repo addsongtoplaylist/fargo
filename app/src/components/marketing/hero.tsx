@@ -33,12 +33,14 @@ type Scene = {
   month: string;
   /** Tickets: where the subject sits across the video (%), so the ticket's window frames it */
   focus?: number;
+  /** Tickets: sit a little lower (to take in the table, e.g. Vietnam's food) */
+  lower?: boolean;
 };
 const SCENES = (
   [
     { kind: "pass", from: [0, 0], to: [3, 5], a: ["SIN", "SINGAPORE"], b: ["HND", "TOKYO"], km: "5,320km", temp: "14°C", days: "6D 5N", dates: "02.04 – 07.04", month: "APR 2026" },
-    // Vietnam: the girl and the friend in the yellow shirt
-    { kind: "ticket", from: [3, 6], to: [6, 11], a: ["KUL", "KUALA LUMPUR"], b: ["SGN", "HO CHI MINH CITY"], km: "1,060km", temp: "31°C", days: "4D 3N", dates: "12.03 – 15.03", month: "MAR 2026", focus: 43 },
+    // Vietnam: the girl and the friend in the yellow shirt, low enough to show the food
+    { kind: "ticket", from: [3, 6], to: [6, 11], a: ["KUL", "KUALA LUMPUR"], b: ["SGN", "HO CHI MINH CITY"], km: "1,060km", temp: "31°C", days: "4D 3N", dates: "12.03 – 15.03", month: "MAR 2026", focus: 43, lower: true },
     // Singapore: the lady at the table
     { kind: "ticket", from: [6, 12], to: [9, 4], a: ["HND", "TOKYO"], b: ["SIN", "SINGAPORE"], km: "5,320km", temp: "30°C", days: "4D 3N", dates: "18.07 – 21.07", month: "JUL 2026", focus: 64 },
     { kind: "pass", from: [9, 5], to: [12, 10], a: ["CGK", "JAKARTA"], b: ["KUL", "TAMAN NEGARA"], km: "1,150km", temp: "27°C", days: "3D 2N", dates: "09.08 – 11.08", month: "AUG 2026" },
@@ -226,7 +228,7 @@ export function Hero() {
             key={i}
             className={
               s.kind === "ticket"
-                ? "absolute left-1/2 md:left-[var(--x)] top-1/2 -translate-x-1/2 -translate-y-[46%] w-[min(76vw,54svh,330px)] md:w-[min(30vw,52svh,500px)]"
+                ? `absolute left-1/2 md:left-[var(--x)] top-1/2 -translate-x-1/2 ${s.lower ? "-translate-y-[26%] md:-translate-y-[37%]" : "-translate-y-[46%]"} w-[min(76vw,54svh,330px)] md:w-[min(30vw,52svh,500px)]`
                 : "absolute left-1/2 -translate-x-1/2 bottom-[5%] w-[min(82vw,330px)] md:w-[clamp(320px,30vw,460px)]"
             }
             style={s.focus ? { ["--x" as string]: `${s.focus}%` } : undefined}
