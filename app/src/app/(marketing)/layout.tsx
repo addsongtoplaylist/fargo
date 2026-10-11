@@ -1,13 +1,18 @@
-import { MarketingHeader } from "@/components/marketing/marketing-header";
-import { MarketingFooter } from "@/components/marketing/marketing-footer";
+import { IBM_Plex_Mono } from "next/font/google";
+import { FloatingNav, SiteFooter } from "@/components/marketing/site-nav";
 
-/** Marketing pages: landing (/ signed out, /home for anyone), privacy, terms. Signed-in visitors to / are sent to /trips by the middleware. */
+const plex = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex", display: "swap" });
+
+/**
+ * Marketing pages: landing (/ signed out, /home for anyone), Privacy, Terms — white page, black ink
+ * (LANDING.md → Redesign v6). The landing hero carries its own nav; Privacy / Terms use SolidNav.
+ */
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh flex flex-col bg-page">
-      <MarketingHeader />
+    <div className={`${plex.variable} min-h-dvh flex flex-col bg-white text-[#0c0c0c]`}>
+      <FloatingNav />
       <main className="flex-1">{children}</main>
-      <MarketingFooter />
+      <SiteFooter />
     </div>
   );
 }

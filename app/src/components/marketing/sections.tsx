@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Drift, FadeUp, RevealWords } from "./motion";
 import { PhoneFrame } from "@/components/marketing/frames";
 import { HomeScreenMock } from "./home-screen";
@@ -8,7 +8,7 @@ import { HomeScreenMock } from "./home-screen";
 /**
  * Landing page v6 (LANDING.md → Redesign v6, reference wolverineworldwide.com): giant tight
  * Sora type, white page, black ink, Fargo blue for buttons, IBM Plex Mono for small labels,
- * photography and stamps for colour. Draft at /v6 until the owner approves it.
+ * photography for colour. Live at / and /home since v0.5.19.
  */
 
 export const INK = "#0c0c0c";
@@ -418,47 +418,5 @@ export function Closing() {
         </div>
       </div>
     </section>
-  );
-}
-
-// ── 8. Footer ──────────────────────────────────────────────────
-
-export function Footer() {
-  const links = [
-    { href: "#features", label: "Features" },
-    { href: "#install", label: "Add to Home Screen" },
-    { href: "#faq", label: "Questions" },
-    { href: "/sign-in", label: "Sign in" },
-  ];
-  return (
-    <footer className="bg-[#0c0c0c] text-white mt-2">
-      <div className={`${WRAP} pt-16 pb-10 grid md:grid-cols-2 gap-12`}>
-        <div className="flex flex-col gap-5 max-w-[340px]">
-          <Image src="/mascot.png" alt="" width={52} height={52} className="rounded-[12px]" />
-          <p className="text-[15px] leading-snug text-white/75">Made for friends who travel together. Plan the days, share the plan and keep the costs fair.</p>
-        </div>
-        <nav aria-label="Fargo" className="flex flex-col">
-          {links.map((l) => (
-            <Link
-              key={l.label}
-              href={l.href}
-              className="flex items-center justify-between border-b border-white/15 py-2.5 text-[clamp(22px,2.2vw,30px)] font-medium tracking-[-0.03em] text-white/60 hover:text-white transition-colors"
-            >
-              {l.label}
-              <ArrowUpRight size={20} className="opacity-60" aria-hidden />
-            </Link>
-          ))}
-        </nav>
-      </div>
-      <div className={`${WRAP} pb-6 flex flex-wrap gap-x-6 gap-y-2 ${MONO} text-[11px] text-white/55`}>
-        <span>© 2026 Fargo</span>
-        <Link href="/privacy" className="hover:text-white">Privacy</Link>
-        <Link href="/terms" className="hover:text-white">Terms</Link>
-      </div>
-      {/* Wordmark at half the page width, left-aligned (vector, Branding/Logo-wordmark.svg trimmed to the letters) */}
-      <div className={`${WRAP} pb-8`}>
-        <Image src="/marketing/wordmark-white.svg" alt="Fargo" width={584} height={208} unoptimized className="w-1/2 h-auto" />
-      </div>
-    </footer>
   );
 }

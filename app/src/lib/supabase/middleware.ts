@@ -40,7 +40,6 @@ export async function updateSession(request: NextRequest) {
   const isPublicRoute =
     pathname === "/" || // landing page (signed out)
     pathname === "/home" || // landing page for anyone (Profile → About Fargo)
-    pathname === "/v6" || // landing page v6 draft (not linked, not indexed)
     pathname === "/privacy" ||
     pathname === "/terms" ||
     pathname.startsWith("/sign-in") ||

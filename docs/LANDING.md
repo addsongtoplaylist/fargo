@@ -1,6 +1,6 @@
 # Fargo — Marketing site: IA + copysheet
 
-> **v6 in progress — 2026-10-12. Redesign in the style of wolverineworldwide.com** (owner: the current page feels too template-like). See "Redesign v6" at the end. Nothing built yet.
+> **v6 — 2026-10-12. Redesign in the style of wolverineworldwide.com, approved and built** (replaces v5 at / and /home). See "Redesign v6" at the end. The hero video montage is the one piece still to come (`components/marketing/hero.tsx` → `HERO_VIDEO`).
 
 > **v5 — 2026-10-09. One page (final structure).** Everything is on `/`: hero → "Your trip, your way" switcher → how it works → Add to Home Screen → FAQ → closing band. The /features page and the detailed Planner / Budget / Passport sections are dropped.
 
@@ -228,3 +228,5 @@ Reference: wolverineworldwide.com. The page is built from giant, tightly set typ
 Next: owner shares the clips → Claude checks the phone crop and renders the 6 overlays as transparent PNGs → owner edits the montage in CapCut → mockup of the full page → build.
 
 **Galaxy photos (owner-picked 2026-10-12, Unsplash free licence, never repeated elsewhere on the page)** — `app/public/marketing/galaxy/`, 600×750 WebP: hikers-trail `vIluu0IH6Ps` · night-market `RGsP-cvyIoI` · korean-dinner `NUm7_yhVdZw` · ao-dai `8t4rXFJbLnM` · hoi-an-bikes `dpj0K1CEjAw` · marina-bay-sands `__cBlRzLSTg` · fuji `LSsUOd8oevk` · gyeongbokgung `RbaGeW_LbGs` · ulun-danu `Y0UUhY1V7Po` · hong-kong `4vf1KEkD7Gc` · lanterns `XGuZ4HlC5qU` · floating-market `zyXbRgPOW70` · kek-lok-si `Cs-vCRDsHho` · street-food-fire `gGeo3g-zUgw` · beach-swim `5vtILRBkk7s` · tokyo-night `64ajtpEzlYc` · taipei-street `6rEPAbrXNaY` · friends-boat `tL5RIAYxObs` · ha-long-bay `kG7pOXbBfNs` (unsplash.com/photos/<id>; 19 in total).
+
+**Built (2026-10-12, owner-approved):** hero (video slot + "Every trip starts here.") → statement ("Before the bags, the flights and the photos, every trip starts here.", app icon + blue wordmark) → photo galaxy ("Your trip, your way.", 19 Unsplash photos, no stamps) → four black feature cards (photo + real screen in a phone, Try it out) → "One trip, start to finish" (Before / Fargo comes along / After) → Passport like the app (3 stamps + "?", 38 days away, a highlight row) → install with a phone home screen where the Fargo icon pops in → FAQ → "Where to next?" → black footer with the half-width vector wordmark. Nav: see-through over the hero, a floating black pill after the first screen, a solid bar on Privacy / Terms. "Add an activity in 3 steps" and the stamp carousel were dropped. Code: `components/marketing/` (`sections.tsx`, `hero.tsx`, `site-nav.tsx`, `motion.tsx`, `home-screen.tsx`).

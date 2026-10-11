@@ -1,3 +1,5 @@
+import { SolidNav } from "./site-nav";
+
 /**
  * Privacy and Terms pages: plain-English sections (BRAND.md tone).
  * CONTACT_EMAIL is null until the owner sets up an inbox; the pages then say it's coming soon.
@@ -19,9 +21,11 @@ export function LegalPage({
   sections: LegalSection[];
 }) {
   return (
-    <article className="mx-auto max-w-[720px] px-4 sm:px-6 py-16 flex flex-col gap-8">
+    <>
+    <SolidNav />
+    <article className="mx-auto max-w-[720px] px-4 sm:px-6 pt-12 pb-24 flex flex-col gap-8">
       <header className="flex flex-col gap-3">
-        <h1 className="text-[30px] md:text-[40px] font-extrabold tracking-[-0.8px] text-fg">{title}</h1>
+        <h1 className="text-[clamp(36px,5vw,64px)] leading-[0.95] font-bold tracking-[-0.04em] text-[#0c0c0c]">{title}</h1>
         <p className="text-[13px] text-fg-muted">Last updated {updated}</p>
         <div className="text-[17px] leading-relaxed text-fg">{intro}</div>
       </header>
@@ -36,6 +40,7 @@ export function LegalPage({
         </section>
       ))}
     </article>
+    </>
   );
 }
 
