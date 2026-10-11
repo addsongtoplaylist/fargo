@@ -4,6 +4,12 @@
 
 ---
 
+**2026-10-12 — Hero ticket framing (v0.5.20)**
+
+Owner: the Photo tickets were too small and missed the subject. Now one larger size, placed per scene (`focus` across the video, `lower` for Vietnam's food); phones shift the video's `object-position` per scene. Phone limit: the window shows a narrow slice of the landscape video — a portrait export of the three ticket clips would fix it if needed.
+
+---
+
 **2026-10-12 — New landing page (v0.5.19)**
 
 Landing redesign v6 shipped (`LANDING.md` → Redesign v6 and "As built"): hero montage with Trip passes / Photo tickets in code, galaxy, feature cards, new isometric illustrations (gpt-image-2, ~US$0.25), Passport replica, home-screen mock, floating nav. Stamp library re-inked in three colours (`scripts/stamps/recolour.py`). ffmpeg installed (Homebrew) for web video. Checked signed-out access to page and media on the production build.

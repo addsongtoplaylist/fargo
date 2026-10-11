@@ -4,6 +4,16 @@
 
 ---
 
+## v0.5.20 — 2026-10-12 · Hero tickets frame the moment
+
+### Landing page
+
+- **The Photo tickets in the hero are bigger** (the same size for all three) and their window now frames each scene's subject: Vietnam the girl and the friend in yellow with the food on the table, Singapore the lady with Marina Bay Sands behind her, Thailand the river and the food boat.
+- Wide screens move the ticket over the subject; phones shift the video so the subject sits under the window.
+- No database changes.
+
+---
+
 ## v0.5.19 — 2026-10-12 · New landing page; stamps in three inks
 
 ### Landing page

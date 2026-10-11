@@ -1,6 +1,6 @@
 # Fargo — Roadmap
 
-> **v1.0 — 2026-10-10** (live version updated 2026-10-11). Live: v0.5.19 (PWA, `fargotravel.vercel.app`). Since v0.9: landing page (v0.5.8) and a full security review (v0.5.8–0.5.13, `REVIEW.md`). Before that (v0.9 — 2026-10-09): Phases 1–3 done; Phase 4 almost done. Since the last refresh: group expenses (v0.4), the redesign and cover photos (v0.5.0–0.5.1), personal checklists and idea suggestions (v0.5.4), Passport (v0.5.6) and share overlays (v0.5.7). Explore was specced and then **shelved**. Native app parked; all effort is on the PWA.
+> **v1.0 — 2026-10-10** (live version updated 2026-10-11). Live: v0.5.20 (PWA, `fargotravel.vercel.app`). Since v0.9: landing page (v0.5.8) and a full security review (v0.5.8–0.5.13, `REVIEW.md`). Before that (v0.9 — 2026-10-09): Phases 1–3 done; Phase 4 almost done. Since the last refresh: group expenses (v0.4), the redesign and cover photos (v0.5.0–0.5.1), personal checklists and idea suggestions (v0.5.4), Passport (v0.5.6) and share overlays (v0.5.7). Explore was specced and then **shelved**. Native app parked; all effort is on the PWA.
 >
 > v0.8 — 2026-09-26 · v0.7 — 2026-09-06 (history in the decision log and `STATUS.md`).
 
