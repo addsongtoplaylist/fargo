@@ -52,8 +52,7 @@ export function Statement() {
       </div>
       <FadeUp className="flex flex-col gap-8">
         <p className="text-[clamp(24px,2.6vw,36px)] leading-[1.08] font-bold tracking-[-0.03em]" style={{ color: INK }}>
-          Planning a group trip usually means you, a spreadsheet and a very busy group chat. Fargo puts the whole plan in one
-          place your friends can see, so you plan it once and everyone follows along.
+          Before the bags, the flights and the photos, every trip starts here.
         </p>
         <div>
           <Pill href="/sign-in">Start planning</Pill>
