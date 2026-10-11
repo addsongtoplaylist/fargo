@@ -46,7 +46,7 @@ export function Statement() {
       <div className="flex flex-col items-start gap-4">
         <span className="flex items-center gap-4">
           <AppIcon size={77} />
-          <Image src="/marketing/wordmark-dark.svg" alt="Fargo" width={584} height={208} unoptimized className="h-[52px] w-auto" />
+          <Image src="/marketing/wordmark-blue.svg" alt="Fargo" width={584} height={208} unoptimized className="h-[52px] w-auto" />
         </span>
         <span className={`${MONO} text-[15px] ${MUTED}`}>Trip planner for friends</span>
       </div>
@@ -450,9 +450,9 @@ export function Footer() {
         <Link href="/privacy" className="hover:text-white">Privacy</Link>
         <Link href="/terms" className="hover:text-white">Terms</Link>
       </div>
-      {/* Giant wordmark across the full width (vector, Branding/Logo-wordmark.svg trimmed to the letters) */}
+      {/* Wordmark at half the page width, left-aligned (vector, Branding/Logo-wordmark.svg trimmed to the letters) */}
       <div className={`${WRAP} pb-8`}>
-        <Image src="/marketing/wordmark-white.svg" alt="Fargo" width={584} height={208} unoptimized className="w-full h-auto" />
+        <Image src="/marketing/wordmark-white.svg" alt="Fargo" width={584} height={208} unoptimized className="w-1/2 h-auto" />
       </div>
     </footer>
   );
