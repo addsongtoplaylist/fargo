@@ -9,8 +9,8 @@ import { HeroNav } from "./site-nav";
  * Hero (LANDING.md → Redesign v6): the owner's montage of six trips, full screen, with a Fargo
  * share overlay per scene drawn in code (sharp at any size, never baked into the video):
  * - Trip pass (Japan, Malaysia, Korea): bottom centre, over a dark gradient from the bottom;
- * - Photo ticket (Vietnam, Singapore, Thailand): dead centre — its window is see-through, so
- *   the scene keeps playing inside the ticket.
+ * - Photo ticket (Vietnam, Singapore, Thailand): large, its see-through window over the scene's
+ *   subject (wide screens move the ticket; phones shift the video so the subject is centred).
  * One landscape video; phones show its centre, where every scene keeps its subject.
  * The page's h1 stays for screen readers and search, hidden on screen (owner, 2026-10-12).
  */
@@ -31,22 +31,31 @@ type Scene = {
   days: string;
   dates: string;
   month: string;
+  /** Tickets: where the subject sits across the video (%), so the ticket's window frames it */
+  focus?: number;
 };
 const SCENES = (
   [
     { kind: "pass", from: [0, 0], to: [3, 5], a: ["SIN", "SINGAPORE"], b: ["HND", "TOKYO"], km: "5,320km", temp: "14°C", days: "6D 5N", dates: "02.04 – 07.04", month: "APR 2026" },
-    { kind: "ticket", from: [3, 6], to: [6, 11], a: ["KUL", "KUALA LUMPUR"], b: ["SGN", "HO CHI MINH CITY"], km: "1,060km", temp: "31°C", days: "4D 3N", dates: "12.03 – 15.03", month: "MAR 2026" },
-    { kind: "ticket", from: [6, 12], to: [9, 4], a: ["HND", "TOKYO"], b: ["SIN", "SINGAPORE"], km: "5,320km", temp: "30°C", days: "4D 3N", dates: "18.07 – 21.07", month: "JUL 2026" },
+    // Vietnam: the two friends in the middle (the girl and the friend laughing in blue)
+    { kind: "ticket", from: [3, 6], to: [6, 11], a: ["KUL", "KUALA LUMPUR"], b: ["SGN", "HO CHI MINH CITY"], km: "1,060km", temp: "31°C", days: "4D 3N", dates: "12.03 – 15.03", month: "MAR 2026", focus: 59 },
+    // Singapore: the lady at the table
+    { kind: "ticket", from: [6, 12], to: [9, 4], a: ["HND", "TOKYO"], b: ["SIN", "SINGAPORE"], km: "5,320km", temp: "30°C", days: "4D 3N", dates: "18.07 – 21.07", month: "JUL 2026", focus: 64 },
     { kind: "pass", from: [9, 5], to: [12, 10], a: ["CGK", "JAKARTA"], b: ["KUL", "TAMAN NEGARA"], km: "1,150km", temp: "27°C", days: "3D 2N", dates: "09.08 – 11.08", month: "AUG 2026" },
     { kind: "pass", from: [12, 11], to: [14, 28], a: ["BKK", "BANGKOK"], b: ["ICN", "SEOUL"], km: "3,720km", temp: "18°C", days: "5D 4N", dates: "20.10 – 24.10", month: "OCT 2026" },
-    { kind: "ticket", from: [14, 29], to: [17, 28], a: ["KUL", "KUALA LUMPUR"], b: ["BKK", "BANGKOK"], km: "1,180km", temp: "33°C", days: "3D 2N", dates: "05.12 – 07.12", month: "DEC 2026" },
+    // Thailand: the river and the food boat
+    { kind: "ticket", from: [14, 29], to: [17, 28], a: ["KUL", "KUALA LUMPUR"], b: ["BKK", "BANGKOK"], km: "1,180km", temp: "33°C", days: "3D 2N", dates: "05.12 – 07.12", month: "DEC 2026", focus: 40 },
   ] as Scene[]
 ).map((s) => ({ ...s, start: f(...s.from), end: f(s.to[0], s.to[1] + 1) }));
 type Timed = (typeof SCENES)[number];
 
-/** Which scene's overlay shows: fades in just after a cut and out just before the next. */
+/**
+ * scene: which overlay shows (fades in just after a cut, out just before the next).
+ * shot: which scene is on screen right now, for framing the video on phones.
+ */
 function useScene(video: React.RefObject<HTMLVideoElement | null>) {
   const [scene, setScene] = useState<number | null>(0);
+  const [shot, setShot] = useState(0);
   useEffect(() => {
     let frame = 0;
     const tick = () => {
@@ -55,13 +64,14 @@ function useScene(video: React.RefObject<HTMLVideoElement | null>) {
         const t = v.currentTime;
         const i = SCENES.findIndex((s) => t >= s.start + 0.2 && t < s.end - 0.35);
         setScene(i === -1 ? null : i);
+        setShot(Math.max(0, SCENES.findIndex((s) => t >= s.start && t < s.end)));
       }
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [video]);
-  return scene;
+  return { scene, shot };
 }
 
 const MONO = "font-[family-name:var(--font-plex)] tracking-[0.1em]";
@@ -177,14 +187,16 @@ function PhotoTicket({ s }: { s: Timed }) {
   );
 }
 
-function HeroVideo({ video }: { video: React.RefObject<HTMLVideoElement | null> }) {
+/** focus: on phones (which show the video's centre), shift the frame so a ticket scene's subject sits under the window. */
+function HeroVideo({ video, focus }: { video: React.RefObject<HTMLVideoElement | null>; focus: number }) {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) video.current?.pause();
   }, [video]);
   return (
     <video
       ref={video}
-      className="absolute inset-0 h-full w-full object-cover"
+      className="absolute inset-0 h-full w-full object-cover object-[var(--focus)_50%] md:object-center"
+      style={{ ["--focus" as string]: `${focus}%` }}
       src={VIDEO}
       poster={POSTER}
       autoPlay
@@ -199,13 +211,13 @@ function HeroVideo({ video }: { video: React.RefObject<HTMLVideoElement | null> 
 
 export function Hero() {
   const video = useRef<HTMLVideoElement>(null);
-  const scene = useScene(video);
+  const { scene, shot } = useScene(video);
 
   return (
     <section className="h-svh sm:px-2 sm:pt-2">
       <h1 className="sr-only">Fargo: every trip starts here</h1>
       <div className="relative h-full sm:rounded-[20px] overflow-hidden bg-[#1d2a36] text-white">
-        <HeroVideo video={video} />
+        <HeroVideo video={video} focus={SCENES[shot].focus ?? 50} />
         {/* Dark gradient rising from the bottom, under the Trip passes */}
         <div className="absolute inset-x-0 bottom-0 h-[60%] bg-[linear-gradient(to_top,rgba(0,0,0,0.7),rgba(0,0,0,0.35)_45%,transparent)]" aria-hidden />
 
@@ -214,9 +226,10 @@ export function Hero() {
             key={i}
             className={
               s.kind === "ticket"
-                ? "absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[46%] w-[min(58vw,46svh,260px)] md:w-[min(20vw,38svh,330px)]"
+                ? "absolute left-1/2 md:left-[var(--x)] top-1/2 -translate-x-1/2 -translate-y-[46%] w-[min(76vw,54svh,330px)] md:w-[min(30vw,52svh,500px)]"
                 : "absolute left-1/2 -translate-x-1/2 bottom-[5%] w-[min(82vw,330px)] md:w-[clamp(320px,30vw,460px)]"
             }
+            style={s.focus ? { ["--x" as string]: `${s.focus}%` } : undefined}
             aria-hidden={scene !== i}
           >
             <div
