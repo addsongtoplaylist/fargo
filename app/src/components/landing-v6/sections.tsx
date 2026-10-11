@@ -86,6 +86,12 @@ const FLOATERS: Floater[] = [
   { src: `${G}hoi-an-bikes.webp`, alt: "Friends cycling through Hoi An", x: "62%", y: "80%", w: 118, speed: -0.35 },
   { src: `${G}floating-market.webp`, alt: "A floating market boat from above, Thailand", x: "80%", y: "66%", w: 112, speed: -0.1 },
   { src: `${G}kek-lok-si.webp`, alt: "Kek Lok Si temple, Penang", x: "90%", y: "88%", w: 110, speed: -0.4 },
+  { src: `${G}taipei-street.webp`, alt: "A busy street in Taipei at night", x: "32%", y: "16%", w: 96, speed: 0.15 },
+  { src: `${G}tokyo-night.webp`, alt: "Tokyo at night from above", x: "74%", y: "22%", w: 100, speed: 0.4 },
+  { src: `${G}friends-boat.webp`, alt: "Friends on a boat over turquoise water", x: "13%", y: "22%", w: 92, speed: -0.25 },
+  { src: `${G}street-food-fire.webp`, alt: "A street food cook with flames", x: "93%", y: "58%", w: 90, speed: 0.2 },
+  { src: `${G}ha-long-bay.webp`, alt: "Boats in Ha Long Bay, Vietnam", x: "12%", y: "54%", w: 94, speed: 0.3 },
+  { src: `${G}beach-swim.webp`, alt: "Friends swimming at sunset", x: "74%", y: "94%", w: 100, speed: -0.25 },
 ];
 
 export function Galaxy() {
