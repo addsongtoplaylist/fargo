@@ -1,5 +1,7 @@
 # Fargo — Marketing site: IA + copysheet
 
+> **v6 in progress — 2026-10-12. Redesign in the style of wolverineworldwide.com** (owner: the current page feels too template-like). See "Redesign v6" at the end. Nothing built yet.
+
 > **v5 — 2026-10-09. One page (final structure).** Everything is on `/`: hero → "Your trip, your way" switcher → how it works → Add to Home Screen → FAQ → closing band. The /features page and the detailed Planner / Budget / Passport sections are dropped.
 
 > **v2 — 2026-10-09. Step 1 of 3 ✅ IA and copy approved.** Step 2: visual mockup → step 3: build.
@@ -208,3 +210,19 @@ Photos give the travel feel, frog illustrations explain ideas, app snippets prov
 2. **Privacy and Terms:** ~~dummy placeholder pages for now~~ plain-English text written 2026-10-10 and approved by the owner. Where an email would go, they say it's coming soon until the owner sets one up.
 3. **Discover copy** ("filtered to your taste") is correct.
 4. **Demo trip:** separate kept demo trip "Singapore long weekend" in S$ (from the earlier answer). Creating it in the app still needs a go-ahead, and the "Mei suggested" shot needs a second account.
+
+## Redesign v6 (owner, 2026-10-12) — decisions so far
+
+Reference: wolverineworldwide.com. The page is built from giant, tightly set type, mostly white with photography for colour, lots of empty space, scroll-linked motion (words reveal, photos drift), rounded black cards, pill buttons, a floating pill nav, and a dark full-bleed closing section.
+
+| # | Decision |
+|---|---|
+| R1 | **Colour:** white page, black type, **Fargo blue** (#0071BC) for buttons and accents |
+| R2 | **Font:** Sora (the app's font); IBM Plex Mono for small labels |
+| R3 | **Headline:** keep "Every trip starts here." (the closing section gets a different line, to be chosen) |
+| R4 | **Photos (galaxy and cards):** Unsplash only, free licence (not Unsplash+) |
+| R5 | **Hero:** a montage of free **stock video** (owner supplies the clips; Pexels / Pixabay / Mixkit / Coverr licence: commercial use, no attribution). Six scenes, each carrying a Fargo share overlay (trip pass or photo ticket) that the owner adds in CapCut. AI image-to-video was considered (OpenAI's Sora API shut down 2026-09-24; Veo / Runway / Kling ≈ US$3–10 for 6 clips) — only a fallback for scenes without good stock. |
+| R6 | **Two exports:** desktop 16:9 and phone 9:16. Every scene must survive the phone crop (subject and overlay inside the middle third). |
+| R7 | **Routes on the overlays:** Japan from Singapore · Taman Negara (Malaysia) from Indonesia · Singapore from Japan · Korea from Thailand · Hong Kong from Malaysia · Thailand from Malaysia |
+
+Next: owner shares the clips → Claude checks the phone crop and renders the 6 overlays as transparent PNGs → owner edits the montage in CapCut → mockup of the full page → build.
