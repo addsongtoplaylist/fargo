@@ -27,8 +27,10 @@ function useTyping() {
 }
 
 /**
- * Floating bottom bar (DESIGN.md → Navigation). The caller decides which
- * item is active. Hidden while typing so it never sits on the keyboard.
+ * Floating bottom bar (DESIGN.md → Navigation; icons only since v0.6.0, Threads-style).
+ * The caller decides which item is active; the active icon sits bolder on a soft pill.
+ * Labels are read out by screen readers (aria-label), not shown. The bar is as wide as
+ * its icons. Hidden while typing so it never sits on the keyboard.
  */
 export function TabBar({ items, label }: { items: TabItem[]; label: string }) {
   const typing = useTyping();
@@ -36,21 +38,22 @@ export function TabBar({ items, label }: { items: TabItem[]; label: string }) {
   return (
     <nav
       aria-label={label}
-      className="fixed inset-x-0 bottom-[calc(22px+env(safe-area-inset-bottom))] z-50 px-3.5 pointer-events-none"
+      className="fixed inset-x-0 bottom-[calc(22px+env(safe-area-inset-bottom))] z-50 px-3.5 pointer-events-none flex justify-center"
     >
-      <div className="pointer-events-auto mx-auto max-w-[calc(var(--max-width-column)-28px)] h-[66px] px-2 flex items-center justify-around rounded-bar bg-surface/95 border border-line shadow-float backdrop-blur">
+      <div className="pointer-events-auto h-16 px-2 flex items-center gap-1.5 rounded-full bg-surface/95 border border-line shadow-float backdrop-blur">
         {items.map(({ href, label: text, icon: Icon, active, badge }) => (
           <Link
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
-            aria-label={badge ? `${text}, ${badge} new` : undefined}
-            className={`min-w-14 h-12 px-2.5 rounded-[14px] flex flex-col items-center justify-center gap-[3px] transition-colors ${
+            aria-label={badge ? `${text}, ${badge} new` : text}
+            title={text}
+            className={`w-14 h-12 rounded-full flex items-center justify-center transition-colors ${
               active ? "bg-brand-soft text-brand" : "text-fg-muted hover:text-fg"
             }`}
           >
             <span className="relative">
-              <Icon size={21} strokeWidth={active ? 2.1 : 1.9} aria-hidden />
+              <Icon size={23} strokeWidth={active ? 2.3 : 1.9} aria-hidden />
               {!!badge && (
                 <span
                   aria-hidden
@@ -60,7 +63,6 @@ export function TabBar({ items, label }: { items: TabItem[]; label: string }) {
                 </span>
               )}
             </span>
-            <span className={`text-[10px] leading-none ${active ? "font-semibold" : "font-medium"}`}>{text}</span>
           </Link>
         ))}
       </div>

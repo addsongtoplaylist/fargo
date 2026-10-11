@@ -43,7 +43,7 @@
 
 ## Parked ⏸
 
-- **Explore** — specced, wireframed and planned (`EXPLORE.md`, `EXPLORE-PLAN.md`); shelved 2026-10-09 because the user base is too small. The tab stays with its placeholder.
+- **Explore** — specced, wireframed and planned (`EXPLORE.md`, `EXPLORE-PLAN.md`); shelved 2026-10-09 because the user base is too small. Taken off the bottom bar in v0.6.0 (owner, 2026-10-12); the page still exists if visited directly.
 - **Discover price filter** — keep in view.
 - **Home currency per trip** — money is built around MYR; needs its own release, tested on staging.
 - **Native iOS app** (`fargo-app`) — parked 2026-09-26. Before it resumes it must move to personal checklists so the old checklist tables can be dropped.

@@ -43,8 +43,9 @@ function RowBody({
       </div>
 
       <div className="flex-1 min-w-0 py-0.5">
-        <p className="text-[15px] font-semibold text-fg truncate">{activity.title}</p>
-        {activity.place_name && <p className="text-[13px] text-fg-muted truncate mt-0.5">{activity.place_name}</p>}
+        {/* 13px title, up to two lines (~48 characters on a 375px phone); place 12px, one line (owner, v0.6.0) */}
+        <p className="text-[13px] leading-snug font-semibold text-fg line-clamp-2 break-words">{activity.title}</p>
+        {activity.place_name && <p className="text-[12px] text-fg-muted truncate mt-0.5">{activity.place_name}</p>}
       </div>
 
       {handle}

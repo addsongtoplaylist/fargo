@@ -1,5 +1,7 @@
 # Fargo — Design System
 
+> **v0.9 — 2026-10-12 (v0.6.0 UI review, owner, Threads-inspired).** Both bottom bars are **icons only** (names read out by screen readers); the home bar is **My trips · Passport · Profile** (Explore shelved, off the bar); schedule activity titles are **13px, up to two lines**. Wireframes: [navigation canvas](https://claude.ai/artifact/Sh1YDpyFLmW1pBY6cvF52R). Everything else stays as v0.8.
+>
 > **v0.8 — 2026-09-28, live in v0.5.0 (2026-10-01).** UI redesign. Trip sections move to a floating bottom bar; planner-uploaded cover photos (colour + country code when there's none); cooler ink, darker accent, rounder cards; category icons replace emoji; one main thing per screen; floating **+** for the main add action. Every screen is drawn on the [redesign canvas](https://claude.ai/artifact/Sjur61seR63um25VMXhAhs); the per-screen feature checklist is [REDESIGN.md](REDESIGN.md).
 >
 > **v0.7 — 2026-09-26.** Design review: type scale, shadow rule and status colours matched to the app. Add activity became the form reference; generic-icon empty states.
@@ -112,13 +114,13 @@ Unchanged from v0.7: logo `app/public/logo.png`, mascot `app/public/mascot.png`,
 | Section header | 22 / 700 | Screen title under a back button (Schedule, Money…) |
 | Hero number | 26–32 / 700 | One per screen — budget spent, sheet amount (40) |
 | Card title | 16 / 600 | Card headings, trip names, day heading |
-| Row title | 14–15 / 600 | Activity, expense, traveller rows |
+| Row title | 14–15 / 600 | Expense, traveller rows |
+| Activity title | 13 / 600, up to 2 lines | Schedule rows (v0.9): ~48 characters on a 375px phone; the place under it 12px, one line |
 | Body | 14 / 400–500 | Fields, text |
 | Label / meta | 12–13 / 400–500 | Places, dates, "≈ RM", captions — `muted` |
 | Eyebrow | 11 / 600, 0.6 tracking, caps | FIXED / DAILY / SPLIT AS / DANGER ZONE |
-| Tab label | 10 / 500 (600 active) | Bottom bar only |
 
-**Floor: 10px**, only for bottom-bar labels and the "LEFT"-style micro badges. Anything a user must read to act is ≥ 12px.
+**Floor: 10px**, only for the "LEFT"-style micro badges (the bottom bars have no labels since v0.9). Anything a user must read to act is ≥ 12px.
 
 **Currency:** local amount first ("VND 1,828,800"), RM hint underneath in `muted` 11–12px.
 
@@ -157,9 +159,9 @@ Floating layers only (unchanged rule): bottom bar, FAB, sheets, dialogs, toasts,
 
 ### Bottom bar (floating)
 
-- Floating rounded bar: 14px from the sides, 22px from the bottom, 66px tall, `radius 24`, white at 96%, 1px `border`, shadow.
-- Items: icon (21px) + label (10px). **Active item:** `accent` text/icon inside an `accent-soft` **rounded rectangle** (radius 14, padding 0 10px, 48px tall).
-- **Home (outside a trip):** My trips (`Map` icon) · Explore (`Compass`) · Passport (`Stamp`, v0.5.6) · Profile (`User`).
+- Floating **pill**, centred, as wide as its icons, 22px from the bottom, 64px tall, white at 95%, 1px `border`, shadow.
+- **Icons only (v0.9):** 23px icons in 56×48 round targets, **no visible labels** — each item's name is its `aria-label` (and tooltip), so screen readers still say "Schedule". **Active item:** `accent` icon, heavier stroke, inside an `accent-soft` pill. The Prep badge stays on the icon.
+- **Home (outside a trip):** My trips (`Map` icon) · Passport (`Stamp`) · Profile (`User`). Explore is shelved and not in the bar (its page still exists if visited directly).
 - **Inside a trip:** Overview (`LayoutDashboard`) · Schedule (`CalendarDays`) · Money (`Wallet`) · Prep (`ListChecks`) · Discover (`Compass`). Sub-pages (Your expenses, Settle up) keep their section active.
 - **Swipe left/right** on content still switches trip sections (ignored on the date strip and chip rows).
 - Hidden while the keyboard is open.
@@ -168,7 +170,7 @@ Floating layers only (unchanged rule): bottom bar, FAB, sheets, dialogs, toasts,
 
 - **Overview:** photo header with round back (→ My trips) and, for the planner, settings gear; members see **Leave trip** instead.
 - **Other trip sections:** round back button + trip name caption + section title (22/700). No gear.
-- **Home screens:** big screen title (30/700), no back.
+- **Home screens:** big screen title (30/700), no back (top-level, like Threads' "Messages"). Back arrows only on screens you drill into.
 
 ### Floating + button (FAB)
 
