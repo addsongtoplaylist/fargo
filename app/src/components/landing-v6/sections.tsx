@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Drift, FadeUp, RevealWords } from "./motion";
 import { PhoneFrame } from "@/components/marketing/frames";
+import { HomeScreenMock } from "./home-screen";
 
 /**
  * Landing page v6 (LANDING.md → Redesign v6, reference wolverineworldwide.com): giant tight
@@ -43,8 +44,11 @@ export function Statement() {
   return (
     <section className={`${WRAP} py-[clamp(96px,14vw,200px)] grid md:grid-cols-2 gap-8`}>
       <div className="flex flex-col items-start gap-4">
-        <AppIcon size={64} />
-        <span className={`${MONO} text-xs ${MUTED}`}>Fargo · trip planner for friends</span>
+        <span className="flex items-center gap-4">
+          <AppIcon size={77} />
+          <Image src="/marketing/wordmark-dark.svg" alt="Fargo" width={584} height={208} unoptimized className="h-[52px] w-auto" />
+        </span>
+        <span className={`${MONO} text-[15px] ${MUTED}`}>Trip planner for friends</span>
       </div>
       <FadeUp className="flex flex-col gap-8">
         <p className="text-[clamp(24px,2.6vw,36px)] leading-[1.08] font-bold tracking-[-0.03em]" style={{ color: INK }}>
@@ -64,7 +68,7 @@ export function Statement() {
 type Floater = { src: string; alt: string; x: string; y: string; w: number; speed: number; stamp?: boolean };
 
 /**
- * Photos and stamps scattered around the headline; each drifts at its own speed. Photos are
+ * Photos scattered around the headline (no stamps — they stay a Passport surprise); each drifts at its own speed. Photos are
  * Unsplash (free licence; ids in LANDING.md → Redesign v6) and never repeat the feature cards.
  */
 const G = "/marketing/galaxy/";
@@ -82,12 +86,6 @@ const FLOATERS: Floater[] = [
   { src: `${G}hoi-an-bikes.webp`, alt: "Friends cycling through Hoi An", x: "62%", y: "80%", w: 118, speed: -0.35 },
   { src: `${G}floating-market.webp`, alt: "A floating market boat from above, Thailand", x: "80%", y: "66%", w: 112, speed: -0.1 },
   { src: `${G}kek-lok-si.webp`, alt: "Kek Lok Si temple, Penang", x: "90%", y: "88%", w: 110, speed: -0.4 },
-  { src: "/stamps/JP/kyoto.png", alt: "Kyoto stamp", x: "33%", y: "18%", w: 82, speed: 0.15, stamp: true },
-  { src: "/stamps/MY/penang.png", alt: "Penang stamp", x: "74%", y: "24%", w: 86, speed: 0.4, stamp: true },
-  { src: "/stamps/KR/seoul.png", alt: "Seoul stamp", x: "14%", y: "24%", w: 76, speed: -0.25, stamp: true },
-  { src: "/stamps/TH/bangkok.png", alt: "Bangkok stamp", x: "94%", y: "58%", w: 74, speed: 0.2, stamp: true },
-  { src: "/stamps/ID/bali.png", alt: "Bali stamp", x: "13%", y: "56%", w: 78, speed: 0.3, stamp: true },
-  { src: "/stamps/VN/hoi-an.png", alt: "Hoi An stamp", x: "53%", y: "70%", w: 70, speed: -0.25, stamp: true },
 ];
 
 export function Galaxy() {
@@ -112,7 +110,7 @@ export function Galaxy() {
         {/* Who it's for: sold to the friend who plans (BRAND.md voice) */}
         <FadeUp className="max-w-[560px] text-center">
           <p className="text-[clamp(17px,1.5vw,20px)] leading-snug font-medium" style={{ color: INK }}>
-            Made for the friend who always ends up planning.
+            For the friend who always ends up planning. Build the days, send one invite link, and everyone sees the same plan.
           </p>
         </FadeUp>
         <div className="pointer-events-auto">
@@ -207,17 +205,17 @@ export function Journey() {
   return (
     <section className={`${WRAP} py-[clamp(96px,14vw,200px)] flex flex-col gap-14`}>
       <div className="grid md:grid-cols-2 gap-6">
-        <div className="flex items-center gap-5">
+        <h2 className="text-[clamp(30px,4vw,52px)] leading-[0.95] font-bold tracking-[-0.04em]" style={{ color: INK }}>
+          One trip,
+          <br />
+          start to finish.
+        </h2>
+        <div className="flex flex-col items-start gap-4">
           <AppIcon size={64} />
-          <h2 className="text-[clamp(30px,4vw,52px)] leading-[0.95] font-bold tracking-[-0.04em]" style={{ color: INK }}>
-            One trip,
-            <br />
-            start to finish.
-          </h2>
+          <p className={`text-[clamp(18px,1.6vw,22px)] leading-snug font-medium ${MUTED} max-w-[480px]`}>
+            Fargo is with you from the first idea to the last settle-up.
+          </p>
         </div>
-        <p className={`text-[clamp(18px,1.6vw,22px)] leading-snug font-medium ${MUTED} max-w-[480px]`}>
-          Fargo is with you from the first idea to the last settle-up.
-        </p>
       </div>
       <ol className="grid md:grid-cols-3 gap-10 md:gap-6">
         {STAGES.map((s, i) => (
@@ -346,13 +344,13 @@ export function InstallAndFaq() {
   return (
     <>
       <section id="install" className={`${WRAP} py-[clamp(96px,12vw,170px)] grid md:grid-cols-2 gap-10 scroll-mt-16`}>
-        <div className="flex flex-col items-start gap-4">
-          <AppIcon size={72} label />
-          <h2 className="text-[clamp(30px,4vw,52px)] leading-[0.95] font-bold tracking-[-0.04em]" style={{ color: INK }}>
-            Put Fargo on your Home Screen.
-          </h2>
-          <p className={`text-[17px] leading-snug ${MUTED} max-w-[420px]`}>No App Store needed. Add it once and Fargo opens full screen, just like an app.</p>
-        </div>
+        <div className="flex flex-col gap-8">
+          <div className="flex flex-col gap-4">
+            <h2 className="text-[clamp(30px,4vw,52px)] leading-[0.95] font-bold tracking-[-0.04em]" style={{ color: INK }}>
+              Put Fargo on your Home Screen.
+            </h2>
+            <p className={`text-[17px] leading-snug ${MUTED} max-w-[420px]`}>No App Store needed. Add it once and Fargo opens full screen, just like an app.</p>
+          </div>
         <div className="grid sm:grid-cols-2 gap-4">
           {INSTALL.map((c) => (
             <div key={c.title} className="rounded-[20px] bg-[#f3f3f3] p-6 flex flex-col gap-4">
@@ -368,6 +366,9 @@ export function InstallAndFaq() {
             </div>
           ))}
         </div>
+        </div>
+        {/* The Fargo icon pops onto a phone's Home Screen */}
+        <HomeScreenMock />
       </section>
 
       <section id="faq" className={`${WRAP} pb-[clamp(96px,12vw,170px)] grid md:grid-cols-2 gap-10 scroll-mt-16`}>
