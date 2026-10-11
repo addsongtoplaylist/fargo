@@ -4,6 +4,12 @@
 
 ---
 
+**2026-10-12 — New share overlays (v0.5.18)**
+
+Owner-designed Trip pass (ruled rows: distance · weather · trip days "4D 3N") and Photo ticket (UNBOUND, Oswald place names, day-first dates + month). Route labels now match levels (city↔city with a Base city, country↔country without). Checked in the local production build on Test trip and Xin Cao. Landing page redesign v6 in progress (`LANDING.md`, hero video prompts in `LANDING-HERO-PROMPTS.md`; owner generating clips with Veo).
+
+---
+
 **2026-10-12 — Owner to-dos closed (no release)**
 
 Owner: the install prompt was tested on an iPhone ✅; Palawan's stamp is settled and stays as is ✅. **Still open:** contact email for Privacy/Terms; tidy the test items in default checklists. Next: landing page work.

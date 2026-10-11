@@ -4,6 +4,16 @@
 
 ---
 
+## v0.5.18 — 2026-10-12 · New share overlays
+
+- **Trip pass, new layout:** the big FROM → TO codes stay; distance, weather and trip days are now full-width rows with thin lines between them (label left, value right). Trip days read like **"4D 3N"**; long place names shrink to stay on one line.
+- **Photo ticket:** header says **UNBOUND**; city or country names in a tall condensed font (Oswald); the bottom row shows the dates day first (**"17.09 – 24.12"**) and the month (**"SEP 2026"**). Distance removed.
+- **Both overlays match the level of the route:** a trip with a Base city reads city to city (KUALA LUMPUR → HO CHI MINH CITY); without one, country to country (MALAYSIA → VIETNAM). Airport codes are unchanged.
+- New fonts for the share images only: Sora Regular (from the app's own Sora) and Oswald Medium (free OFL licence, kept with the file).
+- No database changes.
+
+---
+
 ## v0.5.17 — 2026-10-11 · Collect your stamps
 
 - **Collect a stamp when a trip ends.** The day after the last day, the trip overview shows **"Trip complete! You've earned a stamp from …"**. Tap **Collect stamp** and it's pressed into your Passport with a short animation, then **View in Passport**. Everyone on the trip with an account collects their own.
