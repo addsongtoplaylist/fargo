@@ -15,8 +15,8 @@
 
 | # | Today | Status | Notes |
 |---|---|---|---|
-| N1 | Home bottom bar: My trips · Profile | 🔄 | My trips (map icon) · **Explore** · Profile (Explore is the next milestone) |
-| N2 | Trip sections as tabs at the top (Overview · Schedule · Money · Prep · Discover), sticky | 🔄 | Move to the floating bottom bar |
+| N1 | Home bottom bar: My trips · Profile | 🔄 | My trips (map icon) · **Explore** · Profile (Explore is the next milestone). **Now (v0.6.0):** icons only, My trips · Passport · Profile; Explore shelved and off the bar |
+| N2 | Trip sections as tabs at the top (Overview · Schedule · Money · Prep · Discover), sticky | 🔄 | Move to the floating bottom bar. **Now (v0.6.0):** icons only, names for screen readers |
 | N3 | Sub-pages keep their section highlighted (Money → View expenses / Settle up) | ✅ | Settle up / Your expenses keep Money lit |
 | N4 | **Swipe left/right to switch sections** (ignored on the date strip) | ✅ | Behaviour — keep with the bottom bar |
 | N5 | Back arrow → My trips (without auto-jumping back into the trip) | ✅ | |

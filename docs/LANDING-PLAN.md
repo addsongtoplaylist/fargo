@@ -188,4 +188,4 @@ Signed-out cases run in the browser pane's private window. **Signed-in cases nee
 - ~~Turn on Vercel Web Analytics.~~ Done 2026-10-10 (Hobby). The middleware matcher had to skip `/_vercel` so the script loads for signed-out visitors.
 - ~~Real Privacy/Terms text.~~ Done 2026-10-10 (plain-English drafts approved by the owner; not legal advice).
 - ~~Frog illustrations~~ Done 2026-10-10: owner-supplied isometric illustrations in the journey timeline.
-- Later: contact email (`CONTACT_EMAIL` in `components/marketing/legal-page.tsx`). Owner's Shared costs pick KbP0nALUBGo is Unsplash+ (paid) — not used; Replaced 2026-10-10 by an owner-supplied photo of friends sharing plates around a long table: `photo-costs-3.webp`.
+- ~~Later: contact email~~ Done 2026-10-12: `fargotravelsupport@gmail.com` (`CONTACT_EMAIL` in `components/marketing/legal-page.tsx`). Owner's Shared costs pick KbP0nALUBGo is Unsplash+ (paid) — not used; Replaced 2026-10-10 by an owner-supplied photo of friends sharing plates around a long table: `photo-costs-3.webp`.

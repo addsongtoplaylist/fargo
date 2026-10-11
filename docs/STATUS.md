@@ -4,6 +4,12 @@
 
 ---
 
+**2026-10-12 — Support email, checklist tidy (v0.6.1)**
+
+Owner: v0.6.0 UI review is complete; landing feedback done. Privacy and Terms show `fargotravelsupport@gmail.com`. Owner to-dos from 2026-10-12 closed (contact email, default checklist test items). Docs brought up to date (ROADMAP, REDESIGN N1/N2, LANDING, EXPLORE-PLAN release number, CLAUDE.md). **Next:** Phase 4's last item — upgrade a name-only traveller to an account.
+
+---
+
 **2026-10-12 — Cleaner bottom bars (v0.6.0)**
 
 UI review (Threads-inspired), wireframed in the design canvas first. Owner chose: icon-only bars (home: My trips · Passport · Profile; trip bar option B, no hide-on-scroll), 13px two-line schedule titles; everything else on the screens stays. Manual drag order keeps out-of-order times on purpose. Colour: #00BCE6 is the logo cyan, #0071BC stays the UI blue (contrast 2.2:1 vs 5.1:1 on white); cyan is used for the landing wordmark only, for now. Landing screenshots retaken on the production build.

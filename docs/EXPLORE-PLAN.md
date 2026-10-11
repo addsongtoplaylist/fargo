@@ -66,7 +66,7 @@ Each batch ends with a type check, lint and build, then a test on the dev server
 
 ## Release
 
-- **One release, v0.6.0,** after batches 1–5. Explore without copying feels half-done, so it's not worth shipping in pieces.
+- **One release** after batches 1–5 (originally numbered v0.6.0; that number went to the UI review on 2026-10-12, so Explore takes the next free version when it resumes). Explore without copying feels half-done, so it's not worth shipping in pieces.
 - **Order:**
   1. You run the SQL on **staging**, then **production**. It's harmless on its own.
   2. Then I push the code.

@@ -2,10 +2,10 @@ import { SolidNav } from "./site-nav";
 
 /**
  * Privacy and Terms pages: plain-English sections (BRAND.md tone).
- * CONTACT_EMAIL is null until the owner sets up an inbox; the pages then say it's coming soon.
+ * CONTACT_EMAIL is the support inbox (owner, 2026-10-12); set it to null and the pages say it is coming soon.
  */
 
-export const CONTACT_EMAIL: string | null = null;
+export const CONTACT_EMAIL: string | null = "fargotravelsupport@gmail.com";
 
 export type LegalSection = { heading: string; body: React.ReactNode };
 

@@ -206,8 +206,8 @@ Photos give the travel feel, frog illustrations explain ideas, app snippets prov
 
 ## Owner decisions (2026-10-09)
 
-1. **Contact email:** a free Gmail later. Use a dummy (`hello@example.com`, marked as a placeholder) until the owner supplies it.
-2. **Privacy and Terms:** ~~dummy placeholder pages for now~~ plain-English text written 2026-10-10 and approved by the owner. Where an email would go, they say it's coming soon until the owner sets one up.
+1. **Contact email:** ~~a free Gmail later~~ **`fargotravelsupport@gmail.com`** (owner, 2026-10-12), shown on Privacy and Terms via `CONTACT_EMAIL`.
+2. **Privacy and Terms:** ~~dummy placeholder pages for now~~ plain-English text written 2026-10-10 and approved by the owner. They show the support email above (set 2026-10-12).
 3. **Discover copy** ("filtered to your taste") is correct.
 4. **Demo trip:** separate kept demo trip "Singapore long weekend" in S$ (from the earlier answer). Creating it in the app still needs a go-ahead, and the "Mei suggested" shot needs a second account.
 

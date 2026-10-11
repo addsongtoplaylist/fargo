@@ -4,6 +4,15 @@
 
 ---
 
+## v0.6.1 — 2026-10-12 · Support email
+
+### Landing page
+
+- **Privacy and Terms show our support email**, fargotravelsupport@gmail.com, instead of "coming soon".
+- No database changes.
+
+---
+
 ## v0.6.0 — 2026-10-12 · Cleaner bottom bars
 
 ### App
