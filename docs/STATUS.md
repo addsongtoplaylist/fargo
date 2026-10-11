@@ -6,7 +6,7 @@
 
 **2026-10-12 — Support email, checklist tidy (v0.6.1)**
 
-Owner: v0.6.0 UI review is complete; landing feedback done. Privacy and Terms show `fargotravelsupport@gmail.com`. Owner to-dos from 2026-10-12 closed (contact email, default checklist test items). Docs brought up to date (ROADMAP, REDESIGN N1/N2, LANDING, EXPLORE-PLAN release number, CLAUDE.md). **Next:** Phase 4's last item — upgrade a name-only traveller to an account.
+Owner: v0.6.0 UI review is complete; landing feedback done. Privacy and Terms show `fargotravelsupport@gmail.com`. Owner to-dos from 2026-10-12 closed: contact email set; the default checklist test items stay as they are (owner). Docs brought up to date (ROADMAP, REDESIGN N1/N2, LANDING, EXPLORE-PLAN release number, CLAUDE.md). **Next:** Phase 4's last item — upgrade a name-only traveller to an account.
 
 ---
 
