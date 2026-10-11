@@ -4,6 +4,23 @@
 
 ---
 
+## v0.6.0 — 2026-10-12 · Cleaner bottom bars
+
+### App
+
+- **Bottom bars are icons only** — a smaller floating pill; the active tab sits on a soft blue pill. Screen readers still hear each tab's name.
+- **Home bar: My trips · Passport · Profile.** Explore is off the bar (shelved; the page still opens if visited directly).
+- **Schedule titles are 13px and can use two lines** (about 48 characters on a phone) instead of being cut at one; the place name below is 12px, one line.
+- No database changes.
+
+### Landing page
+
+- App screenshots retaken with the new bars and titles.
+- The "Trip planner for friends" wordmark is now **Fargo cyan (#00BCE6)**, the logo colour. Buttons and links stay the deeper blue (#0071BC) so small text stays readable.
+- "Where to next?" now shows the app icon and the white wordmark above the headline.
+
+---
+
 ## v0.5.20 — 2026-10-12 · Hero tickets frame the moment
 
 ### Landing page

@@ -4,6 +4,12 @@
 
 ---
 
+**2026-10-12 — Cleaner bottom bars (v0.6.0)**
+
+UI review (Threads-inspired), wireframed in the design canvas first. Owner chose: icon-only bars (home: My trips · Passport · Profile; trip bar option B, no hide-on-scroll), 13px two-line schedule titles; everything else on the screens stays. Manual drag order keeps out-of-order times on purpose. Colour: #00BCE6 is the logo cyan, #0071BC stays the UI blue (contrast 2.2:1 vs 5.1:1 on white); cyan is used for the landing wordmark only, for now. Landing screenshots retaken on the production build.
+
+---
+
 **2026-10-12 — Hero ticket framing (v0.5.20)**
 
 Owner: the Photo tickets were too small and missed the subject. Now one larger size, placed per scene (`focus` across the video, `lower` for Vietnam's food); phones shift the video's `object-position` per scene. Phone limit: the window shows a narrow slice of the landscape video — a portrait export of the three ticket clips would fix it if needed.

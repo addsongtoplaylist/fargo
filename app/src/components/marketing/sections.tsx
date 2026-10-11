@@ -46,7 +46,7 @@ export function Statement() {
       <div className="flex flex-col items-start gap-4">
         <span className="flex items-center gap-4">
           <AppIcon size={77} />
-          <Image src="/marketing/wordmark-blue.svg" alt="Fargo" width={584} height={208} unoptimized className="h-[52px] w-auto" />
+          <Image src="/marketing/wordmark-cyan.svg" alt="Fargo" width={584} height={208} unoptimized className="h-[52px] w-auto" />
         </span>
         <span className={`${MONO} text-[15px] ${MUTED}`}>Trip planner for friends</span>
       </div>
@@ -418,6 +418,10 @@ export function Closing() {
         <Image src="/marketing/photo-closing-plane.webp" alt="" fill sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-black/45" aria-hidden />
         <div className="relative px-4 flex flex-col items-center gap-8">
+          <span className="flex items-center gap-3">
+            <AppIcon size={56} />
+            <Image src="/marketing/wordmark-white.svg" alt="Fargo" width={584} height={208} unoptimized className="h-[38px] w-auto" />
+          </span>
           <h2 className="text-[clamp(56px,9vw,136px)] leading-[0.85] font-bold tracking-[-0.055em]">
             {/* Placeholder line — the owner picks the closing wording (LANDING.md R3) */}
             <RevealWords lines={["Where to", "next?"]} />
