@@ -4,6 +4,14 @@
 
 ---
 
+**2026-10-12 — New landing page (v0.5.19)**
+
+Landing redesign v6 shipped (`LANDING.md` → Redesign v6 and "As built"): hero montage with Trip passes / Photo tickets in code, galaxy, feature cards, new isometric illustrations (gpt-image-2, ~US$0.25), Passport replica, home-screen mock, floating nav. Stamp library re-inked in three colours (`scripts/stamps/recolour.py`). ffmpeg installed (Homebrew) for web video. Checked signed-out access to page and media on the production build.
+
+**Next:** v0.6.0 UI review.
+
+---
+
 **2026-10-12 — New share overlays (v0.5.18)**
 
 Owner-designed Trip pass (ruled rows: distance · weather · trip days "4D 3N") and Photo ticket (UNBOUND, Oswald place names, day-first dates + month). Route labels now match levels (city↔city with a Base city, country↔country without). Checked in the local production build on Test trip and Xin Cao. Landing page redesign v6 in progress (`LANDING.md`, hero video prompts in `LANDING-HERO-PROMPTS.md`; owner generating clips with Veo).

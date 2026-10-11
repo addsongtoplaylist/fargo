@@ -4,6 +4,23 @@
 
 ---
 
+## v0.5.19 — 2026-10-12 · New landing page; stamps in three inks
+
+### Landing page
+
+- **Redesigned in an editorial style** (reference: wolverineworldwide.com): white page, big tight Sora type, Fargo blue buttons, photography for colour, motion that follows the scroll (words reveal, photos drift, cards fade in; all still with "reduce motion" on). Replaces the v5 page at `/` and `/home`.
+- **Hero:** the owner's montage of six trips (Japan, Vietnam, Singapore, Taman Negara, Korea, Thailand; 5.5 MB, no sound). Each scene shows a real Fargo share overlay drawn in code — a Trip pass at the bottom or a Photo ticket in the middle with the scene playing through its window — sharp at any size and placed so it's never cropped on phones.
+- **Sections:** a one-line statement with the app icon and wordmark · a photo galaxy (22 Unsplash photos, eight blurred for depth) · four black feature cards with the real app screens · "One trip, start to finish" with new on-brand isometric illustrations · a Passport card laid out like the app, with stamps in the three inks · Add to Home Screen with a phone home screen where the Fargo icon pops in · FAQ · "Where to next?" · a black footer.
+- **Navigation:** see-through over the hero, then a floating black pill once you scroll; a solid bar on Privacy and Terms (which match the new look). Signed-in visitors see My trips.
+- Video files now skip the sign-in check, so signed-out visitors get the hero video.
+
+### App
+
+- **Stamps come in three inks:** teal, passport red and ochre, fixed per stamp and mixed across city and country stamps. The files moved to `public/stamp-art` so no cached teal copy shows.
+- No database changes.
+
+---
+
 ## v0.5.18 — 2026-10-12 · New share overlays
 
 - **Trip pass, new layout:** the big FROM → TO codes stay; distance, weather and trip days are now full-width rows with thin lines between them (label left, value right). Trip days read like **"4D 3N"**; long place names shrink to stay on one line.
