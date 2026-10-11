@@ -1,11 +1,12 @@
 """Stamp clean-up (docs/STAMPS.md v2.1) for the white share card.
 
-    python3 scripts/stamps/clean.py <review-folder> [<review-folder> ...] [--out app/public/stamps]
+    python3 scripts/stamps/clean.py <review-folder> [<review-folder> ...] [--out app/public/stamp-art]
 
 Reads stamps-review/<folder>/raw/<id>.png and writes <out>/<CC>/<slug>.png (id "MY-penang" ->
 MY/penang.png): white paper becomes transparent, every stamp is re-inked in one exact Fargo teal
 (#065E6B, the median ink of the approved set) so the library matches, cropped to the stamp's own
 shape with a small margin, long side 800 px, saved as a 32-level palette PNG (~1/4 the size).
+Then run scripts/stamps/recolour.py: the library uses three inks (teal, red, ochre), fixed per stamp.
 """
 import sys
 from pathlib import Path
@@ -19,7 +20,7 @@ FLOOR = 18  # paper speckle below this darkness is dropped
 
 root = Path(__file__).resolve().parents[2]
 args = sys.argv[1:]
-out = root / (args[args.index("--out") + 1] if "--out" in args else "app/public/stamps")
+out = root / (args[args.index("--out") + 1] if "--out" in args else "app/public/stamp-art")
 folders = [a for i, a in enumerate(args) if not a.startswith("--") and (i == 0 or args[i - 1] != "--out")]
 
 made = 0

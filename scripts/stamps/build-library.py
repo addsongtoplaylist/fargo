@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 
 root = Path(__file__).resolve().parents[2]
-stamps_dir = root / "app/public/stamps"
+stamps_dir = root / "app/public/stamp-art"
 
 # id: (name, [(lat, lng, km), ...], aliases)
 PLACES = {
@@ -76,7 +76,7 @@ PLACES = {
     "TR-cappadocia": ("Cappadocia", [(38.64, 34.83, 50)], ["goreme", "urgup", "nevsehir"]),
 }
 
-files = {f"{p.parent.name}-{p.stem}": f"/stamps/{p.parent.name}/{p.name}" for p in stamps_dir.glob("*/*.png")}
+files = {f"{p.parent.name}-{p.stem}": f"/stamp-art/{p.parent.name}/{p.name}" for p in stamps_dir.glob("*/*.png")}
 places = [k for k in files if "-country-" not in k]
 missing = sorted(set(places) - set(PLACES)) + sorted(set(PLACES) - set(places))
 assert not missing, f"places without areas or files: {missing}"

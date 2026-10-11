@@ -13,7 +13,7 @@ export function hashOf(id: string) {
 const TILTS = [-9, 6, -4, 8, -6, 3];
 export const tiltFor = (key: string) => TILTS[hashOf(key) % TILTS.length];
 
-/** Library stamp ink (STAMPS.md: one teal for the whole set) — the ✈ ring uses it too. */
+/** The ✈ ring's ink — teal, one of the library's three inks (scripts/stamps/inks.json). */
 const STAMP_INK = "#065E6B";
 
 /** "SEP 2026" → "Sep 26" */

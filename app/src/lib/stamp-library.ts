@@ -73,7 +73,7 @@ export function stampFor(trip: {
 /** The ✈ ring stamp's id — for a country without library stamps (C5). */
 export const RING = "ring";
 
-/** Image path for a stamp id ("/stamps/MY/penang.png"), or null for the ring / an unknown id. */
+/** Image path for a stamp id ("/stamp-art/MY/penang.png"), or null for the ring / an unknown id. */
 export function stampFile(id: string): string | null {
   return STAMPS.find((s) => s.id === id)?.file ?? null;
 }

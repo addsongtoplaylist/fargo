@@ -211,9 +211,9 @@ export function FeatureCards() {
 // ── 4. Journey ─────────────────────────────────────────────────
 
 const STAGES = [
-  { label: "Before", title: "Plan it together", body: "Plan the days, places and times. Share one invite link; friends suggest ideas.", src: "/marketing/illus-before.webp", alt: "A desk with a calendar, suitcases and a map pin" },
-  { label: "During", title: "Fargo comes along", body: "Today's plan in your pocket, plus good food near your stay.", src: "/marketing/illus-during.webp", alt: "An open guidebook, a map and a clock" },
-  { label: "After", title: "Square it up", body: "Everyone adds what they paid. See who pays who back, then collect your stamp.", src: "/marketing/illus-after.webp", alt: "A calculator, a suitcase and a piggy bank" },
+  { label: "Before", title: "Plan it together", body: "Plan the days, places and times. Share one invite link; friends suggest ideas.", src: "/marketing/illus-before-2.webp", alt: "A laptop, two suitcases, a map with a pin and a compass" },
+  { label: "During", title: "Fargo comes along", body: "Today's plan in your pocket, plus good food near your stay.", src: "/marketing/illus-during-2.webp", alt: "A backpack, an open guidebook, a map with a pin, a clock and a coffee" },
+  { label: "After", title: "Square it up", body: "Everyone adds what they paid. See who pays who back, then collect your stamp.", src: "/marketing/illus-after-2.webp", alt: "A calculator, a suitcase, a piggy bank, coins and a receipt" },
 ];
 
 export function Journey() {
@@ -239,7 +239,7 @@ export function Journey() {
               <span className={`${MONO} text-xs ${MUTED}`}>
                 0{i + 1} · {s.label}
               </span>
-              <Image src={s.src} alt={s.alt} width={480} height={360} sizes="(min-width: 768px) 400px, 90vw" className="w-full h-auto" unoptimized />
+              <Image src={s.src} alt={s.alt} width={1200} height={800} sizes="(min-width: 768px) 400px, 90vw" className="w-full h-auto" unoptimized />
               <h3 className="text-[24px] font-bold tracking-[-0.03em]" style={{ color: INK }}>
                 {s.title}
               </h3>
@@ -255,11 +255,11 @@ export function Journey() {
 // ── 5. Passport (numbers + a few stamps) ───────────────────────
 
 /** Only a few real stamps — the rest of the library stays a surprise. */
-// In the three stamp inks — passport red, ochre, teal (owner, 2026-10-12)
+// One in each library ink (scripts/stamps/inks.json): Kyoto red, Penang ochre, Bangkok teal
 const PASSPORT_STAMPS = [
-  { file: "/marketing/stamps/penang-red.png", alt: "Penang stamp", tilt: -8 },
-  { file: "/marketing/stamps/kyoto-ochre.png", alt: "Kyoto stamp", tilt: 6 },
-  { file: "/stamps/TH/bangkok.png", alt: "Bangkok stamp", tilt: -4 },
+  { file: "/stamp-art/JP/kyoto.png", alt: "Kyoto stamp", tilt: -8 },
+  { file: "/stamp-art/MY/penang.png", alt: "Penang stamp", tilt: 6 },
+  { file: "/stamp-art/TH/bangkok.png", alt: "Bangkok stamp", tilt: -4 },
 ];
 
 /**
