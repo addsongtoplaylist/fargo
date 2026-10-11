@@ -145,7 +145,7 @@ const FEATURES = [
     body: "A day-by-day plan your whole group shares. Everyone sees the same schedule, what's on, where and when, so nobody's left asking.",
     photo: "/marketing/photo-planner.webp",
     photoAlt: "Gardens by the Bay, Singapore",
-    screen: "/marketing/screen-schedule.webp",
+    screen: "/marketing/screen-schedule-2.webp",
     screenAlt: "Fargo schedule with places and times",
   },
   {
@@ -154,7 +154,7 @@ const FEATURES = [
     body: "Invite your friends with one link. They suggest ideas, you decide what makes the schedule.",
     photo: "/marketing/photo-buddies-5.webp",
     photoAlt: "Friends hiking together above the sea",
-    screen: "/marketing/screen-prep.webp",
+    screen: "/marketing/screen-prep-2.webp",
     screenAlt: "Fargo Prep with a packing list and ideas",
   },
   {
@@ -163,7 +163,7 @@ const FEATURES = [
     body: "Everyone adds what they paid along the way. Fargo keeps it fair, with no awkward chat at the end.",
     photo: "/marketing/photo-costs-3.webp",
     photoAlt: "Friends sharing plates of food around a long table",
-    screen: "/marketing/screen-money.webp",
+    screen: "/marketing/screen-money-2.webp",
     screenAlt: "Fargo Money with the group split",
   },
   {
@@ -172,7 +172,7 @@ const FEATURES = [
     body: "Collect a stamp from every trip. See your countries, trips and travel buddies add up, then share a trip card.",
     photo: "/marketing/photo-passport-3.webp",
     photoAlt: "A camera, sunglasses and a bag packed for a trip",
-    screen: "/marketing/screen-passport.webp",
+    screen: "/marketing/screen-passport-2.webp",
     screenAlt: "Fargo Passport with stamps and travel stats",
   },
 ];
