@@ -185,9 +185,6 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                 ≈ {cur} {Math.round(parseInt(budgetInput) * fxRate).toLocaleString()} in {trip.destination}
               </p>
             )}
-            <p className="text-xs text-fg-muted leading-relaxed">
-              Only you see and set this. (Total budget − fixed costs you paid) ÷ {budget?.tripDays ?? "trip"} days = daily free budget
-            </p>
           </div>
         ) : hasBudget && budget ? (
           (() => {

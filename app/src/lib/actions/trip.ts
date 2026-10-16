@@ -642,6 +642,39 @@ export async function deleteTrip(tripId: string): Promise<{ error?: string }> {
   return {};
 }
 
+/** Planner makes another traveller (with an account) the planner, then leaves */
+export async function handOverAndLeave(
+  tripId: string,
+  newPlannerTravellerId: string
+): Promise<{ error?: string }> {
+  try {
+    tripIdSchema.parse(tripId);
+    uuidSchema.parse(newPlannerTravellerId);
+  } catch {
+    return { error: "Invalid request" };
+  }
+
+  const account = await getOrCreateAccount();
+  if (!account) return { error: "Not signed in" };
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("hand_over_and_leave", {
+    p_trip_id: tripId,
+    p_new_planner: newPlannerTravellerId,
+  });
+
+  if (error) {
+    console.error("hand_over_and_leave failed:", error);
+    return { error: error.message || "Couldn't hand over the trip" };
+  }
+
+  revalidateTag(`trip-${tripId}`, "max");
+  revalidateTag(`expenses-${tripId}`, "max");
+  revalidatePath("/trips");
+  revalidatePath(`/trips/${tripId}`, "layout");
+  return {};
+}
+
 /** Clone a shared trip as your own (activities only — the share page shows no ideas or checklists) */
 export async function cloneTrip(
   shareCode: string

@@ -4,6 +4,20 @@
 
 ---
 
+## v0.6.2 — 2026-10-16 · Hand over a trip
+
+### App
+
+- **Planners can hand over a trip and leave.** Settings → **Leave or delete trip** now offers two choices: pick a new planner (anyone who joined with an account) and leave, or delete the trip for everyone. If you're in any expenses, your name stays on them as name-only, so balances don't change.
+- **Set a budget no longer shows the daily-free formula** under the field.
+- **Fixed: deleting a trip with expenses failed** with a "violates foreign key constraint expense_participants_traveller_id_fkey" error.
+
+### Database
+
+- Run `supabase/migrations/20261016_trip_handover.sql` **before** deploying (adds `hand_over_and_leave`; the expense→traveller links are now checked at the end of the delete). Test: `20261016_trip_handover_TEST.sql`. Undo: `…_UNDO.sql`.
+
+---
+
 ## v0.6.1 — 2026-10-12 · Support email
 
 ### Landing page

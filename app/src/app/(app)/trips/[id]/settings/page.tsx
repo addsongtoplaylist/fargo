@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTrip } from "@/lib/trip-context";
-import { updateTrip, deleteTrip, getOrCreateShareCode } from "@/lib/actions/trip";
+import { updateTrip, deleteTrip, handOverAndLeave, getOrCreateShareCode } from "@/lib/actions/trip";
 import { useToast } from "@/components/toast";
-import { ConfirmDialog } from "@/components/confirm-dialog";
+import { LeaveOrDeleteSheet } from "@/components/leave-or-delete-sheet";
 import { DestinationSearch, type Destination } from "@/components/destination-search";
 import { LocationSearch } from "@/components/schedule/location-search";
 import { Share2, Check } from "lucide-react";
@@ -83,6 +83,16 @@ export default function TripSettingsPage() {
       toast("Trip updated");
       router.push(`/trips/${trip!.id}/overview`);
       router.refresh();
+    }
+  }
+
+  async function handleHandOver(travellerId: string) {
+    const result = await handOverAndLeave(trip!.id, travellerId);
+    if (result.error) {
+      toast(result.error, "error");
+    } else {
+      toast("Trip handed over");
+      router.push("/trips?noauto=1");
     }
   }
 
@@ -228,16 +238,18 @@ export default function TripSettingsPage() {
       <section>
         <Eyebrow className="mx-1 mb-2">Danger zone</Eyebrow>
         <Button variant="danger-outline" full onClick={() => setShowDeleteConfirm(true)}>
-          Delete trip
+          Leave or delete trip
         </Button>
       </section>
 
-      <ConfirmDialog
+      <LeaveOrDeleteSheet
         open={showDeleteConfirm}
-        title="Delete trip"
-        message={`Are you sure you want to delete "${name}"? This will permanently remove all activities, expenses, checklists, and traveller data. All members will lose access. This cannot be undone.`}
-        onConfirm={handleDelete}
-        onCancel={() => setShowDeleteConfirm(false)}
+        tripName={name}
+        plannerAccountId={trip.planner_id}
+        travellers={trip.travellers ?? []}
+        onClose={() => setShowDeleteConfirm(false)}
+        onHandOver={handleHandOver}
+        onDelete={handleDelete}
       />
     </div>
   );

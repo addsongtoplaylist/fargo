@@ -18,6 +18,7 @@
 |---|---|:-:|:-:|:-:|:-:|
 | **Trip** | View the trip | ✅ | ✅ | — | Header + Schedule only |
 | | Edit trip settings, delete trip | ✅ | ❌ | — | ❌ |
+| | Hand over (make another traveller with an account planner) and leave | ✅ | ❌ | — | ❌ |
 | | Add / change / reposition / remove the cover photo | ✅ | ❌ | — | ❌ |
 | | Copy share link | ✅ | ❌ | — | ❌ |
 | | Share trip overlays (trip pass, photo ticket) | ✅ | ✅ | — | ❌ |
@@ -69,6 +70,7 @@
 - **The badge**: planner only — a number dot on the Prep tab for ideas added by others since they last opened Prep; clears when Prep opens. No badge for members, none on My trips cards. Full spec: `IDEAS.md`.
 - **Ideas moved back from Schedule** keep the person who first suggested them.
 - **Default checklists**: copied into a trip automatically the first time you open its Prep; editing a trip's copy doesn't change your defaults (use "Save to my defaults"). Full spec: `CHECKLISTS.md`.
+- **Planner handover** (v0.6.2, `hand_over_and_leave`): Settings → Leave or delete trip. Only a traveller who joined with their own account can become planner. The old planner leaves; if they're in any expense their name stays as name-only so balances don't change.
 - **Leaving a trip** keeps your checklists for it hidden; they return if you rejoin.
 - **Nobody can put someone else on a trip.** A person's account is linked to a trip only when *they* use the invite link or claim their name (or the planner hands over ownership to an existing traveller). The planner adds people by name only. Enforced in the database since v0.5.11 (`travellers_guard_account_link`).
 - **The invite page** shows the trip and travellers' names to anyone with the link, but never other people's account details.
