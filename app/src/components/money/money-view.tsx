@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ArrowLeftRight, ChevronRight } from "lucide-react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import { useTrip } from "@/lib/trip-context";
 import { updateBudget } from "@/lib/actions/expense";
@@ -58,6 +58,8 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const [panelOpen, setPanelOpen] = useState(false);
   const [sharesOpen, setSharesOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState(false);
+  // My budget + What you paid only: trip currency or home currency (MYR)
+  const [showHome, setShowHome] = useState(false);
   const [budgetInput, setBudgetInput] = useState(
     budget?.budgetTotal ? budget.budgetTotal.toString() : ""
   );
@@ -68,6 +70,10 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
 
   const fxRate = trip.fx_rate;
   const cur = trip.local_currency;
+  // Budget amounts are stored in MYR; shown × fxRate in the trip currency
+  const canSwitch = cur !== "MYR" && fxRate > 0;
+  const shownCur = showHome && canSwitch ? "MYR" : cur;
+  const shownRate = showHome && canSwitch ? 1 : fxRate;
   const myTravellerId = budget?.travellerId ?? null;
   const travellers = tripTravellers(trip.travellers);
   const travellerIds = travellers.map((t) => t.id);
@@ -141,7 +147,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const viewCount = expenses.filter(
     (e) => e.paid_by === myTravellerId || (e.kind === "expense" && e.created_by === myTravellerId)
   ).length;
-  const spentLocal = Math.round((budget?.totalSpent ?? 0) * fxRate);
+  const spentLocal = Math.round((budget?.totalSpent ?? 0) * shownRate);
 
   const daysToGo = daysToGoLabel(trip.start_date, trip.end_date);
   const paidTotal = entries.reduce((sum, [, v]) => sum + v, 0);
@@ -153,11 +159,24 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
         <CardHeader
           title="My budget"
           action={
-            (editingBudget || hasBudget) && (
-              <TextButton onClick={() => setEditingBudget(!editingBudget)} className="py-0">
-                {editingBudget ? "Cancel" : "Edit"}
-              </TextButton>
-            )
+            <div className="flex items-center gap-3">
+              {canSwitch && !editingBudget && (
+                <button
+                  type="button"
+                  onClick={() => setShowHome(!showHome)}
+                  aria-label={`Amounts in ${shownCur} — switch to ${showHome ? cur : "MYR"}`}
+                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-brand-soft text-brand text-xs font-semibold hover:bg-brand hover:text-brand-on transition-colors"
+                >
+                  {shownCur}
+                  <ArrowLeftRight size={12} strokeWidth={2.2} aria-hidden />
+                </button>
+              )}
+              {(editingBudget || hasBudget) && (
+                <TextButton onClick={() => setEditingBudget(!editingBudget)} className="py-0">
+                  {editingBudget ? "Cancel" : "Edit"}
+                </TextButton>
+              )}
+            </div>
           }
         />
 
@@ -188,8 +207,8 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
           </div>
         ) : hasBudget && budget ? (
           (() => {
-            const budgetLocal = Math.round(budget.budgetTotal * fxRate);
-            const remainingLocal = Math.round(budget.remaining * fxRate);
+            const budgetLocal = Math.round(budget.budgetTotal * shownRate);
+            const remainingLocal = Math.round(budget.remaining * shownRate);
             const over = budget.remaining < 0;
             // Smaller hero when amounts are 6+ digits (e.g. VND 1,500,000)
             const isLarge = Math.abs(spentLocal) >= 100_000 || Math.abs(budgetLocal) >= 100_000;
@@ -198,15 +217,15 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className={`${isLarge ? "text-[22px]" : "text-[26px]"} font-bold leading-tight tabular-nums ${over ? "text-money-over" : "text-fg"}`}>
-                      {cur} {spentLocal.toLocaleString()}
+                      {shownCur} {spentLocal.toLocaleString()}
                     </p>
                     <p className="text-[13px] text-fg-muted mt-0.5 tabular-nums">
-                      spent of {cur} {budgetLocal.toLocaleString()}
+                      spent of {shownCur} {budgetLocal.toLocaleString()}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
                     <p className="text-base font-semibold text-fg tabular-nums">
-                      {cur} {Math.round(budget.dailyFree * fxRate).toLocaleString()}
+                      {shownCur} {Math.round(budget.dailyFree * shownRate).toLocaleString()}
                     </p>
                     <p className="text-[13px] text-fg-muted mt-0.5">daily free</p>
                   </div>
@@ -219,7 +238,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                 </div>
                 <p className="text-[13px] mt-2 tabular-nums">
                   <span className={`font-semibold ${over ? "text-money-over" : "text-money-ok"}`}>
-                    {cur} {Math.abs(remainingLocal).toLocaleString()} {over ? "over" : "left"}
+                    {shownCur} {Math.abs(remainingLocal).toLocaleString()} {over ? "over" : "left"}
                   </span>
                   {daysToGo && <span className="text-fg-muted"> · {daysToGo}</span>}
                 </p>
@@ -231,7 +250,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
           <div className="mt-3 flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[22px] font-bold text-fg leading-tight tabular-nums">
-                {cur} {spentLocal.toLocaleString()}
+                {shownCur} {spentLocal.toLocaleString()}
               </p>
               <p className="text-[13px] text-fg-muted mt-0.5">spent · what you paid</p>
             </div>
@@ -323,7 +342,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                           <div className="flex items-baseline justify-between gap-2">
                             <span className="text-sm text-fg truncate">{categoryLabel(key)}</span>
                             <span className="text-sm font-semibold text-fg tabular-nums shrink-0">
-                              {cur} {Math.round(amount * fxRate).toLocaleString()}
+                              {shownCur} {Math.round(amount * shownRate).toLocaleString()}
                             </span>
                           </div>
                           <div className="mt-1.5 h-1 bg-page rounded-full overflow-hidden" aria-hidden>

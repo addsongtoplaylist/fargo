@@ -4,6 +4,15 @@
 
 ---
 
+## v0.6.3 — 2026-10-17 · Budget in MYR
+
+### App
+
+- **My budget and What you paid can show MYR.** Tap the currency pill next to Edit to switch between the trip currency and MYR (at the trip's saved rate). All expenses, Group split and Schedule stay in the trip currency. Goes back to the trip currency each time you open Money.
+- No database changes.
+
+---
+
 ## v0.6.2 — 2026-10-16 · Hand over a trip
 
 ### App
