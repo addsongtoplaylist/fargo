@@ -83,8 +83,8 @@ Unchanged from v0.7: logo `app/public/logo.png`, mascot `app/public/mascot.png`,
 
 - **Source: the planner's own photo.** No stock photos — Explore will show many people's trips, and shared stock images would make them look alike.
 - **Upload (planner only):** optional **Add cover photo** on New trip; **Change / Remove cover photo** in Trip settings. Resized on the phone (~1600px wide) before upload; stored in Supabase Storage. Visible to the trip's travellers, the shared trip page, and Explore later.
-- **Where it shows:** My trips cards (thumbnail beside the text — 104px current / 92px upcoming / 52px past), Overview header (300px, full-bleed), invite card (130px).
-- **Overview header text sits on a bottom-up dark gradient** (`rgba(12,18,32,0.82)` → transparent over the bottom ~190px). Nowhere else puts text on a photo.
+- **Where it shows:** My trips cards (current + upcoming: full-width 12:5 banner on top, countdown pill on the photo — v0.6.4; past: 52px thumbnail), Overview header (300px, full-bleed), invite card (130px).
+- **Overview header text sits on a bottom-up dark gradient** (`rgba(12,18,32,0.82)` → transparent over the bottom ~190px). The only other text on a photo is the My trips countdown pill (solid pill, no gradient).
 
 ### No photo (interim — option A)
 

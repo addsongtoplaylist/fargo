@@ -24,24 +24,31 @@ export function tintFor(tripId: string) {
 /**
  * Trip cover thumbnail: the planner's photo when there is one (P10),
  * otherwise the trip's colour + 2-letter country code (map icon if unknown).
+ * `wide` = full card width, 12:5 banner (My trips current/upcoming cards).
  */
 export function TripCover({
   tripId,
   destination,
   coverPath,
   coverPosition,
-  size,
+  size = 92,
   radius = 14,
+  wide = false,
 }: {
   tripId: string;
   destination: string;
   coverPath?: string | null;
   /** 0–100, how far down the photo is shown (50 = middle) */
   coverPosition?: number | null;
-  size: number;
+  size?: number;
   radius?: number;
+  wide?: boolean;
 }) {
   const url = coverUrl(coverPath);
+  const box = wide
+    ? { width: "100%", aspectRatio: "12 / 5", borderRadius: radius }
+    : { width: size, height: size, borderRadius: radius };
+  const codeSize = wide ? 44 : size;
   if (url) {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- Supabase storage photo; already resized on upload
@@ -51,7 +58,7 @@ export function TripCover({
         aria-hidden
         loading="lazy"
         className="shrink-0 object-cover bg-skeleton"
-        style={{ width: size, height: size, borderRadius: radius, objectPosition: coverObjectPosition(coverPosition) }}
+        style={{ ...box, objectPosition: coverObjectPosition(coverPosition) }}
       />
     );
   }
@@ -60,9 +67,9 @@ export function TripCover({
     <span
       aria-hidden
       className={`inline-flex items-center justify-center shrink-0 font-bold tracking-[1px] ${tintFor(tripId)}`}
-      style={{ width: size, height: size, borderRadius: radius, fontSize: Math.round(size * 0.3) }}
+      style={{ ...box, fontSize: Math.round(codeSize * (wide ? 1 : 0.3)) }}
     >
-      {code ?? <MapIcon size={Math.round(size * 0.34)} strokeWidth={2} />}
+      {code ?? <MapIcon size={Math.round(codeSize * (wide ? 0.8 : 0.34))} strokeWidth={2} />}
     </span>
   );
 }

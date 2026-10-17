@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Compass } from "lucide-react";
 import { TripCover } from "@/components/trip-cover";
 import { AvatarStack } from "@/components/ui/avatar";
 
 /**
- * My trips card (DESIGN.md v0.8 — cover beside the text). `current` = the
- * trip you're on: bigger cover, blue outline, filled chip.
+ * My trips card for current and upcoming trips: full-width cover on top,
+ * countdown on the photo, then name, destination · dates and travellers.
+ * `current` = the trip you're on: blue outline, filled chip.
  */
 export function TripCard({
   id,
@@ -33,22 +34,27 @@ export function TripCard({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3.5 bg-surface rounded-[20px] p-2.5 ${current ? "ring-[1.5px] ring-inset ring-brand" : ""}`}
+      className={`block bg-surface rounded-[20px] p-2.5 ${current ? "ring-[1.5px] ring-inset ring-brand" : ""}`}
     >
-      <TripCover tripId={id} destination={destination} coverPath={coverPath} coverPosition={coverPosition} size={current ? 104 : 92} />
-      <div className="flex-1 min-w-0 flex flex-col gap-1">
-        <p className="text-base font-semibold text-fg truncate">{name}</p>
-        <p className="text-[13px] text-fg-muted truncate">
-          {destination} · {dates}
-        </p>
-        <div className="flex items-center justify-between gap-2 mt-1.5">
-          <span
-            className={`text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${
-              current ? "bg-brand text-brand-on" : "bg-brand-soft text-brand"
-            }`}
-          >
-            {chip}
-          </span>
+      <div className="relative">
+        <TripCover tripId={id} destination={destination} coverPath={coverPath} coverPosition={coverPosition} wide />
+        <span
+          className={`absolute top-2.5 left-2.5 text-[11px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap shadow-sm ${
+            current ? "bg-brand text-brand-on" : "bg-surface text-brand"
+          }`}
+        >
+          {chip}
+        </span>
+      </div>
+      <div className="px-1.5 pt-3 pb-1.5">
+        <p className="text-[20px] font-bold text-fg leading-tight truncate">{name}</p>
+        <div className="flex items-center justify-between gap-3 mt-1.5">
+          <p className="flex items-center gap-1.5 min-w-0 text-[13px] text-fg-muted">
+            <Compass size={15} strokeWidth={2} className="shrink-0" aria-hidden />
+            <span className="truncate">
+              {destination} · {dates}
+            </span>
+          </p>
           {travellers.length > 0 && <AvatarStack names={travellers} />}
         </div>
       </div>

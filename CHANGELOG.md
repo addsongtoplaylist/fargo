@@ -4,6 +4,16 @@
 
 ---
 
+## v0.6.4 — 2026-10-17 · Bigger trip cards
+
+### App
+
+- **New My trips card for current and upcoming trips:** a full-width cover photo on top with the countdown on it ("Day 3 of 7" / "In 76 days"), then the trip name, destination · dates and travellers. Past trips stay a compact list.
+- **The Schedule daily budget can show MYR** — tap the currency pill on the card, like on Money.
+- No database changes.
+
+---
+
 ## v0.6.3 — 2026-10-17 · Budget in MYR
 
 ### App
