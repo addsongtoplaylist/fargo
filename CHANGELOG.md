@@ -4,6 +4,16 @@
 
 ---
 
+## v0.6.8 — 2026-10-23 · Quieter screens
+
+### App
+
+- **Fixed: Settle up didn't refresh after Mark as settled / Unmark** — the list kept the old state until you reloaded. Money saves now refresh their data immediately (also logging, editing and deleting expenses, and setting a budget).
+- **Less explanatory copy** (owner): removed the currency hint on New trip, the Discover empty-state line, the base-city hint in Trip settings, three lines in Leave or delete trip, and the notes preview under each idea in Prep.
+- No database changes.
+
+---
+
 ## v0.6.7 — 2026-10-23 · Security update
 
 ### App

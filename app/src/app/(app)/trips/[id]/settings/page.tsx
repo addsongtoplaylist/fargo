@@ -163,9 +163,6 @@ export default function TripSettingsPage() {
             countries={destination?.countryCode ? [destination.countryCode] : undefined}
             proximity={destination?.lat && destination?.lng ? { lat: destination.lat, lng: destination.lng } : undefined}
           />
-          <p className="text-xs text-fg-muted mt-1.5 leading-relaxed">
-            Used for the weather on Overview before your first Stay, or when a Stay has no place set.
-          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-3">

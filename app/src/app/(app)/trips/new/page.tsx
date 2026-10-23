@@ -301,9 +301,6 @@ export default function NewTripPage() {
                 {currency && <span className="text-sm text-fg-muted shrink-0">{currency}</span>}
               </div>
             </div>
-            <p className="text-xs text-fg-muted mx-1 mt-2 leading-relaxed">
-              Currency picked from your destination. Enter today&apos;s rate — you can change it later in Trip settings.
-            </p>
           </div>
           {/* Cover photo (P10) — optional */}
           <div>

@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { getOrCreateAccount } from "@/lib/account";
-import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
+import { revalidatePath, unstable_cache, updateTag } from "next/cache";
 import { createExpenseSchema, updateExpenseSchema, tripIdSchema, uuidSchema } from "@/lib/validations";
 import { getTrip } from "@/lib/actions/trip";
 
@@ -89,7 +89,7 @@ export async function createExpense(tripId: string, fields: ExpenseFields) {
     throw new Error("Failed to create expense");
   }
 
-  revalidateTag(`expenses-${tripId}`, "max");
+  updateTag(`expenses-${tripId}`);
   revalidatePath(`/trips/${tripId}/money`);
   revalidatePath(`/trips/${tripId}/schedule`);
 }
@@ -122,7 +122,7 @@ export async function updateExpense(expenseId: string, tripId: string, fields: E
     throw new Error("Failed to update expense");
   }
 
-  revalidateTag(`expenses-${tripId}`, "max");
+  updateTag(`expenses-${tripId}`);
   revalidatePath(`/trips/${tripId}/money`);
   revalidatePath(`/trips/${tripId}/schedule`);
 }
@@ -142,7 +142,7 @@ export async function deleteExpense(expenseId: string, tripId: string) {
     throw new Error("Failed to delete expense");
   }
 
-  revalidateTag(`expenses-${tripId}`, "max");
+  updateTag(`expenses-${tripId}`);
   revalidatePath(`/trips/${tripId}/money`);
   revalidatePath(`/trips/${tripId}/schedule`);
 }
@@ -166,8 +166,8 @@ export async function updateBudget(tripId: string, budgetTotal: number) {
   }
 
   // budget_total is read from the cached getTrip() — bust it too
-  revalidateTag(`trip-${tripId}`, "max");
-  revalidateTag(`expenses-${tripId}`, "max");
+  updateTag(`trip-${tripId}`);
+  updateTag(`expenses-${tripId}`);
   revalidatePath(`/trips/${tripId}/money`);
   revalidatePath(`/trips/${tripId}/schedule`);
 }
@@ -179,7 +179,8 @@ export async function updateBudget(tripId: string, budgetTotal: number) {
  * budget_total — eliminates 3 of the original 4 Supabase queries.
  * Only the expenses query remains unique to this function.
  *
- * Cached across requests (30s TTL); expense/budget mutations bust via revalidateTag.
+ * Cached across requests (30s TTL); expense/budget mutations bust via updateTag
+ * (immediate, so the page refreshed right after a save shows the change).
  */
 export async function getBudgetSummary(tripId: string) {
   const account = await getOrCreateAccount();
@@ -296,8 +297,9 @@ export async function markSettled(
     return { error: error.message || "Failed to mark as settled" };
   }
 
-  revalidateTag(`expenses-${tripId}`, "max");
+  updateTag(`expenses-${tripId}`);
   revalidatePath(`/trips/${tripId}/money`);
+  revalidatePath(`/trips/${tripId}/money/settle`);
   return {};
 }
 
@@ -317,7 +319,8 @@ export async function unmarkSettled(tripId: string, expenseId: string): Promise<
     return { error: error.message || "Failed to unmark" };
   }
 
-  revalidateTag(`expenses-${tripId}`, "max");
+  updateTag(`expenses-${tripId}`);
   revalidatePath(`/trips/${tripId}/money`);
+  revalidatePath(`/trips/${tripId}/money/settle`);
   return {};
 }

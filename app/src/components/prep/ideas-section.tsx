@@ -234,7 +234,6 @@ export function IdeasSection({ ideas, tripId, isPlanner = true, myAccountId = nu
                       )}
                     </div>
                   )}
-                  {!idea.promoted && idea.notes && <p className="text-[13px] text-fg-muted mt-1 truncate">{idea.notes}</p>}
                   {!idea.promoted && idea.link && (
                     <a
                       href={idea.link}

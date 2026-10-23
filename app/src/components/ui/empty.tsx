@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 
 /**
- * v0.8 empty state: icon in a soft circle, optional title, one line of
+ * v0.8 empty state: icon in a soft circle, optional title, optional line of
  * guidance, optional action. `page` size for full screens (My trips, 404).
  */
 export function Empty({
@@ -13,7 +13,7 @@ export function Empty({
 }: {
   icon: LucideIcon;
   title?: string;
-  message: string;
+  message?: string;
   action?: React.ReactNode;
   size?: "section" | "page";
 }) {
@@ -26,7 +26,7 @@ export function Empty({
         <Icon size={page ? 28 : 22} strokeWidth={1.9} aria-hidden />
       </div>
       {title && <p className="text-[17px] font-semibold text-fg mb-1">{title}</p>}
-      <p className="text-sm text-fg-muted max-w-[270px] leading-relaxed">{message}</p>
+      {message && <p className="text-sm text-fg-muted max-w-[270px] leading-relaxed">{message}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
   );

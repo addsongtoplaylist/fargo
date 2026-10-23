@@ -49,15 +49,9 @@ export function LeaveOrDeleteSheet({
           <section>
             <h3 className="text-[15px] font-semibold text-fg">Hand over and leave</h3>
             <p className="text-[13px] text-fg-muted mt-1 leading-relaxed">
-              Pick a new planner. The trip stays as it is for everyone else. If you&apos;re in any expenses, your
-              name stays on them so balances don&apos;t change.
+              Pick a new planner. The trip stays as it is for everyone else.
             </p>
-            {candidates.length === 0 ? (
-              <p className="text-[13px] text-fg-muted mt-3 p-3 rounded-[14px] bg-page leading-relaxed">
-                Nobody else has joined with an account yet. Invite someone from Overview first — people added by name
-                only can&apos;t be planner.
-              </p>
-            ) : (
+            {candidates.length > 0 && (
               <div role="radiogroup" aria-label="New planner" className="mt-3 flex flex-wrap gap-3">
                 {candidates.map((t) => (
                   <button
@@ -88,9 +82,6 @@ export function LeaveOrDeleteSheet({
 
           <section>
             <h3 className="text-[15px] font-semibold text-fg">Delete for everyone</h3>
-            <p className="text-[13px] text-fg-muted mt-1 leading-relaxed">
-              Removes the whole trip — activities, expenses and travellers. Everyone loses access.
-            </p>
             <Button variant="danger-outline" full className="mt-3" onClick={() => setConfirm("delete")}>
               Delete trip
             </Button>

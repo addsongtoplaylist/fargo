@@ -30,7 +30,7 @@ const CATEGORIES: {
   icon: typeof UtensilsCrossed;
   enabled: boolean;
   emptyTitle: string;
-  emptyDescription: string;
+  emptyDescription?: string;
 }[] = [
   {
     value: "bites",
@@ -38,7 +38,6 @@ const CATEGORIES: {
     icon: UtensilsCrossed,
     enabled: true,
     emptyTitle: "Find your next meal",
-    emptyDescription: "Discover dining spots that match your preferences",
   },
   {
     value: "shop",
