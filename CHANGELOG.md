@@ -4,6 +4,15 @@
 
 ---
 
+## v0.6.7 — 2026-10-23 · Security update
+
+### App
+
+- **Next.js 16.4.0 → 16.4.2** (and eslint-config-next). Fixes a critical advisory for 16.0.0–16.4.0 (remote code execution in image optimization with SVGs and in `use cache`, plus a Server Actions denial of service). `npm audit` now reports 0 vulnerabilities. Nothing changes for users.
+- No database changes.
+
+---
+
 ## v0.6.6 — 2026-10-23 · Home icon
 
 ### App

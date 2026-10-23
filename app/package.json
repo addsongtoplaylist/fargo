@@ -1,6 +1,6 @@
 {
   "name": "fargo",
-  "version": "0.6.6",
+  "version": "0.6.7",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -19,7 +19,7 @@
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.33.0",
     "mapbox-gl": "^3.29.0",
-    "next": "16.4.0",
+    "next": "16.4.2",
     "postgres": "^3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -32,7 +32,7 @@
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
-    "eslint-config-next": "16.4.0",
+    "eslint-config-next": "16.4.2",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
