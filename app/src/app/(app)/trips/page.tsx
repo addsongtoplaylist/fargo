@@ -22,9 +22,7 @@ export default async function TripsPage({
     }
   }
 
-  const { active, upcoming, past, today: todayStr } = await getMyTrips();
-  // Home-timezone date (not the server's UTC clock), same as the active/upcoming split
-  const today = todayStr ? parseISO(todayStr) : new Date();
+  const { active, upcoming, past } = await getMyTrips();
   const hasTrips = active.length > 0 || upcoming.length > 0 || past.length > 0;
 
   return (
@@ -46,7 +44,7 @@ export default async function TripsPage({
               name={trip.name}
               destination={trip.destination}
               dates={formatDateRange(trip.start_date, trip.end_date)}
-              chip={dayOfTrip(trip, today)}
+              chip={dayOfTrip(trip)}
               travellers={names(trip)}
               current={i === 0}
             />
@@ -62,7 +60,7 @@ export default async function TripsPage({
               name={trip.name}
               destination={trip.destination}
               dates={formatDateRange(trip.start_date, trip.end_date)}
-              chip={countdown(trip, today)}
+              chip={countdown(trip)}
               travellers={names(trip)}
             />
           ))}
@@ -99,8 +97,14 @@ function names(trip: MyTrip) {
   return (trip.travellers || []).map((t) => t.display_name);
 }
 
+/** Each trip's own "today" (destination date, from getMyTrips) — same as Overview. */
+function tripToday(trip: MyTrip) {
+  return trip.today ? parseISO(trip.today) : new Date();
+}
+
 /** "Day X of Y" — same maths as before the redesign. */
-function dayOfTrip(trip: MyTrip, today: Date) {
+function dayOfTrip(trip: MyTrip) {
+  const today = tripToday(trip);
   const start = parseISO(trip.start_date);
   const end = parseISO(trip.end_date);
   const currentDay = differenceInCalendarDays(today, start) + 1;
@@ -109,7 +113,7 @@ function dayOfTrip(trip: MyTrip, today: Date) {
 }
 
 /** "In N days" — same maths as the old "N days to go". */
-function countdown(trip: MyTrip, today: Date) {
-  const daysUntil = differenceInCalendarDays(parseISO(trip.start_date), today);
+function countdown(trip: MyTrip) {
+  const daysUntil = differenceInCalendarDays(parseISO(trip.start_date), tripToday(trip));
   return daysUntil === 1 ? "In 1 day" : `In ${daysUntil} days`;
 }

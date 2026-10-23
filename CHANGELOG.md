@@ -9,6 +9,7 @@
 ### App
 
 - **My trips in the bottom bar is now a house icon**, matching the top-left button on trip screens.
+- **My trips uses each trip's destination date** (like Overview and Schedule since v0.6.5): which trips are current / upcoming / past, the "Day X of Y" / "In N days" chips and opening the current trip on launch now agree with Overview — e.g. a US trip no longer shows "Day 1" on My trips while Overview still says "In 1 day".
 - No database changes.
 
 ---

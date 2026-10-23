@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { updateTripSchema, tripIdSchema, uuidSchema } from "@/lib/validations";
 import { todayForCountry } from "@/lib/dates";
+import { addDays, format, parseISO } from "date-fns";
 
 const TRIP_TYPE_MAP: Record<string, string> = {
   "Free & easy": "free_and_easy",
@@ -149,19 +150,27 @@ export async function getActiveTrip(): Promise<string | null> {
   if (!account) return null;
 
   const supabase = await createClient();
-  const today = todayForCountry(account.home_country_code);
+  // "Active" uses each trip's destination date, like Overview and Schedule (v0.6.6).
+  // Timezones are at most a day apart, so fetch trips within a day of home
+  // today, then check each against its own destination date.
+  const homeToday = parseISO(todayForCountry(account.home_country_code));
+  const dayAfter = format(addDays(homeToday, 1), "yyyy-MM-dd");
+  const dayBefore = format(addDays(homeToday, -1), "yyyy-MM-dd");
 
-  // Single query: join travellers → trips, filter for active dates. With
-  // more than one active trip, open the one that started most recently
-  // (it used to be whichever the database returned first).
+  // Single query: join travellers → trips. With more than one active trip,
+  // open the one that started most recently.
   const { data } = await supabase
     .from("travellers")
-    .select("trip_id, trips!inner(id, start_date, end_date)")
+    .select("trip_id, trips!inner(id, start_date, end_date, destination_country_code)")
     .eq("account_id", account.id)
-    .lte("trips.start_date", today)
-    .gte("trips.end_date", today);
+    .lte("trips.start_date", dayAfter)
+    .gte("trips.end_date", dayBefore);
 
-  const rows = (data ?? []) as unknown as { trip_id: string; trips: { start_date: string } }[];
+  type Row = { trip_id: string; trips: { start_date: string; end_date: string; destination_country_code: string | null } };
+  const rows = ((data ?? []) as unknown as Row[]).filter(({ trips: t }) => {
+    const today = todayForCountry(t.destination_country_code);
+    return t.start_date <= today && t.end_date >= today;
+  });
   if (rows.length === 0) return null;
   rows.sort((a, b) => b.trips.start_date.localeCompare(a.trips.start_date));
   return rows[0].trip_id;
@@ -184,6 +193,10 @@ export type MyTrip = {
   /** P10 — read from trips (get_my_trips doesn't return it) */
   cover_path?: string | null;
   cover_position?: number | null;
+  /** Read from trips (get_my_trips doesn't return it) */
+  destination_country_code?: string | null;
+  /** yyyy-MM-dd at the destination — what "today" means for this trip */
+  today?: string;
   travellers: {
     id: string;
     display_name: string;
@@ -193,37 +206,42 @@ export type MyTrip = {
   }[];
 };
 
-/** `today` (yyyy-MM-dd, home timezone) is returned so pages count days the same way as the split. */
-export async function getMyTrips(): Promise<{ active: MyTrip[]; upcoming: MyTrip[]; past: MyTrip[]; today?: string }> {
+/**
+ * Your trips split into active / upcoming / past by each trip's destination
+ * date (v0.6.6) — the same "today" Overview and Schedule use. Each trip carries
+ * its `today` so pages count days the same way.
+ */
+export async function getMyTrips(): Promise<{ active: MyTrip[]; upcoming: MyTrip[]; past: MyTrip[] }> {
   const account = await getOrCreateAccount();
   if (!account) return { active: [], upcoming: [], past: [] };
 
   const supabase = await createClient();
-  const today = todayForCountry(account.home_country_code);
 
   // Single RPC call replaces the 2-query waterfall
   const { data } = await supabase.rpc("get_my_trips");
   const trips = (Array.isArray(data) ? data : []) as MyTrip[];
 
-  // Cover photos (P10): one extra read, under the normal trip rules
+  // Cover photos (P10) + destination country: one extra read, under the normal trip rules
   if (trips.length > 0) {
     const { data: covers } = await supabase
       .from("trips")
-      .select("id, cover_path, cover_position")
+      .select("id, cover_path, cover_position, destination_country_code")
       .in("id", trips.map((t) => t.id));
-    type Cover = { id: string; cover_path: string | null; cover_position: number | null };
+    type Cover = { id: string; cover_path: string | null; cover_position: number | null; destination_country_code: string | null };
     const byId = new Map((covers ?? []).map((c: Cover) => [c.id, c]));
     for (const t of trips) {
       t.cover_path = byId.get(t.id)?.cover_path ?? null;
       t.cover_position = byId.get(t.id)?.cover_position ?? 50;
+      t.destination_country_code = byId.get(t.id)?.destination_country_code ?? null;
     }
   }
+  for (const t of trips) t.today = todayForCountry(t.destination_country_code);
 
-  const active = trips.filter((t) => t.start_date <= today && t.end_date >= today);
-  const upcoming = trips.filter((t) => t.start_date > today);
-  const past = trips.filter((t) => t.end_date < today);
+  const active = trips.filter((t) => t.start_date <= t.today! && t.end_date >= t.today!);
+  const upcoming = trips.filter((t) => t.start_date > t.today!);
+  const past = trips.filter((t) => t.end_date < t.today!);
 
-  return { active, upcoming, past, today };
+  return { active, upcoming, past };
 }
 
 /**
