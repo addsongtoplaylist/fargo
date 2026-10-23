@@ -4,6 +4,16 @@
 
 ---
 
+## v0.6.10 — 2026-10-23 · Add to Home Screen from Profile
+
+### App
+
+- **Profile → Add Fargo to your Home Screen** opens the install steps any time, even after "Not now" or "Don't show again". Shown only in a phone browser where Fargo isn't installed yet.
+- No database changes.
+- Landing: checked (install section unaffected).
+
+---
+
 ## v0.6.9 — 2026-10-23 · Money polish
 
 ### App

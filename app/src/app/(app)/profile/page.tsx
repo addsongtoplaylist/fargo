@@ -1,6 +1,7 @@
 import { Column } from "@/components/column";
 import { getOrCreateAccount } from "@/lib/account";
 import { SignOutButton } from "@/components/sign-out-button";
+import { InstallRow } from "@/components/install-row";
 import { ProfileSettings } from "@/components/profile-settings";
 import { DiningPreferences } from "@/components/dining-preferences";
 import Link from "next/link";
@@ -50,6 +51,7 @@ export default async function ProfilePage() {
       {/* "Recently viewed" hidden until it's built (Tier 3 decision) */}
 
       <div className="mt-4 bg-surface rounded-card">
+        <InstallRow />
         <Link href="/home" className="block">
           <ProfileRow icon={Info} label="About Fargo" chevron />
         </Link>

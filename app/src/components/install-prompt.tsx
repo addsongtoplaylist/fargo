@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
  * One-time "Add Fargo to your Home Screen" sheet (LANDING-PLAN.md batch 4).
  * Phones only, never inside the installed app. "Not now" snoozes for 7 days,
  * "Don't show again" hides it for good (both remembered on this device).
+ * Profile → "Add Fargo to your Home Screen" opens it any time (v0.6.10) via
+ * openInstallPrompt(), ignoring the snooze.
  */
 
 const KEY = "fargo-install-prompt"; // "never" | snooze-until timestamp (ms)
@@ -40,6 +42,19 @@ function isInstalled() {
   return window.matchMedia("(display-mode: standalone)").matches || nav.standalone === true;
 }
 
+const OPEN_EVENT = "fargo-install-open";
+
+/** True on a phone browser where Fargo isn't installed yet (client only). */
+export function canInstall(): boolean {
+  if (typeof window === "undefined") return false;
+  return /iphone|ipad|ipod|android/i.test(navigator.userAgent) && !isInstalled();
+}
+
+/** Open the sheet now (Profile row), even if it was snoozed or turned off. */
+export function openInstallPrompt() {
+  window.dispatchEvent(new Event(OPEN_EVENT));
+}
+
 export function InstallPrompt() {
   const [open, setOpen] = useState(false);
   const [platform, setPlatform] = useState<"ios" | "android">("ios");
@@ -51,8 +66,10 @@ export function InstallPrompt() {
     const isAndroid = /android/i.test(ua);
     if ((!isIOS && !isAndroid) || isInstalled()) return;
 
-    const flag = readFlag();
-    if (flag === "never" || (flag && Number(flag) > Date.now())) return;
+    const show = () => {
+      setPlatform(isIOS ? "ios" : "android");
+      setOpen(true);
+    };
 
     // Chrome on Android offers a one-tap install; keep the event for the Install button.
     function onBeforeInstall(e: Event) {
@@ -60,15 +77,17 @@ export function InstallPrompt() {
       setInstallEvent(e as BeforeInstallPromptEvent);
     }
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
+    window.addEventListener(OPEN_EVENT, show);
 
-    const timer = setTimeout(() => {
-      setPlatform(isIOS ? "ios" : "android");
-      setOpen(true);
-    }, 2000);
+    // Automatic once, unless snoozed or turned off on this device
+    const flag = readFlag();
+    const snoozed = flag === "never" || (flag && Number(flag) > Date.now());
+    const timer = snoozed ? undefined : setTimeout(show, 2000);
 
     return () => {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
       window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+      window.removeEventListener(OPEN_EVENT, show);
     };
   }, []);
 

@@ -231,6 +231,24 @@ Next: owner shares the clips → Claude checks the phone crop and renders the 6 
 
 **Built (2026-10-12, owner-approved):** hero (video slot + "Every trip starts here.") → statement ("Before the bags, the flights and the photos, every trip starts here.", app icon + blue wordmark) → photo galaxy ("Your trip, your way.", 19 Unsplash photos, no stamps) → four black feature cards (photo + real screen in a phone, Try it out) → "One trip, start to finish" (Before / Fargo comes along / After) → Passport like the app (3 stamps + "?", 38 days away, a highlight row) → install with a phone home screen where the Fargo icon pops in → FAQ → "Where to next?" → black footer with the half-width vector wordmark. Nav: see-through over the hero, a floating black pill after the first screen, a solid bar on Privacy / Terms. "Add an activity in 3 steps" and the stamp carousel were dropped. Code: `components/marketing/` (`sections.tsx`, `hero.tsx`, `site-nav.tsx`, `motion.tsx`, `home-screen.tsx`).
 
+## Landing check — run on every release that changes app UI
+
+> The landing page copies parts of the app. Before each release, go down this list: if the left column changed, update the right column. Note the result in the CHANGELOG entry ("Landing: checked, nothing affected" or "Landing: …updated"). Section numbers refer to the *As built* table below.
+
+| ✓ | If this changed in the app… | …check this on the landing page | Files |
+|---|---|---|---|
+| ☐ | Share overlays (Trip pass, Photo ticket) | Hero overlays (1) | `marketing/hero.tsx` ← `app/api/trips/[id]/pass/route.tsx` |
+| ☐ | Schedule, Prep, Money or Passport screens | Feature card screenshots (4) | `public/marketing/screen-*-2.webp` — retake on the **Fargo demo** trip |
+| ☐ | Passport layout, stamps or stamp inks | Passport replica (6) | `marketing/sections.tsx` ← `(app)/passport/page.tsx`, `public/stamp-art`, `scripts/stamps/inks.json` |
+| ☐ | App icon or wordmark | Statement, journey, install, "Where to next?", nav, footer (2, 5, 7, 9, 10) | `public/icon-512x512.png`, wordmark SVG |
+| ☐ | Bottom bars (home or trip) | Bars visible inside the screenshots (4) | retake screenshots |
+| ☐ | Who can do what (planner / member / money rules) | FAQ answers (8) | `marketing/sections.tsx` FAQ ← `docs/PERMISSIONS.md` |
+| ☐ | Brand colours or fonts | Buttons, wordmark colour, type | `app/globals.css` tokens |
+| ☐ | Install / Add to Home Screen flow | Install steps (7) | `marketing/home-screen.tsx` |
+| ☐ | Sign-in or the My trips entry point | Nav button for signed-in visitors (10) | `marketing/site-nav.tsx` |
+
+**Open as of v0.6.9 (2026-10-23):** feature screenshots (4) are out of date — Schedule (no "Day N", house icon), Money (expenses list first, one currency pill) and Passport (house icon in the bottom bar). Retake on the Fargo demo trip.
+
 ## As built — what the landing page shows (keep current)
 
 > Update this table whenever the page changes, **and** whenever the app UI a section copies changes (right-hand column). Code: `app/src/components/marketing/`.
@@ -248,4 +266,4 @@ Next: owner shares the clips → Claude checks the phone crop and renders the 6 
 | 9 | **Where to next?** | Dark plane-window photo, app icon + white wordmark, one line, Start planning | App icon |
 | 10 | **Footer + floating nav** | Black footer: big links, Privacy / Terms, half-width wordmark. Floating black pill nav after the first screen. Signed-in visitors get My trips. | — |
 
-**When the app changes, check here:** a new share-overlay design → hero (1); new Schedule / Prep / Money / Passport screens → retake the screenshots (4); a Passport layout change → the replica (6); a new app icon → statement, journey, install, nav (2, 5, 7, 10); FAQ answers if a rule changes (8).
+**When the app changes:** run the *Landing check* above.
