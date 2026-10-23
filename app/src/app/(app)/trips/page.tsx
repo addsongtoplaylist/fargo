@@ -1,12 +1,26 @@
 import { Column } from "@/components/column";
-import { EmptyTrips } from "@/components/empty-trips";
-import { TripCard, PastTripRow } from "@/components/trip-card";
-import { Fab } from "@/components/ui/fab";
+import { TripRow } from "@/components/trip-card";
+import { SkyBand } from "@/components/home/sky-band";
+import { TripSwipe } from "@/components/home/trip-swipe";
+import { BandTripCard } from "@/components/home/band-trip-card";
 import { getMyTrips, getActiveTrip, type MyTrip } from "@/lib/actions/trip";
+import { getActivities } from "@/lib/actions/activity";
+import { getOrCreateAccount } from "@/lib/account";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { redirect } from "next/navigation";
-import { formatDateRange } from "@/lib/dates";
+import { formatDateRange, nowTimeForCountry } from "@/lib/dates";
+import { nowForTrip } from "@/lib/trip-now";
+import { formatTime } from "@/lib/time-format";
+import { getTimeFormat } from "@/lib/time-format-server";
 
+const PAST_SHOWN = 3;
+
+/**
+ * Home (v0.7.0, owner-approved redesign): a sky band with greeting, your
+ * avatar (→ Profile), the trip(s) you're on — or the next upcoming one — in a
+ * swipe row, and New trip · Discover · Passport shortcuts; then a sheet with
+ * the other upcoming trips and past trips (latest 3, "See all" for the rest).
+ */
 export default async function TripsPage({
   searchParams,
 }: {
@@ -22,74 +36,134 @@ export default async function TripsPage({
     }
   }
 
-  const { active, upcoming, past } = await getMyTrips();
-  const hasTrips = active.length > 0 || upcoming.length > 0 || past.length > 0;
+  const [{ active, upcoming, past }, account, timeFormat] = await Promise.all([
+    getMyTrips(),
+    getOrCreateAccount(),
+    getTimeFormat(),
+  ]);
+
+  const byStart = (a: MyTrip, b: MyTrip) => a.start_date.localeCompare(b.start_date);
+  const ongoing = [...active].sort((a, b) => b.start_date.localeCompare(a.start_date)); // most recent start first
+  const later = [...upcoming].sort(byStart);
+  const pastNewest = [...past].sort((a, b) => b.end_date.localeCompare(a.end_date));
+
+  // The band shows the trip(s) you're on; between trips, the next upcoming one
+  const bandTrips = ongoing.length > 0 ? ongoing : later.slice(0, 1);
+  const sheetUpcoming = ongoing.length > 0 ? later : later.slice(1);
+
+  // What's on now, per ongoing trip (destination time)
+  const nowByTrip = new Map(
+    await Promise.all(
+      ongoing.map(async (t) => {
+        const acts = await getActivities(t.id);
+        const item = nowForTrip(acts, t.today ?? "", nowTimeForCountry(t.destination_country_code));
+        return [t.id, item ? { ...item, label: formatTime(item.time, timeFormat) } : null] as const;
+      })
+    )
+  );
+
+  const firstName = (account?.name ?? "").trim().split(/\s+/)[0] || "there";
+  const initial = (account?.name?.[0] ?? "?").toUpperCase();
+  // Discover from home (batch 3 adds a trip-independent Discover); for now the band trip's
+  const discoverHref = bandTrips[0] ? `/trips/${bandTrips[0].id}/discover` : "/trips/new";
 
   return (
-    <Column className="pt-14">
-      <h1 className="text-[30px] font-bold tracking-[-0.5px] text-fg mb-5">My trips</h1>
+    <>
+      <SkyBand firstName={firstName} initial={initial} discoverHref={discoverHref}>
+        {bandTrips.length > 0 && (
+          <TripSwipe>
+            {bandTrips.map((trip) => {
+              const isOngoing = ongoing.includes(trip);
+              return (
+                <BandTripCard
+                  key={trip.id}
+                  id={trip.id}
+                  // Ongoing → today's Schedule; upcoming → Overview
+                  href={`/trips/${trip.id}/${isOngoing ? "schedule" : "overview"}`}
+                  name={trip.name}
+                  destination={trip.destination}
+                  dates={formatDateRange(trip.start_date, trip.end_date)}
+                  chip={isOngoing ? dayOfTrip(trip) : countdown(trip)}
+                  travellers={names(trip)}
+                  coverPath={trip.cover_path}
+                  coverPosition={trip.cover_position}
+                  now={isOngoing ? nowByTrip.get(trip.id) : null}
+                  ongoing={isOngoing}
+                />
+              );
+            })}
+          </TripSwipe>
+        )}
+      </SkyBand>
 
-      {!hasTrips ? (
-        <EmptyTrips />
-      ) : (
-        <div className="flex flex-col gap-3">
-          {/* First active trip opens Overview; any other active trip opens Schedule (as before) */}
-          {active.map((trip, i) => (
-            <TripCard
-              key={trip.id}
-              id={trip.id}
-              coverPath={trip.cover_path}
-              coverPosition={trip.cover_position}
-              href={`/trips/${trip.id}/${i === 0 ? "overview" : "schedule"}`}
-              name={trip.name}
-              destination={trip.destination}
-              dates={formatDateRange(trip.start_date, trip.end_date)}
-              chip={dayOfTrip(trip)}
-              travellers={names(trip)}
-              current={i === 0}
-            />
-          ))}
+      {(sheetUpcoming.length > 0 || pastNewest.length > 0) && (
+        <div className="relative -mt-6 rounded-t-[24px] bg-page pt-5">
+          <Column className="space-y-5">
+            {sheetUpcoming.length > 0 && (
+              <section>
+                <h2 className="text-base font-semibold text-fg px-1 mb-2.5">Upcoming</h2>
+                <div className="bg-surface rounded-card p-1 divide-y divide-line">
+                  {sheetUpcoming.map((trip) => (
+                    <TripRow
+                      key={trip.id}
+                      id={trip.id}
+                      coverPath={trip.cover_path}
+                      coverPosition={trip.cover_position}
+                      href={`/trips/${trip.id}/overview`}
+                      name={trip.name}
+                      destination={trip.destination}
+                      dates={formatDateRange(trip.start_date, trip.end_date)}
+                      meta={`${countdown(trip)} · ${formatDateRange(trip.start_date, trip.end_date)}`}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
 
-          {upcoming.map((trip) => (
-            <TripCard
-              key={trip.id}
-              id={trip.id}
-              coverPath={trip.cover_path}
-              coverPosition={trip.cover_position}
-              href={`/trips/${trip.id}/overview`}
-              name={trip.name}
-              destination={trip.destination}
-              dates={formatDateRange(trip.start_date, trip.end_date)}
-              chip={countdown(trip)}
-              travellers={names(trip)}
-            />
-          ))}
-
-          {past.length > 0 && (
-            <section className="mt-3">
-              <h2 className="text-base font-semibold text-fg px-1 mb-3">Past trips</h2>
-              <div className="bg-surface rounded-card p-1 divide-y divide-line">
-                {past.map((trip) => (
-                  <PastTripRow
-                    key={trip.id}
-                    id={trip.id}
-                    coverPath={trip.cover_path}
-              coverPosition={trip.cover_position}
-                    href={`/trips/${trip.id}/overview`}
-                    name={trip.name}
-                    destination={trip.destination}
-                    dates={formatDateRange(trip.start_date, trip.end_date)}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+            {pastNewest.length > 0 && (
+              <section>
+                <h2 className="text-base font-semibold text-fg px-1 mb-2.5">Past trips</h2>
+                <div className="bg-surface rounded-card p-1 divide-y divide-line">
+                  {pastNewest.slice(0, PAST_SHOWN).map((trip) => (
+                    <TripRow
+                      key={trip.id}
+                      id={trip.id}
+                      coverPath={trip.cover_path}
+                      coverPosition={trip.cover_position}
+                      href={`/trips/${trip.id}/overview`}
+                      name={trip.name}
+                      destination={trip.destination}
+                      dates={formatDateRange(trip.start_date, trip.end_date)}
+                    />
+                  ))}
+                  {pastNewest.length > PAST_SHOWN && (
+                    <details className="group">
+                      <summary className="list-none cursor-pointer text-center text-[13px] font-medium text-brand py-3 group-open:hidden">
+                        See all {pastNewest.length}
+                      </summary>
+                      <div className="divide-y divide-line border-t border-line">
+                        {pastNewest.slice(PAST_SHOWN).map((trip) => (
+                          <TripRow
+                            key={trip.id}
+                            id={trip.id}
+                            coverPath={trip.cover_path}
+                            coverPosition={trip.cover_position}
+                            href={`/trips/${trip.id}/overview`}
+                            name={trip.name}
+                            destination={trip.destination}
+                            dates={formatDateRange(trip.start_date, trip.end_date)}
+                          />
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                </div>
+              </section>
+            )}
+          </Column>
         </div>
       )}
-
-      {/* Empty screen already has a New trip button */}
-      {hasTrips && <Fab label="New trip" href="/trips/new" />}
-    </Column>
+    </>
   );
 }
 
