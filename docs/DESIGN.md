@@ -161,7 +161,7 @@ Floating layers only (unchanged rule): bottom bar, FAB, sheets, dialogs, toasts,
 
 - Floating **pill**, centred, as wide as its icons, 22px from the bottom, 64px tall, white at 95%, 1px `border`, shadow.
 - **Icons only (v0.9):** 23px icons in 56×48 round targets, **no visible labels** — each item's name is its `aria-label` (and tooltip), so screen readers still say "Schedule". **Active item:** `accent` icon, heavier stroke, inside an `accent-soft` pill. The Prep badge stays on the icon.
-- **Home (outside a trip):** My trips (`Map` icon) · Passport (`Stamp`) · Profile (`User`). Explore is shelved and not in the bar (its page still exists if visited directly).
+- **Home (outside a trip):** My trips (`House` icon since v0.6.6; same icon as the trip screens' top-left button) · Passport (`Stamp`) · Profile (`User`). Explore is shelved and not in the bar (its page still exists if visited directly).
 - **Inside a trip:** Overview (`LayoutDashboard`) · Schedule (`CalendarDays`) · Money (`Wallet`) · Prep (`ListChecks`) · Discover (`Compass`). Sub-pages (Your expenses, Settle up) keep their section active.
 - **Swipe left/right** on content still switches trip sections (ignored on the date strip and chip rows).
 - Hidden while the keyboard is open.

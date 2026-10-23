@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Map as MapIcon, Stamp, User } from "lucide-react";
+import { House, Stamp, User } from "lucide-react";
 import { TabBar } from "@/components/ui/tab-bar";
 
 /** Screens that show the home bar. Trips have their own bar; New trip has a back button.
@@ -17,7 +17,7 @@ export function BottomNav() {
     <TabBar
       label="Main"
       items={[
-        { href: "/trips?noauto=1", label: "My trips", icon: MapIcon, active: pathname === "/trips" },
+        { href: "/trips?noauto=1", label: "My trips", icon: House, active: pathname === "/trips" },
         { href: "/passport", label: "Passport", icon: Stamp, active: pathname === "/passport" },
         { href: "/profile", label: "Profile", icon: User, active: pathname === "/profile" },
       ]}

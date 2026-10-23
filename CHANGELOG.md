@@ -4,6 +4,15 @@
 
 ---
 
+## v0.6.6 — 2026-10-23 · Home icon
+
+### App
+
+- **My trips in the bottom bar is now a house icon**, matching the top-left button on trip screens.
+- No database changes.
+
+---
+
 ## v0.6.5 — 2026-10-23 · Right time, one currency
 
 ### App
