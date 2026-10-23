@@ -92,7 +92,7 @@ export default function TripSettingsPage() {
       toast(result.error, "error");
     } else {
       toast("Trip handed over");
-      router.push("/trips?noauto=1");
+      router.push("/trips");
     }
   }
 
@@ -101,7 +101,7 @@ export default function TripSettingsPage() {
     if (result.error) {
       toast(result.error, "error");
     } else {
-      router.push("/trips?noauto=1");
+      router.push("/trips");
     }
   }
 

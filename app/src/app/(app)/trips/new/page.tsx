@@ -170,7 +170,7 @@ export default function NewTripPage() {
       <div className="px-4 pt-4 flex items-center gap-3.5">
         {step === 1 ? (
           <Link
-            href="/trips?noauto=1"
+            href="/trips"
             aria-label="Close"
             className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-fg shrink-0"
           >

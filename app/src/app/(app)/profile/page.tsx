@@ -1,4 +1,5 @@
 import { Column } from "@/components/column";
+import { HomeButton } from "@/components/home-button";
 import { getOrCreateAccount } from "@/lib/account";
 import { SignOutButton } from "@/components/sign-out-button";
 import { InstallRow } from "@/components/install-row";
@@ -14,7 +15,8 @@ export default async function ProfilePage() {
   const [account, defaultLists] = await Promise.all([getOrCreateAccount(), getMyDefaultChecklists()]);
 
   return (
-    <Column className="pt-12 pb-8">
+    <Column className="pt-4 pb-8">
+      <HomeButton />
       {/* Who you are */}
       <div className="flex flex-col items-center text-center">
         <div className="w-[76px] h-[76px] rounded-full bg-brand-soft flex items-center justify-center text-brand font-bold text-[30px]">

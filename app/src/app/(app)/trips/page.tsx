@@ -3,15 +3,10 @@ import { TripRow } from "@/components/trip-card";
 import { SkyBand } from "@/components/home/sky-band";
 import { TripSwipe } from "@/components/home/trip-swipe";
 import { BandTripCard } from "@/components/home/band-trip-card";
-import { getMyTrips, getActiveTrip, type MyTrip } from "@/lib/actions/trip";
-import { getActivities } from "@/lib/actions/activity";
+import { getMyTrips, type MyTrip } from "@/lib/actions/trip";
 import { getOrCreateAccount } from "@/lib/account";
 import { differenceInCalendarDays, parseISO } from "date-fns";
-import { redirect } from "next/navigation";
-import { formatDateRange, nowTimeForCountry } from "@/lib/dates";
-import { nowForTrip } from "@/lib/trip-now";
-import { formatTime } from "@/lib/time-format";
-import { getTimeFormat } from "@/lib/time-format-server";
+import { formatDateRange } from "@/lib/dates";
 
 const PAST_SHOWN = 3;
 
@@ -21,26 +16,9 @@ const PAST_SHOWN = 3;
  * swipe row, and New trip · Discover · Passport shortcuts; then a sheet with
  * the other upcoming trips and past trips (latest 3, "See all" for the rest).
  */
-export default async function TripsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ noauto?: string }>;
-}) {
-  const { noauto } = await searchParams;
-
-  // Fast auto-land: lightweight query for active trip only (1 query vs 3+)
-  if (!noauto) {
-    const activeTripId = await getActiveTrip();
-    if (activeTripId) {
-      redirect(`/trips/${activeTripId}/schedule`);
-    }
-  }
-
-  const [{ active, upcoming, past }, account, timeFormat] = await Promise.all([
-    getMyTrips(),
-    getOrCreateAccount(),
-    getTimeFormat(),
-  ]);
+export default async function TripsPage() {
+  // Home is always the first screen (v0.7.0: no more jumping straight into the current trip)
+  const [{ active, upcoming, past }, account] = await Promise.all([getMyTrips(), getOrCreateAccount()]);
 
   const byStart = (a: MyTrip, b: MyTrip) => a.start_date.localeCompare(b.start_date);
   const ongoing = [...active].sort((a, b) => b.start_date.localeCompare(a.start_date)); // most recent start first
@@ -50,17 +28,6 @@ export default async function TripsPage({
   // The band shows the trip(s) you're on; between trips, the next upcoming one
   const bandTrips = ongoing.length > 0 ? ongoing : later.slice(0, 1);
   const sheetUpcoming = ongoing.length > 0 ? later : later.slice(1);
-
-  // What's on now, per ongoing trip (destination time)
-  const nowByTrip = new Map(
-    await Promise.all(
-      ongoing.map(async (t) => {
-        const acts = await getActivities(t.id);
-        const item = nowForTrip(acts, t.today ?? "", nowTimeForCountry(t.destination_country_code));
-        return [t.id, item ? { ...item, label: formatTime(item.time, timeFormat) } : null] as const;
-      })
-    )
-  );
 
   const firstName = (account?.name ?? "").trim().split(/\s+/)[0] || "there";
   const initial = (account?.name?.[0] ?? "?").toUpperCase();
@@ -87,7 +54,6 @@ export default async function TripsPage({
                   travellers={names(trip)}
                   coverPath={trip.cover_path}
                   coverPosition={trip.cover_position}
-                  now={isOngoing ? nowByTrip.get(trip.id) : null}
                   ongoing={isOngoing}
                 />
               );

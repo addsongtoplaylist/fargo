@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Clock, Plane, Plus, Stamp, type LucideIcon } from "lucide-react";
 import { Column } from "@/components/column";
+import { HomeButton } from "@/components/home-button";
 import { Empty } from "@/components/ui/empty";
 import { Avatar } from "@/components/ui/avatar";
 import { buttonClasses } from "@/components/ui/button";
@@ -35,8 +36,11 @@ export default async function PassportPage() {
   const s = passport?.stats;
 
   return (
-    <Column className="pt-12 pb-32">
-      <h1 className="text-[30px] font-bold text-fg tracking-[-0.5px] mb-6">Passport</h1>
+    <Column className="pt-4 pb-32">
+      <div className="flex items-center gap-3 mb-6">
+        <HomeButton />
+        <h1 className="text-[30px] font-bold text-fg tracking-[-0.5px]">Passport</h1>
+      </div>
 
       {!s || (s.trips === 0 && s.collected === 0) ? (
         <div className="space-y-3">

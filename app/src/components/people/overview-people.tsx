@@ -157,7 +157,7 @@ export function OverviewPeople({ tripId, travellers, isPlanner, myAccountId }: O
         toast(result.error, "error");
         setLeaving(false);
       } else {
-        router.push("/trips?noauto=1");
+        router.push("/trips");
       }
     } catch {
       toast("Failed to leave trip.", "error");

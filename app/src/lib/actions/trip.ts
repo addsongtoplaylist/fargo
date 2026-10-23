@@ -7,7 +7,6 @@ import { redirect } from "next/navigation";
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { updateTripSchema, tripIdSchema, uuidSchema } from "@/lib/validations";
 import { todayForCountry } from "@/lib/dates";
-import { addDays, format, parseISO } from "date-fns";
 
 const TRIP_TYPE_MAP: Record<string, string> = {
   "Free & easy": "free_and_easy",
@@ -138,42 +137,6 @@ export async function setTripCoverPosition(tripId: string, position: number): Pr
   revalidatePath("/trips");
   revalidatePath(`/trips/${tripId}`, "layout");
   return {};
-}
-
-/**
- * Lightweight check: return the active trip ID if one exists.
- * Uses a single query with a join — much faster than getMyTrips()
- * which fetches all trips with all travellers.
- */
-export async function getActiveTrip(): Promise<string | null> {
-  const account = await getOrCreateAccount();
-  if (!account) return null;
-
-  const supabase = await createClient();
-  // "Active" uses each trip's destination date, like Overview and Schedule (v0.6.6).
-  // Timezones are at most a day apart, so fetch trips within a day of home
-  // today, then check each against its own destination date.
-  const homeToday = parseISO(todayForCountry(account.home_country_code));
-  const dayAfter = format(addDays(homeToday, 1), "yyyy-MM-dd");
-  const dayBefore = format(addDays(homeToday, -1), "yyyy-MM-dd");
-
-  // Single query: join travellers → trips. With more than one active trip,
-  // open the one that started most recently.
-  const { data } = await supabase
-    .from("travellers")
-    .select("trip_id, trips!inner(id, start_date, end_date, destination_country_code)")
-    .eq("account_id", account.id)
-    .lte("trips.start_date", dayAfter)
-    .gte("trips.end_date", dayBefore);
-
-  type Row = { trip_id: string; trips: { start_date: string; end_date: string; destination_country_code: string | null } };
-  const rows = ((data ?? []) as unknown as Row[]).filter(({ trips: t }) => {
-    const today = todayForCountry(t.destination_country_code);
-    return t.start_date <= today && t.end_date >= today;
-  });
-  if (rows.length === 0) return null;
-  rows.sort((a, b) => b.trips.start_date.localeCompare(a.trips.start_date));
-  return rows[0].trip_id;
 }
 
 /** Shape returned by the get_my_trips RPC */

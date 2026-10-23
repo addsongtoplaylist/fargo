@@ -46,7 +46,7 @@ export function OverviewHeader({
     if (result.error) {
       alert(result.error);
     } else {
-      router.push("/trips?noauto=1");
+      router.push("/trips");
     }
   }
 
@@ -78,7 +78,7 @@ export function OverviewHeader({
             </span>
           )}
           <div className="relative flex justify-between">
-            <button type="button" onClick={() => router.push("/trips?noauto=1")} className={ROUND} aria-label="Back to My trips">
+            <button type="button" onClick={() => router.push("/trips")} className={ROUND} aria-label="Back to My trips">
               <House size={19} strokeWidth={1.9} aria-hidden />
             </button>
             <div className="flex gap-2">

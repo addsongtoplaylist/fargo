@@ -28,7 +28,7 @@ export default function AppError({
         action={
           <div className="flex flex-col items-center gap-2">
             <Button onClick={reset}>Try again</Button>
-            <Link href="/trips?noauto=1" className={buttonClasses("quiet", "md")}>
+            <Link href="/trips" className={buttonClasses("quiet", "md")}>
               Back to My trips
             </Link>
           </div>

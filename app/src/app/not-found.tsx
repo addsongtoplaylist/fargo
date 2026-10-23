@@ -12,7 +12,7 @@ export default function NotFound() {
         title="Page not found"
         message="This page doesn't exist — it might have been moved or deleted."
         action={
-          <Link href="/trips?noauto=1" className={buttonClasses("primary", "md")}>
+          <Link href="/trips" className={buttonClasses("primary", "md")}>
             Go to My trips
           </Link>
         }

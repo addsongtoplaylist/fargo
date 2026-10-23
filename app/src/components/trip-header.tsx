@@ -36,7 +36,7 @@ export function TripHeader() {
   if (section === "overview") return null;
 
   const subTitle = SUB_TITLES[rest.split("/").slice(0, 2).join("/")];
-  const backHref = subTitle ? `/trips/${params.id}/${section}` : "/trips?noauto=1";
+  const backHref = subTitle ? `/trips/${params.id}/${section}` : "/trips";
 
   return (
     <header className="mx-auto w-full max-w-[var(--max-width-column)] px-4 pt-4 pb-3 flex items-center gap-3">
