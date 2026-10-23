@@ -5,6 +5,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { CategoryIcon } from "@/components/ui/category-icon";
 import type { Activity } from "@/lib/actions/activity";
+import { useTimeFormat } from "@/components/time-format-provider";
+import { formatTime, timeColumnClass } from "@/lib/time-format";
 
 type RowProps = {
   activity: Activity;
@@ -25,10 +27,11 @@ function RowBody({
   isLast,
   handle,
 }: RowProps & { handle?: React.ReactNode }) {
+  const timeFormat = useTimeFormat();
   return (
     <>
-      <div className={`w-[42px] shrink-0 text-[13px] leading-tight ${isYouAreHere ? "text-brand font-semibold" : "text-fg-muted"}`}>
-        {activity.time}
+      <div className={`${timeColumnClass(timeFormat)} shrink-0 text-[13px] leading-tight ${isYouAreHere ? "text-brand font-semibold" : "text-fg-muted"}`}>
+        {formatTime(activity.time, timeFormat)}
         {isYouAreHere && <span className="block text-[10px] font-bold tracking-[0.5px] mt-0.5">NOW</span>}
       </div>
 

@@ -10,7 +10,8 @@ import type { Expense } from "@/lib/actions/expense";
 import { useToast } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { computeBalances, fewestPayments, type Payment } from "@/lib/balances";
-import { tripTravellers, formatLocal, myrHint } from "./money-utils";
+import { tripTravellers, formatLocal } from "./money-utils";
+import { useMoneyCurrency } from "./currency-toggle";
 import { Button, TextButton } from "@/components/ui/button";
 
 type Pending =
@@ -37,6 +38,7 @@ export function SettleUpView({
   const { toast } = useToast();
   const [pending, setPending] = useState<Pending>(null);
   const [busy, setBusy] = useState(false);
+  const money = useMoneyCurrency(tripId, trip?.local_currency ?? "", trip?.fx_rate ?? 0);
 
   if (!trip) return null;
 
@@ -107,9 +109,8 @@ export function SettleUpView({
                     </span>
                     <span className="text-right shrink-0">
                       <span className="block text-[15px] font-semibold text-fg tabular-nums">
-                        {cur} {formatLocal(p.amount)}
+                        {money.code} {formatLocal(Math.round(money.fromLocal(p.amount) * 100) / 100)}
                       </span>
-                      <span className="block text-xs text-fg-muted tabular-nums">{myrHint(p.amount, trip.fx_rate)}</span>
                     </span>
                   </div>
                   {canMark(p) ? (
@@ -140,9 +141,8 @@ export function SettleUpView({
                     </span>
                     <span className="text-right shrink-0">
                       <span className="block text-[15px] font-semibold text-fg tabular-nums">
-                        {cur} {formatLocal(parseFloat(e.amount))}
+                        {money.code} {formatLocal(money.pick(parseFloat(e.amount), parseFloat(e.amount_myr)))}
                       </span>
-                      <span className="block text-xs text-fg-muted tabular-nums">{myrHint(parseFloat(e.amount), trip.fx_rate)}</span>
                     </span>
                   </div>
                   <p className="flex items-center gap-3 text-[13px] text-fg-muted mt-0.5">

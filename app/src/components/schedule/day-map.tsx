@@ -3,6 +3,8 @@
 import { useRef, useEffect, useState } from "react";
 import { MapPin } from "lucide-react";
 import type { Activity } from "@/lib/actions/activity";
+import { useTimeFormat } from "@/components/time-format-provider";
+import { formatTime } from "@/lib/time-format";
 
 /**
  * Stored category → v0.8 category colour (DESIGN.md → Category colours;
@@ -32,6 +34,7 @@ type DayMapProps = {
 export function DayMap({ activities, currentId = null }: DayMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
+  const timeFormat = useTimeFormat();
   const [expanded, setExpanded] = useState(true);
   const [mapReady, setMapReady] = useState(false);
 
@@ -126,7 +129,7 @@ export function DayMap({ activities, currentId = null }: DayMapProps) {
           if (activity.time) {
             const timeEl = document.createElement("div");
             timeEl.style.cssText = "font-size:12px;color:#5b6475;margin-top:2px;";
-            timeEl.textContent = activity.time;
+            timeEl.textContent = formatTime(activity.time, timeFormat);
             popupEl.appendChild(timeEl);
           }
           if (activity.place_name) {
@@ -172,7 +175,7 @@ export function DayMap({ activities, currentId = null }: DayMapProps) {
       setMapReady(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [expanded, mapKey, currentId]);
+  }, [expanded, mapKey, currentId, timeFormat]);
 
   // Don't render if no activities have locations
   if (locatedActivities.length === 0) return null;

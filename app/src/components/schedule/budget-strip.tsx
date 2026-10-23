@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { format, parseISO } from "date-fns";
-import { ArrowLeftRight } from "lucide-react";
+import { CurrencyToggle, useMoneyCurrency } from "@/components/money/currency-toggle";
 
 type BudgetStripProps = {
+  tripId: string;
   dailyFree: number;
   spentToday: number;
   localCurrency: string;
@@ -18,16 +18,14 @@ type BudgetStripProps = {
  * Daily budget card for the selected day (DESIGN.md v0.8 → Schedule):
  * spent vs daily free, thin bar, what's left (red when over). Same numbers
  * as before; hidden when there's no budget. The pill switches the amounts
- * between the trip currency and MYR (what they're stored in), display only.
+ * between the trip currency and MYR — the same per-trip setting as Money.
  */
-export function BudgetStrip({ dailyFree, spentToday, localCurrency, fxRate, date, isToday }: BudgetStripProps) {
-  const [showHome, setShowHome] = useState(false);
+export function BudgetStrip({ tripId, dailyFree, spentToday, localCurrency, fxRate, date, isToday }: BudgetStripProps) {
+  const money = useMoneyCurrency(tripId, localCurrency, fxRate);
   if (dailyFree <= 0) return null;
 
-  const canSwitch = !!localCurrency && localCurrency !== "MYR" && fxRate > 0;
-  const home = showHome && canSwitch;
-  const rate = home ? 1 : fxRate;
-  const shownCur = home ? "MYR" : localCurrency;
+  const rate = money.home ? 1 : fxRate;
+  const shownCur = money.code;
 
   const dailyFreeLocal = Math.round(dailyFree * rate);
   const spentLocal = Math.round(spentToday * rate);
@@ -40,17 +38,7 @@ export function BudgetStrip({ dailyFree, spentToday, localCurrency, fxRate, date
     <div className="bg-surface rounded-card p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-[13px] text-fg-muted">Spent on {format(parseISO(date), "EEE d")}</p>
-        {canSwitch && (
-          <button
-            type="button"
-            onClick={() => setShowHome(!showHome)}
-            aria-label={`Amounts in ${shownCur} — switch to ${home ? localCurrency : "MYR"}`}
-            className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-brand-soft text-brand text-xs font-semibold hover:bg-brand hover:text-brand-on transition-colors"
-          >
-            {shownCur}
-            <ArrowLeftRight size={12} strokeWidth={2.2} aria-hidden />
-          </button>
-        )}
+        <CurrencyToggle money={money} />
       </div>
       <p className="mt-0.5 tabular-nums">
         <span className={`text-[20px] font-bold ${over ? "text-money-over" : "text-fg"}`}>

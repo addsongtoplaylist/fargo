@@ -8,7 +8,7 @@ export default function ScheduleLoading() {
         <div className="w-8 shrink-0" />
         <div className="flex gap-1.5 flex-1 overflow-hidden">
           {Array.from({ length: 6 }).map((_, i) => (
-            <Bone key={i} className="w-[50px] h-[58px] rounded-[14px] shrink-0" />
+            <Bone key={i} className="w-[50px] h-[50px] rounded-[14px] shrink-0" />
           ))}
         </div>
         <div className="w-8 shrink-0" />

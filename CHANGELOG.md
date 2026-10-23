@@ -4,6 +4,24 @@
 
 ---
 
+## v0.6.5 — 2026-10-23 · Right time, one currency
+
+### App
+
+- **Fixed: "Now" on Overview marked the wrong activity.** The server runs on UTC, so in Beijing at 3pm it marked the 7am activity as Now — and on a trip's last day Overview switched to "Trip ended" from 8am. Overview and Schedule now both use the destination's date and time (home time if the country is unknown), so they always agree. My trips' "Day X of Y" uses your home date.
+- **Time format:** Profile → Time format, 24-hour (19:00) or 12-hour (7:00 PM). Saved on this phone. Applies to Schedule, Overview, the clock card, map pins and Prep ideas.
+- **One currency switch.** The trip-currency ⇄ MYR pill now switches every money amount — budget, group split, expenses, breakdown, Settle up and Schedule's daily budget — and is remembered per trip. It sits in the Money / Settle up title row. The "≈ RM" lines under amounts are gone (Log expense and Set a budget keep their converter).
+- **Money opens on your expenses.** My budget → Group split → Your expenses (the list, by day). Spending by category moved behind **Breakdown**. The separate Your expenses screen now opens Money.
+- **Trip summary:** Activities shows the first 5 with "Show all"; Stay lists each pinned hotel once with nights ("Park Hyatt Tokyo · 3 nights") — "Check in" / "Back to hotel" entries no longer appear as hotels.
+- **Reposition cover** also previews the My trips banner crop.
+- **Top-left button:** a house icon when it goes to My trips, an arrow when it goes back one page.
+- **Schedule date strip** no longer shows "Day N".
+- **Profile** is three untitled groups: home country · currency · time format / my checklists · dining budget · dietary / about · sign out.
+- **Discover:** Shop and Attractions no longer say "Soon".
+- No database changes.
+
+---
+
 ## v0.6.4 — 2026-10-17 · Bigger trip cards
 
 ### App

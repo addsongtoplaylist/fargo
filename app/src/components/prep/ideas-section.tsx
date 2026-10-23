@@ -4,6 +4,8 @@ import { useState, useRef } from "react";
 import { X, ExternalLink, CalendarPlus, Clock, MapPin, Lightbulb, Plus } from "lucide-react";
 import { createIdea, updateIdea, deleteIdea, promoteIdea } from "@/lib/actions/idea";
 import { useTrip } from "@/lib/trip-context";
+import { useTimeFormat } from "@/components/time-format-provider";
+import { formatTime } from "@/lib/time-format";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { eachDayOfInterval, parseISO, format } from "date-fns";
 import type { Idea } from "@/lib/actions/idea";
@@ -26,6 +28,7 @@ type IdeasSectionProps = {
  */
 export function IdeasSection({ ideas, tripId, isPlanner = true, myAccountId = null }: IdeasSectionProps) {
   const trip = useTrip();
+  const timeFormat = useTimeFormat();
   const { toast } = useToast();
 
   const canEdit = (idea: Idea) => isPlanner || (!!myAccountId && idea.created_by === myAccountId);
@@ -220,7 +223,7 @@ export function IdeasSection({ ideas, tripId, isPlanner = true, myAccountId = nu
                       {idea.time && (
                         <span className="flex items-center gap-1 text-[13px] text-fg-muted shrink-0">
                           <Clock size={13} aria-hidden />
-                          {idea.time}
+                          {formatTime(idea.time, timeFormat)}
                         </span>
                       )}
                       {idea.place_name && (

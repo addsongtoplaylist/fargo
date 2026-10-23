@@ -54,6 +54,15 @@ const DEFAULT_TIMEZONE = "Asia/Kuala_Lumpur";
  * this instead of new Date().toISOString(), which is UTC — a day behind for
  * Malaysia between midnight and 8am.
  */
+/**
+ * Time now (HH:mm, 24h) at the destination — same timezone rule as
+ * todayForCountry. Overview and Schedule both use it so their "Now" agree.
+ */
+export function nowTimeForCountry(countryCode?: string | null): string {
+  const tz = (countryCode && COUNTRY_TIMEZONE[countryCode]) || DEFAULT_TIMEZONE;
+  return new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hourCycle: "h23", timeZone: tz });
+}
+
 export function todayForCountry(countryCode?: string | null): string {
   const tz = (countryCode && COUNTRY_TIMEZONE[countryCode]) || DEFAULT_TIMEZONE;
   // en-CA formats as yyyy-MM-dd

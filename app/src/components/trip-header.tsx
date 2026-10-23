@@ -1,12 +1,12 @@
 "use client";
 
 import { useParams, usePathname, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, House } from "lucide-react";
 import { useTrip } from "@/lib/trip-context";
+import { CurrencyToggle, useMoneyCurrency } from "@/components/money/currency-toggle";
 
 /** Sub-pages: back goes to their section instead of My trips. */
 const SUB_TITLES: Record<string, string> = {
-  "money/expenses": "Your expenses",
   "money/settle": "Settle up",
 };
 
@@ -22,12 +22,14 @@ const TITLES: Record<string, string> = {
  * Trip header for every section except Overview (which has its own cover
  * header with the gear / Leave): round back (→ My trips; on Money's
  * sub-pages → Money), trip name caption, section/sub-page title (DESIGN.md v0.8).
+ * On Money and its sub-pages the currency switch sits at the end of the row.
  */
 export function TripHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams<{ id: string }>();
   const trip = useTrip();
+  const money = useMoneyCurrency(params.id, trip?.local_currency ?? "", trip?.fx_rate ?? 0);
 
   const rest = pathname.split(`/trips/${params.id}/`)[1] ?? "overview";
   const section = rest.split("/")[0];
@@ -44,12 +46,14 @@ export function TripHeader() {
         className="w-10 h-10 rounded-full bg-surface border border-line flex items-center justify-center text-fg shrink-0 hover:border-fg-faint transition-colors"
         aria-label={subTitle ? `Back to ${TITLES[section]}` : "Back to My trips"}
       >
-        <ArrowLeft size={19} strokeWidth={1.9} aria-hidden />
+        {/* House = goes to My trips; arrow = back one page */}
+        {subTitle ? <ArrowLeft size={19} strokeWidth={1.9} aria-hidden /> : <House size={19} strokeWidth={1.9} aria-hidden />}
       </button>
       <div className="flex-1 min-w-0">
         <p className="text-xs font-medium text-fg-muted truncate">{trip?.name || "Trip"}</p>
         <h1 className="text-[22px] font-bold text-fg leading-tight tracking-[-0.2px] truncate">{subTitle ?? TITLES[section] ?? "Trip"}</h1>
       </div>
+      {section === "money" && <CurrencyToggle money={money} />}
     </header>
   );
 }

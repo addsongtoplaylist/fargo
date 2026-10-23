@@ -95,7 +95,11 @@ export function CoverRepositionSheet({
           src={url}
           alt="Cover photo"
           draggable={false}
-          onLoad={() => setMovable(hiddenHeight() > 0)}
+          onLoad={(e) => {
+            // Movable if the header or the shorter 12:5 My trips banner crops the photo
+            const img = e.currentTarget;
+            setMovable(hiddenHeight() > 0 || img.naturalHeight / img.naturalWidth > 5 / 12 + 0.01);
+          }}
           className="absolute inset-0 w-full h-full object-cover pointer-events-none"
           style={{ objectPosition }}
         />
@@ -114,8 +118,17 @@ export function CoverRepositionSheet({
         />
       )}
 
-      {/* How it looks on My trips */}
-      <div className="flex items-center gap-3 mt-4">
+      {/* How it looks on My trips: the wider, shorter banner crops more of the photo (same 12:5 as TripCover wide) */}
+      <p className="text-xs font-medium text-fg-muted mt-4 mb-1.5">On My trips</p>
+      {/* eslint-disable-next-line @next/next/no-img-element -- same photo as above */}
+      <img
+        src={url}
+        alt=""
+        aria-hidden
+        className="w-full rounded-[14px] object-cover bg-skeleton"
+        style={{ aspectRatio: "12 / 5", objectPosition }}
+      />
+      <div className="flex items-center gap-3 mt-3">
         {/* eslint-disable-next-line @next/next/no-img-element -- same photo as above */}
         <img
           src={url}
@@ -124,7 +137,7 @@ export function CoverRepositionSheet({
           className="w-[52px] h-[52px] rounded-[12px] object-cover shrink-0"
           style={{ objectPosition }}
         />
-        <p className="text-xs text-fg-muted">Also used on My trips, the share link and invites.</p>
+        <p className="text-xs text-fg-muted">Also used for past trips, the share link and invites.</p>
       </div>
     </Sheet>
   );

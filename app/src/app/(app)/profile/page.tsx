@@ -3,10 +3,9 @@ import { getOrCreateAccount } from "@/lib/account";
 import { SignOutButton } from "@/components/sign-out-button";
 import { ProfileSettings } from "@/components/profile-settings";
 import { DiningPreferences } from "@/components/dining-preferences";
-import { Eyebrow } from "@/components/ui/card";
 import Link from "next/link";
 import { Info, ListChecks } from "lucide-react";
-import { ProfileRow } from "@/components/profile-row";
+import { ProfileRow, ROW_DIVIDER } from "@/components/profile-row";
 import { getMyDefaultChecklists } from "@/lib/actions/checklist";
 import pkg from "../../../../package.json";
 
@@ -24,36 +23,37 @@ export default async function ProfilePage() {
         <p className="text-[13px] text-fg-muted mt-0.5">{account?.email}</p>
       </div>
 
-      <Eyebrow className="mx-1 mt-7 mb-2">Travel</Eyebrow>
+      {/* Three untitled groups (owner, v0.6.5): you & time · planning & dining · about & sign out */}
+      <div className="mt-7" />
       <ProfileSettings
         homeCurrency={account?.home_currency || "MYR"}
         homeCountryCode={account?.home_country_code ?? null}
       />
 
-      <Eyebrow className="mx-1 mt-6 mb-2">Prep</Eyebrow>
-      <Link href="/profile/checklists" className="block bg-surface rounded-card">
-        <ProfileRow
-          icon={ListChecks}
-          label="My checklists"
-          value={defaultLists.length > 0 ? `${defaultLists.length} default ${defaultLists.length === 1 ? "list" : "lists"}` : "Set up"}
-          chevron
+      <div className="mt-4 bg-surface rounded-card">
+        <Link href="/profile/checklists" className="block">
+          <ProfileRow
+            icon={ListChecks}
+            label="My checklists"
+            value={defaultLists.length > 0 ? `${defaultLists.length} default ${defaultLists.length === 1 ? "list" : "lists"}` : "Set up"}
+            chevron
+          />
+        </Link>
+        <div className={ROW_DIVIDER} />
+        {/* Dining budget + dietary, used by Discover */}
+        <DiningPreferences
+          diningBudget={account?.dining_budget || "moderate"}
+          dietaryRestrictions={account?.dietary_restrictions || []}
         />
-      </Link>
-
-      <Eyebrow className="mx-1 mt-6 mb-2">Dining · used by Discover</Eyebrow>
-      <DiningPreferences
-        diningBudget={account?.dining_budget || "moderate"}
-        dietaryRestrictions={account?.dietary_restrictions || []}
-      />
+      </div>
 
       {/* "Recently viewed" hidden until it's built (Tier 3 decision) */}
 
-      <Eyebrow className="mx-1 mt-6 mb-2">About</Eyebrow>
-      <Link href="/home" className="block bg-surface rounded-card">
-        <ProfileRow icon={Info} label="About Fargo" chevron />
-      </Link>
-
-      <div className="mt-6">
+      <div className="mt-4 bg-surface rounded-card">
+        <Link href="/home" className="block">
+          <ProfileRow icon={Info} label="About Fargo" chevron />
+        </Link>
+        <div className={ROW_DIVIDER} />
         <SignOutButton />
       </div>
 

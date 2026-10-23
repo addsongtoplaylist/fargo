@@ -83,15 +83,14 @@ export function DiningPreferences({
 
   return (
     <>
-      <div className="bg-surface rounded-card">
-        <button type="button" onClick={() => setOpen(true)} className="w-full text-left">
-          <ProfileRow icon={Wallet} label="Budget" value={BUDGET_LABELS[budget as DiningBudget] ?? budget} chevron />
-        </button>
-        <div className={ROW_DIVIDER} />
-        <button type="button" onClick={() => setOpen(true)} className="w-full text-left">
-          <ProfileRow icon={Leaf} label="Dietary" value={dietaryValue} chevron />
-        </button>
-      </div>
+      {/* Rows only — the Profile page puts them in a card with My checklists (v0.6.5) */}
+      <button type="button" onClick={() => setOpen(true)} className="w-full text-left">
+        <ProfileRow icon={Wallet} label="Dining budget" value={BUDGET_LABELS[budget as DiningBudget] ?? budget} chevron />
+      </button>
+      <div className={ROW_DIVIDER} />
+      <button type="button" onClick={() => setOpen(true)} className="w-full text-left">
+        <ProfileRow icon={Leaf} label="Dietary" value={dietaryValue} chevron />
+      </button>
 
       <Sheet
         open={open}

@@ -3,7 +3,7 @@ import { EmptyTrips } from "@/components/empty-trips";
 import { TripCard, PastTripRow } from "@/components/trip-card";
 import { Fab } from "@/components/ui/fab";
 import { getMyTrips, getActiveTrip, type MyTrip } from "@/lib/actions/trip";
-import { differenceInCalendarDays } from "date-fns";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 import { redirect } from "next/navigation";
 import { formatDateRange } from "@/lib/dates";
 
@@ -22,8 +22,9 @@ export default async function TripsPage({
     }
   }
 
-  const { active, upcoming, past } = await getMyTrips();
-  const today = new Date();
+  const { active, upcoming, past, today: todayStr } = await getMyTrips();
+  // Home-timezone date (not the server's UTC clock), same as the active/upcoming split
+  const today = todayStr ? parseISO(todayStr) : new Date();
   const hasTrips = active.length > 0 || upcoming.length > 0 || past.length > 0;
 
   return (
@@ -100,8 +101,8 @@ function names(trip: MyTrip) {
 
 /** "Day X of Y" — same maths as before the redesign. */
 function dayOfTrip(trip: MyTrip, today: Date) {
-  const start = new Date(trip.start_date);
-  const end = new Date(trip.end_date);
+  const start = parseISO(trip.start_date);
+  const end = parseISO(trip.end_date);
   const currentDay = differenceInCalendarDays(today, start) + 1;
   const totalDays = differenceInCalendarDays(end, start) + 1;
   return `Day ${currentDay} of ${totalDays}`;
@@ -109,6 +110,6 @@ function dayOfTrip(trip: MyTrip, today: Date) {
 
 /** "In N days" — same maths as the old "N days to go". */
 function countdown(trip: MyTrip, today: Date) {
-  const daysUntil = differenceInCalendarDays(new Date(trip.start_date), today);
+  const daysUntil = differenceInCalendarDays(parseISO(trip.start_date), today);
   return daysUntil === 1 ? "In 1 day" : `In ${daysUntil} days`;
 }

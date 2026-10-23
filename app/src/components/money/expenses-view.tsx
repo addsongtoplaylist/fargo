@@ -10,20 +10,26 @@ import type { Expense } from "@/lib/actions/expense";
 import { CategoryIcon } from "@/components/ui/category-icon";
 import { Empty } from "@/components/ui/empty";
 import { Fab } from "@/components/ui/fab";
-import { tripTravellers } from "./money-utils";
+import { tripTravellers, formatLocal } from "./money-utils";
+import type { MoneyCurrency } from "./currency-toggle";
 
 /**
- * View expenses (S3): what you paid (settlements included) plus expenses you
+ * Your expenses (S3): what you paid (settlements included) plus expenses you
  * logged for someone else, so you can still edit them (D19, D27, D44).
+ * Shown on the Money tab under the budget (v0.6.5); `header` sits above the list.
  */
 export function ExpensesView({
   expenses,
   tripId,
   myTravellerId,
+  money,
+  header,
 }: {
   expenses: Expense[];
   tripId: string;
   myTravellerId: string | null;
+  money: MoneyCurrency;
+  header?: React.ReactNode;
 }) {
   const trip = useTrip();
   const [panelOpen, setPanelOpen] = useState(false);
@@ -60,6 +66,7 @@ export function ExpensesView({
 
   return (
     <div className="space-y-4">
+      {header}
 
       {mine.length === 0 ? (
         <div className="bg-surface rounded-card">
@@ -70,14 +77,13 @@ export function ExpensesView({
           // Day total counts only what you paid, matching your breakdown
           const dayTotal = byDate[date]
             .filter((e) => e.paid_by === myTravellerId)
-            .reduce((sum, e) => sum + parseFloat(e.amount), 0);
+            .reduce((sum, e) => sum + money.pick(parseFloat(e.amount), parseFloat(e.amount_myr)), 0);
           return (
             <section key={date}>
               <div className="flex items-baseline justify-between px-1 mb-1.5">
                 <h3 className="text-[13px] font-semibold text-fg-muted">{format(parseISO(date), "EEEE, d MMM")}</h3>
                 <p className="text-[13px] font-semibold text-fg-muted tabular-nums">
-                  {cur}{" "}
-                  {dayTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {money.code} {formatLocal(Math.round(dayTotal * 100) / 100)}
                 </p>
               </div>
               <div className="bg-surface rounded-card overflow-hidden divide-y divide-line">
@@ -104,12 +110,9 @@ export function ExpensesView({
                             : `${e.paid_by !== myTravellerId ? `Logged for ${nameOf(e.paid_by)} · ` : ""}${e.expense_participants.length} ${e.expense_participants.length === 1 ? "person" : "people"}`}
                         </p>
                       </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-sm font-semibold text-fg tabular-nums">
-                          {cur} {parseFloat(e.amount).toLocaleString()}
-                        </p>
-                        <p className="text-xs text-fg-muted tabular-nums">≈ RM {parseFloat(e.amount_myr).toFixed(2)}</p>
-                      </div>
+                      <p className="text-sm font-semibold text-fg tabular-nums shrink-0">
+                        {money.code} {formatLocal(money.pick(parseFloat(e.amount), parseFloat(e.amount_myr)))}
+                      </p>
                     </button>
                   );
                 })}
@@ -150,7 +153,7 @@ export function ExpensesView({
           expense={viewing}
           travellers={travellers}
           myTravellerId={myTravellerId}
-          localCurrency={cur}
+          money={money}
           onClose={() => setViewing(null)}
         />
       )}

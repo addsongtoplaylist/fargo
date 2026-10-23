@@ -117,7 +117,7 @@ Unchanged from v0.7: logo `app/public/logo.png`, mascot `app/public/mascot.png`,
 | Row title | 14–15 / 600 | Expense, traveller rows |
 | Activity title | 13 / 600, up to 2 lines | Schedule rows (v0.9): ~48 characters on a 375px phone; the place under it 12px, one line |
 | Body | 14 / 400–500 | Fields, text |
-| Label / meta | 12–13 / 400–500 | Places, dates, "≈ RM", captions — `muted` |
+| Label / meta | 12–13 / 400–500 | Places, dates, captions — `muted` |
 | Eyebrow | 11 / 600, 0.6 tracking, caps | FIXED / DAILY / SPLIT AS / DANGER ZONE |
 
 **Floor: 10px**, only for the "LEFT"-style micro badges (the bottom bars have no labels since v0.9). Anything a user must read to act is ≥ 12px.
@@ -170,7 +170,7 @@ Floating layers only (unchanged rule): bottom bar, FAB, sheets, dialogs, toasts,
 
 - **Overview:** photo header with round back (→ My trips) and, for the planner, settings gear; members see **Leave trip** instead.
 - **Other trip sections:** round back button + trip name caption + section title (22/700). No gear.
-- **Home screens:** big screen title (30/700), no back (top-level, like Threads' "Messages"). Back arrows only on screens you drill into.
+- **Home screens:** big screen title (30/700), no back (top-level, like Threads' "Messages"). Back arrows only on screens you drill into. Trip screens' top-left button shows a **house** icon when it goes to My trips and an **arrow** when it goes back one page (v0.6.5).
 
 ### Floating + button (FAB)
 
@@ -196,7 +196,7 @@ Pills, 44px tall (50px for full-width screen actions).
 One style everywhere (categories, filters, dietary, trip type, Discover sections). Pill, 34px tall, 13px/500, optional 14px icon.
 - **Off:** white, 1px `border`, `ink` text (category icon in its colour).
 - **On:** `accent-soft` fill, 1px `accent` border, `accent` text.
-- **Disabled / "Soon":** off style at 55% opacity.
+- **Disabled:** off style at 55% opacity, no "Soon" label (v0.6.5 — Discover's Shop / Attractions).
 
 ### Segmented control
 Grey track (`ground` or `#E6EAF1`), white raised thumb for the selected option — "Split as" (Equal · Shares · % · Amounts), shared trip Schedule / Prep.
@@ -250,15 +250,15 @@ Photo header → **time & temperature** card (local + home time; temperature onl
 - Members: tap themselves → Leave trip / Change owner; note "Only the planner can invite or remove travellers."
 
 ### Schedule
-Back header → **sticky date strip** (‹ · five day cells with weekday / date / "Day N", selected = accent fill, today dot · ›) → **daily budget card** for the selected day ("Spent on Sat 27 · VND 450,000 of 1,230,000", thin bar, "VND 780,000 left for today"; red when over; hidden with no budget) → **map preview** (pins in category colours, current stop haloed, "Map" button; hidden when no places) → **day card**: "Today · Saturday, 27 Sep", then the timeline.
+Back header → **sticky date strip** (‹ · five day cells with weekday / date (no "Day N" since v0.6.5), selected = accent fill, today dot · ›) → **daily budget card** for the selected day ("Spent on Sat 27 · VND 450,000 of 1,230,000", thin bar, "VND 780,000 left for today"; red when over; hidden with no budget) → **map preview** (pins in category colours, current stop haloed, "Map" button; hidden when no places) → **day card**: "Today · Saturday, 27 Sep", then the timeline.
 
 **Timeline row:** time column (42px, `muted`; blank when untimed) · category icon on a thin vertical line · **bold title** + one `muted` place line · drag handle (planner). Current activity: `accent-soft` row, accent time, "NOW". No notes, no cost, no photos on rows.
 
 ### Money
-Back header → **My budget** (spent as the hero number, "spent of 6,000,000", **daily free** on the right, progress bar, "left · days to go") → **Group split** ("You get back / You pay back / All square", amount + ≈ RM, **Settle up ›**, and a **Split shares · Edit** row for the planner) → **What you paid** (grouped **FIXED / DAILY / SETTLE-UPS**, category icon + amount + thin bar, "All expenses · N"). Log expense is the FAB.
+Back header → **My budget** (spent as the hero number, "spent of 6,000,000", **daily free** on the right, progress bar, "left · days to go") → **Group split** ("You get back / You pay back / All square", amount, **Settle up ›**, and a **Split shares · Edit** row for the planner) → **Your expenses · N** with a **Breakdown** link, then the list grouped by day. Breakdown opens a sheet: **What you paid**, grouped **FIXED / DAILY / SETTLE-UPS**, category icon + amount + thin bar. Log expense is the FAB. One currency pill (trip currency ⇄ MYR), at the end of the Money / Settle up title row and on Schedule's daily budget, switches every money amount in the app, remembered per trip (v0.6.5, EXPENSES.md D47–D48).
 
 ### Settle up
-One **"How to settle up"** card for the whole group (Kittysplit-style): open payments first (amber clock, "Ali pays you", amount + ≈ RM, Mark as settled / "Waiting for X to mark it settled"), then settle-ups newest first (green tick, "Mei paid you", "Settled 29 Sep · Unmark"). Rows with you get a blue left bar and a bold "You". "All settled" when nothing is open. Everyone sees every row; mark/unmark permissions unchanged.
+One **"How to settle up"** card for the whole group (Kittysplit-style): open payments first (amber clock, "Ali pays you", amount, Mark as settled / "Waiting for X to mark it settled"), then settle-ups newest first (green tick, "Mei paid you", "Settled 29 Sep · Unmark"). Rows with you get a blue left bar and a bold "You". "All settled" when nothing is open. Everyone sees every row; mark/unmark permissions unchanged.
 
 ### Tier 2 & 3 screens
 Keep today's layouts; apply the components above (Prep, Discover, Spot detail, Add to schedule, Your expenses, Expense detail, Sign in, Invite, Shared trip, New trip, Trip settings, Profile, error/offline pages). Details per screen are on the canvas and in [REDESIGN.md](REDESIGN.md).

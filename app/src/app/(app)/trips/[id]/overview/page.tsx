@@ -14,14 +14,13 @@ import {
   addDays,
   differenceInDays,
   differenceInCalendarDays,
-  isAfter,
-  isBefore,
-  isTomorrow,
 } from "date-fns";
 import { notFound } from "next/navigation";
 import { Clock, Thermometer, CalendarDays, Compass, Landmark, BedDouble } from "lucide-react";
 import { getCurrentTemperature, weatherLocation } from "@/lib/weather";
-import { COUNTRY_TIMEZONE, todayForCountry } from "@/lib/dates";
+import { COUNTRY_TIMEZONE, todayForCountry, nowTimeForCountry } from "@/lib/dates";
+import { formatTime, timeColumnClass } from "@/lib/time-format";
+import { getTimeFormat } from "@/lib/time-format-server";
 
 const HOME_TIMEZONE = "Asia/Kuala_Lumpur";
 
@@ -29,6 +28,7 @@ function getLocalTime(timezone: string): string {
   return new Date().toLocaleTimeString("en-GB", {
     hour: "2-digit",
     minute: "2-digit",
+    hourCycle: "h23",
     timeZone: timezone,
   });
 }
@@ -39,10 +39,11 @@ export default async function OverviewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [activities, trip, account] = await Promise.all([
+  const [activities, trip, account, timeFormat] = await Promise.all([
     getActivities(id),
     getTrip(id),
     getOrCreateAccount(),
+    getTimeFormat(),
   ]);
 
   if (!trip) notFound();
@@ -53,18 +54,22 @@ export default async function OverviewPage({
     (t: { account_id: string; role: string }) => t.account_id === account?.id
   )?.role;
 
-  const now = new Date();
+  // "Now" and "today" are the destination's (home timezone if unknown). This page
+  // renders on the server, which runs on UTC — never use the server's own clock.
+  const countryCode = trip.destination_country_code;
+  const localTz = countryCode ? COUNTRY_TIMEZONE[countryCode] : null;
+  const todayStr = todayForCountry(countryCode);
+  const today = parseISO(todayStr);
+  const nowTime = nowTimeForCountry(countryCode);
   const startDate = parseISO(trip.start_date);
   const endDate = parseISO(trip.end_date);
-  const tripEnded = isAfter(now, endDate);
-  const tripStarted = !isBefore(now, startDate);
+  const tripEnded = todayStr > trip.end_date;
+  const tripStarted = todayStr >= trip.start_date;
   const isActive = tripStarted && !tripEnded;
 
   // Find today's plan: only timed activities, max 3 (Now + 2 upcoming).
   // "Now" = the activity whose time has passed but the next one hasn't started.
   // An activity "owns" the gap until the next timed activity begins.
-  const todayStr = format(now, "yyyy-MM-dd");
-  const nowTime = format(now, "HH:mm");
   let displayActivities: (typeof activities[number] & { tag: "now" | "upcoming" })[] = [];
   let upcomingLabel = "Today's plan";
 
@@ -101,7 +106,7 @@ export default async function OverviewPage({
     // If no timed activities today, try tomorrow then day after
     if (displayActivities.length === 0) {
       for (let offset = 1; offset <= 2; offset++) {
-        const dateStr = format(addDays(now, offset), "yyyy-MM-dd");
+        const dateStr = format(addDays(today, offset), "yyyy-MM-dd");
         const dayTimed = activities
           .filter((a) => a.date === dateStr && a.time)
           .sort((a, b) => a.time!.localeCompare(b.time!));
@@ -111,12 +116,7 @@ export default async function OverviewPage({
             .slice(0, 3)
             .map((a) => ({ ...a, tag: "upcoming" as const }));
 
-          const dateObj = parseISO(dateStr);
-          if (isTomorrow(dateObj)) {
-            upcomingLabel = "Tomorrow's plan";
-          } else {
-            upcomingLabel = format(dateObj, "EEEE, d MMM");
-          }
+          upcomingLabel = offset === 1 ? "Tomorrow's plan" : format(parseISO(dateStr), "EEEE, d MMM");
           break;
         }
       }
@@ -124,18 +124,17 @@ export default async function OverviewPage({
   }
 
   // Local time/weather
-  const countryCode = trip.destination_country_code;
-  const localTz = countryCode ? COUNTRY_TIMEZONE[countryCode] : null;
-  const localTime = localTz ? getLocalTime(localTz) : null;
-  const homeTime = getLocalTime(HOME_TIMEZONE);
-  const isSameTimezone = localTz === HOME_TIMEZONE;
+  const localTime = localTz ? formatTime(getLocalTime(localTz), timeFormat) : null;
+  const homeTime = formatTime(getLocalTime(HOME_TIMEZONE), timeFormat);
+  // Same clock (e.g. Beijing and KL are both UTC+8) → just "Local"
+  const isSameTimezone = localTz === HOME_TIMEZONE || localTime === homeTime;
   // Weather follows the current Stay, falling back to the base city
   const weatherAt = tripEnded
     ? null
     : weatherLocation(
         activities,
         { lat: trip.base_lat, lng: trip.base_lng },
-        todayForCountry(countryCode),
+        todayStr,
         tripStarted
       );
   // Collect stamp (v0.5.17): the day after the trip ends, for travellers on it with an account
@@ -151,9 +150,9 @@ export default async function OverviewPage({
   const state = tripEnded
     ? "Trip ended"
     : isActive
-      ? `Day ${differenceInCalendarDays(now, startDate) + 1} of ${tripDays}`
+      ? `Day ${differenceInCalendarDays(today, startDate) + 1} of ${tripDays}`
       : (() => {
-          const n = differenceInCalendarDays(startDate, now);
+          const n = differenceInCalendarDays(startDate, today);
           return n === 1 ? "In 1 day" : `In ${n} days`;
         })();
 
@@ -211,8 +210,8 @@ export default async function OverviewPage({
                   const isNow = activity.tag === "now";
                   return (
                     <div key={activity.id} className="flex items-center gap-3 py-2.5">
-                      <span className={`w-11 shrink-0 text-[13px] tabular-nums ${isNow ? "font-semibold text-brand" : "font-medium text-fg-muted"}`}>
-                        {activity.time}
+                      <span className={`${timeColumnClass(timeFormat)} shrink-0 text-[13px] tabular-nums ${isNow ? "font-semibold text-brand" : "font-medium text-fg-muted"}`}>
+                        {formatTime(activity.time, timeFormat)}
                       </span>
                       <CategoryIcon category={activity.category} size={32} />
                       <div className="flex-1 min-w-0">
@@ -257,7 +256,7 @@ export default async function OverviewPage({
                     <div className="divide-y divide-line">
                       {sorted.slice(0, 3).map((activity) => (
                         <div key={activity.id} className="flex items-center gap-3 py-2.5">
-                          <span className="w-11 shrink-0 text-[13px] font-medium tabular-nums text-fg-muted">{activity.time ?? ""}</span>
+                          <span className={`${timeColumnClass(timeFormat)} shrink-0 text-[13px] font-medium tabular-nums text-fg-muted`}>{formatTime(activity.time, timeFormat)}</span>
                           <CategoryIcon category={activity.category} size={32} />
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-semibold text-fg truncate">{activity.title}</p>
@@ -283,7 +282,18 @@ export default async function OverviewPage({
         {/* After the trip — summary */}
         {tripEnded &&
           (() => {
-            const accommodations = activities.filter((a) => a.category === "accommodation");
+            // Stays: one row per pinned place, with nights from its first to last day.
+            // Unpinned Stay entries ("Check in", "Back to hotel") are events, not places.
+            const stayDates = new Map<string, string[]>();
+            for (const a of activities) {
+              if (a.category !== "accommodation" || !a.place_name) continue;
+              stayDates.set(a.place_name, [...(stayDates.get(a.place_name) ?? []), a.date]);
+            }
+            const stays = [...stayDates].map(([name, dates]) => {
+              const sorted = [...dates].sort();
+              return { name, first: sorted[0], nights: differenceInCalendarDays(parseISO(sorted[sorted.length - 1]), parseISO(sorted[0])) };
+            }).sort((a, b) => a.first.localeCompare(b.first));
+            const SHOWN = 5;
             // Attractions visited — only "activities" category
             const attractions = activities
               .filter((a) => a.category === "activities")
@@ -318,21 +328,36 @@ export default async function OverviewPage({
                       <Landmark size={14} className="text-brand" aria-hidden /> Activities
                     </p>
                     <ol className="mt-2.5 pl-5 list-decimal text-sm text-fg space-y-1">
-                      {attractions.map((name) => (
+                      {attractions.slice(0, SHOWN).map((name) => (
                         <li key={name}>{name}</li>
                       ))}
                     </ol>
+                    {attractions.length > SHOWN && (
+                      <details className="group">
+                        <summary className="list-none cursor-pointer text-[13px] font-medium text-brand hover:text-brand-hover mt-2 group-open:hidden">
+                          Show all {attractions.length}
+                        </summary>
+                        <ol start={SHOWN + 1} className="mt-1 pl-5 list-decimal text-sm text-fg space-y-1">
+                          {attractions.slice(SHOWN).map((name) => (
+                            <li key={name}>{name}</li>
+                          ))}
+                        </ol>
+                      </details>
+                    )}
                   </div>
                 )}
-                {accommodations.length > 0 && (
+                {stays.length > 0 && (
                   <div className="bg-surface rounded-card px-4 py-3.5">
                     <p className={`flex items-center gap-1.5 ${eyebrow}`}>
                       <BedDouble size={14} className="text-brand" aria-hidden /> Stay
                     </p>
                     <div className="mt-2.5 space-y-1">
-                      {[...new Set(accommodations.map((a) => a.place_name || a.title))].map((name) => (
+                      {stays.map(({ name, nights }) => (
                         <p key={name} className="text-sm font-medium text-fg">
                           {name}
+                          {nights > 0 && (
+                            <span className="font-normal text-fg-muted"> · {nights} {nights === 1 ? "night" : "nights"}</span>
+                          )}
                         </p>
                       ))}
                     </div>

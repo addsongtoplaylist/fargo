@@ -2,7 +2,7 @@
 
 import { useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { format, eachDayOfInterval, parseISO, isToday } from "date-fns";
+import { format, eachDayOfInterval, parseISO } from "date-fns";
 
 // Where the strip must scroll to centre the selected day. The strip is
 // `relative`, so offsetLeft is measured from the strip itself (it used to be
@@ -18,11 +18,13 @@ type DayPickerProps = {
   selectedDate: string;
   onSelect: (date: string) => void;
   isActiveTrip: boolean;
+  /** yyyy-MM-dd at the destination */
+  today: string;
 };
 
 /**
  * Sticky date strip (DESIGN.md v0.8 → Schedule): ‹ · day cells with weekday /
- * date / "Day N" (selected = brand fill, today = dot) · ›. Only this strip
+ * date (selected = brand fill, today = dot) · ›. Only this strip
  * sticks while the page scrolls.
  */
 export function DayPicker({
@@ -31,6 +33,7 @@ export function DayPicker({
   selectedDate,
   onSelect,
   isActiveTrip,
+  today,
 }: DayPickerProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const selectedRef = useRef<HTMLButtonElement>(null);
@@ -74,7 +77,7 @@ export function DayPicker({
   }
 
   const arrow =
-    "shrink-0 w-8 h-[58px] flex items-center justify-center text-fg-muted hover:text-fg transition-colors disabled:opacity-30 disabled:cursor-default";
+    "shrink-0 w-8 h-[50px] flex items-center justify-center text-fg-muted hover:text-fg transition-colors disabled:opacity-30 disabled:cursor-default";
 
   return (
     <div className="sticky top-0 z-30 bg-page">
@@ -91,7 +94,7 @@ export function DayPicker({
           {days.map((day, index) => {
             const dateStr = format(day, "yyyy-MM-dd");
             const isSelected = dateStr === selectedDate;
-            const isCurrentDay = isToday(day) && isActiveTrip;
+            const isCurrentDay = dateStr === today && isActiveTrip;
 
             return (
               <button
@@ -100,7 +103,7 @@ export function DayPicker({
                 onClick={() => onSelect(dateStr)}
                 aria-pressed={isSelected}
                 aria-label={`${format(day, "EEEE d MMMM")}, Day ${index + 1}${isCurrentDay ? ", today" : ""}`}
-                className={`relative flex flex-col items-center justify-center shrink-0 w-[50px] h-[58px] rounded-[14px] transition-colors ${
+                className={`relative flex flex-col items-center justify-center shrink-0 w-[50px] h-[50px] rounded-[14px] transition-colors ${
                   isSelected ? "bg-brand text-brand-on" : "bg-surface text-fg hover:bg-brand-soft"
                 }`}
               >
@@ -108,9 +111,6 @@ export function DayPicker({
                   {format(day, "EEE")}
                 </span>
                 <span className="text-[17px] font-bold leading-none mt-1">{format(day, "d")}</span>
-                <span className={`text-[10px] leading-none mt-1 ${isSelected ? "opacity-80" : "text-fg-muted"}`}>
-                  Day {index + 1}
-                </span>
                 {isCurrentDay && (
                   <span
                     aria-hidden

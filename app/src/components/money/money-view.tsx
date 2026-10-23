@@ -2,25 +2,21 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeftRight, ChevronRight } from "lucide-react";
+import { ChevronRight, PieChart } from "lucide-react";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import { useTrip } from "@/lib/trip-context";
 import { updateBudget } from "@/lib/actions/expense";
-import { LogExpensePanel } from "./log-expense-panel";
 import { useToast } from "@/components/toast";
 import type { Expense } from "@/lib/actions/expense";
-import { categoryLabel } from "@/lib/categories";
-import { categoryStyle } from "@/lib/category-style";
-import { Card, CardHeader, Eyebrow } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { Button, TextButton } from "@/components/ui/button";
-import { CategoryIcon } from "@/components/ui/category-icon";
-import { Fab } from "@/components/ui/fab";
 import { FieldRow, fieldClass } from "@/components/ui/field";
 import { SplitSharesSheet } from "./split-shares-sheet";
+import { ExpensesView } from "./expenses-view";
+import { BreakdownSheet } from "./breakdown-sheet";
+import { useMoneyCurrency } from "./currency-toggle";
 import { computeBalances, fewestPayments } from "@/lib/balances";
-import { tripTravellers, formatLocal, myrHint } from "./money-utils";
-
-const FIXED_CATEGORIES = ["flights", "accommodation", "activities"];
+import { tripTravellers, formatLocal } from "./money-utils";
 
 /**
  * "N days to go" under My budget (device-local date): during the trip, days
@@ -53,13 +49,17 @@ type MoneyViewProps = {
   tripId: string;
 };
 
+/**
+ * Money tab (v0.6.5): My budget → Group split → Your expenses (the list), with
+ * the by-category breakdown behind "Breakdown". One currency switch for every
+ * amount, remembered per trip (useMoneyCurrency).
+ */
 export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const trip = useTrip();
-  const [panelOpen, setPanelOpen] = useState(false);
+  const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [sharesOpen, setSharesOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState(false);
-  // My budget + What you paid only: trip currency or home currency (MYR)
-  const [showHome, setShowHome] = useState(false);
+  const money = useMoneyCurrency(tripId, trip?.local_currency ?? "", trip?.fx_rate ?? 0);
   const [budgetInput, setBudgetInput] = useState(
     budget?.budgetTotal ? budget.budgetTotal.toString() : ""
   );
@@ -71,9 +71,8 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const fxRate = trip.fx_rate;
   const cur = trip.local_currency;
   // Budget amounts are stored in MYR; shown × fxRate in the trip currency
-  const canSwitch = cur !== "MYR" && fxRate > 0;
-  const shownCur = showHome && canSwitch ? "MYR" : cur;
-  const shownRate = showHome && canSwitch ? 1 : fxRate;
+  const shownCur = money.code;
+  const shownRate = money.home ? 1 : fxRate;
   const myTravellerId = budget?.travellerId ?? null;
   const travellers = tripTravellers(trip.travellers);
   const travellerIds = travellers.map((t) => t.id);
@@ -108,15 +107,15 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
     if (myBalance < 0) {
       settle = {
         label: "You pay back",
-        amount: `${cur} ${formatLocal(-myBalance)}`,
-        sub: `${myrHint(myBalance, fxRate)} · To ${names(payments.filter((p) => p.from === myTravellerId).map((p) => p.to))}`,
+        amount: `${shownCur} ${formatLocal(money.fromLocal(-myBalance))}`,
+        sub: `To ${names(payments.filter((p) => p.from === myTravellerId).map((p) => p.to))}`,
         tone: "over",
       };
     } else if (myBalance > 0) {
       settle = {
         label: "You get back",
-        amount: `${cur} ${formatLocal(myBalance)}`,
-        sub: `${myrHint(myBalance, fxRate)} · From ${names(payments.filter((p) => p.to === myTravellerId).map((p) => p.from))}`,
+        amount: `${shownCur} ${formatLocal(money.fromLocal(myBalance))}`,
+        sub: `From ${names(payments.filter((p) => p.to === myTravellerId).map((p) => p.from))}`,
         tone: "ok",
       };
     } else if (payments.length > 0) {
@@ -134,14 +133,6 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   // Planner reaches Split shares from this card even before the first expense
   const showGroupCard = !!settle || (isPlanner && travellers.length > 1);
 
-  // ── Breakdown (what you paid, D19/D27) ──
-  const entries = Object.entries(budget?.spendingByCategory ?? {});
-  const groups = [
-    { label: "Fixed", items: entries.filter(([k]) => FIXED_CATEGORIES.includes(k)) },
-    { label: "Daily", items: entries.filter(([k]) => !FIXED_CATEGORIES.includes(k) && k !== "settlement") },
-    { label: "Settle-ups", items: entries.filter(([k]) => k === "settlement") },
-  ].filter((g) => g.items.length > 0);
-
   const hasBudget = !!budget && budget.budgetTotal > 0;
   // Rows on the View expenses screen: what you paid + what you logged (D44)
   const viewCount = expenses.filter(
@@ -150,7 +141,6 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const spentLocal = Math.round((budget?.totalSpent ?? 0) * shownRate);
 
   const daysToGo = daysToGoLabel(trip.start_date, trip.end_date);
-  const paidTotal = entries.reduce((sum, [, v]) => sum + v, 0);
 
   return (
     <div className="space-y-3">
@@ -159,24 +149,11 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
         <CardHeader
           title="My budget"
           action={
-            <div className="flex items-center gap-3">
-              {canSwitch && !editingBudget && (
-                <button
-                  type="button"
-                  onClick={() => setShowHome(!showHome)}
-                  aria-label={`Amounts in ${shownCur} — switch to ${showHome ? cur : "MYR"}`}
-                  className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full bg-brand-soft text-brand text-xs font-semibold hover:bg-brand hover:text-brand-on transition-colors"
-                >
-                  {shownCur}
-                  <ArrowLeftRight size={12} strokeWidth={2.2} aria-hidden />
-                </button>
-              )}
-              {(editingBudget || hasBudget) && (
-                <TextButton onClick={() => setEditingBudget(!editingBudget)} className="py-0">
-                  {editingBudget ? "Cancel" : "Edit"}
-                </TextButton>
-              )}
-            </div>
+            (editingBudget || hasBudget) && (
+              <TextButton onClick={() => setEditingBudget(!editingBudget)} className="py-0">
+                {editingBudget ? "Cancel" : "Edit"}
+              </TextButton>
+            )
           }
         />
 
@@ -312,72 +289,43 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
         </Card>
       )}
 
-      {/* What you paid (D19/D27) */}
-      <Card>
-        <CardHeader
-          title="What you paid"
-          action={
-            <Link
-              href={`/trips/${tripId}/money/expenses`}
-              className="flex items-center text-[13px] font-semibold text-brand hover:text-brand-hover"
-            >
-              All expenses · {viewCount} <ChevronRight size={15} strokeWidth={2.2} aria-hidden />
-            </Link>
+      {/* Your expenses (S3) — the list; categories behind Breakdown */}
+      <div className="pt-2">
+        <ExpensesView
+          expenses={expenses}
+          tripId={tripId}
+          myTravellerId={myTravellerId}
+          money={money}
+          header={
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-base font-semibold text-fg">
+                Your expenses{viewCount > 0 && <span className="text-fg-muted font-normal"> · {viewCount}</span>}
+              </h2>
+              {Object.keys(budget?.spendingByCategory ?? {}).length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setBreakdownOpen(true)}
+                  className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand hover:text-brand-hover"
+                >
+                  <PieChart size={15} strokeWidth={2.1} aria-hidden />
+                  Breakdown
+                </button>
+              )}
+            </div>
           }
         />
-        {groups.length === 0 ? (
-          <p className="text-sm text-fg-muted mt-3">Nothing paid yet.</p>
-        ) : (
-          <div className="mt-3 space-y-4">
-            {groups.map((g) => (
-              <div key={g.label}>
-                <Eyebrow className="mb-2">{g.label}</Eyebrow>
-                <div className="space-y-3">
-                  {[...g.items]
-                    .sort(([, a], [, b]) => b - a)
-                    .map(([key, amount]) => (
-                      <div key={key} className="flex items-center gap-3">
-                        <CategoryIcon category={key} size={32} />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-baseline justify-between gap-2">
-                            <span className="text-sm text-fg truncate">{categoryLabel(key)}</span>
-                            <span className="text-sm font-semibold text-fg tabular-nums shrink-0">
-                              {shownCur} {Math.round(amount * shownRate).toLocaleString()}
-                            </span>
-                          </div>
-                          <div className="mt-1.5 h-1 bg-page rounded-full overflow-hidden" aria-hidden>
-                            <div
-                              className={`h-full rounded-full ${categoryStyle(key).bar}`}
-                              style={{ width: `${paidTotal > 0 ? Math.max(3, (amount / paidTotal) * 100) : 0}%` }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
+      </div>
 
-      {/* Anyone on the trip with an account can log (D1) */}
-      {myTravellerId && <Fab label="Log expense" onClick={() => setPanelOpen(true)} />}
+      {breakdownOpen && (
+        <BreakdownSheet
+          spendingByCategory={budget?.spendingByCategory ?? {}}
+          money={money}
+          onClose={() => setBreakdownOpen(false)}
+        />
+      )}
 
       {sharesOpen && (
         <SplitSharesSheet tripId={tripId} travellers={travellers} onClose={() => setSharesOpen(false)} />
-      )}
-
-      {panelOpen && myTravellerId && (
-        <LogExpensePanel
-          tripId={tripId}
-          localCurrency={cur}
-          fxRate={fxRate}
-          myTravellerId={myTravellerId}
-          travellers={travellers}
-          editing={null}
-          onClose={() => setPanelOpen(false)}
-        />
       )}
     </div>
   );

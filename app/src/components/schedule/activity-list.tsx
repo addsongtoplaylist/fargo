@@ -3,7 +3,8 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarDays } from "lucide-react";
-import { format, parseISO, isToday } from "date-fns";
+import { format, parseISO } from "date-fns";
+import { todayForCountry, nowTimeForCountry } from "@/lib/dates";
 import {
   DndContext,
   closestCenter,
@@ -55,9 +56,11 @@ function ActivityListInner({
   const { toast } = useToast();
 
   const isPlanner = trip.myRole === "planner";
-  const today = format(new Date(), "yyyy-MM-dd");
+  // "Today" and "now" are the destination's (v0.6.5), matching Overview — not the phone's clock
+  const countryCode = trip.destination_country_code;
+  const today = todayForCountry(countryCode);
 
-  // Derived from dates (device-local), not the stored trip.status, which
+  // Derived from dates (destination-local), not the stored trip.status, which
   // is only computed when a trip is created or edited and can go stale
   const isActiveTrip = today >= trip.start_date && today <= trip.end_date;
 
@@ -74,7 +77,7 @@ function ActivityListInner({
   useEffect(() => {
     function handleVisibility() {
       if (document.visibilityState === "visible") {
-        const now = format(new Date(), "yyyy-MM-dd");
+        const now = todayForCountry(countryCode);
         if (now >= tripStart && now <= tripEnd) {
           setSelectedDate(now);
         }
@@ -82,7 +85,7 @@ function ActivityListInner({
     }
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, [tripStart, tripEnd]);
+  }, [tripStart, tripEnd, countryCode]);
 
   // Local state for optimistic reorder
   const [activities, setActivities] = useState(initialActivities);
@@ -147,7 +150,7 @@ function ActivityListInner({
   const youAreHereId = useMemo(() => {
     if (!isActiveTrip || selectedDate !== today) return null;
 
-    const now = format(new Date(), "HH:mm");
+    const now = nowTimeForCountry(countryCode);
     const timed = dayActivities.filter((a) => a.time);
     // Find the last activity whose time <= now
     let currentId: string | null = null;
@@ -157,7 +160,7 @@ function ActivityListInner({
     // If nothing has started yet, highlight the first timed activity
     if (!currentId && timed.length > 0) currentId = timed[0].id;
     return currentId;
-  }, [isActiveTrip, selectedDate, today, dayActivities]);
+  }, [isActiveTrip, selectedDate, today, dayActivities, countryCode]);
 
   function handleEdit(activity: Activity) {
     setEditing(activity);
@@ -179,7 +182,7 @@ function ActivityListInner({
 
   // Format the selected date for the header
   const selectedDateObj = parseISO(selectedDate);
-  const dayLabel = isToday(selectedDateObj)
+  const dayLabel = selectedDate === today
     ? `Today · ${format(selectedDateObj, "EEEE, d MMM")}`
     : format(selectedDateObj, "EEEE, d MMM");
 
@@ -199,18 +202,20 @@ function ActivityListInner({
         selectedDate={selectedDate}
         onSelect={setSelectedDate}
         isActiveTrip={isActiveTrip}
+        today={today}
       />
 
       <div className="mx-auto w-full max-w-[var(--max-width-column)] px-4 pt-1 space-y-3">
         {/* Daily budget card — shows when budget is set */}
         {dailyFree > 0 && (
           <BudgetStrip
+            tripId={trip?.id ?? ""}
             dailyFree={dailyFree}
             spentToday={Math.round((spendingByDate[selectedDate] ?? 0) * 100) / 100}
             localCurrency={trip?.local_currency ?? ""}
             fxRate={trip?.fx_rate ?? 1}
             date={selectedDate}
-            isToday={isToday(selectedDateObj)}
+            isToday={selectedDate === today}
           />
         )}
 

@@ -193,7 +193,8 @@ export type MyTrip = {
   }[];
 };
 
-export async function getMyTrips(): Promise<{ active: MyTrip[]; upcoming: MyTrip[]; past: MyTrip[] }> {
+/** `today` (yyyy-MM-dd, home timezone) is returned so pages count days the same way as the split. */
+export async function getMyTrips(): Promise<{ active: MyTrip[]; upcoming: MyTrip[]; past: MyTrip[]; today?: string }> {
   const account = await getOrCreateAccount();
   if (!account) return { active: [], upcoming: [], past: [] };
 
@@ -222,7 +223,7 @@ export async function getMyTrips(): Promise<{ active: MyTrip[]; upcoming: MyTrip
   const upcoming = trips.filter((t) => t.start_date > today);
   const past = trips.filter((t) => t.end_date < today);
 
-  return { active, upcoming, past };
+  return { active, upcoming, past, today };
 }
 
 /**

@@ -179,7 +179,6 @@ export function DiscoverView() {
             icon={cat.icon}
             disabled={!cat.enabled}
             onClick={() => cat.enabled && handleCategoryChange(cat.value)}
-            trailing={!cat.enabled ? <span className="text-[11px] text-fg-muted">Soon</span> : undefined}
           >
             {cat.label}
           </Chip>

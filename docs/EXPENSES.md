@@ -73,6 +73,8 @@ A 7-person trip showed the current model breaks down: one planner can't log ever
 | D44 | **View expenses also lists expenses you logged for someone else** ("Logged for Ali"), so the logger can still edit them. Breakdown, budget and day totals stay "what you paid". Found in UAT (UAT-23). | 2026-09-27 |
 | D45 | **"Why?" removed from Settle up** (reverses the tap-for-why part of D22/D24) — simpler screen; "Everyone" still shows all balances. | 2026-09-27 |
 | D46 | **RM conversion shown under local amounts on settle-up** (card, payments, balances, settled). | 2026-09-27 |
+| D47 | **Money tab leads with the list (v0.6.5, owner)** — My budget → Group split → *Your expenses* (the S3 list, inline); the by-category breakdown moved behind a **Breakdown** button (sheet). The separate View expenses screen redirects to Money. Revises D18. | 2026-10-23 |
+| D48 | **One currency switch (v0.6.5, owner)** — the trip-currency ⇄ MYR pill switches every amount (Money, Breakdown, expense detail, Settle up, Schedule's daily budget), remembered per trip on the device. The "≈ RM" lines under amounts are gone (supersedes D46). Logging an expense and setting a budget keep their converters. | 2026-10-23 |
 
 ---
 

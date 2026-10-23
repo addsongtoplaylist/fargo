@@ -18,7 +18,7 @@ export function SignOutButton() {
   }
 
   return (
-    <button type="button" onClick={handleSignOut} className="w-full text-left bg-surface rounded-card hover:bg-money-over-soft/40 transition-colors">
+    <button type="button" onClick={handleSignOut} className="w-full text-left rounded-b-card hover:bg-money-over-soft/40 transition-colors">
       <ProfileRow icon={LogOut} label="Sign out" tone="danger" />
     </button>
   );

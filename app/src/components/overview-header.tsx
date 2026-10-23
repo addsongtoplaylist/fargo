@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Settings, LogOut, Share2 } from "lucide-react";
+import { House, Settings, LogOut, Share2 } from "lucide-react";
 import { leaveTrip } from "@/lib/actions/trip";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { ShareTripSheet } from "@/components/share-trip-sheet";
@@ -79,7 +79,7 @@ export function OverviewHeader({
           )}
           <div className="relative flex justify-between">
             <button type="button" onClick={() => router.push("/trips?noauto=1")} className={ROUND} aria-label="Back to My trips">
-              <ArrowLeft size={19} strokeWidth={1.9} aria-hidden />
+              <House size={19} strokeWidth={1.9} aria-hidden />
             </button>
             <div className="flex gap-2">
               {/* Share trip pass (v0.5.7) — anyone on the trip */}

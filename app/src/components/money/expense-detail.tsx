@@ -8,6 +8,8 @@ import { CategoryIcon } from "@/components/ui/category-icon";
 import { Eyebrow } from "@/components/ui/card";
 import { FieldRow } from "@/components/ui/field";
 import type { SplitTraveller } from "./log-expense-panel";
+import type { MoneyCurrency } from "./currency-toggle";
+import { formatLocal } from "./money-utils";
 
 const SPLIT_LABEL: Record<string, string> = {
   equal: "Split equally",
@@ -21,13 +23,13 @@ export function ExpenseDetail({
   expense,
   travellers,
   myTravellerId,
-  localCurrency,
+  money,
   onClose,
 }: {
   expense: Expense;
   travellers: SplitTraveller[];
   myTravellerId: string;
-  localCurrency: string;
+  money: MoneyCurrency;
   onClose: () => void;
 }) {
   const nameOf = (id: string) =>
@@ -41,6 +43,10 @@ export function ExpenseDetail({
   );
 
   const settlement = expense.kind === "settlement";
+  const local = parseFloat(expense.amount);
+  const myr = parseFloat(expense.amount_myr);
+  // Shares are stored in the trip currency; in MYR use the expense's own rate
+  const shareShown = (share: number) => (money.home && local > 0 ? (share * myr) / local : share);
 
   return (
     <Sheet open title={expense.title} onClose={onClose}>
@@ -54,11 +60,9 @@ export function ExpenseDetail({
             <CategoryIcon category={expense.category} size={44} />
           )}
           <p className="text-[30px] font-bold text-fg tabular-nums mt-2 leading-tight">
-            {localCurrency} {parseFloat(expense.amount).toLocaleString()}
+            {money.code} {formatLocal(money.pick(local, myr))}
           </p>
-          <p className="text-[13px] text-fg-muted mt-1">
-            ≈ RM {parseFloat(expense.amount_myr).toFixed(2)} · {format(parseISO(expense.date), "EEE, d MMM")}
-          </p>
+          <p className="text-[13px] text-fg-muted mt-1">{format(parseISO(expense.date), "EEE, d MMM")}</p>
         </div>
 
         <FieldRow label="Paid by">
@@ -75,8 +79,8 @@ export function ExpenseDetail({
               <div key={p.traveller_id} className="flex items-center justify-between px-3 min-h-[44px] text-sm">
                 <span className="text-fg">{nameOf(p.traveller_id)}</span>
                 <span className="text-fg tabular-nums">
-                  {localCurrency}{" "}
-                  {parseFloat(p.share).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {money.code}{" "}
+                  {shareShown(parseFloat(p.share)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
               </div>
             ))}
