@@ -75,6 +75,7 @@ A 7-person trip showed the current model breaks down: one planner can't log ever
 | D46 | **RM conversion shown under local amounts on settle-up** (card, payments, balances, settled). | 2026-09-27 |
 | D47 | **Money tab leads with the list (v0.6.5, owner)** — My budget → Group split → *Your expenses* (the S3 list, inline); the by-category breakdown moved behind a **Breakdown** button (sheet). The separate View expenses screen redirects to Money. Revises D18. | 2026-10-23 |
 | D48 | **One currency switch (v0.6.5, owner)** — the trip-currency ⇄ MYR pill switches every amount (Money, Breakdown, expense detail, Settle up, Schedule's daily budget), remembered per trip on the device. The "≈ RM" lines under amounts are gone (supersedes D46). Logging an expense and setting a budget keep their converters. | 2026-10-23 |
+| D49 | **New expenses start with everyone ticked** (v0.6.9, owner) — untick who wasn't there. Replaces D10's "start unticked"; editing still restores the saved split. Also: *daily free* never shows below 0 when fixed costs pass the budget. | 2026-10-23 |
 
 ---
 
@@ -157,7 +158,7 @@ Implemented as RLS on `expenses` and `expense_participants` (checked against the
 
 **S2 · Log / edit expense** (Add activity layout)
 - Amount (hero, local ⇄ MYR toggle as today) · What for · **Paid by** (defaults to you; pick anyone) · Date · Category chips
-- **Split between** — traveller chips, **all unticked** (D10); shortcut reads **Select all**, switching to **Clear** only when everyone is ticked (D28)
+- **Split between** — traveller chips, **all ticked** for a new expense (D49, was unticked per D10); shortcut reads **Select all**, switching to **Clear** only when everyone is ticked (D28)
 - **Split as** — Equal · Shares · % · Amounts. For anything but Equal, each ticked person gets an input (Shares pre-filled from default shares); a live line shows what's left to allocate, and Log stays blocked until it adds up
 - Notes · Cancel / Log · edit mode: Delete (if allowed)
 

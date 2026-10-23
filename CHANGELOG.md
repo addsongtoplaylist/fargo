@@ -4,6 +4,16 @@
 
 ---
 
+## v0.6.9 — 2026-10-23 · Money polish
+
+### App
+
+- **Daily free never goes negative.** When your fixed costs (flights, stays, activities) pass your budget, My budget shows "0 daily free" instead of a minus amount.
+- **New expenses start split with everyone.** With "Split with others" on, every traveller starts ticked — untick who wasn't there (was: nobody ticked). Editing keeps the saved split.
+- No database changes.
+
+---
+
 ## v0.6.8 — 2026-10-23 · Quieter screens
 
 ### App

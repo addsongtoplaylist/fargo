@@ -65,9 +65,10 @@ export function LogExpensePanel({
   const [inputCurrency, setInputCurrency] = useState<"local" | "myr">("local");
   const [paidBy, setPaidBy] = useState(editing?.paid_by ?? myTravellerId);
   const [splitType, setSplitType] = useState<SplitType>(editing?.split_type ?? "equal");
-  // Participants start unticked (D10); editing restores the saved split
+  // New expense: everyone ticked, untick who wasn't there (D49, replaces D10).
+  // Editing restores the saved split.
   const [included, setIncluded] = useState<Set<string>>(
-    () => new Set(editing?.expense_participants.map((p) => p.traveller_id) ?? [])
+    () => new Set(editing ? editing.expense_participants.map((p) => p.traveller_id) : travellers.map((t) => t.id))
   );
   const [weights, setWeights] = useState<Record<string, string>>(() =>
     Object.fromEntries(

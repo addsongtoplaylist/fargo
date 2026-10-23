@@ -248,7 +248,9 @@ export async function getBudgetSummary(tripId: string) {
       // Daily free = (total budget - fixed expenses) / total days
       // This is a STATIC number — it does not change with daily spending.
       // Fixed expenses = flights + accommodation + activities (your share).
-      const dailyFree = tripDays > 0 ? (budgetTotal - fixedExpensesMyr) / tripDays : 0;
+      // Never below 0 (v0.6.9): fixed costs over the budget show "0 daily free",
+      // not a negative amount.
+      const dailyFree = tripDays > 0 ? Math.max(0, (budgetTotal - fixedExpensesMyr) / tripDays) : 0;
 
       return {
         travellerId: myTraveller.id,
