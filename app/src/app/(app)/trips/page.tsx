@@ -64,7 +64,7 @@ export default async function TripsPage() {
       </SkyBand>
 
       {(sheetUpcoming.length > 0 || pastNewest.length > 0) && (
-        <div className="relative -mt-10 rounded-t-[24px] bg-page pt-5">
+        <div className="relative -mt-8 rounded-t-[24px] bg-page pt-5">
           <Column className="space-y-5">
             {sheetUpcoming.length > 0 && (
               <section>
