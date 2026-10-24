@@ -10,6 +10,7 @@ import { useToast } from "@/components/toast";
 import type { Expense } from "@/lib/actions/expense";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button, TextButton } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
 import { FieldRow, fieldClass } from "@/components/ui/field";
 import { SplitSharesSheet } from "./split-shares-sheet";
 import { ExpensesView } from "./expenses-view";
@@ -52,7 +53,8 @@ type MoneyViewProps = {
 /**
  * Money tab (v0.6.5): My budget → Group split → Your expenses (the list), with
  * the by-category breakdown behind "Breakdown". One currency switch for every
- * amount, remembered per trip (useMoneyCurrency).
+ * amount, remembered per trip (useMoneyCurrency). v0.7.1: Daily free is the
+ * budget card's main number; Group split shows one line per person.
  */
 export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const trip = useTrip();
@@ -96,48 +98,38 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   // ── Settle-up card (D21, D30) ──
   const balances = computeBalances(expenses, travellerIds);
   const payments = fewestPayments(balances, travellerIds);
-  const myBalance = myTravellerId ? balances.get(myTravellerId) ?? 0 : 0;
-  const names = (ids: string[]) => {
-    const unique = [...new Set(ids)].map(nameOf);
-    return unique.length <= 2 ? unique.join(" and ") : `${unique.slice(0, 2).join(", ")} and ${unique.length - 2} more`;
-  };
-  // Group split card: 2+ travellers and at least one expense (M3)
-  let settle: { label: string; amount: string | null; sub: string; tone: "ok" | "over" | "plain" } | null = null;
+  // Group split card: 2+ travellers and at least one expense (M3). One line per
+  // payment you're part of — "Ben pays you", "You pay Mei" (v0.7.1, owner)
+  type SplitLine = { id: string; who: string; hasAccount: boolean; text: string; amount: string; owed: boolean };
+  let settle: { lines: SplitLine[]; status: string | null } | null = null;
   if (travellers.length > 1 && expenses.length > 0 && myTravellerId) {
-    if (myBalance < 0) {
-      settle = {
-        label: "You pay back",
-        amount: `${shownCur} ${formatLocal(money.fromLocal(-myBalance))}`,
-        sub: `To ${names(payments.filter((p) => p.from === myTravellerId).map((p) => p.to))}`,
-        tone: "over",
-      };
-    } else if (myBalance > 0) {
-      settle = {
-        label: "You get back",
-        amount: `${shownCur} ${formatLocal(money.fromLocal(myBalance))}`,
-        sub: `From ${names(payments.filter((p) => p.to === myTravellerId).map((p) => p.from))}`,
-        tone: "ok",
-      };
-    } else if (payments.length > 0) {
-      settle = {
-        label: "You're settled up",
-        amount: null,
-        sub: `${payments.length} payment${payments.length === 1 ? "" : "s"} still open in the group`,
-        tone: "plain",
-      };
-    } else {
-      settle = { label: "All square", amount: null, sub: "Everyone is settled up", tone: "ok" };
-    }
+    const lines: SplitLine[] = payments
+      .filter((p) => p.from === myTravellerId || p.to === myTravellerId)
+      .map((p) => {
+        const owed = p.to === myTravellerId;
+        const other = owed ? p.from : p.to;
+        return {
+          id: `${p.from}-${p.to}`,
+          who: nameOf(other),
+          hasAccount: !!trip.travellers?.find((t) => t.id === other)?.account_id,
+          text: owed ? `${nameOf(other)} pays you` : `You pay ${nameOf(other)}`,
+          amount: `${shownCur} ${formatLocal(money.fromLocal(p.amount))}`,
+          owed,
+        };
+      });
+    const status =
+      lines.length > 0
+        ? null
+        : payments.length > 0
+          ? `You're settled up · ${payments.length} payment${payments.length === 1 ? "" : "s"} still open in the group`
+          : "All square — everyone is settled up";
+    settle = { lines, status };
   }
   const isPlanner = trip.myRole === "planner";
   // Planner reaches Split shares from this card even before the first expense
   const showGroupCard = !!settle || (isPlanner && travellers.length > 1);
 
   const hasBudget = !!budget && budget.budgetTotal > 0;
-  // Rows on the View expenses screen: what you paid + what you logged (D44)
-  const viewCount = expenses.filter(
-    (e) => e.paid_by === myTravellerId || (e.kind === "expense" && e.created_by === myTravellerId)
-  ).length;
   const spentLocal = Math.round((budget?.totalSpent ?? 0) * shownRate);
 
   const daysToGo = daysToGoLabel(trip.start_date, trip.end_date);
@@ -147,7 +139,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
       {/* My budget — only you see and set this */}
       <Card>
         <CardHeader
-          title="My budget"
+          title={hasBudget && !editingBudget ? "Daily free" : "My budget"}
           action={
             (editingBudget || hasBudget) && (
               <TextButton onClick={() => setEditingBudget(!editingBudget)} className="py-0">
@@ -186,39 +178,29 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
           (() => {
             const budgetLocal = Math.round(budget.budgetTotal * shownRate);
             const remainingLocal = Math.round(budget.remaining * shownRate);
+            const dailyLocal = Math.round(budget.dailyFree * shownRate);
             const over = budget.remaining < 0;
-            // Smaller hero when amounts are 6+ digits (e.g. VND 1,500,000)
-            const isLarge = Math.abs(spentLocal) >= 100_000 || Math.abs(budgetLocal) >= 100_000;
+            // Smaller hero when the amount is 7+ digits (e.g. VND 1,500,000)
+            const isLarge = Math.abs(dailyLocal) >= 1_000_000;
             return (
-              <div className="mt-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className={`${isLarge ? "text-[22px]" : "text-[26px]"} font-bold leading-tight tabular-nums ${over ? "text-money-over" : "text-fg"}`}>
-                      {shownCur} {spentLocal.toLocaleString()}
-                    </p>
-                    <p className="text-[13px] text-fg-muted mt-0.5 tabular-nums">
-                      spent of {shownCur} {budgetLocal.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-base font-semibold text-fg tabular-nums">
-                      {shownCur} {Math.round(budget.dailyFree * shownRate).toLocaleString()}
-                    </p>
-                    <p className="text-[13px] text-fg-muted mt-0.5">daily free</p>
-                  </div>
-                </div>
+              <div className="mt-1.5">
+                <p className={`${isLarge ? "text-[28px]" : "text-[34px]"} font-bold leading-tight tracking-[-0.5px] tabular-nums ${dailyLocal > 0 ? "text-money-ok" : "text-money-over"}`}>
+                  {shownCur} {dailyLocal.toLocaleString()}
+                </p>
                 <div className="mt-3 h-2 bg-page rounded-full overflow-hidden" aria-hidden>
                   <div
                     className={`h-full rounded-full transition-all ${over ? "bg-money-over" : "bg-brand"}`}
                     style={{ width: `${Math.min(100, (budget.totalSpent / budget.budgetTotal) * 100)}%` }}
                   />
                 </div>
-                <p className="text-[13px] mt-2 tabular-nums">
-                  <span className={`font-semibold ${over ? "text-money-over" : "text-money-ok"}`}>
-                    {shownCur} {Math.abs(remainingLocal).toLocaleString()} {over ? "over" : "left"}
+                <div className="flex items-baseline justify-between gap-3 text-[13px] mt-2 tabular-nums">
+                  <span className={over ? "font-semibold text-money-over" : "text-fg-muted"}>
+                    {over
+                      ? `${shownCur} ${Math.abs(remainingLocal).toLocaleString()} over budget`
+                      : `${spentLocal.toLocaleString()} of ${budgetLocal.toLocaleString()} spent`}
                   </span>
-                  {daysToGo && <span className="text-fg-muted"> · {daysToGo}</span>}
-                </p>
+                  {daysToGo && <span className="text-fg-muted shrink-0">{daysToGo}</span>}
+                </div>
               </div>
             );
           })()
@@ -264,25 +246,24 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
             }
           />
           {settle && (
-            <Link href={`/trips/${tripId}/money/settle`} className="block mt-2.5">
-              {settle.amount ? (
-                <>
-                  <p className="text-[13px] text-fg-muted">{settle.label}</p>
-                  <p className={`text-[22px] font-bold leading-tight tabular-nums ${settle.tone === "over" ? "text-money-over" : "text-money-ok"}`}>
-                    {settle.amount}
-                  </p>
-                </>
-              ) : (
-                <p className={`text-[17px] font-semibold ${settle.tone === "ok" ? "text-money-ok" : "text-fg"}`}>{settle.label}</p>
-              )}
-              <p className="text-[13px] text-fg-muted mt-0.5 truncate">{settle.sub}</p>
+            <Link href={`/trips/${tripId}/money/settle`} className="block mt-3 space-y-3">
+              {settle.lines.map((l) => (
+                <div key={l.id} className="flex items-center gap-2.5">
+                  <Avatar name={l.who} kind={l.hasAccount ? "account" : "name-only"} size={32} />
+                  <span className="flex-1 min-w-0 text-[15px] text-fg truncate">{l.text}</span>
+                  <span className={`text-[15px] font-semibold tabular-nums shrink-0 ${l.owed ? "text-money-ok" : "text-money-over"}`}>
+                    {l.amount}
+                  </span>
+                </div>
+              ))}
+              {settle.status && <p className="text-sm text-fg-muted">{settle.status}</p>}
             </Link>
           )}
           {isPlanner && travellers.length > 1 && (
             <div className={`flex items-center justify-between ${settle ? "mt-3.5 pt-3 border-t border-line" : "mt-2"}`}>
-              <span className="text-sm text-fg">Split shares</span>
+              <span className="text-sm text-fg-muted">Split shares</span>
               <TextButton onClick={() => setSharesOpen(true)} className="py-0">
-                Edit
+                Edit split
               </TextButton>
             </div>
           )}
@@ -299,7 +280,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
           header={
             <div className="flex items-center justify-between px-1">
               <h2 className="text-base font-semibold text-fg">
-                Your expenses{viewCount > 0 && <span className="text-fg-muted font-normal"> · {viewCount}</span>}
+                Your expenses
               </h2>
               {Object.keys(budget?.spendingByCategory ?? {}).length > 0 && (
                 <button

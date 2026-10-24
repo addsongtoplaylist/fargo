@@ -254,7 +254,7 @@ Photo header → **time & temperature** card (local + home time; temperature onl
 - **Before the trip:** header says "In 76 days"; card shows "12 activities planned" + first 3 (with dates) + "+9 more".
 - **After the trip:** **Trip summary** — Duration, Destination, Activities list, Stay. No time/weather.
 
-**Travellers card:** avatars + small **Invite** button.
+**Travellers card:** "Travellers" (no count, v0.7.1) + avatars + a small icon-only **Invite** button (person-plus icon; named "Invite" for screen readers).
 - Tap **Invite** → panel with **Quick add traveller** (name + Add) and **Share this link** (link + Copy).
 - Tap **a person** → panel with **Name · badge · Remove** and **Name [field] Save** (rename, name-only travellers). Remove only works for people with no expenses.
 - Members: tap themselves → Leave trip / Change owner; note "Only the planner can invite or remove travellers."
@@ -265,7 +265,7 @@ Back header → **sticky date strip** (‹ · five day cells with weekday / date
 **Timeline row:** time column (42px, `muted`; blank when untimed) · category icon on a thin vertical line · **bold title** + one `muted` place line · drag handle (planner). Current activity: `accent-soft` row, accent time, "NOW". No notes, no cost, no photos on rows.
 
 ### Money
-Back header → **My budget** (spent as the hero number, "spent of 6,000,000", **daily free** on the right, progress bar, "left · days to go") → **Group split** ("You get back / You pay back / All square", amount, **Settle up ›**, and a **Split shares · Edit** row for the planner) → **Your expenses · N** with a **Breakdown** link, then the list grouped by day. Breakdown opens a sheet: **What you paid**, grouped **FIXED / DAILY / SETTLE-UPS**, category icon + amount + thin bar. Log expense is the FAB. One currency pill (trip currency ⇄ MYR), at the end of the Money / Settle up title row and on Schedule's daily budget, switches every money amount in the app, remembered per trip (v0.6.5, EXPENSES.md D47–D48).
+Back header → **Daily free** (v0.7.1: today's daily free as the green hero number — red at 0 — **Edit**, progress bar, "291,700 of 350,000 spent · N days to go" or "X over budget"; titled **My budget** while editing or before a budget is set) → **Group split** (one line per payment you're part of: avatar, "Ben pays you" green / "You pay Mei" red, amount; otherwise "You're settled up…" / "All square"; **Settle up ›**; a **Split shares · Edit split** row for the planner) → **Your expenses** (no count, v0.7.1) with a **Breakdown** link, then the list grouped by day. Breakdown opens a sheet: **What you paid**, grouped **FIXED / DAILY / SETTLE-UPS**, category icon + amount + thin bar. Log expense is the FAB. One currency pill (trip currency ⇄ MYR), at the end of the Money / Settle up title row and on Schedule's daily budget, switches every money amount in the app, remembered per trip (v0.6.5, EXPENSES.md D47–D48).
 
 ### Settle up
 One **"How to settle up"** card for the whole group (Kittysplit-style): open payments first (amber clock, "Ali pays you", amount, Mark as settled / "Waiting for X to mark it settled"), then settle-ups newest first (green tick, "Mei paid you", "Settled 29 Sep · Unmark"). Rows with you get a blue left bar and a bold "You". "All settled" when nothing is open. Everyone sees every row; mark/unmark permissions unchanged.

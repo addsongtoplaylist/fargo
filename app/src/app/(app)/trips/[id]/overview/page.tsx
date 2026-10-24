@@ -144,13 +144,13 @@ export default async function OverviewPage({
     getStampToCollect(trip.id, onTrip),
   ]);
 
-  // Header subline: dates · Day X of Y / In N days / Trip ended
+  // Header subline: dates · In N days / Trip ended (during the trip: dates only, v0.7.1 — owner)
   const dateRange = `${format(startDate, "d MMM")} – ${format(endDate, "d MMM yyyy")}`;
   const tripDays = differenceInDays(endDate, startDate) + 1;
   const state = tripEnded
     ? "Trip ended"
     : isActive
-      ? `Day ${differenceInCalendarDays(today, startDate) + 1} of ${tripDays}`
+      ? null
       : (() => {
           const n = differenceInCalendarDays(startDate, today);
           return n === 1 ? "In 1 day" : `In ${n} days`;
@@ -165,7 +165,7 @@ export default async function OverviewPage({
 
   return (
     <>
-      <OverviewHeader tripId={trip.id} name={trip.name} destination={trip.destination} subline={`${dateRange} · ${state}`} role={role} coverPath={trip.cover_path} coverPosition={trip.cover_position} />
+      <OverviewHeader tripId={trip.id} name={trip.name} destination={trip.destination} subline={state ? `${dateRange} · ${state}` : dateRange} role={role} coverPath={trip.cover_path} coverPosition={trip.cover_position} />
 
       <Column className="pt-4 space-y-3">
         {stampToCollect && <CollectStamp tripId={trip.id} preview={stampToCollect} variant="card" />}

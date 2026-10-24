@@ -247,7 +247,7 @@ Next: owner shares the clips → Claude checks the phone crop and renders the 6 
 | ☐ | Install / Add to Home Screen flow | Install steps (7) | `marketing/home-screen.tsx` |
 | ☐ | Sign-in or the My trips entry point | Nav button for signed-in visitors (10) | `marketing/site-nav.tsx` |
 
-**Open as of v0.7.0 (2026-10-24):** feature screenshots (4) are out of date — Schedule (no "Day N", house icon), Money (expenses list first, one currency pill) and Passport (**no home bottom bar since v0.7.0**; house button beside the title). Retake on the Fargo demo trip. Checked for v0.7.0 and unaffected: nav "My trips" button (still `/trips`, now home), Passport replica (6, title + cards only), FAQ (Discover from home keeps the planner/member rule).
+**Open as of v0.7.0 (2026-10-24):** feature screenshots (4) are out of date — Schedule (no "Day N", house icon), Money (expenses list first, one currency pill; v0.7.1 Daily free card and per-person Group split) and Passport (**no home bottom bar since v0.7.0**; house button beside the title). Retake on the Fargo demo trip. Checked for v0.7.0 and unaffected: nav "My trips" button (still `/trips`, now home), Passport replica (6, title + cards only), FAQ (Discover from home keeps the planner/member rule).
 
 ## As built — what the landing page shows (keep current)
 

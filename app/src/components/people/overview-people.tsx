@@ -193,13 +193,19 @@ export function OverviewPeople({ tripId, travellers, isPlanner, myAccountId }: O
     <div className="bg-surface rounded-card p-4">
       {/* Header: title + Invite (planner) */}
       <div className="flex items-center justify-between gap-2">
-        <h2 className="text-base font-semibold text-fg">
-          Travellers <span className="text-fg-muted font-medium">{travellers.length}</span>
-        </h2>
+        <h2 className="text-base font-semibold text-fg">Travellers</h2>
+        {/* Icon only (v0.7.1); the name stays for screen readers */}
         {isPlanner && (
-          <Button variant={inviteOpen ? "soft" : "quiet"} size="sm" icon={UserPlus} onClick={toggleInvite} aria-expanded={inviteOpen}>
-            Invite
-          </Button>
+          <Button
+            variant={inviteOpen ? "soft" : "quiet"}
+            size="sm"
+            icon={UserPlus}
+            onClick={toggleInvite}
+            aria-expanded={inviteOpen}
+            aria-label="Invite"
+            title="Invite"
+            className="w-9 !px-0"
+          />
         )}
       </div>
 
