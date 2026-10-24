@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { PassportStamp } from "@/components/passport-stamp";
 import type { PassportStats } from "@/lib/passport";
@@ -20,25 +21,17 @@ const GOLD = "#d4b26a";
 /**
  * Passport → See all as a real passport book (v0.7.3, owner-approved sketch):
  * a navy cover (FARGO · emblem · PASSPORT) that opens to an ID page — the Fargo
- * frog and your stats — then stamp pages, 6 a page, swiped like turning pages.
+ * frog and your stats — then stamp pages, 6 a page. One page at a time, turned
+ * with Previous / Next (owner: buttons, no swiping).
  */
 export function PassportBook({ stats }: { stats: PassportStats }) {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
-  const pagesRef = useRef<HTMLDivElement>(null);
 
   const stampPages: PassportStats["stamps"][] = [];
   for (let i = 0; i < stats.stamps.length; i += PER_PAGE) stampPages.push(stats.stamps.slice(i, i + PER_PAGE));
   if (stampPages.length === 0) stampPages.push([]);
   const total = 1 + stampPages.length;
-
-  function onScroll() {
-    const el = pagesRef.current;
-    if (!el) return;
-    const first = el.firstElementChild as HTMLElement | null;
-    const step = first ? first.offsetWidth + 24 : el.clientWidth;
-    setPage(Math.min(total - 1, Math.round(el.scrollLeft / step)));
-  }
 
   if (!open) {
     return (
@@ -65,16 +58,13 @@ export function PassportBook({ stats }: { stats: PassportStats }) {
     );
   }
 
+  const stamps = page > 0 ? stampPages[page - 1] : null;
+  const turn = "w-11 h-11 rounded-full bg-surface border border-line flex items-center justify-center text-fg disabled:opacity-35 disabled:pointer-events-none";
+
   return (
     <div className="flex flex-col items-center">
-      {/* Pages: swipe sideways; each snaps into the same spot as the cover */}
-      <div
-        ref={pagesRef}
-        onScroll={onScroll}
-        className="w-full flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none py-12 -my-12"
-        style={{ paddingInline: "calc(50% - 145px)" }}
-      >
-        <section aria-label={`Page 1 of ${total}`} className={`${BOOK} snap-center rounded-[10px_18px_18px_10px] px-[18px] pl-[26px] pt-[22px] pb-[18px] flex flex-col font-serif text-[#3b3326]`} style={PAPER}>
+      {page === 0 ? (
+        <section aria-label={`Page 1 of ${total}`} className={`${BOOK} rounded-[10px_18px_18px_10px] px-[18px] pl-[26px] pt-[22px] pb-[18px] flex flex-col font-serif text-[#3b3326]`} style={PAPER}>
           <div className="flex items-center gap-3.5">
             <Image src="/mascot.png" alt="Fargo frog" width={96} height={96} className="rounded-[18px]" />
             <Field label={`DAYS AWAY IN ${stats.year}`} value={String(stats.daysThisYear)} big />
@@ -92,38 +82,46 @@ export function PassportBook({ stats }: { stats: PassportStats }) {
           </div>
           <PageNumber n={1} />
         </section>
+      ) : (
+        <section
+          aria-label={`Page ${page + 1} of ${total}`}
+          className={`${BOOK} rounded-[10px_18px_18px_10px] pl-[22px] pr-[14px] pt-[18px] pb-[14px] flex flex-col`}
+          style={PAPER}
+        >
+          {stamps && stamps.length > 0 ? (
+            <div className="flex-1 grid grid-cols-2 content-center justify-items-center gap-x-2 gap-y-5">
+              {stamps.map((stamp) => (
+                <div key={stamp.key} className="scale-[1.2]">
+                  <PassportStamp stamp={stamp} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="flex-1 flex items-center justify-center text-center font-serif text-sm text-[#8a7655] px-6">
+              Your first stamp lands here when your first trip ends.
+            </p>
+          )}
+          <PageNumber n={page + 1} />
+        </section>
+      )}
 
-        {stampPages.map((stamps, i) => (
-          <section
-            key={i}
-            aria-label={`Page ${i + 2} of ${total}`}
-            className={`${BOOK} snap-center rounded-[10px_18px_18px_10px] pl-[22px] pr-[14px] pt-[18px] pb-[14px] flex flex-col`}
-            style={PAPER}
-          >
-            {stamps.length > 0 ? (
-              <div className="flex-1 grid grid-cols-2 content-center justify-items-center gap-x-2 gap-y-5">
-                {stamps.map((stamp) => (
-                  <div key={stamp.key} className="scale-[1.2]">
-                    <PassportStamp stamp={stamp} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="flex-1 flex items-center justify-center text-center font-serif text-sm text-[#8a7655] px-6">
-                Your first stamp lands here when your first trip ends.
-              </p>
-            )}
-            <PageNumber n={i + 2} />
-          </section>
-        ))}
+      {/* Previous · dots · Next */}
+      <div className="flex items-center gap-4 mt-6">
+        <button type="button" onClick={() => setPage(page - 1)} disabled={page === 0} aria-label="Previous page" className={turn}>
+          <ChevronLeft size={20} strokeWidth={2} aria-hidden />
+        </button>
+        <div className="flex gap-1.5" aria-hidden>
+          {Array.from({ length: total }, (_, i) => (
+            <span key={i} className={`h-1.5 rounded-full transition-all ${i === page ? "w-[18px] bg-fg" : "w-1.5 bg-fg-faint"}`} />
+          ))}
+        </div>
+        <button type="button" onClick={() => setPage(page + 1)} disabled={page === total - 1} aria-label="Next page" className={turn}>
+          <ChevronRight size={20} strokeWidth={2} aria-hidden />
+        </button>
       </div>
-
-      <div className="flex gap-1.5 mt-8" aria-hidden>
-        {Array.from({ length: total }, (_, i) => (
-          <span key={i} className={`h-1.5 rounded-full transition-all ${i === page ? "w-[18px] bg-fg" : "w-1.5 bg-fg-faint"}`} />
-        ))}
-      </div>
-      <p className="mt-2.5 text-[13px] text-fg-muted">{page === 0 ? "Swipe to turn the page" : `Page ${page + 1} of ${total}`}</p>
+      <p className="mt-2.5 text-[13px] text-fg-muted" aria-live="polite">
+        Page {page + 1} of {total}
+      </p>
     </div>
   );
 }
