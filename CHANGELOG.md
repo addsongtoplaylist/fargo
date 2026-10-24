@@ -9,6 +9,7 @@
 ### App
 
 - **Passport → See all is now a passport book.** A navy cover with FARGO, a gold globe and PASSPORT; tap to open. The first page has the Fargo frog and your stats (days away this year, trips, countries, stamps, buddies, most trips with); then the stamp pages — 6 a page, the same stamps, "Collect" outlines and ×2 as before. One page at a time, turned with ‹ › buttons (works with a finger, mouse or keyboard). Every page is the same size as the cover.
+- **Home on a computer:** the tree illustration stays phone-width in the middle; the sides are plain blue sky above and page grey below (it used to repeat across the whole window).
 - No database changes.
 - Landing: checked, nothing affected (the landing page copies the main Passport screen, not See all).
 
