@@ -31,12 +31,10 @@ export default async function TripsPage() {
 
   const firstName = (account?.name ?? "").trim().split(/\s+/)[0] || "there";
   const initial = (account?.name?.[0] ?? "?").toUpperCase();
-  // Discover from home (batch 3 adds a trip-independent Discover); for now the band trip's
-  const discoverHref = bandTrips[0] ? `/trips/${bandTrips[0].id}/discover` : "/trips/new";
 
   return (
     <>
-      <SkyBand firstName={firstName} initial={initial} discoverHref={discoverHref}>
+      <SkyBand firstName={firstName} initial={initial}>
         {bandTrips.length > 0 && (
           <TripSwipe>
             {bandTrips.map((trip) => {

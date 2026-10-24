@@ -13,41 +13,31 @@ import { suggestPlaceIdea } from "@/lib/actions/idea";
 import { useToast } from "@/components/toast";
 import type { DiningSpot } from "@/lib/actions/bites";
 import { AddToSchedule } from "@/components/bites/add-to-schedule";
+import { placeIdea, type DiscoverTrip } from "@/components/bites/discover-trips";
 import { Sheet } from "@/components/ui/sheet";
 import { Button, buttonClasses } from "@/components/ui/button";
 
 type SpotDetailProps = {
   spot: DiningSpot;
-  tripId: string;
-  localCurrency: string;
-  /** Members suggest the place as an idea instead of adding it to the schedule */
-  isPlanner?: boolean;
+  /** Trips the place can go to — one inside a trip, ongoing + upcoming from home */
+  trips: DiscoverTrip[];
   onClose: () => void;
 };
 
-export function SpotDetail({
-  spot,
-  tripId,
-  localCurrency,
-  isPlanner = true,
-  onClose,
-}: SpotDetailProps) {
+export function SpotDetail({ spot, trips, onClose }: SpotDetailProps) {
   const [showAddToSchedule, setShowAddToSchedule] = useState(false);
   const [suggesting, setSuggesting] = useState(false);
   const { toast } = useToast();
+  // One trip you're a member of: suggest straight away. Otherwise the add sheet
+  // (with a trip picker when there are several) — it also suggests for member trips.
+  const onlyTrip = trips.length === 1 ? trips[0] : null;
+  const suggestOnly = onlyTrip !== null && !onlyTrip.isPlanner;
 
   async function handleSuggest() {
+    if (!onlyTrip) return;
     setSuggesting(true);
     try {
-      await suggestPlaceIdea(tripId, {
-        title: spot.name,
-        link: spot.googleMapsUri || undefined,
-        notes: [spot.cuisine, spot.priceTier].filter(Boolean).join(" · ") || undefined,
-        category: "food",
-        place_name: spot.address || spot.name,
-        lat: spot.lat,
-        lng: spot.lng,
-      });
+      await suggestPlaceIdea(onlyTrip.id, placeIdea(spot));
       toast("Suggested — it's in Prep → Ideas", "success");
       onClose();
     } catch (err) {
@@ -63,8 +53,7 @@ export function SpotDetail({
     return (
       <AddToSchedule
         spot={spot}
-        tripId={tripId}
-        localCurrency={localCurrency}
+        trips={trips}
         onClose={() => setShowAddToSchedule(false)}
         onDone={onClose}
       />
@@ -79,22 +68,22 @@ export function SpotDetail({
       footer={
         <>
           <div className="flex flex-col gap-2.5">
-            {isPlanner ? (
-              <Button size="lg" full icon={Plus} onClick={() => setShowAddToSchedule(true)}>
-                Add to schedule
-              </Button>
-            ) : (
+            {suggestOnly ? (
               <Button size="lg" full icon={Lightbulb} onClick={handleSuggest} disabled={suggesting}>
                 {suggesting ? "Suggesting…" : "Suggest as idea"}
               </Button>
-            )}
+            ) : trips.length > 0 ? (
+              <Button size="lg" full icon={Plus} onClick={() => setShowAddToSchedule(true)}>
+                {onlyTrip ? "Add to schedule" : "Add to a trip"}
+              </Button>
+            ) : null}
             <a href={navigateUrl} target="_blank" rel="noopener noreferrer" className={buttonClasses("quiet", "lg", true)}>
               <Navigation size={16} strokeWidth={2.2} aria-hidden />
               Navigate
             </a>
           </div>
           <p className="text-center text-xs text-fg-muted mt-2">
-            {isPlanner ? "Navigate opens Google Maps" : "The planner decides what goes on the schedule"}
+            {suggestOnly ? "The planner decides what goes on the schedule" : "Navigate opens Google Maps"}
           </p>
         </>
       }

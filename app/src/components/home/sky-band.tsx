@@ -10,17 +10,15 @@ import { Column } from "@/components/column";
 export function SkyBand({
   firstName,
   initial,
-  discoverHref,
   children,
 }: {
   firstName: string;
   initial: string;
-  discoverHref: string;
   children?: React.ReactNode;
 }) {
   const shortcuts = [
     { href: "/trips/new", label: "New trip", icon: Plus },
-    { href: discoverHref, label: "Discover", icon: Compass },
+    { href: "/discover", label: "Discover", icon: Compass },
     { href: "/passport", label: "Passport", icon: Stamp },
   ];
   return (

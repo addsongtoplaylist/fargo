@@ -14,6 +14,7 @@ import { Chip } from "@/components/ui/chip";
 import { Button } from "@/components/ui/button";
 import { Empty } from "@/components/ui/empty";
 import { useTrip, useIsPlanner } from "@/lib/trip-context";
+import type { DiscoverTrip } from "@/components/bites/discover-trips";
 import { searchDiningSpots, type DiningSpot } from "@/lib/actions/bites";
 import { FILTER_TYPES } from "@/lib/bites-filters";
 import { DiningCard } from "@/components/bites/dining-card";
@@ -57,9 +58,35 @@ const CATEGORIES: {
   },
 ];
 
-export function DiscoverView() {
+/**
+ * Inside a trip, Discover uses that trip. From home (v0.7.0) the page passes
+ * your ongoing + upcoming trips to add a place to, and `near` — the ongoing
+ * trip's destination, which place search is limited to (none between trips).
+ */
+export function DiscoverView({
+  trips: homeTrips,
+  near: homeNear,
+}: {
+  trips?: DiscoverTrip[];
+  near?: { destination: string; countryCode: string | null } | null;
+} = {}) {
   const trip = useTrip();
   const isPlanner = useIsPlanner();
+  const trips: DiscoverTrip[] =
+    homeTrips ??
+    (trip
+      ? [
+          {
+            id: trip.id,
+            name: trip.name,
+            start_date: trip.start_date,
+            end_date: trip.end_date,
+            countryCode: trip.destination_country_code ?? null,
+            isPlanner,
+          },
+        ]
+      : []);
+  const near = homeTrips ? homeNear : trip ? { destination: trip.destination, countryCode: trip.destination_country_code ?? null } : null;
 
   const [category, setCategory] = useState<DiscoverCategory>("bites");
   const [locationMode, setLocationMode] = useState<LocationMode>("near_me");
@@ -190,8 +217,8 @@ export function DiscoverView() {
         customLocation={customLocation}
         onModeChange={handleLocationModeChange}
         onCustomLocationChange={setCustomLocation}
-        tripDestination={trip?.destination ?? ""}
-        countryCode={trip?.destination_country_code}
+        tripDestination={near?.destination ?? ""}
+        countryCode={near?.countryCode}
       />
 
       {/* Start state */}
@@ -291,9 +318,7 @@ export function DiscoverView() {
       {selectedSpot && (
         <SpotDetail
           spot={selectedSpot}
-          tripId={trip?.id ?? ""}
-          localCurrency={trip?.local_currency ?? ""}
-          isPlanner={isPlanner}
+          trips={trips}
           onClose={() => setSelectedSpot(null)}
         />
       )}
