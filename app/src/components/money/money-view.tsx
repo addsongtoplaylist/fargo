@@ -196,14 +196,18 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
                     style={{ width: `${Math.min(100, (budget.totalSpent / budget.budgetTotal) * 100)}%` }}
                   />
                 </div>
+                {/* The budget always shows; over it, the line turns red and the overspend sits below (v0.7.3) */}
                 <div className="flex items-baseline justify-between gap-3 text-[13px] mt-2 tabular-nums">
                   <span className={over ? "font-semibold text-money-over" : "text-fg-muted"}>
-                    {over
-                      ? `${shownCur} ${Math.abs(remainingLocal).toLocaleString()} over budget`
-                      : `${spentLocal.toLocaleString()} of ${budgetLocal.toLocaleString()} spent`}
+                    {spentLocal.toLocaleString()} of {budgetLocal.toLocaleString()} spent
                   </span>
                   {daysToGo && <span className="text-fg-muted shrink-0">{daysToGo}</span>}
                 </div>
+                {over && (
+                  <p className="text-[13px] font-semibold text-money-over mt-0.5 tabular-nums">
+                    {shownCur} {Math.abs(remainingLocal).toLocaleString()} over budget
+                  </p>
+                )}
               </div>
             );
           })()
