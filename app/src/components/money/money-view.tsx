@@ -10,6 +10,7 @@ import { useToast } from "@/components/toast";
 import type { Expense } from "@/lib/actions/expense";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Button, TextButton } from "@/components/ui/button";
+import { Segmented } from "@/components/ui/segmented";
 import { Avatar } from "@/components/ui/avatar";
 import { FieldRow, fieldClass } from "@/components/ui/field";
 import { SplitSharesSheet } from "./split-shares-sheet";
@@ -61,6 +62,8 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
   const [breakdownOpen, setBreakdownOpen] = useState(false);
   const [sharesOpen, setSharesOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState(false);
+  // v0.7.1: Your expenses and Group split share one spot under the budget card
+  const [view, setView] = useState<"expenses" | "split">("expenses");
   const money = useMoneyCurrency(tripId, trip?.local_currency ?? "", trip?.fx_rate ?? 0);
   const [budgetInput, setBudgetInput] = useState(
     budget?.budgetTotal ? budget.budgetTotal.toString() : ""
@@ -229,8 +232,22 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
         )}
       </Card>
 
-      {/* Group split — who owes whom (D21, D30) + planner's Split shares */}
+      {/* Your expenses | Group split — one at a time so the list stays close (v0.7.1, owner) */}
       {showGroupCard && (
+        <Segmented
+          label="Show"
+          options={[
+            { value: "expenses", label: "Your expenses" },
+            { value: "split", label: "Group split" },
+          ]}
+          value={view}
+          onChange={setView}
+          className="!bg-line"
+        />
+      )}
+
+      {/* Group split — who owes whom (D21, D30) + planner's Split shares */}
+      {showGroupCard && view === "split" && (
         <Card>
           <CardHeader
             title="Group split"
@@ -271,31 +288,32 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
       )}
 
       {/* Your expenses (S3) — the list; categories behind Breakdown */}
-      <div className="pt-2">
-        <ExpensesView
-          expenses={expenses}
-          tripId={tripId}
-          myTravellerId={myTravellerId}
-          money={money}
-          header={
-            <div className="flex items-center justify-between px-1">
-              <h2 className="text-base font-semibold text-fg">
-                Your expenses
-              </h2>
-              {Object.keys(budget?.spendingByCategory ?? {}).length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setBreakdownOpen(true)}
-                  className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand hover:text-brand-hover"
-                >
-                  <PieChart size={15} strokeWidth={2.1} aria-hidden />
-                  Breakdown
-                </button>
-              )}
-            </div>
-          }
-        />
-      </div>
+      {(!showGroupCard || view === "expenses") && (
+        <div className={showGroupCard ? "" : "pt-2"}>
+          <ExpensesView
+            expenses={expenses}
+            tripId={tripId}
+            myTravellerId={myTravellerId}
+            money={money}
+            header={
+              <div className="flex items-center justify-between px-1">
+                {/* The switch above already names the list */}
+                <h2 className={showGroupCard ? "sr-only" : "text-base font-semibold text-fg"}>Your expenses</h2>
+                {Object.keys(budget?.spendingByCategory ?? {}).length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setBreakdownOpen(true)}
+                    className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-brand hover:text-brand-hover"
+                  >
+                    <PieChart size={15} strokeWidth={2.1} aria-hidden />
+                    Breakdown
+                  </button>
+                )}
+              </div>
+            }
+          />
+        </div>
+      )}
 
       {breakdownOpen && (
         <BreakdownSheet

@@ -11,7 +11,7 @@
 - **Overview:** the header shows just the dates while you're on the trip (no "Day 3 of 6"). Travellers loses its count, and Invite is now a small person-plus icon (screen readers still hear "Invite").
 - **Money → Daily free** is the big number on your budget card, with "Edit", the spent bar and "N days to go" (or "X over budget" in red). Before a budget is set, or while editing, the card is still "My budget".
 - **Money → Group split** lists one line per person: "Ben pays you JPY 86,300" in green, "You pay Mei …" in red, with their avatar. "Split shares · Edit split" stays for the planner.
-- **Your expenses** no longer shows a count.
+- **Your expenses | Group split** — a switch under the budget card shows one at a time, so your expense list is right there (Your expenses first). Trips with nobody to split with show just the list. Your expenses no longer shows a count.
 - No database changes.
 - Landing: checked — the Money feature screenshot was already out of date and now also shows the old budget card; retake with the others on Fargo demo. Nothing else affected.
 
