@@ -3,9 +3,9 @@ import { Plus, Compass, Stamp } from "lucide-react";
 import { Column } from "@/components/column";
 
 /**
- * Top of the home screen (v0.7.0): a brand-blue sky with soft clouds and a
- * dotted flight path, holding the greeting, your avatar (→ Profile), the
- * trip card(s) and three shortcuts. The sheet below overlaps its bottom edge.
+ * Top of the home screen (v0.7.0): the owner's sky-and-trees illustration,
+ * holding the greeting, your avatar (→ Profile), the trip card(s) and three
+ * shortcuts. The sheet below overlaps its bottom edge.
  */
 export function SkyBand({
   firstName,
@@ -25,19 +25,14 @@ export function SkyBand({
     { href: "/passport", label: "Passport", icon: Stamp, badge: stampsToCollect },
   ];
   return (
-    <div className="relative bg-brand overflow-hidden pt-[calc(1rem+env(safe-area-inset-top))] pb-12">
-      <svg
+    <div className="relative bg-[#03b6e5] overflow-hidden pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(min(33.52vw,160px)+6px)]">
+      {/* Owner's illustration (Branding/Home background.png): the sky is one flat colour, so only
+          the tree line ships, pinned to the bottom just above the sheet. Full width on phones;
+          on wider screens it stops growing and repeats sideways */}
+      <div
         aria-hidden
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        viewBox="0 0 400 520"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        <circle cx="330" cy="70" r="34" fill="#fff" opacity="0.14" />
-        <ellipse cx="70" cy="150" rx="70" ry="16" fill="#fff" opacity="0.1" />
-        <ellipse cx="300" cy="300" rx="90" ry="18" fill="#fff" opacity="0.08" />
-        <ellipse cx="120" cy="430" rx="80" ry="15" fill="#fff" opacity="0.08" />
-        <path d="M-10 120 C 90 60, 200 150, 300 70" fill="none" stroke="#fff" strokeWidth="1.5" strokeDasharray="5 7" opacity="0.25" />
-      </svg>
+        className="absolute inset-x-0 bottom-0 h-[min(33.52vw,160px)] bg-[url(/home/sky-trees.webp)] bg-[length:auto_100%] bg-repeat-x bg-bottom pointer-events-none"
+      />
 
       <Column className="relative">
         <div className="flex items-center justify-between mb-4">
