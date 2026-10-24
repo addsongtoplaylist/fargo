@@ -5,6 +5,7 @@ import { TripSwipe } from "@/components/home/trip-swipe";
 import { BandTripCard } from "@/components/home/band-trip-card";
 import { getMyTrips, type MyTrip } from "@/lib/actions/trip";
 import { getOrCreateAccount } from "@/lib/account";
+import { countStampsToCollect } from "@/lib/actions/stamps";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 import { formatDateRange } from "@/lib/dates";
 
@@ -29,12 +30,14 @@ export default async function TripsPage() {
   const bandTrips = ongoing.length > 0 ? ongoing : later.slice(0, 1);
   const sheetUpcoming = ongoing.length > 0 ? later : later.slice(1);
 
+  const stampsToCollect = await countStampsToCollect([...active, ...upcoming, ...past]);
+
   const firstName = (account?.name ?? "").trim().split(/\s+/)[0] || "there";
   const initial = (account?.name?.[0] ?? "?").toUpperCase();
 
   return (
     <>
-      <SkyBand firstName={firstName} initial={initial}>
+      <SkyBand firstName={firstName} initial={initial} stampsToCollect={stampsToCollect}>
         {bandTrips.length > 0 && (
           <TripSwipe>
             {bandTrips.map((trip) => {

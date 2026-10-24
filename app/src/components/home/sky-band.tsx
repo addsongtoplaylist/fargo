@@ -10,16 +10,19 @@ import { Column } from "@/components/column";
 export function SkyBand({
   firstName,
   initial,
+  stampsToCollect = 0,
   children,
 }: {
   firstName: string;
   initial: string;
+  /** Badge on Passport — trips that ended with a stamp waiting */
+  stampsToCollect?: number;
   children?: React.ReactNode;
 }) {
   const shortcuts = [
-    { href: "/trips/new", label: "New trip", icon: Plus },
-    { href: "/discover", label: "Discover", icon: Compass },
-    { href: "/passport", label: "Passport", icon: Stamp },
+    { href: "/trips/new", label: "New trip", icon: Plus, badge: 0 },
+    { href: "/discover", label: "Discover", icon: Compass, badge: 0 },
+    { href: "/passport", label: "Passport", icon: Stamp, badge: stampsToCollect },
   ];
   return (
     <div className="relative bg-brand overflow-hidden pt-[calc(1rem+env(safe-area-inset-top))] pb-12">
@@ -51,10 +54,23 @@ export function SkyBand({
         {children}
 
         <nav aria-label="Shortcuts" className={`flex ${children ? "mt-5" : "mt-1"}`}>
-          {shortcuts.map(({ href, label, icon: Icon }) => (
-            <Link key={label} href={href} className="flex-1 flex flex-col items-center gap-1.5 text-[12px] font-medium text-white">
-              <span className="w-12 h-12 rounded-full bg-white text-brand flex items-center justify-center">
+          {shortcuts.map(({ href, label, icon: Icon, badge }) => (
+            <Link
+              key={label}
+              href={href}
+              aria-label={badge > 0 ? `${label}, ${badge} ${badge === 1 ? "stamp" : "stamps"} to collect` : undefined}
+              className="flex-1 flex flex-col items-center gap-1.5 text-[12px] font-medium text-white"
+            >
+              <span className="relative w-12 h-12 rounded-full bg-white text-brand flex items-center justify-center">
                 <Icon size={22} strokeWidth={2} aria-hidden />
+                {badge > 0 && (
+                  <span
+                    aria-hidden
+                    className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full bg-money-over text-white text-[11px] font-bold leading-5 text-center ring-2 ring-brand"
+                  >
+                    {badge}
+                  </span>
+                )}
               </span>
               {label}
             </Link>

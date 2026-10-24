@@ -72,6 +72,23 @@ export async function getStampToCollect(tripId: string, onTrip: boolean): Promis
   return { stampId, file: stampFile(stampId), place, month };
 }
 
+/**
+ * For the home Passport badge (v0.7.0): how many of these trips have ended with no stamp
+ * collected — the same rule as Passport's "stamps to collect" (ended by your home date).
+ */
+export async function countStampsToCollect(trips: { id: string; end_date: string }[]): Promise<number> {
+  const account = await getOrCreateAccount();
+  if (!account) return 0;
+  const today = todayForCountry(account.home_country_code);
+  const ended = trips.filter((t) => t.end_date < today).map((t) => t.id);
+  if (ended.length === 0) return 0;
+  const supabase = await createClient();
+  // Your own stamps only (RLS)
+  const { data } = await supabase.from("collected_stamps").select("trip_id").in("trip_id", ended);
+  const collected = new Set((data ?? []).map((r: { trip_id: string | null }) => r.trip_id));
+  return ended.filter((id) => !collected.has(id)).length;
+}
+
 /** Collect a trip's stamp into your Passport. Collecting twice returns the stamp you already have. */
 export async function collectStamp(tripId: string): Promise<{ stamp: CollectedStamp } | { error: string }> {
   const account = await getOrCreateAccount();
