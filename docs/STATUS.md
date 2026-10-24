@@ -4,6 +4,12 @@
 
 ---
 
+**2026-10-24 — Screen makeovers (v0.7.1–v0.7.3)**
+
+After the home redesign, the owner reviewed the other screens on a sketch canvas (https://claude.ai/artifact/NauqjLg6ZJ67xNHFMAkYza — current screens beside the options) and picked: **Overview** stays as is, minus the day count in the header, the traveller count and the Invite label; **Money** gets a "Daily free" hero card (budget always visible, overspend on its own line), a Your expenses | Group split switch, and one line per person in Group split; **New trip** gets home's sky (no trees); the **shared trip link** gets option A (cover, "X shared a trip plan", day pills, pinned Save); **Passport → See all** becomes a passport book (navy cover FARGO · emblem · PASSPORT, ID page with the Fargo frog and stats only, tidy stamp pages, ‹ › buttons — no swiping). Home's trees stay phone-width on wide screens. Both Discovers stay (trip bar + home). UAT, device test (phone + computer) and code review passed. **Deferred:** illustrated covers for trips without a photo; landing feature screenshots (Schedule, Money, Passport); journey map re-capture for these screens.
+
+---
+
 **2026-10-24 — New home (v0.7.0)**
 
 Home redesign, explored on Mobbin and wireframed first; owner chose option C. Sky band (owner's illustration) with greeting, avatar → Profile, the trip you're on (or the next) in a swipe row, New trip · Discover · Passport shortcuts; sheet with Upcoming and Past. Home bottom bar and auto-open into the current trip removed; house back buttons on Passport and Profile. Discover from home with a trip picker; Passport badge for stamps to collect. Owner kept the Prep checklist as is and dropped the "now/next" line and a "Plan your first trip" card. **Open:** landing feature screenshots; `/explore` has no way back home.
