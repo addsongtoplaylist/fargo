@@ -274,6 +274,9 @@ One **"How to settle up"** card for the whole group (Kittysplit-style): open pay
 ### New trip (v0.7.2)
 Home's flat sky (`#05b8e7`, no trees) as the header: white close / back, white progress bar, "Where to next?" (step 2: "Trip details") in white 30/700 with a white subline. The form sits on a page-grey sheet rising 32px over the sky (24px top corners); each step opens at the top.
 
+### Passport → See all: the passport book (v0.7.3)
+Header: back arrow (→ Passport) + "My passport". A closed navy book (`#1d2b4f`, 290×410, spine shading) with gold (`#d4b26a`) serif **FARGO · globe-and-plane emblem · PASSPORT** — nothing else; "Tap to open" + "N stamps · N countries · N trips" under it. Open: same-size cream pages (`#f6efe2`, faint guilloche) side by side in a snap scroller — page 1 the ID page (Fargo frog as the photo; days away this year, trips, countries, stamps, buddies, most trips with — no name, no dates, no code line), then stamp pages, 6 a page in 2 columns using the Passport stamp drawings (collected art, ×2, dashed Collect/month outlines). Page number at the foot of each page, dots + "Page N of M" below.
+
 ### Shared trip page (v0.7.2, option A)
 Full-width 300px cover (photo with bottom gradient, or the trip colour with the faint country code) holding "{planner} shared a trip plan", the trip name (32/700) and white chips: destination · dates · N days. The plan sits on a sheet rising over the cover; a sticky row of **Day N** pills (only days with plans) jumps to each day and follows the scroll (active = dark pill). Pinned bottom bar: **Save as my trip** (primary; signed out: **Sign in to save this trip**) and "Planned with Fargo".
 

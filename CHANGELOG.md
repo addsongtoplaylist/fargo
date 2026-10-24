@@ -4,6 +4,16 @@
 
 ---
 
+## v0.7.3 — 2026-10-24 · Passport book
+
+### App
+
+- **Passport → See all is now a passport book.** A navy cover with FARGO, a gold globe and PASSPORT; tap to open. The first page has the Fargo frog and your stats (days away this year, trips, countries, stamps, buddies, most trips with); swipe for the stamp pages — 6 a page, the same stamps, "Collect" outlines and ×2 as before. Every page is the same size as the cover.
+- No database changes.
+- Landing: checked, nothing affected (the landing page copies the main Passport screen, not See all).
+
+---
+
 ## v0.7.2 — 2026-10-24 · New trip and shared trip makeover
 
 ### App
