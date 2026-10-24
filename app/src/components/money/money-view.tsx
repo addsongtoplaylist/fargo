@@ -296,7 +296,7 @@ export function MoneyView({ expenses, budget, tripId }: MoneyViewProps) {
             myTravellerId={myTravellerId}
             money={money}
             header={
-              <div className="flex items-center justify-between px-1">
+              <div className={`flex items-center px-1 ${showGroupCard ? "justify-end" : "justify-between"}`}>
                 {/* The switch above already names the list */}
                 <h2 className={showGroupCard ? "sr-only" : "text-base font-semibold text-fg"}>Your expenses</h2>
                 {Object.keys(budget?.spendingByCategory ?? {}).length > 0 && (
