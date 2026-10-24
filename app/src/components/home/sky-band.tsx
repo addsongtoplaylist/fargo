@@ -25,7 +25,7 @@ export function SkyBand({
     { href: "/passport", label: "Passport", icon: Stamp, badge: stampsToCollect },
   ];
   return (
-    <div className="relative bg-[#03b6e5] overflow-hidden pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(min(33.52vw,160px)+6px)]">
+    <div className="relative bg-[#03b6e5] overflow-hidden pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(min(33.52vw,160px)*0.72)]">
       {/* Owner's illustration (Branding/Home background.png): the sky is one flat colour, so only
           the tree line ships, pinned to the bottom just above the sheet. Full width on phones;
           on wider screens it stops growing and repeats sideways */}
@@ -54,7 +54,7 @@ export function SkyBand({
               key={label}
               href={href}
               aria-label={badge > 0 ? `${label}, ${badge} ${badge === 1 ? "stamp" : "stamps"} to collect` : undefined}
-              className="flex-1 flex flex-col items-center gap-1.5 text-[12px] font-medium text-white"
+              className="flex-1 flex flex-col items-center gap-1.5 text-[12px] font-semibold text-white [text-shadow:0_1px_3px_rgba(0,40,60,0.6)]"
             >
               <span className="relative w-12 h-12 rounded-full bg-white text-brand flex items-center justify-center">
                 <Icon size={22} strokeWidth={2} aria-hidden />
