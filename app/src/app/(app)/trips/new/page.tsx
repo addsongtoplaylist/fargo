@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArrowLeft, ArrowRight, ChevronDown, ImagePlus, Loader2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { differenceInCalendarDays, parseISO } from "date-fns";
@@ -119,6 +119,10 @@ export default function NewTripPage() {
   }
 
   const [step, setStep] = useState<1 | 2>(1);
+  // Each step starts at the top, so its sky header and title are in view
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -166,38 +170,41 @@ export default function NewTripPage() {
 
   return (
     <div className="mx-auto w-full max-w-[var(--max-width-column)] min-h-dvh flex flex-col">
-      {/* Top: close / back · progress */}
-      <div className="px-4 pt-4 flex items-center gap-3.5">
-        {step === 1 ? (
-          <Link
-            href="/trips"
-            aria-label="Close"
-            className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-fg shrink-0"
-          >
-            <X size={20} strokeWidth={2} aria-hidden />
-          </Link>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            aria-label="Back to step 1"
-            className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-fg shrink-0"
-          >
-            <ArrowLeft size={20} strokeWidth={2} aria-hidden />
-          </button>
-        )}
-        <div className="flex-1 flex gap-1.5" aria-hidden>
-          <span className="flex-1 h-1 rounded-full bg-brand" />
-          <span className={`flex-1 h-1 rounded-full ${step === 2 ? "bg-brand" : "bg-line"}`} />
+      {/* Sky header (v0.7.2, home's sky without the trees): close / back · progress · title */}
+      <div className="bg-[#05b8e7] pb-12">
+        <div className="px-4 pt-[calc(1rem+env(safe-area-inset-top))] flex items-center gap-3.5">
+          {step === 1 ? (
+            <Link
+              href="/trips"
+              aria-label="Close"
+              className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-fg shrink-0"
+            >
+              <X size={20} strokeWidth={2} aria-hidden />
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              aria-label="Back to step 1"
+              className="w-10 h-10 rounded-full bg-surface flex items-center justify-center text-fg shrink-0"
+            >
+              <ArrowLeft size={20} strokeWidth={2} aria-hidden />
+            </button>
+          )}
+          <div className="flex-1 flex gap-1.5" aria-hidden>
+            <span className="flex-1 h-1 rounded-full bg-white" />
+            <span className={`flex-1 h-1 rounded-full ${step === 2 ? "bg-white" : "bg-white/40"}`} />
+          </div>
+          <span className="text-xs font-semibold text-white shrink-0">{step} of 2</span>
         </div>
-        <span className="text-xs text-fg-muted shrink-0">{step} of 2</span>
+
+        <h1 className="mx-5 mt-7 text-[30px] font-bold text-white tracking-[-0.5px]">{step === 1 ? "Where to next?" : "Trip details"}</h1>
+        <p className="mx-5 mt-1 text-[15px] font-medium text-white">{step === 1 ? "Name it, pick the place and dates." : "Almost there."}</p>
       </div>
 
-      <h1 className="mx-5 mt-6 text-[26px] font-bold text-fg tracking-[-0.4px]">{step === 1 ? "New trip" : "Trip details"}</h1>
-      <p className="mx-5 mt-1 mb-5 text-sm text-fg-muted">{step === 1 ? "Where and when?" : "Almost there."}</p>
-
-      {/* One form, two views — both steps stay mounted so Back keeps what you typed */}
-      <form action={handleSubmit} className="flex-1 flex flex-col">
+      {/* One form, two views — both steps stay mounted so Back keeps what you typed.
+          It rises over the sky like home's sheet. */}
+      <form action={handleSubmit} className="relative -mt-8 rounded-t-[24px] bg-page pt-5 flex-1 flex flex-col">
         <div className={`px-4 space-y-3.5 ${step === 1 ? "" : "hidden"}`}>
           <div className="bg-surface rounded-card">
             <div className={ROW}>

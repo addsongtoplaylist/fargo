@@ -4,6 +4,17 @@
 
 ---
 
+## v0.7.2 — 2026-10-24 · New trip and shared trip makeover
+
+### App
+
+- **New trip** has home's blue sky at the top with "Where to next?" (step 2: "Trip details"); the form rises over it like home's list. Each step now opens at the top of the page.
+- **Shared trip link** (what friends without Fargo see): a big cover with "Song shared a trip plan", the trip name and chips for the place, dates and number of days; **Day 1 · Day 2 …** pills stay at the top, jump to that day and follow your scroll; **Save as my trip** is pinned to the bottom with "Planned with Fargo". Nothing new is shown to visitors — same trip, plan and traveller names as before.
+- No database changes.
+- Landing: checked, nothing affected (the landing page doesn't copy New trip or the shared trip page).
+
+---
+
 ## v0.7.1 — 2026-10-24 · Calmer Overview, clearer Money
 
 ### App

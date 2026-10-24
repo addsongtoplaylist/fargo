@@ -4,9 +4,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Copy } from "lucide-react";
 import { cloneTrip } from "@/lib/actions/trip";
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonVariant } from "@/components/ui/button";
 
-export function CloneTripButton({ shareCode }: { shareCode: string }) {
+export function CloneTripButton({ shareCode, variant = "soft" }: { shareCode: string; variant?: ButtonVariant }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,8 +25,8 @@ export function CloneTripButton({ shareCode }: { shareCode: string }) {
 
   return (
     <div>
-      <Button variant="soft" full icon={loading ? undefined : Copy} onClick={handleClone} disabled={loading}>
-        {loading && <span className="w-4 h-4 border-2 border-brand/40 border-t-brand rounded-full animate-spin" aria-hidden />}
+      <Button variant={variant} size={variant === "primary" ? "lg" : "md"} full icon={loading ? undefined : Copy} onClick={handleClone} disabled={loading}>
+        {loading && <span className={`w-4 h-4 border-2 rounded-full animate-spin ${variant === "primary" ? "border-white/40 border-t-white" : "border-brand/40 border-t-brand"}`} aria-hidden />}
         {loading ? "Saving…" : "Save as my trip"}
       </Button>
       {error && <p role="alert" className="text-[13px] font-medium text-money-over mt-2 text-center">{error}</p>}

@@ -271,7 +271,13 @@ Back header → **Daily free** (v0.7.1: today's daily free as the green hero num
 One **"How to settle up"** card for the whole group (Kittysplit-style): open payments first (amber clock, "Ali pays you", amount, Mark as settled / "Waiting for X to mark it settled"), then settle-ups newest first (green tick, "Mei paid you", "Settled 29 Sep · Unmark"). Rows with you get a blue left bar and a bold "You". "All settled" when nothing is open. Everyone sees every row; mark/unmark permissions unchanged.
 
 ### Tier 2 & 3 screens
-Keep today's layouts; apply the components above (Prep, Discover, Spot detail, Add to schedule, Your expenses, Expense detail, Sign in, Invite, Shared trip, New trip, Trip settings, Profile, error/offline pages). Details per screen are on the canvas and in [REDESIGN.md](REDESIGN.md).
+### New trip (v0.7.2)
+Home's flat sky (`#05b8e7`, no trees) as the header: white close / back, white progress bar, "Where to next?" (step 2: "Trip details") in white 30/700 with a white subline. The form sits on a page-grey sheet rising 32px over the sky (24px top corners); each step opens at the top.
+
+### Shared trip page (v0.7.2, option A)
+Full-width 300px cover (photo with bottom gradient, or the trip colour with the faint country code) holding "{planner} shared a trip plan", the trip name (32/700) and white chips: destination · dates · N days. The plan sits on a sheet rising over the cover; a sticky row of **Day N** pills (only days with plans) jumps to each day and follows the scroll (active = dark pill). Pinned bottom bar: **Save as my trip** (primary; signed out: **Sign in to save this trip**) and "Planned with Fargo".
+
+Keep today's layouts; apply the components above (Prep, Discover, Spot detail, Add to schedule, Your expenses, Expense detail, Sign in, Invite, Trip settings, Profile, error/offline pages). Details per screen are on the canvas and in [REDESIGN.md](REDESIGN.md).
 
 ---
 
