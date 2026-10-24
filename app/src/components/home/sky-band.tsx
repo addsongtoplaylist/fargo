@@ -25,13 +25,13 @@ export function SkyBand({
     { href: "/passport", label: "Passport", icon: Stamp, badge: stampsToCollect },
   ];
   return (
-    <div className="relative bg-[#03b6e5] overflow-hidden pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(min(33.52vw,160px)*0.72)]">
+    <div className="relative bg-[#05b8e7] overflow-hidden pt-[calc(1rem+env(safe-area-inset-top))] pb-[calc(min(16.2vw,80px)+4px)]">
       {/* Owner's illustration (Branding/Home background.png): the sky is one flat colour, so only
-          the tree line ships, pinned to the bottom just above the sheet. Full width on phones;
-          on wider screens it stops growing and repeats sideways */}
+          the tree line ships (1080×175), pinned to the bottom so it rises behind the shortcuts and
+          the sheet covers the water. Full width on phones; wider screens repeat it sideways */}
       <div
         aria-hidden
-        className="absolute inset-x-0 bottom-0 h-[min(33.52vw,160px)] bg-[url(/home/sky-trees.webp)] bg-[length:auto_100%] bg-repeat-x bg-bottom pointer-events-none"
+        className="absolute inset-x-0 bottom-3 h-[min(16.2vw,80px)] bg-[url(/home/sky-trees-2.webp)] bg-[length:auto_100%] bg-repeat-x bg-bottom pointer-events-none"
       />
 
       <Column className="relative">
