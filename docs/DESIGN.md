@@ -1,5 +1,7 @@
 # Fargo — Design System
 
+> **v1.0 — 2026-10-24 (v0.7.0 home redesign, owner, option C).** Home has **no bottom bar**. A sky band (owner's sky-and-trees illustration) holds "Hi {name}", your avatar (→ Profile), the trip you're on — or the next one — in a swipe row, and three shortcuts **New trip · Discover · Passport**; a sheet below lists Upcoming and Past trips. Passport, Profile and home Discover get a **house** back button. Opening the app always lands on home (no jump into the current trip). The trip bar is unchanged.
+>
 > **v0.9 — 2026-10-12 (v0.6.0 UI review, owner, Threads-inspired).** Both bottom bars are **icons only** (names read out by screen readers); the home bar is **My trips · Passport · Profile** (Explore shelved, off the bar); schedule activity titles are **13px, up to two lines**. Wireframes: [navigation canvas](https://claude.ai/artifact/Sh1YDpyFLmW1pBY6cvF52R). Everything else stays as v0.8.
 >
 > **v0.8 — 2026-09-28, live in v0.5.0 (2026-10-01).** UI redesign. Trip sections move to a floating bottom bar; planner-uploaded cover photos (colour + country code when there's none); cooler ink, darker accent, rounder cards; category icons replace emoji; one main thing per screen; floating **+** for the main add action. Every screen is drawn on the [redesign canvas](https://claude.ai/artifact/Sjur61seR63um25VMXhAhs); the per-screen feature checklist is [REDESIGN.md](REDESIGN.md).
@@ -83,8 +85,8 @@ Unchanged from v0.7: logo `app/public/logo.png`, mascot `app/public/mascot.png`,
 
 - **Source: the planner's own photo.** No stock photos — Explore will show many people's trips, and shared stock images would make them look alike.
 - **Upload (planner only):** optional **Add cover photo** on New trip; **Change / Remove cover photo** in Trip settings. Resized on the phone (~1600px wide) before upload; stored in Supabase Storage. Visible to the trip's travellers, the shared trip page, and Explore later.
-- **Where it shows:** My trips cards (current + upcoming: full-width 12:5 banner on top, countdown pill on the photo — v0.6.4; past: 52px thumbnail), Overview header (300px, full-bleed), invite card (130px).
-- **Overview header text sits on a bottom-up dark gradient** (`rgba(12,18,32,0.82)` → transparent over the bottom ~190px). The only other text on a photo is the My trips countdown pill (solid pill, no gradient).
+- **Where it shows:** home — the band trip card (full-width 12:5 banner, chip on the photo) and the sheet's rows (52px thumbnail) (v1.0), Overview header (300px, full-bleed), invite card (130px).
+- **Overview header text sits on a bottom-up dark gradient** (`rgba(12,18,32,0.82)` → transparent over the bottom ~190px). The only other text on a photo is the home trip card's chip (solid pill, no gradient).
 
 ### No photo (interim — option A)
 
@@ -109,7 +111,7 @@ Unchanged from v0.7: logo `app/public/logo.png`, mascot `app/public/mascot.png`,
 
 | Role | Size / weight | Usage |
 |---|---|---|
-| Screen title | 30 / 700, −0.5 tracking | My trips, Profile, Explore |
+| Screen title | 30 / 700, −0.5 tracking | Passport, Profile, Discover (home), Explore |
 | Photo title | 28 / 700 | Trip name on the Overview header |
 | Section header | 22 / 700 | Screen title under a back button (Schedule, Money…) |
 | Hero number | 26–32 / 700 | One per screen — budget spent, sheet amount (40) |
@@ -161,21 +163,23 @@ Floating layers only (unchanged rule): bottom bar, FAB, sheets, dialogs, toasts,
 
 - Floating **pill**, centred, as wide as its icons, 22px from the bottom, 64px tall, white at 95%, 1px `border`, shadow.
 - **Icons only (v0.9):** 23px icons in 56×48 round targets, **no visible labels** — each item's name is its `aria-label` (and tooltip), so screen readers still say "Schedule". **Active item:** `accent` icon, heavier stroke, inside an `accent-soft` pill. The Prep badge stays on the icon.
-- **Home (outside a trip):** My trips (`House` icon since v0.6.6; same icon as the trip screens' top-left button) · Passport (`Stamp`) · Profile (`User`). Explore is shelved and not in the bar (its page still exists if visited directly).
-- **Inside a trip:** Overview (`LayoutDashboard`) · Schedule (`CalendarDays`) · Money (`Wallet`) · Prep (`ListChecks`) · Discover (`Compass`). Sub-pages (Your expenses, Settle up) keep their section active.
+- **Home (outside a trip): no bar since v1.0** — home's shortcuts and avatar replace it (see *Home*). Passport, Profile and home Discover go back with the round **house** button. Explore is shelved (its page still exists if visited directly, with no way back but the browser).
+- **Only inside a trip:** Overview (`LayoutDashboard`) · Schedule (`CalendarDays`) · Money (`Wallet`) · Prep (`ListChecks`) · Discover (`Compass`). Sub-pages (Your expenses, Settle up) keep their section active.
 - **Swipe left/right** on content still switches trip sections (ignored on the date strip and chip rows).
 - Hidden while the keyboard is open.
 
 ### Headers
 
-- **Overview:** photo header with round back (→ My trips) and, for the planner, settings gear; members see **Leave trip** instead.
+- **Overview:** photo header with round back (→ home) and, for the planner, settings gear; members see **Leave trip** instead.
 - **Other trip sections:** round back button + trip name caption + section title (22/700). No gear.
-- **Home screens:** big screen title (30/700), no back (top-level, like Threads' "Messages"). Back arrows only on screens you drill into. Trip screens' top-left button shows a **house** icon when it goes to My trips and an **arrow** when it goes back one page (v0.6.5).
+- **Home:** no title bar — the sky band's "Hi {name}" (24/700, white) and avatar (40px white circle, accent initial → Profile).
+- **Passport, Profile, Discover (from home):** round **house** button (→ home) beside the big screen title (30/700) — v1.0.
+- Trip screens' top-left button shows a **house** icon when it goes home and an **arrow** when it goes back one page (v0.6.5).
 
 ### Floating + button (FAB)
 
 - 56px accent circle, white plus, shadow; bottom-right, 20px from the edge, sitting just above the bottom bar.
-- One per screen, for that screen's main add: **New trip** (My trips), **Add activity** (Schedule, planner only), **Log expense** (Money, Your expenses — anyone with an account).
+- One per screen, for that screen's main add: **Add activity** (Schedule, planner only), **Log expense** (Money, Your expenses — anyone with an account).
 - Hidden when the user can't add (e.g. members on Schedule).
 
 ---
@@ -235,8 +239,14 @@ Skeleton blocks in `#E6EAF1` matching the real layout (header, date strip, cards
 
 ## Screen patterns
 
-### My trips
-Plain list: the **current trip** first (104px photo, blue outline, "Day 11 of 14" filled chip), then upcoming (92px photo, "In 76 days" soft chip), then **Past trips** as compact rows inside one card (52px photo, name, place · dates, chevron). Avatars on current/upcoming cards. No trip type, no trip length, no month headings.
+### Home (v1.0, was "My trips")
+- **Sky band:** flat sky `#03b6e5` with the owner's tree-line illustration pinned to the bottom (`public/home/sky-trees.webp`, cropped from `Branding/Home background.png`; full width on phones, repeats sideways past ~477px). Greeting + avatar on top.
+- **Trip card(s)** in a horizontal swipe row: the trips you're on (most recent start first), or — between trips — the next upcoming one. White card, 12:5 cover photo, chip on the photo ("Day 4 of 6" filled when ongoing, "In 20 days" white otherwise), name, destination · dates, avatars. With more than one card each is 86% wide so the next peeks in, plus dots. **Ongoing → today's Schedule; upcoming → Overview.** No now/next line.
+- **Shortcuts:** three 48px white circles with accent icons and white 12px labels — **New trip**, **Discover** (home Discover, below), **Passport** (red count badge when stamps are waiting to collect — same rule as Passport). No trips: just greeting + shortcuts.
+- **Sheet** (page grey, 24px top corners, overlaps the band by 24px): **Upcoming** (rows: 52px photo, name, "In N days · dates") then **Past trips** (latest 3, "See all N" for the rest). Everything except the band trip(s) opens Overview.
+
+### Discover from home (v1.0)
+Same Discover screen with a house button. Place search is limited to the ongoing trip's country (anywhere between trips). A place's button reads **Add to a trip**: the sheet adds a **Trip** picker (ongoing + upcoming, ongoing first; day defaults to today at the destination); on a trip you don't plan it becomes **Suggest as idea**. Inside a trip, Discover is unchanged (Add to schedule, no picker).
 
 ### Overview
 Photo header → **time & temperature** card (local + home time; temperature only, no place label) → **Today** card (up to 3 timed items; time, category icon, title, place; "NOW" tag) → **Travellers** card. Three versions:

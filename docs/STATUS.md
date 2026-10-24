@@ -4,6 +4,12 @@
 
 ---
 
+**2026-10-24 — New home (v0.7.0)**
+
+Home redesign, explored on Mobbin and wireframed first; owner chose option C. Sky band (owner's illustration) with greeting, avatar → Profile, the trip you're on (or the next) in a swipe row, New trip · Discover · Passport shortcuts; sheet with Upcoming and Past. Home bottom bar and auto-open into the current trip removed; house back buttons on Passport and Profile. Discover from home with a trip picker; Passport badge for stamps to collect. Owner kept the Prep checklist as is and dropped the "now/next" line and a "Plan your first trip" card. **Open:** landing feature screenshots; `/explore` has no way back home.
+
+---
+
 **2026-10-12 — Support email, checklist tidy (v0.6.1)**
 
 Owner: v0.6.0 UI review is complete; landing feedback done. Privacy and Terms show `fargotravelsupport@gmail.com`. Owner to-dos from 2026-10-12 closed: contact email set; the default checklist test items stay as they are (owner). Docs brought up to date (ROADMAP, REDESIGN N1/N2, LANDING, EXPLORE-PLAN release number, CLAUDE.md). **Next:** Phase 4's last item — upgrade a name-only traveller to an account.

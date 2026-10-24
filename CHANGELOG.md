@@ -4,6 +4,21 @@
 
 ---
 
+## v0.7.0 — 2026-10-24 · New home
+
+### App
+
+- **A new home screen.** The top is a sky with your greeting, your avatar (tap for Profile) and the trip you're on — or, between trips, the next one. Swipe sideways when two trips overlap. Below: **New trip · Discover · Passport** shortcuts, then your other upcoming trips and past trips (latest 3, "See all" for the rest).
+- **Tap the trip you're on → today's Schedule.** Any other trip opens its Overview.
+- **No more bottom bar on home**, and opening the app always lands on home (it no longer jumps into the current trip). Passport and Profile have a house button back home. The bar inside a trip is unchanged.
+- **Discover from home.** Searches near the trip you're on (anywhere between trips). **Add to a trip** lets you pick which trip — the one you're on comes first — and on a trip you don't plan it suggests the place as an idea. Discover inside a trip works as before; its default day is now today at the destination (was your phone's date).
+- **Passport badge** on the home shortcut when stamps are waiting to be collected.
+- New illustration at the top of home (owner's artwork, 21 KB).
+- No database changes.
+- Landing: checked — the feature screenshots (Schedule, Money, Passport) are still out of date (Passport no longer has a bottom bar); retake on the Fargo demo trip. Nav button, Passport replica and FAQ unaffected.
+
+---
+
 ## v0.6.10 — 2026-10-23 · Add to Home Screen from Profile
 
 ### App
