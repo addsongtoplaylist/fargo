@@ -242,7 +242,7 @@ Skeleton blocks in `#E6EAF1` matching the real layout (header, date strip, cards
 ### Home (v1.0, was "My trips")
 - **Sky band:** flat sky `#03b6e5` with the owner's tree-line illustration pinned to the bottom (`public/home/sky-trees.webp`, cropped from `Branding/Home background.png`; full width on phones, repeats sideways past ~477px). Greeting + avatar on top.
 - **Trip card(s)** in a horizontal swipe row: the trips you're on (most recent start first), or — between trips — the next upcoming one. White card, 12:5 cover photo, chip on the photo ("Day 4 of 6" filled when ongoing, "In 20 days" white otherwise), name, destination · dates, avatars. With more than one card each is 86% wide so the next peeks in, plus dots. **Ongoing → today's Schedule; upcoming → Overview.** No now/next line.
-- **Shortcuts:** three 48px white circles with accent icons and white 12px labels — **New trip**, **Discover** (home Discover, below), **Passport** (red count badge when stamps are waiting to collect — same rule as Passport). No trips: just greeting + shortcuts.
+- **Shortcuts:** three 48px white circles with accent icons and white 12px semibold labels with a soft dark text shadow (owner kept white over the cyan sky); the tree line rises behind them — **New trip**, **Discover** (home Discover, below), **Passport** (red count badge when stamps are waiting to collect — same rule as Passport). No trips: just greeting + shortcuts.
 - **Sheet** (page grey, 24px top corners, overlaps the band by 24px): **Upcoming** (rows: 52px photo, name, "In N days · dates") then **Past trips** (latest 3, "See all N" for the rest). Everything except the band trip(s) opens Overview.
 
 ### Discover from home (v1.0)

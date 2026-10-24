@@ -119,7 +119,7 @@ export function CoverRepositionSheet({
       )}
 
       {/* How it looks on My trips: the wider, shorter banner crops more of the photo (same 12:5 as TripCover wide) */}
-      <p className="text-xs font-medium text-fg-muted mt-4 mb-1.5">On My trips</p>
+      <p className="text-xs font-medium text-fg-muted mt-4 mb-1.5">On home</p>
       {/* eslint-disable-next-line @next/next/no-img-element -- same photo as above */}
       <img
         src={url}

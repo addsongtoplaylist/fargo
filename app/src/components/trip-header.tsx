@@ -44,7 +44,7 @@ export function TripHeader() {
         type="button"
         onClick={() => router.push(backHref)}
         className="w-10 h-10 rounded-full bg-surface border border-line flex items-center justify-center text-fg shrink-0 hover:border-fg-faint transition-colors"
-        aria-label={subTitle ? `Back to ${TITLES[section]}` : "Back to My trips"}
+        aria-label={subTitle ? `Back to ${TITLES[section]}` : "Back to home"}
       >
         {/* House = goes to My trips; arrow = back one page */}
         {subTitle ? <ArrowLeft size={19} strokeWidth={1.9} aria-hidden /> : <House size={19} strokeWidth={1.9} aria-hidden />}
